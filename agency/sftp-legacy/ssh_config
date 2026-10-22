@@ -1,0 +1,10 @@
+# Nightly push of closed case files to the records archive.
+Host records-archive
+    HostName 172.16.106.30
+    User drop
+    KexAlgorithms diffie-hellman-group1-sha1
+    HostKeyAlgorithms ssh-dss
+
+Host *
+    SendEnv LANG LC_*
+    HashKnownHosts yes

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — bring your own scanner</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "imports" %}{% set lede = "<strong>Bring your own scanner.</strong> Any discovery tool's CycloneDX CBOM, imported as evidence and scored against the mini-agency's answer key on the same terms as the workbench's own." %}{% include "_header.html" %}
+<main>
+<p class="orient">Federal agencies inventory their cryptography with commercial discovery tools; this workbench uses open-source ones. Neither has to be taken on trust. A tool that exports a CBOM can be run against the mini-agency — eight services with every weakness planted and two decoys per layer — and its CBOM imported here: each entry is placed on a listener, a file in an image or a line of code, its names read the way the workbench reads its own, and the result scored against the answer key. Nothing about the tool is integrated, and nothing is taken from its vendor but its output.
+  <span class="ai">No model takes part in placing or scoring. Entries a tool reports with no location the workbench can find again are kept in the import's record by name and not counted.</span></p>
+<p class="note">How: <code>pqch import FILE[=IMAGE] … --tool NAME --key agency/answer-key.yaml</code>. A tool that writes one CBOM per image names the image after <code>=</code>.</p>
+
+{% set own_wb = own.get('workbench') %}
+<table class="score">
+  <thead><tr><th>Tool</th><th>Documents</th><th class="num">Wire</th><th class="num">Images</th><th class="num">Code</th><th class="num">Decoys flagged</th><th class="num">Unplaced</th><th>Run</th></tr></thead>
+  <tbody>
+  {% if own_wb %}<tr class="own"><td><strong>the workbench</strong> <span class="dim">(its own scan)</span></td><td class="dim small">—</td>
+    {% for l in ['wire', 'host', 'code'] %}{% set r = own_wb.layers[l] %}<td class="num">{% if r.scanned %}{{ r.covered }} of {{ r.present }}{% if r.out_of_reach %} <span class="dim small">+{{ r.out_of_reach }} out of reach</span>{% endif %}{% else %}<span class="dim">—</span>{% endif %}</td>{% endfor %}
+    <td class="num">{{ own_wb.layers.values()|sum(attribute='flagged_decoys', start=[])|length }}</td><td class="num dim">—</td><td><a href="/walkthrough?run={{ own_run }}#score"><code>{{ own_run }}</code></a></td></tr>{% endif %}
+  {% for i in imports %}{% if i.broken %}<tr><td colspan="8" class="bad">import run {{ i.run }}: ledger does not verify</td></tr>{% else %}
+  <tr><td><strong>{{ i.tool }}</strong> <span class="dim small">{{ i.version }}</span></td>
+    <td class="small">{{ i.documents|length }} · {{ i.assets.values()|sum }} assets · CycloneDX {{ (i.documents|map(attribute='spec_version')|unique|join(', ')) }}</td>
+    {% for l in ['wire', 'host', 'code'] %}{% set r = (i.score or {}).get(l) %}<td class="num">{% if r and r.scanned %}{{ r.covered }} of {{ r.present }}{% if r.out_of_reach %} <span class="dim small">+{{ r.out_of_reach }} out of reach</span>{% endif %}{% else %}<span class="dim">—</span>{% endif %}</td>{% endfor %}
+    <td class="num">{% if i.score %}{{ i.score.values()|sum(attribute='flagged_decoys', start=[])|length }}{% else %}<span class="dim">not scored</span>{% endif %}</td>
+    <td class="num">{{ i.unplaced }}</td>
+    <td><a href="/cbom?run={{ i.run }}"><code>{{ i.run }}</code></a></td></tr>
+  {% if i.unplaced %}<tr class="sub"><td></td><td colspan="7" class="small dim">unplaced: {{ i.unplaced_names[:12]|join(', ') }}{% if i.unplaced > 12 %}, and {{ i.unplaced - 12 }} more{% endif %}</td></tr>{% endif %}
+  {% endif %}{% else %}<tr><td colspan="8" class="dim">No import yet.</td></tr>{% endfor %}
+  </tbody>
+</table>
+<p class="note">"Out of reach": keyed items no scan of this kind can see — a client's certificate, a key exchange only one client offers. A decoy is a planted item that should <em>not</em> be reported as in use — an unserved certificate, a retired key. Flagging one is a false positive the answer key was built to catch. The workbench's row is its latest full scan; an imported tool is scored only on the layers its documents reach.</p>
+</main>
+</body>
+</html>

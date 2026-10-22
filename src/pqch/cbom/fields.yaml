@@ -1,0 +1,63 @@
+# What each field of a workbench CBOM component is: whether CycloneDX 1.6 defines it or this
+# project adds it under the `pqch:` property namespace, what it means, and where its value comes
+# from. Data, read by the anatomy page (src/pqch/cbom/anatomy.py) and quoted by note 01.
+# `from` names the ledger evidence: finding (the scanner's observation), rule:<id>, supplied
+# (typed in by the owner), or ledger (the run itself).
+schema: pqch.cbom-fields/1
+cyclonedx:
+  type: {meaning: "What kind of component this is. A cryptographic asset is `cryptographic-asset`; a service is an `application`; an image is a `container`.", from: projection}
+  bom-ref: {meaning: "The component's identifier inside this document, used by `dependencies`. Here `fp:` and the finding's fingerprint, so the same observation keeps its reference across scans.", from: finding}
+  name: {meaning: "The asset's standard name: the algorithm, the key's family, the protocol.", from: finding}
+  version: {meaning: "For a container, the image digest that was scanned.", from: finding}
+  cryptoProperties.assetType: {meaning: "One of the four CycloneDX asset types: algorithm, certificate, protocol, related-crypto-material.", from: finding}
+  cryptoProperties.algorithmProperties.primitive: {meaning: "What the algorithm does: key-agree, kem, signature, pke, hash, mac and others. ML-KEM and its hybrids are `kem`.", from: finding}
+  cryptoProperties.algorithmProperties.curve: {meaning: "The elliptic curve, where there is one.", from: finding}
+  cryptoProperties.algorithmProperties.parameterSetIdentifier: {meaning: "The key size or parameter set.", from: finding}
+  cryptoProperties.certificateProperties.subjectName: {meaning: "Whom the certificate names.", from: finding}
+  cryptoProperties.certificateProperties.issuerName: {meaning: "Who signed it.", from: finding}
+  cryptoProperties.certificateProperties.notValidBefore: {meaning: "When it becomes valid.", from: finding}
+  cryptoProperties.certificateProperties.notValidAfter: {meaning: "When it expires: a certificate valid past 2031 must be replaced under the signature queue anyway.", from: finding}
+  cryptoProperties.certificateProperties.certificateFormat: {meaning: "X.509 here.", from: finding}
+  cryptoProperties.relatedCryptoMaterialProperties.type: {meaning: "What kind of key material: private-key, public-key, key and others.", from: finding}
+  cryptoProperties.relatedCryptoMaterialProperties.size: {meaning: "The key's size in bits.", from: finding}
+  cryptoProperties.protocolProperties.type: {meaning: "The protocol a listener speaks: tls, ssh, or other.", from: finding}
+  evidence.occurrences: {meaning: "Where the asset was seen: an address and port, or an image and a path.", from: finding}
+  dependencies: {meaning: "Not a field of the component: the document's list of what each component depends on. It carries the dependency chain — service, listener, asset, file.", from: rule:link/public-key/1}
+pqch:
+  pqch:layer: {meaning: "Which evidence layer saw it: wire (a listener), host (a file in an image) or code.", from: finding}
+  pqch:subject: {meaning: "Exactly where: the endpoint, or the image and path.", from: finding}
+  pqch:asset-type: {meaning: "The CycloneDX asset type, repeated so a reader of properties alone has it.", from: finding}
+  pqch:role: {meaning: "What it is for: key-establishment, signature, encryption, hash, mac, other. M-26-15 puts key establishment and signatures on different clocks.", from: finding}
+  pqch:name: {meaning: "The normalized name the rules and the answer key use.", from: finding}
+  pqch:parameters: {meaning: "Everything else the tool reported: key size, the tool's own spelling, a certificate's fingerprints.", from: finding}
+  pqch:fingerprint: {meaning: "The SHA-256 of the observation's identity — layer, subject, type, role, name, key. Two scans that see the same thing give the same fingerprint; that is how change is detected.", from: finding}
+  pqch:evidence: {meaning: "The ledger events of every observation folded into this entry. Each names its tool, the raw output by path and SHA-256, and an excerpt a person can read.", from: finding}
+  pqch:tools: {meaning: "Which tools saw it. An entry two tools agree on is one entry.", from: finding}
+  pqch:in-use: {meaning: "Whether a rule judged it in use: a certificate in an image that no listener serves is not. On the wire, true by definition.", from: "rule:in-use/served/1, rule:in-use/not-served/1"}
+  pqch:in-use-rule: {meaning: "Which rule made the in-use judgement.", from: rule}
+  pqch:verifiable-by: {meaning: "Which verifier could confirm a change to this entry: paired probes on the wire, a certificate parse, or none.", from: rule:verifier/class/1}
+  pqch:conflict: {meaning: "When two findings about this asset disagreed, which layer a rule held to be in force, and why.", from: rule:conflict/resolve/1}
+  pqch:family: {meaning: "The algorithm's family in the memo's table: ecdh, rsa-sig, ml-kem and so on.", from: rule:quantum/vulnerable/1}
+  pqch:quantum-vulnerable: {meaning: "Whether OMB M-26-15's table (Appendix A §2, or its footnote 13) makes it quantum-vulnerable.", from: rule:quantum/vulnerable/1}
+  pqch:kind: {meaning: "Which kind of component the workbench made it: listener, service or image.", from: projection}
+  pqch:posture: {meaning: "A listener's posture: classical, mixed (post-quantum key establishment, classical authentication) or pq.", from: rule:posture/kex-auth/1}
+  pqch:service: {meaning: "The service that serves the listener or runs the image, joined by the runner's record of the container it found.", from: rule:link/service/1}
+  pqch:service-evidence: {meaning: "The link event behind that join.", from: rule:link/service/1}
+  pqch:tls13: {meaning: "Whether the listener offered TLS 1.3, against M-26-15 §4's date of 2030-01-02.", from: rule:deadline/tls13/1}
+  pqch:mission-function: {meaning: "What the service is for. No scan can discover it.", from: supplied}
+  pqch:data-lifetime-years: {meaning: "How long its data must stay secret. Data recorded today and broken later is the reason key establishment comes first.", from: supplied}
+  pqch:high-value-asset: {meaning: "Whether it is a High Value Asset (OMB M-19-03).", from: supplied}
+  pqch:supplied: {meaning: "Every fact on this component that a person typed in, with the event and who supplied it. None of them counts as coverage.", from: supplied}
+  pqch:owner: {meaning: "Who the migration item is assigned to.", from: supplied}
+  pqch:priority: {meaning: "Whether M-26-15 §3.C.2 prioritizes the service, and by which criteria.", from: rule:priority/m-26-15/1}
+  pqch:migration: {meaning: "One item per function — key establishment, signature — with its state, queue, deadline and blockers.", from: "rule:queue/m-26-15/1, rule:blocker/supplier/1, rule:blocker/validated-module/1"}
+  pqch:queue: {meaning: "The earliest queue among the open items.", from: rule:queue/m-26-15/1}
+  pqch:deadline: {meaning: "That queue's deadline.", from: rule:queue/m-26-15/1}
+  pqch:state: {meaning: "open while any item is open; met when none is.", from: rule:queue/m-26-15/1}
+  pqch:image: {meaning: "The image reference with its digest.", from: finding}
+metadata:
+  pqch:projection: {meaning: "Which projection of the ledger this document is: the workbench, or a baseline of scanners alone."}
+  pqch:run: {meaning: "The run whose ledger it was built from."}
+  pqch:ledger-head: {meaning: "The hash of the ledger's last event. Rebuild from the same ledger and the document is the same, byte for byte."}
+  pqch:ledger-seq: {meaning: "How many events the ledger held."}
+  pqch:scope-hash: {meaning: "The hash of the scope the run was allowed to touch."}

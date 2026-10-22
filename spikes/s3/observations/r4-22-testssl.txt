@@ -1,0 +1,317 @@
+[
+         {
+              "id"           : "engine_problem",
+              "ip"           : "/",
+              "port"         : "443",
+              "severity"     : "WARN",
+              "finding"      : "No engine or GOST support via engine with your /home/testssl/bin/openssl.Linux.x86_64"
+          }
+,         {
+              "id"           : "service",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "HTTP"
+          }
+,         {
+              "id"           : "pre_128cipher",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "No 128 cipher limit bug"
+          }
+,         {
+              "id"           : "TLS_extensions",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "'server name/#0' 'max fragment length/#1' 'supported_groups/#10' 'EC point formats/#11' 'application layer protocol negotiation/#16' 'encrypt-then-mac/#22' 'extended master secret/#23' 'session ticket/#35' 'supported versions/#43' 'key share/#51' 'renegotiation info/#65281'"
+          }
+,         {
+              "id"           : "TLS_session_ticket",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "valid for 300 seconds only (<daily)"
+          }
+,         {
+              "id"           : "SSL_sessionID_support",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "yes"
+          }
+,         {
+              "id"           : "sessionresumption_ticket",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "supported"
+          }
+,         {
+              "id"           : "sessionresumption_ID",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "not supported"
+          }
+,         {
+              "id"           : "TLS_timestamp",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "random"
+          }
+,         {
+              "id"           : "certificate_compression",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "none"
+          }
+,         {
+              "id"           : "clientAuth",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "optional"
+          }
+,         {
+              "id"           : "clientAuth_CA_list",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "CN=lab.s3.test,O=S3 lab"
+          }
+,         {
+              "id"           : "cert_numbers",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "1"
+          }
+,         {
+              "id"           : "cert_signatureAlgorithm",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "SHA256 with RSA"
+          }
+,         {
+              "id"           : "cert_keySize",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "RSA 2048 bits (exponent is 65537)"
+          }
+,         {
+              "id"           : "cert_keyUsage",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "No server key usage information"
+          }
+,         {
+              "id"           : "cert_extKeyUsage",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "No server extended key usage information"
+          }
+,         {
+              "id"           : "cert_serialNumber",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "64B44C0268A6ECE2BF96BBD08F62BBFD85292224"
+          }
+,         {
+              "id"           : "cert_serialNumberLen",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "20"
+          }
+,         {
+              "id"           : "cert_fingerprintSHA1",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "3F59DE86014604CA4ACA83689BB107347269A58A"
+          }
+,         {
+              "id"           : "cert_fingerprintSHA256",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "B5A3A6666A8468FC713FB7766B2FC18A823ACC176DA0D055902662C38D1D612C"
+          }
+,         {
+              "id"           : "cert",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "-----BEGIN CERTIFICATE-----\nMIIDRzCCAi+gAwIBAgIUZLRMAmim7OK/lrvQj2K7/YUpIiQwDQYJKoZIhvcNAQELBQAwJzEPMA0GA1UECgwGUzMgbGFiMRQwEgYDVQQDDAtsYWIuczMudGVzdDAeFw0yNjEwMDUyMDA5MjlaFw0yOTAxMDcyMDA5MjlaMCcxDzANBgNVBAoMBlMzIGxhYjEUMBIGA1UEAwwLbGFiLnMzLnRlc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC21VqdH4IJlSGYg2G5HvY/RSXH1OusCaxRJJ5C3euP1t5UGPgO1QzC/GxcixbPIwu4PSdoABFgWhU2JySuFBqzWJOORhOdC4QtIoDftkMrlooID51nPPkdr2k7GUMgf0LAPxGjJaLI0m7yjYCaTEwDartZteAVU9aEp7IaxbaAJC3GfJqrJFTvIeKIdueMGqrMjHb2eSu1MQ8W/b5Qzmf9SrTZU99beBxnHOF6fkiC4tK5LlW8KUIsANbp2iNWEhdAIR98c9505Hyc5ucIn4YkBZnxVANwaXbF8X0fi8d/HIXZE+hAAe+/vHL+R6oL6QMy/H6iJ4zuu/R+zdlMthVzAgMBAAGjazBpMB0GA1UdDgQWBBTD27C6a0xCuP/fMjQu/3AIo8ku3TAfBgNVHSMEGDAWgBTD27C6a0xCuP/fMjQu/3AIo8ku3TAPBgNVHRMBAf8EBTADAQH/MBYGA1UdEQQPMA2CC2xhYi5zMy50ZXN0MA0GCSqGSIb3DQEBCwUAA4IBAQBOr5tvJZx6yPr5pP7ewXzaaB7HwZxn8HNOer9LgcSK/brqS4U0tzAjXuoecMB0dzEDMsCJoiRK9vDkAZ8zE0AzlVeOtvJaS0RcMSnlHVVQTc3SWyVlieJqRJ8D2wLctqu54UxCw2zrTxeJqnkJxI5e5Yh8uw7seKaTECwZRMgitvJCWi9Tlw72H12M5UGUqBtIRWbSoQfhdu4JZ2mjhg6ofQsyc2itdpS/LQtMvACHNFcUiiAZWM6ADsu8iQ74fDUTTAjSx70dKhjTVmewMV58//IrpSZf5UNoRRPfJHnGi1RpcR5mobD5VMAdYVP70V9POsHCkE6C3BwQBXWARv3D\n-----END CERTIFICATE-----"
+          }
+,         {
+              "id"           : "cert_commonName",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "lab.s3.test"
+          }
+,         {
+              "id"           : "cert_commonName_wo_SNI",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "lab.s3.test"
+          }
+,         {
+              "id"           : "cert_subjectAltName",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "lab.s3.test"
+          }
+,         {
+              "id"           : "cert_trust",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "Ok via SAN and CN (same w/o SNI)"
+          }
+,         {
+              "id"           : "cert_chain_of_trust",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "CRITICAL",
+              "finding"      : "failed (self signed)."
+          }
+,         {
+              "id"           : "cert_certificatePolicies_EV",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "no"
+          }
+,         {
+              "id"           : "cert_expirationStatus",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "824 >= 60 days"
+          }
+,         {
+              "id"           : "cert_notBefore",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "2026-10-05 20:09"
+          }
+,         {
+              "id"           : "cert_notAfter",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "2029-01-07 20:09"
+          }
+,         {
+              "id"           : "cert_extlifeSpan",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "MEDIUM",
+              "finding"      : "825 > 398 days"
+          }
+,         {
+              "id"           : "cert_eTLS",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "not present"
+          }
+,         {
+              "id"           : "cert_crlDistributionPoints",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "cert_ocspURL",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "cert_revocation",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "HIGH",
+              "finding"      : "Neither CRL nor OCSP URI provided"
+          }
+,         {
+              "id"           : "OCSP_stapling",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "not offered"
+          }
+,         {
+              "id"           : "cert_mustStapleExtension",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "DNS_CAArecord",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "check skipped as instructed"
+          }
+,         {
+              "id"           : "certificate_transparency",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "certs_countServer",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "1"
+          }
+,         {
+              "id"           : "certs_list_ordering_problem",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "no"
+          }
+,         {
+              "id"           : "cert_caIssuers",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "lab.s3.test (S3 lab)"
+          }
+,         {
+              "id"           : "intermediate_cert_badOCSP",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "intermediate certificate(s) is/are ok"
+          }
+,         {
+              "id"           : "scanTime",
+              "ip"           : "lab.s3.test/172.16.106.60",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "27"
+          }
+]

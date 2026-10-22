@@ -1,0 +1,57 @@
+{# One header for every page of the demonstration, and the same sections as the site, so the two
+   read as one place. `active` names this page's tab; `lede` says, in a line, where the reader is. #}
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    {# The demo's mode: "live" when the app serves it; a static copy (GitHub Pages, eventually) says "snapshot". #}
+    <div class="demo-group">
+    <span class="group">Demo<small>{{ demo_mode }}</small></span>
+    <a href="/" class="{{ 'on' if active == 'overview' }}" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    <a href="/walkthrough" class="{{ 'on' if active == 'demo' }}" title="The walkthrough, on a test agency built for it">Walkthrough</a>
+    <a href="/cbom" class="{{ 'on' if active == 'cbom' }}" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    <a href="/plan" class="{{ 'on' if active == 'plan' }}" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
+    {% if not public %}<a href="/lab" class="{{ 'on' if active == 'lab' }}" title="The owner's own network, observed passively">A real network</a>{% endif %}
+    </div>
+    <div class="learn-group">
+    <span class="group">Learn<small>notes &amp; docs</small></span>
+    <a href="/site/how-it-works/">How it works</a>
+    <a href="/site/notes/">Notes</a>
+    <a href="/site/lessons/">Lessons</a>
+    <a href="/site/sources/">Sources</a>
+    <a href="/site/about/">About</a>
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner">{{ lede|safe }}</div></div>
+{# A page that takes a while — the lab's, above all, which reads the capture's ledger — says so: after a
+   moment's delay a bar runs along the top and a line says what is loading. No script, no bar. #}
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  function what(url) {
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    return "Loading…";
+  }
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () { box.querySelector(".msg").textContent = what(url); box.hidden = false; }, 250);
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", function () { clearTimeout(timer); box.hidden = true; });
+})();
+</script>

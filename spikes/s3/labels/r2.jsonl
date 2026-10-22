@@ -1,0 +1,36 @@
+{"id": "r2-01", "label": {"name": "ECDSA", "asset_type": "algorithm", "role": "signature"}, "citation": "OID ecdsa-with-SHA256, ANSI X9.62 / RFC 5758 section 3.2."}
+{"id": "r2-02", "label": {"name": "HMAC-MD5", "asset_type": "algorithm", "role": "mac"}, "citation": "RFC 4253 section 6.4: HMAC-MD5 truncated to 96 bits."}
+{"id": "r2-03", "label": {"name": "ECDSA", "asset_type": "algorithm", "role": "signature"}, "citation": "testssl.sh's wording of a certificate's signature algorithm."}
+{"id": "r2-04", "label": {"name": "ML-DSA-65", "asset_type": "algorithm", "role": "signature"}, "citation": "FIPS 204 parameter set, already the standard name."}
+{"id": "r2-05", "label": {"name": "brainpoolP512r1", "asset_type": "algorithm", "role": "key-establishment"}, "citation": "IANA TLS Supported Groups 28 (RFC 7027); reported under the ECDHE curves a listener accepts."}
+{"id": "r2-06", "label": {"name": "RSA", "asset_type": "algorithm", "role": ["signature", "encryption", "key-establishment", "other"]}, "citation": "OID 1.2.840.113549.1.1.1 (RFC 8017), the algorithm of a certificate's public key; an RSA key signs or decrypts, so any key role is accepted."}
+{"id": "r2-07", "label": {"name": "secp521r1", "asset_type": "algorithm", "role": "key-establishment"}, "citation": "OpenSSL's `Temp Key` line: an ECDH exchange on secp521r1."}
+{"id": "r2-08", "label": {"name": "unknown", "asset_type": null, "role": null}, "citation": "RFC 8308: an indicator that the server supports extension negotiation, listed among key-exchange names; it negotiates nothing."}
+{"id": "r2-09", "label": {"name": "X25519", "asset_type": "algorithm", "role": "key-establishment"}, "citation": "OpenSSL's `Temp Key` line for X25519 (RFC 7748)."}
+{"id": "r2-10", "label": {"name": "DH-3072", "asset_type": "algorithm", "role": "key-establishment"}, "citation": "OpenSSL's `Temp Key` line for finite-field Diffie-Hellman: it states the size and not the group, so the name is the size (journal lesson 10); a named group would be invented."}
+{"id": "r2-11", "label": {"name": "HMAC-RIPEMD-160", "asset_type": "algorithm", "role": "mac"}, "citation": "OpenSSH's encrypt-then-MAC variant of hmac-ripemd160 (PROTOCOL, section 1.6)."}
+{"id": "r2-12", "label": {"name": "unknown", "asset_type": null, "role": null}, "citation": "A word from testssl.sh's sentence about KEMs, not a name."}
+{"id": "r2-13", "label": {"name": "ECDSA", "asset_type": "algorithm", "role": "signature"}, "citation": "A TLS 1.2 signature-and-hash pair (RFC 5246 section 7.4.1.4.1)."}
+{"id": "r2-14", "label": {"name": "RSA", "asset_type": "related-crypto-material", "role": ["signature", "encryption", "key-establishment", "other"]}, "citation": "cbomkit-theia's name for an RSA key of 3072 bits; theia types it related-crypto-material (tests/fixtures/theia-portal.json)."}
+{"id": "r2-15", "label": {"name": "UMAC-64", "asset_type": "algorithm", "role": "mac"}, "citation": "RFC 4418 UMAC with a 64-bit tag, OpenSSH's encrypt-then-MAC variant."}
+{"id": "r2-16", "label": {"name": "brainpoolP256r1", "asset_type": "algorithm", "role": "key-establishment"}, "citation": "IANA TLS Supported Groups 26 (RFC 7027)."}
+{"id": "r2-17", "label": {"name": "AES-256", "asset_type": "algorithm", "role": "encryption"}, "citation": "OpenSSH's cipher table lists it as an alias of aes256-cbc (cipher.c)."}
+{"id": "r2-18", "label": {"name": "RSA", "asset_type": "algorithm", "role": "signature"}, "citation": "A TLS 1.2 signature-and-hash pair: RSASSA-PKCS1-v1_5 with SHA-384."}
+{"id": "r2-19", "label": {"name": "RSA", "asset_type": "algorithm", "role": "signature"}, "citation": "As above, with SHA-224."}
+{"id": "r2-20", "label": {"name": "RSA", "asset_type": "algorithm", "role": "signature"}, "citation": "OID sha256WithRSAEncryption (RFC 8017, appendix A.2.4)."}
+{"id": "r2-21", "label": {"name": "AES-128", "asset_type": "algorithm", "role": "encryption"}, "citation": "RFC 4253 section 6.3."}
+{"id": "r2-22", "label": {"name": "Blowfish", "asset_type": "algorithm", "role": "encryption"}, "citation": "RFC 4253 section 6.3."}
+{"id": "r2-23", "label": {"name": "unknown", "asset_type": null, "role": null}, "citation": "A certificate's subject name, which cbomkit-theia uses as the component's name; not an algorithm."}
+{"id": "r2-24", "label": {"name": "ECDSA", "asset_type": "algorithm", "role": "signature"}, "citation": "A TLS 1.3 signature scheme reported as a pair."}
+{"id": "r2-25", "label": {"name": "RSA", "asset_type": "algorithm", "role": "signature"}, "citation": "cbomkit-theia's name for sha1WithRSAEncryption; theia types it an algorithm with primitive signature (tests/fixtures/theia-portal.json)."}
+{"id": "r2-26", "label": {"name": "RSA", "asset_type": "algorithm", "role": "signature"}, "citation": "A TLS 1.2 signature-and-hash pair."}
+{"id": "r2-27", "label": {"name": "RC4", "asset_type": "algorithm", "role": "encryption"}, "citation": "RFC 4253 section 6.3: arcfour is RC4."}
+{"id": "r2-28", "label": {"name": "RSA", "asset_type": "algorithm", "role": "signature"}, "citation": "A TLS 1.2 signature-and-hash pair."}
+{"id": "r2-29", "label": {"name": "HMAC-SHA-256", "asset_type": "algorithm", "role": "mac"}, "citation": "RFC 6668 hmac-sha2-256, OpenSSH's encrypt-then-MAC variant."}
+{"id": "r2-30", "label": {"name": "RSA", "asset_type": "algorithm", "role": "signature"}, "citation": "TLS 1.3 scheme rsa_pss_rsae_sha512 (RFC 8446 section 4.2.3); the family is RSA."}
+{"id": "r2-31", "label": {"name": "ECDSA", "asset_type": "algorithm", "role": ["signature", "encryption", "key-establishment", "other"]}, "citation": "OID 1.2.840.10045.2.1 (RFC 5480), the algorithm of a certificate's elliptic-curve public key; the project names such a key by its signature family, ECDSA (agency/answer-key.yaml, Names)."}
+{"id": "r2-32", "label": {"name": "brainpoolP384r1", "asset_type": "algorithm", "role": "key-establishment"}, "citation": "IANA TLS Supported Groups 27 (RFC 7027)."}
+{"id": "r2-33", "label": {"name": "unknown", "asset_type": null, "role": null}, "citation": "cbomkit-theia's name for a key whose algorithm it did not state; an algorithm is never inferred (src/pqch/scout/names.py)."}
+{"id": "r2-34", "label": {"name": "RSA", "asset_type": "related-crypto-material", "role": ["signature", "encryption", "key-establishment", "other"]}, "citation": "cbomkit-theia's name for an RSA key of 2048 bits."}
+{"id": "r2-35", "label": {"name": "DH-8192", "asset_type": "algorithm", "role": "key-establishment"}, "citation": "As `DH, 3072 bits`: the size is stated, the group is not."}
+{"id": "r2-36", "label": {"name": "unknown", "asset_type": null, "role": null}, "citation": "The first word of testssl.sh's `No KEMs offered`."}

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — the CBOM</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "cbom" %}{% set lede = "<strong>Inside the CBOM.</strong> The inventory itself — the mini-agency's or the lab's — opened up: drawn along its chain, what the document holds, one entry field by field with the evidence behind each field, the same record projected another way, and what changed since the last scan." %}{% include "_header.html" %}
+<main>
+{% if switch and switch.lab and not public %}
+<nav class="estates" aria-label="estate">
+  <a href="/cbom" class="{{ 'on' if switch.on == switch.estate }}"><strong>The mini-agency's CBOM</strong><span>built for the demo, every answer known</span></a>
+  <a href="/cbom?run={{ switch.lab }}" class="{{ 'on' if switch.on == switch.lab }}"><strong>The lab's CBOM</strong><span>a real network: the targeted scan, with the capture beside it</span></a>
+</nav>
+{% endif %}
+{% if not d %}
+<section><p class="note">No CBOM yet: run a scan from <a href="/walkthrough">the walkthrough</a>.</p></section>
+{% else %}
+<p class="orient">A Cryptography Bill of Materials is a CycloneDX document whose components are cryptographic assets — algorithms, certificates, keys, protocols — each with where it was found and what depends on it. This page opens the one this run produced: the whole document, then one entry, field by field, each traced to the ledger event it came from.
+  <span class="ai">It is also what a model is given. When the investigator traces a weakness to the line that causes it, or a change is drafted, the entry below is the context: the service, the listener, the file, the evidence. The model's answer is checked against it, and the change is proved on the wire.</span></p>
+
+{% if code_run and kind == 'scan' %}<p class="note">This is the mini-agency's CBOM. <a href="/cbom?run={{ code_run }}">The code layer's CBOM</a>: one pinned federal repository read for cryptographic call sites, each judged by a model.</p>{% endif %}
+{% if kind == 'scan-external' %}<p class="note">This is the lab's CBOM: the targeted scan's entries, opened field by field below. The chain also carries the capture's entries for the same listeners, merged by fingerprint; <a href="/lab#house-cbom">the house as a CBOM</a> on the lab page reads the two layers side by side.</p>{% endif %}
+{% if kind == 'scan-code' %}<p class="note">This is the code layer's CBOM: candidate call sites in one pinned repository, found by a rule pack and judged by the <code>call-site-read</code> role, whose judgement is the entry's <code>pqch:in-use</code>.{% if estate_run %} <a href="/cbom?run={{ estate_run }}">The mini-agency's CBOM</a>.{% endif %}</p>{% endif %}
+{% if graph %}
+<section id="chain">
+  <h2><span class="step">1</span> The CBOM as a chain</h2>
+  <p class="lede">{% if kind == 'scan-external' %}The lab's CBOM — the targeted scan and the capture merged — along its chain: subnet, host, listener, and every entry on the listener, what it accepts when asked or chose in real handshakes, certificates among them.{% else %}The same document drawn along its dependency chain: a row of the agency's spreadsheet, the service it is, the service's listeners and images, the assets each listener negotiates or serves, and the files they come from. Rows with nothing behind them stay, in red.{% endif %} Click a {{ 'host' if kind == 'scan-external' else 'service' }} to follow its chain; click anything for the evidence behind it.</p>
+  <figure class="estate" data-graph='{{ graph|tojson }}'></figure>
+</section>
+{% endif %}
+
+<section id="document">
+  <h2><span class="step">2</span> The document</h2>
+  <p class="lede">{{ d.spec }}, serial <code>{{ d.serial }}</code>, built {{ d.timestamp }} from run <a href="/walkthrough?run={{ run }}"><code>{{ run }}</code></a>. It is rebuilt from the ledger every time and never edited: the same ledger gives the same document, byte for byte.</p>
+  <div class="receipts">
+    <div class="receipt"><div class="k">Components</div><div class="n">{{ d.components }}</div>
+      <div class="s">{% for k, n in d.by_kind.items() %}{{ n }} {{ k }}{{ 's' if n != 1 and not k.endswith('s') }}{% if not loop.last %} · {% endif %}{% endfor %}</div></div>
+    <div class="receipt"><div class="k">Cryptographic assets by type</div><div class="n">{{ d.by_asset_type.values()|sum }}</div>
+      <div class="s">{% for k, n in d.by_asset_type.items() %}{{ k }} {{ n }}{% if not loop.last %} · {% endif %}{% endfor %} — the four CycloneDX asset types</div></div>
+    <div class="receipt"><div class="k">Dependency chain</div><div class="n">{{ d.edges }}<small>edges</small></div>
+      <div class="s">{{ d.dependencies }} components list what they depend on: service → listener → asset → file</div></div>
+    <div class="receipt"><div class="k">Made by</div><div class="n">{{ d.tools|length }}<small>tools</small></div>
+      <div class="s">{{ d.tools|join(', ') }}</div></div>
+  </div>
+  <details class="why"><summary>What the standard settles, and what it leaves open</summary><p>CycloneDX 1.6 (ECMA-424) defines the asset types and their fields: an algorithm's primitive and parameter set, a certificate's subject, issuer and validity, a key's type and size, a protocol's type; where each was found; and what depends on what. It does not say who owns an asset, which policy queue it is in, whether a file in an image is actually served, or what observation an entry rests on. Those go in properties under a namespace the producer chooses — here <code>pqch:</code>. What a federal CBOM must contain is not yet settled either: CISA and NIST publish the minimum elements by 2027-03-19. <a href="/site/notes/01-what-is-a-cbom/">What is a CBOM, and what is in one?</a></p></details>
+  <table class="files"><thead><tr><th>Document property</th><th>Value</th><th>What it is</th></tr></thead><tbody>
+  {% for m in d.meta %}<tr><td><code>{{ m.name }}</code></td><td class="mono small">{{ m.value[:40] }}{% if m.value|length > 40 %}…{% endif %}</td><td class="dim small">{{ m.meaning }}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+
+<section id="entry">
+  <h2><span class="step">3</span> One entry, field by field</h2>
+  {% if public %}<p class="note">One entry is opened here; in the live workbench any entry can be picked. The chain above opens any entry's evidence by a click.</p>{% else %}
+  <form method="get" action="/cbom" class="scanform">
+    <input type="hidden" name="run" value="{{ run }}">
+    <select name="ref" onchange="this.form.submit()" class="picker">
+      {% for e in entries %}<option value="{{ e.ref }}" {% if e.ref == c.ref %}selected{% endif %}>{{ e.kind }} — {{ e.label }}</option>{% endfor %}
+    </select>
+    <noscript><button type="submit">Open</button></noscript>
+  </form>{% endif %}
+  <p class="lede"><strong>{{ c.label }}</strong> <span class="dim">({{ c.kind }})</span>: {{ c.standard_fields }} fields CycloneDX defines, {{ c.extension_fields }} this project adds, resting on {{ c.events }} ledger event{{ 's' if c.events != 1 }}.</p>
+  <div class="anatomy">
+    <figure class="json"><figcaption>As the document carries it</figcaption><pre class="mono small">{{ c.json }}</pre></figure>
+    <div class="fields">
+      <table class="files"><thead><tr><th>Field</th><th>Value</th><th>What it means · where it came from</th></tr></thead><tbody>
+      {% for r in c.rows %}
+        <tr class="{{ 'ext' if r.origin.startswith('pqch') else 'std' }}">
+          <td><code>{{ r.field }}</code><br><span class="tag {{ 'supplied' if r.from == 'supplied' else ('link' if r.origin.startswith('Cyclone') else '') }}">{{ 'supplied' if r.from == 'supplied' else r.origin }}</span></td>
+          <td class="mono small">{% if r.value is mapping or (r.value is iterable and r.value is not string) %}{{ r.value|tojson }}{% else %}{{ r.value }}{% endif %}</td>
+          <td class="small">{{ r.meaning }}
+            {% for x in r.evidence[:3] %}<br><span class="dim">{% if x.kind == 'finding' %}seen by {{ x.who }}: “{{ x.what }}” · raw <code>{{ x.raw.split('/')[-1] }}</code> sha256 <code>{{ x.sha256[:12] }}…</code>{% if x.scan and x.scan.replayed %} <span class="tag replay">replayed</span>{% endif %}{% elif x.kind == 'supplied' %}supplied by {{ x.who }}{% else %}rule <code>{{ x.who }}</code>{% if x.what %}: {{ x.what[:180] }}{% endif %}{% endif %} · event <code>{{ x.event }}</code></span>{% endfor %}
+            {% if r.evidence|length > 3 %}<br><span class="dim">and {{ r.evidence|length - 3 }} more events</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody></table>
+    </div>
+  </div>
+  <h3>What a model did with this entry</h3>
+  {% if work %}{% for w in work %}
+  <p class="lede">The investigator was handed this entry's observation, the service its chain leads to (<strong>{{ w.given.service }}</strong>) and that service's build files, and asked which line causes it. It answered in {{ w.steps }} step{{ 's' if w.steps != 1 }}, {{ w.tokens }} tokens, {{ '%.1f' % (w.latency_ms / 1000) }} s on {{ w.settings.model }} ({{ w.settings.hardware }}){% if w.settings.served_by %}, served by {{ w.settings.served_by }}{% endif %}.</p>
+  <dl>
+    <dt>Given</dt><dd class="mono small">{{ w.given.finding|tojson }}</dd>
+    <dt>Files it could read</dt><dd class="mono small">{{ w.given.files|join(', ') }}</dd>
+    <dt>Its answer</dt><dd>{% if w.answer and w.answer.file %}<code>{{ w.answer.file }}</code> lines {{ w.answer.line_start }}–{{ w.answer.line_end }}{% if w.line_text %}: <code>{{ w.line_text }}</code>{% endif %}{% elif w.answer and w.answer.cause == 'default' %}no live line sets it; the software's default applies{% else %}none — {{ w.outcome }}{% endif %}</dd>
+    <dt>Checked</dt><dd>{% if w.key_check %}{% if w.key_check.agrees %}<span class="good">agrees with the answer key</span>{% else %}<span class="bad">differs from the answer key: {{ w.key_check.why }}</span>{% endif %}{% else %}<span class="dim">the key names no cause for this entry</span>{% endif %}. The model's claim; it changes nothing in the CBOM. Event <code>{{ w.event }}</code> in run <code>{{ w.run }}</code>.</dd>
+  </dl>
+  {% endfor %}{% else %}
+  <p class="note">No model has worked on this entry. The investigator traces one key-establishment entry per listener; pick one of those (a <code>key-establishment</code> algorithm on a listener) to see what it was given and what it said.</p>
+  {% endif %}
+  <h3>Where it sits in the chain</h3>
+  <p class="lede">CycloneDX carries the chain in the document's <code>dependencies</code> list. Follow it up to the service and its owner's facts, or down to the file that holds the key.</p>
+  <table class="files"><thead><tr><th></th><th>Component</th><th>Joined by</th></tr></thead><tbody>
+  {% for x in c.depended_by %}<tr><td class="dim">depended on by</td><td><a href="/cbom?run={{ run }}&ref={{ x.ref|urlencode }}">{{ x.kind }} — {{ x.label }}</a></td><td class="dim small">{% if x.link %}rule <code>{{ x.link.rule }}</code>: {{ x.link.basis }} · event <code>{{ x.link.event }}</code>{% else %}the projection: a listener holds what it negotiates and serves; a service its listeners and images{% endif %}</td></tr>{% endfor %}
+  {% for x in c.depends_on %}<tr><td class="dim">depends on</td><td><a href="/cbom?run={{ run }}&ref={{ x.ref|urlencode }}">{{ x.kind }} — {{ x.label }}</a></td><td class="dim small">{% if x.link %}rule <code>{{ x.link.rule }}</code>: {{ x.link.basis }} · event <code>{{ x.link.event }}</code>{% else %}the projection: a listener holds what it negotiates and serves; a service its listeners and images{% endif %}</td></tr>{% endfor %}
+  {% if not c.depended_by and not c.depends_on %}<tr><td colspan="3" class="dim">Nothing depends on this entry and it depends on nothing: no rule joined it to a listener, a file or a service.</td></tr>{% endif %}
+  </tbody></table>
+</section>
+
+<section id="projection">
+  <h2><span class="step">4</span> The same record, projected again</h2>
+  <p class="lede">The CBOM is one projection of the ledger. Here is another, rebuilt now from the same events — no scanner ran: <strong>{{ p.title }}</strong>, {{ p.rows|length }} rows, built in {{ p.ms_total }} ms ({{ p.ms_cbom }} ms to rebuild the CBOM from {{ p.events }} events, {{ p.ms_table }} ms to project it), from ledger head <code>{{ p.head[:16] }}…</code>. When the minimum elements of a federal CBOM are published, meeting them is another definition file like <code>policy/projections/{{ p.id }}.yaml</code> and a rebuild like this one.</p>
+  <p class="note">Illustrative: the field list is one plausible agency inventory, not the minimum elements, which are not published until 2027-03-19. {% set gaps = p.empty.items()|selectattr(1)|list %}{% if gaps %}Empty cells, where the record has nothing for a column: {% for k, n in gaps %}{{ k }} {{ n }}{% if not loop.last %}, {% endif %}{% endfor %} — met items have no queue.{% endif %} <a href="/runs/{{ run }}/projection/{{ p.id }}.csv">Download as CSV</a>.</p>
+  <div class="scroll"><table class="files"><thead><tr>{% for col in p.columns %}<th>{{ col }}</th>{% endfor %}</tr></thead><tbody>
+  {% for row in p.rows[:14] %}<tr>{% for v in row %}<td class="small">{% if v is none %}<span class="dim">—</span>{% elif v is string and v|length > 28 %}<span title="{{ v }}">{{ v[:26] }}…</span>{% else %}{{ v }}{% endif %}</td>{% endfor %}</tr>{% endfor %}
+  </tbody></table></div>
+  {% if p.rows|length > 14 %}<p class="note">The first 14 of {{ p.rows|length }} rows.</p>{% endif %}
+</section>
+
+<section id="changes">
+  <h2><span class="step">5</span> What changed since the last scan</h2>
+  {% if delta %}
+  <p class="lede">This CBOM against the one rebuilt from the previous scan of the same scope, run <a href="/cbom?run={{ delta.run }}"><code>{{ delta.run }}</code></a>, component by component. An observed asset's reference is its fingerprint, so a component that keeps its reference is the same observation: {{ delta.same }} unchanged, {{ delta.added|length }} added, {{ delta.removed|length }} removed, {{ delta.changed|length }} changed.</p>
+  {% if delta.added or delta.removed or delta.changed %}
+  <table class="files"><thead><tr><th></th><th>Component</th><th>What changed</th></tr></thead><tbody>
+  {% for x in delta.added[:20] %}<tr><td class="good">added</td><td><a href="/cbom?run={{ run }}&ref={{ x.ref|urlencode }}">{{ x.kind }} — {{ x.label }}</a></td><td></td></tr>{% endfor %}
+  {% for x in delta.removed[:20] %}<tr><td class="bad">removed</td><td>{{ x.kind }} — {{ x.label }}</td><td></td></tr>{% endfor %}
+  {% for x in delta.changed[:20] %}<tr><td>changed</td><td><a href="/cbom?run={{ run }}&ref={{ x.ref|urlencode }}">{{ x.kind }} — {{ x.label }}</a></td><td class="small">{% for f in x.fields[:4] %}<code>{{ f.field }}</code>: {{ f.before if f.before is not none else '—' }} → {{ f.after if f.after is not none else '—' }}{% if not loop.last %}; {% endif %}{% endfor %}{% if x.fields|length > 4 %}; and {{ x.fields|length - 4 }} more{% endif %}</td></tr>{% endfor %}
+  </tbody></table>
+  {% else %}<p class="note">Nothing changed: the estate the scanners saw is the estate they saw last time.</p>{% endif %}
+  <p class="note">Watch mode writes the same differences to the ledger as <code>change.observed</code> events and sends only the changed entries to a model.</p>
+  {% else %}<p class="note">No earlier scan of this scope to compare with.</p>{% endif %}
+</section>
+{% endif %}
+</main>
+<script src="/static/vendor/d3.v7.min.js"></script>
+<script src="/static/figures.js"></script>
+</body>
+</html>

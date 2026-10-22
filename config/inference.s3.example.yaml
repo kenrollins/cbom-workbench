@@ -1,0 +1,30 @@
+# Spike S3's arms, as tiers of the inference seam. Copy, point at your endpoints, and pass to
+# spikes/s3/run.py --config. `fast-thinking` is the fast engine with thinking on: no swap on a GB10.
+# It is a tier here only for the spike; whether the seam needs a per-role option is S3's to decide.
+schema: pqch.inference/1
+profile: s3
+tiers:
+  fast:
+    base_url: http://localhost:8001/v1
+    api_key_env: PQCH_INFERENCE_KEY
+    model: fast-model-id
+    hardware: label-the-machine
+    max_context: 32768
+    timeout_s: 120
+    residency: resident
+  fast-thinking:
+    base_url: http://localhost:8001/v1
+    api_key_env: PQCH_INFERENCE_KEY
+    model: fast-model-id-with-thinking
+    hardware: label-the-machine
+    max_context: 32768
+    timeout_s: 300
+    residency: resident
+  deliberate:
+    base_url: http://localhost:8002/v1
+    api_key_env: PQCH_INFERENCE_KEY
+    model: deliberate-model-id
+    hardware: label-the-machine
+    max_context: 131072
+    timeout_s: 600
+    residency: resident

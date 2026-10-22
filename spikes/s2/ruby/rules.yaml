@@ -1,0 +1,7 @@
+rules:
+  - id: ruby-openssl-pkey-rsa-new
+    languages: [ruby]
+    severity: INFO
+    message: "RSA key generated: quantum-vulnerable signature or key transport ($SIZE bits)"
+    pattern: OpenSSL::PKey::RSA.new($SIZE)
+    metadata: {asset_type: algorithm, role: signature, name: RSA}

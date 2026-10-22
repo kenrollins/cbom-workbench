@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cbom-workbench/schemas/event.json",
+  "title": "pqch.event/1",
+  "$defs": {
+    "ulid": {
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "ts": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+    }
+  },
+  "type": "object",
+  "required": [
+    "schema",
+    "seq",
+    "id",
+    "ts",
+    "type",
+    "actor",
+    "inputs",
+    "payload",
+    "evidence",
+    "prev",
+    "hash"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pqch.event/1"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "id": {
+      "$ref": "#/$defs/ulid"
+    },
+    "ts": {
+      "$ref": "#/$defs/ts"
+    },
+    "type": {
+      "type": "string",
+      "pattern": "^[a-z]+\\.[a-z]+$"
+    },
+    "actor": {
+      "type": "object",
+      "required": [
+        "kind",
+        "id"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "scanner",
+            "rule",
+            "model",
+            "human",
+            "verifier",
+            "runner",
+            "controller"
+          ]
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "model"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "tier",
+          "model",
+          "hardware"
+        ]
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ulid"
+      }
+    },
+    "payload": {
+      "type": "object"
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "ref",
+          "sha256"
+        ],
+        "properties": {
+          "ref": {
+            "type": "string"
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256"
+          }
+        }
+      }
+    },
+    "prev": {
+      "$ref": "#/$defs/sha256"
+    },
+    "hash": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "finding.observed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "finding.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "run.started"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "seq": {
+            "const": 0
+          },
+          "payload": {
+            "type": "object",
+            "required": [
+              "scope",
+              "scope_hash",
+              "profile",
+              "schemas"
+            ],
+            "properties": {
+              "scope": {
+                "$ref": "scope.json"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "checkpoint.signed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "checkpoint.json"
+          }
+        }
+      }
+    }
+  ]
+}

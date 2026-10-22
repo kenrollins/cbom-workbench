@@ -1,0 +1,19 @@
+# Third-party repositories analyzed read-only, and the exact commits. Checked out under
+# targets/ (git-ignored). Nothing in them is run.
+#   git clone --filter=blob:none https://github.com/<repo>.git targets/<name> && git -C targets/<name> checkout <commit>
+repositories:
+  - name: identity-idp
+    repo: 18F/identity-idp
+    commit: 62cf38755d0d6fbdd5e8d972f184944a830ba8d9
+    language: ruby
+    pinned: 2026-10-03   # the commit the BRIEF's counts were taken at
+  - name: dpc-app
+    repo: CMSgov/dpc-app
+    commit: 5f65ca2c4afc8f99193e95f14e48cadae25cd99c
+    language: java       # with Ruby and Go; S3 draws its Java
+    pinned: 2026-10-03
+  - name: bluebutton-web-server
+    repo: CMSgov/bluebutton-web-server
+    commit: 51be417fbb74fde9d4a2ec99823f37ccd898d057
+    language: python
+    pinned: 2026-10-05   # the default branch's head when S3's items were drawn

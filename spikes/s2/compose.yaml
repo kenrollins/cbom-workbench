@@ -1,0 +1,41 @@
+# Spike S2 targets: on the slice network, outside the slice's scope and answer key.
+name: pqch-s2
+x-limits: &limits {mem_limit: 256m, restart: "no"}
+services:
+  s2-mldsa:
+    <<: *limits
+    build: mldsa
+    image: pqch-s2/mldsa:s2
+    networks: {agency_net: {ipv4_address: 172.16.106.40}}
+  s2-mtls:
+    <<: *limits
+    build: mtls
+    image: pqch-s2/mtls:s2
+    networks: {agency_net: {ipv4_address: 172.16.106.41}}
+  s2-postgres:
+    <<: *limits
+    build: postgres
+    image: pqch-s2/postgres:s2
+    environment: {POSTGRES_PASSWORD: s2-only-not-a-secret}
+    networks: {agency_net: {ipv4_address: 172.16.106.42}}
+  s2-rabbitmq:
+    <<: *limits
+    mem_limit: 512m
+    build: rabbitmq
+    image: pqch-s2/rabbitmq:s2
+    networks: {agency_net: {ipv4_address: 172.16.106.43}}
+  s2-kafka:
+    <<: *limits
+    mem_limit: 1g
+    build: kafka
+    image: pqch-s2/kafka:s2
+    profiles: [kafka]
+    networks: {agency_net: {ipv4_address: 172.16.106.44}}
+  s2-client:
+    <<: *limits
+    mem_limit: 64m
+    build: client
+    image: pqch-s2/client:s2
+    networks: {agency_net: {ipv4_address: 172.16.106.45}}
+networks:
+  agency_net: {external: true, name: pqch-agency-net}

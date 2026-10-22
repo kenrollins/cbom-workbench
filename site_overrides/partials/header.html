@@ -1,0 +1,40 @@
+{#- One header for the demonstration and the site: the same brand, the same two groups of tabs, the
+    same look as the app's own (src/pqch/ui/templates/_header.html), with the site's search, colour
+    switch and repository link at the right. The demo's links come from extra.demo_base: "/" in the
+    lab, where the app serves the demo beside the site at /site/; the Pages path in a public build.
+    "A real network" appears only where the lab is (extra.lab). -#}
+{%- set demo = config.extra.demo_base or "/" -%}
+{%- set here = page.url if page else "" -%}
+<header class="md-header site-hdr" data-md-component="header">
+  <div class="bar">
+    <a class="brand" href="{{ demo }}">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <div class="tools">
+      <label class="md-header__button md-icon drawer" for="__drawer">{% include ".icons/material/menu.svg" %}</label>
+      {% if config.theme.palette and not config.theme.palette is mapping %}{% include "partials/palette.html" %}{% endif %}
+      {% if not config.theme.palette is mapping %}{% include "partials/javascripts/palette.html" %}{% endif %}
+      {% if "material/search" in config.plugins %}{% set search = config.plugins["material/search"] | attr("config") %}{% if search.enabled %}
+        <label class="md-header__button md-icon" for="__search">{% include ".icons/material/magnify.svg" %}</label>
+        {% include "partials/search.html" %}{% endif %}{% endif %}
+      {% if config.repo_url %}<a class="repo" href="{{ config.repo_url }}" title="The repository">{% include ".icons/fontawesome/brands/github.svg" %}</a>{% endif %}
+    </div>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    <div class="demo-group">
+    <span class="group">Demo<small>{{ config.extra.demo_mode or "live" }}</small></span>
+    <a href="{{ demo }}">Overview</a>
+    <a href="{{ demo }}walkthrough">Walkthrough</a>
+    <a href="{{ demo }}cbom">Inside the CBOM</a>
+    <a href="{{ demo }}plan">The plan</a>
+    {% if config.extra.lab == "true" %}<a href="{{ demo }}lab">A real network</a>{% endif %}
+    </div>
+    <div class="learn-group">
+    <span class="group">Learn<small>notes &amp; docs</small></span>
+    <a href="{{ 'how-it-works/' | url }}" class="{{ 'on' if here.startswith('how-it-works') or here.startswith('architecture') or here.startswith('hardware') or here.startswith('demo') }}">How it works</a>
+    <a href="{{ 'notes/' | url }}" class="{{ 'on' if here.startswith('notes') }}">Notes</a>
+    <a href="{{ 'lessons/' | url }}" class="{{ 'on' if here.startswith('lessons') }}">Lessons</a>
+    <a href="{{ 'sources/' | url }}" class="{{ 'on' if here.startswith('sources') }}">Sources</a>
+    <a href="{{ 'about/' | url }}" class="{{ 'on' if here.startswith('about') }}">About</a>
+    </div>
+  </nav>
+</header>

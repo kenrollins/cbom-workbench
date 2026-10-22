@@ -1,0 +1,681 @@
+[
+         {
+              "id"           : "engine_problem",
+              "ip"           : "/",
+              "port"         : "443",
+              "severity"     : "WARN",
+              "finding"      : "No engine or GOST support via engine with your /home/testssl/bin/openssl.Linux.x86_64"
+          }
+,         {
+              "id"           : "cmdline_ip-target",
+              "ip"           : "/",
+              "port"         : "443",
+              "severity"     : "WARN",
+              "finding"      : "Target is not a server name: results may be completely wrong, at minimum trust may show false results."
+          }
+,         {
+              "id"           : "service",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "postgres"
+          }
+,         {
+              "id"           : "pre_128cipher",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "No 128 cipher limit bug"
+          }
+,         {
+              "id"           : "FS",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "offered"
+          }
+,         {
+              "id"           : "FS_ciphers",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "TLS_AES_256_GCM_SHA384 TLS_CHACHA20_POLY1305_SHA256 ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384 ECDHE-RSA-AES256-SHA DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES256-CCM DHE-RSA-AES256-SHA256 DHE-RSA-AES256-SHA ECDHE-RSA-CAMELLIA256-SHA384 DHE-RSA-CAMELLIA256-SHA256 DHE-RSA-CAMELLIA256-SHA DHE-RSA-ARIA256-GCM-SHA384 ECDHE-ARIA256-GCM-SHA384 TLS_AES_128_GCM_SHA256 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES128-SHA DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-CCM DHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA ECDHE-RSA-CAMELLIA128-SHA256 DHE-RSA-CAMELLIA128-SHA256 DHE-RSA-CAMELLIA128-SHA DHE-RSA-ARIA128-GCM-SHA256 ECDHE-ARIA128-GCM-SHA256"
+          }
+,         {
+              "id"           : "FS_KEMs",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "X25519MLKEM768"
+          }
+,         {
+              "id"           : "FS_ECDHE_curves",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "X25519"
+          }
+,         {
+              "id"           : "DH_groups",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "RFC3526/Oakley Group 14"
+          }
+,         {
+              "id"           : "FS_TLS12_sig_algs",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "RSA-PSS-RSAE+SHA256 RSA-PSS-RSAE+SHA384 RSA-PSS-RSAE+SHA512 RSA+SHA256 RSA+SHA384 RSA+SHA512 RSA+SHA224"
+          }
+,         {
+              "id"           : "FS_TLS13_sig_algs",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "CRITICAL",
+              "finding"      : ""
+          }
+,         {
+              "id"           : "TLS_extensions",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "'max fragment length/#1' 'EC point formats/#11' 'encrypt-then-mac/#22' 'extended master secret/#23' 'renegotiation info/#65281'"
+          }
+,         {
+              "id"           : "TLS_session_ticket",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "no -- no lifetime advertised"
+          }
+,         {
+              "id"           : "SSL_sessionID_support",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "no"
+          }
+,         {
+              "id"           : "sessionresumption_ticket",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "not supported"
+          }
+,         {
+              "id"           : "sessionresumption_ID",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "No Session ID, no resumption"
+          }
+,         {
+              "id"           : "TLS_timestamp",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "random"
+          }
+,         {
+              "id"           : "certificate_compression",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : ""
+          }
+,         {
+              "id"           : "clientAuth",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "none"
+          }
+,         {
+              "id"           : "cert_numbers",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "1"
+          }
+,         {
+              "id"           : "cert_signatureAlgorithm",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "SHA256 with RSA"
+          }
+,         {
+              "id"           : "cert_keySize",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "RSA 2048 bits (exponent is 65537)"
+          }
+,         {
+              "id"           : "cert_keyUsage",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "No server key usage information"
+          }
+,         {
+              "id"           : "cert_extKeyUsage",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "No server extended key usage information"
+          }
+,         {
+              "id"           : "cert_serialNumber",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "21073A05035392F17136B00640AFDA31F1CFA164"
+          }
+,         {
+              "id"           : "cert_serialNumberLen",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "20"
+          }
+,         {
+              "id"           : "cert_fingerprintSHA1",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "A2F52C7E76C1BAD0CF690BE1A95495D6AD85795C"
+          }
+,         {
+              "id"           : "cert_fingerprintSHA256",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "847575DD17A8AFB86092B9291EB046E676F9A4117455E1C6C01B41BD2901E2B0"
+          }
+,         {
+              "id"           : "cert",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "-----BEGIN CERTIFICATE-----\nMIIDMTCCAhmgAwIBAgIUIQc6BQNTkvFxNrAGQK/aMfHPoWQwDQYJKoZIhvcNAQELBQAwKDELMAkGA1UECgwCUzIxGTAXBgNVBAMMEHBvc3RncmVzLnMyLnRlc3QwHhcNMjYxMDA0MTM0NDEzWhcNMjkwMTA2MTM0NDEzWjAoMQswCQYDVQQKDAJTMjEZMBcGA1UEAwwQcG9zdGdyZXMuczIudGVzdDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKRmLvQasj7YSS3IBPA0+NiUGHdcm0h4LR8Tbr8EcC9tnzpIsrhSSjrfPknTg/WKuY9LFluiD4g+JIKMUX6RjO1Sz+vIw++Tdud96vet2xjAPF/gjqQTwo3vOv3nL+xhT17N5sJMll439lEmg2FOR5POsqtvPedgVLoaYCcuqDwBSa36vek0niCBnN+otQKcvraAS9EVPajjtI9QTNWvxw/lU4FplhUOn0iTRUq4CB2y63opPWHNbpy5NPihIyrpks76NdGwr1gkaXySwqHp9uAA6KA+YDG4ZTJO8PBhLysp/K+TGzOjoUJMoH0y67B2VvFNnZKwm8ku6Rw0d70BGWkCAwEAAaNTMFEwHQYDVR0OBBYEFFuOshhn9p5ekQa4SOKrtYRsoVHAMB8GA1UdIwQYMBaAFFuOshhn9p5ekQa4SOKrtYRsoVHAMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEBAHz9OY3yb8UKHEQiJ/H/MbEkdBeKYkgXgR6DImYk6B2Nir5I3JGQJ1MUZmDxaWd1RML3DlG+DAch2LWj0YKLf8IxFOXlQrow7SO3c7FLqjYrJe6t1NZiDndGRCJJSbWns7NvN1K2M9oHVkzD+yr5R5GQhptEUniUCfKZkREhF7t/3i9vFGRTtYRFPyagpPRWPTPvdPi2FLuIB9nr8aMl8VTXlAm1Z14JI7DvT/oPhn3o+IIGJHvlj81lmaT4vo0wmKS81EAVXtpoN5Zcu+vNsSMj9UqSLtNk4+cYL3Y2cRUcVqvT/pDOOvCgNrL0TPPr5UEtGWHBOHU4VCUpHImOzyc=\n-----END CERTIFICATE-----"
+          }
+,         {
+              "id"           : "cert_commonName",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "postgres.s2.test"
+          }
+,         {
+              "id"           : "cert_commonName_wo_SNI",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "postgres.s2.test"
+          }
+,         {
+              "id"           : "cert_subjectAltName",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "MEDIUM",
+              "finding"      : "Providing no SAN is deprecated"
+          }
+,         {
+              "id"           : "cert_trust",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "HIGH",
+              "finding"      : "certificate does not match supplied URI"
+          }
+,         {
+              "id"           : "cert_chain_of_trust",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "CRITICAL",
+              "finding"      : "failed (self signed)."
+          }
+,         {
+              "id"           : "cert_certificatePolicies_EV",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "no"
+          }
+,         {
+              "id"           : "cert_expirationStatus",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "823 >= 60 days"
+          }
+,         {
+              "id"           : "cert_notBefore",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "2026-10-04 13:44"
+          }
+,         {
+              "id"           : "cert_notAfter",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "2029-01-06 13:44"
+          }
+,         {
+              "id"           : "cert_extlifeSpan",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "MEDIUM",
+              "finding"      : "825 > 398 days"
+          }
+,         {
+              "id"           : "cert_eTLS",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "not present"
+          }
+,         {
+              "id"           : "cert_crlDistributionPoints",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "cert_ocspURL",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "cert_revocation",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "HIGH",
+              "finding"      : "Neither CRL nor OCSP URI provided"
+          }
+,         {
+              "id"           : "OCSP_stapling",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "not offered"
+          }
+,         {
+              "id"           : "cert_mustStapleExtension",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "DNS_CAArecord",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "check skipped as instructed"
+          }
+,         {
+              "id"           : "certificate_transparency",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "N/A"
+          }
+,         {
+              "id"           : "certs_countServer",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "1"
+          }
+,         {
+              "id"           : "certs_list_ordering_problem",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "no"
+          }
+,         {
+              "id"           : "cert_caIssuers",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "postgres.s2.test (S2)"
+          }
+,         {
+              "id"           : "intermediate_cert_badOCSP",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "intermediate certificate(s) is/are ok"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc030",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc030   ECDHE-RSA-AES256-GCM-SHA384       ECDH 253   AESGCM      256      TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc028",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xc028   ECDHE-RSA-AES256-SHA384           ECDH 253   AES         256      TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc014",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xc014   ECDHE-RSA-AES256-SHA              ECDH 253   AES         256      TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x9f",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   x9f     DHE-RSA-AES256-GCM-SHA384         DH 2048    AESGCM      256      TLS_DHE_RSA_WITH_AES_256_GCM_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xcca8",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xcca8   ECDHE-RSA-CHACHA20-POLY1305       ECDH 253   ChaCha20    256      TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xccaa",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xccaa   DHE-RSA-CHACHA20-POLY1305         DH 2048    ChaCha20    256      TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc09f",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc09f   DHE-RSA-AES256-CCM                DH 2048    AESCCM      256      TLS_DHE_RSA_WITH_AES_256_CCM"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x6b",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x6b     DHE-RSA-AES256-SHA256             DH 2048    AES         256      TLS_DHE_RSA_WITH_AES_256_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x39",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x39     DHE-RSA-AES256-SHA                DH 2048    AES         256      TLS_DHE_RSA_WITH_AES_256_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc077",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xc077   ECDHE-RSA-CAMELLIA256-SHA384      ECDH 253   Camellia    256      TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc4",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xc4     DHE-RSA-CAMELLIA256-SHA256        DH 2048    Camellia    256      TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x88",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x88     DHE-RSA-CAMELLIA256-SHA           DH 2048    Camellia    256      TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x9d",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   x9d     AES256-GCM-SHA384                 RSA        AESGCM      256      TLS_RSA_WITH_AES_256_GCM_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc09d",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc09d   AES256-CCM                        RSA        AESCCM      256      TLS_RSA_WITH_AES_256_CCM"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x3d",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x3d     AES256-SHA256                     RSA        AES         256      TLS_RSA_WITH_AES_256_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x35",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x35     AES256-SHA                        RSA        AES         256      TLS_RSA_WITH_AES_256_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc0",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xc0     CAMELLIA256-SHA256                RSA        Camellia    256      TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x84",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x84     CAMELLIA256-SHA                   RSA        Camellia    256      TLS_RSA_WITH_CAMELLIA_256_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc051",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc051   ARIA256-GCM-SHA384                RSA        ARIAGCM     256      TLS_RSA_WITH_ARIA_256_GCM_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc053",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc053   DHE-RSA-ARIA256-GCM-SHA384        DH 2048    ARIAGCM     256      TLS_DHE_RSA_WITH_ARIA_256_GCM_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc061",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc061   ECDHE-ARIA256-GCM-SHA384          ECDH 253   ARIAGCM     256      TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc02f",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc02f   ECDHE-RSA-AES128-GCM-SHA256       ECDH 253   AESGCM      128      TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc027",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xc027   ECDHE-RSA-AES128-SHA256           ECDH 253   AES         128      TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc013",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xc013   ECDHE-RSA-AES128-SHA              ECDH 253   AES         128      TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x9e",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   x9e     DHE-RSA-AES128-GCM-SHA256         DH 2048    AESGCM      128      TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc09e",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc09e   DHE-RSA-AES128-CCM                DH 2048    AESCCM      128      TLS_DHE_RSA_WITH_AES_128_CCM"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc09c",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc09c   AES128-CCM                        RSA        AESCCM      128      TLS_RSA_WITH_AES_128_CCM"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x67",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x67     DHE-RSA-AES128-SHA256             DH 2048    AES         128      TLS_DHE_RSA_WITH_AES_128_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x33",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x33     DHE-RSA-AES128-SHA                DH 2048    AES         128      TLS_DHE_RSA_WITH_AES_128_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc076",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xc076   ECDHE-RSA-CAMELLIA128-SHA256      ECDH 253   Camellia    128      TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xbe",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xbe     DHE-RSA-CAMELLIA128-SHA256        DH 2048    Camellia    128      TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x45",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x45     DHE-RSA-CAMELLIA128-SHA           DH 2048    Camellia    128      TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x9c",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   x9c     AES128-GCM-SHA256                 RSA        AESGCM      128      TLS_RSA_WITH_AES_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x3c",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x3c     AES128-SHA256                     RSA        AES         128      TLS_RSA_WITH_AES_128_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x2f",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x2f     AES128-SHA                        RSA        AES         128      TLS_RSA_WITH_AES_128_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xba",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   xba     CAMELLIA128-SHA256                RSA        Camellia    128      TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_x41",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "LOW",
+              "finding"      : "TLSv1.2   x41     CAMELLIA128-SHA                   RSA        Camellia    128      TLS_RSA_WITH_CAMELLIA_128_CBC_SHA"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc050",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc050   ARIA128-GCM-SHA256                RSA        ARIAGCM     128      TLS_RSA_WITH_ARIA_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc052",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc052   DHE-RSA-ARIA128-GCM-SHA256        DH 2048    ARIAGCM     128      TLS_DHE_RSA_WITH_ARIA_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_2_xc060",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.2   xc060   ECDHE-ARIA128-GCM-SHA256          ECDH 253   ARIAGCM     128      TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "supportedciphers_TLSv1_2",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "ECDHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-AES256-SHA384 ECDHE-RSA-AES256-SHA DHE-RSA-AES256-GCM-SHA384 ECDHE-RSA-CHACHA20-POLY1305 DHE-RSA-CHACHA20-POLY1305 DHE-RSA-AES256-CCM DHE-RSA-AES256-SHA256 DHE-RSA-AES256-SHA ECDHE-RSA-CAMELLIA256-SHA384 DHE-RSA-CAMELLIA256-SHA256 DHE-RSA-CAMELLIA256-SHA AES256-GCM-SHA384 AES256-CCM AES256-SHA256 AES256-SHA CAMELLIA256-SHA256 CAMELLIA256-SHA ARIA256-GCM-SHA384 DHE-RSA-ARIA256-GCM-SHA384 ECDHE-ARIA256-GCM-SHA384 ECDHE-RSA-AES128-GCM-SHA256 ECDHE-RSA-AES128-SHA256 ECDHE-RSA-AES128-SHA DHE-RSA-AES128-GCM-SHA256 DHE-RSA-AES128-CCM AES128-CCM DHE-RSA-AES128-SHA256 DHE-RSA-AES128-SHA ECDHE-RSA-CAMELLIA128-SHA256 DHE-RSA-CAMELLIA128-SHA256 DHE-RSA-CAMELLIA128-SHA AES128-GCM-SHA256 AES128-SHA256 AES128-SHA CAMELLIA128-SHA256 CAMELLIA128-SHA ARIA128-GCM-SHA256 DHE-RSA-ARIA128-GCM-SHA256 ECDHE-ARIA128-GCM-SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_3_x1302",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.3   x1302   TLS_AES_256_GCM_SHA384            ECDH 253   AESGCM      256      TLS_AES_256_GCM_SHA384"
+          }
+,         {
+              "id"           : "cipher-tls1_3_x1303",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.3   x1303   TLS_CHACHA20_POLY1305_SHA256      ECDH 253   ChaCha20    256      TLS_CHACHA20_POLY1305_SHA256"
+          }
+,         {
+              "id"           : "cipher-tls1_3_x1301",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "OK",
+              "finding"      : "TLSv1.3   x1301   TLS_AES_128_GCM_SHA256            ECDH 253   AESGCM      128      TLS_AES_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "supportedciphers_TLSv1_3",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "TLS_AES_256_GCM_SHA384 TLS_CHACHA20_POLY1305_SHA256 TLS_AES_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "scanTime",
+              "ip"           : "172.16.106.42/172.16.106.42",
+              "port"         : "5432",
+              "severity"     : "INFO",
+              "finding"      : "75"
+          }
+]

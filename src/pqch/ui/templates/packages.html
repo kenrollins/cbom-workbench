@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — change packages</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "packages" %}{% set lede = "<strong>Change packages.</strong> For the items no configuration change can move: why, with the evidence, what would unblock each, and the test that will count once the software is replaced. Written by a rule from the ledger; nothing here is applied." %}{% include "_header.html" %}
+<main>
+{% if not p %}
+<p class="orient">No package run yet. Run <code>pqch package</code> after a scan.</p>
+{% elif p.broken %}
+<p class="error">The package run's ledger does not verify: {{ p.error }}. Nothing is drawn from it.</p>
+{% else %}
+<p class="orient">Some of the estate cannot be migrated by changing a setting: the software lists no post-quantum algorithm for the job. OMB M-26-15 says such systems must be identified and given priority for replacement; in NIST's plan this is <strong>mitigation</strong>, beside migration. Each package below is that identification for one item, built from the CBOM and the runtime's own list of what it supports.
+  <span class="ai">No model wrote these. The rule <code>package/supplier/1</code> reads the blocker, the queue, the snapshot and the CBOM entries; each package is an event on run <code>{{ p.run }}</code>, over scan <a href="/walkthrough?run={{ p.scan_run }}#queues"><code>{{ p.scan_run }}</code></a>.</span></p>
+<div class="receipts">
+  <div class="receipt"><div class="k">Packages</div><div class="n">{{ p.packages|length }}</div><div class="s">for {{ p.by_service|length }} services: {{ p.by_service|join(', ') }}</div></div>
+  <div class="receipt"><div class="k">Upgrade path in the estate</div><div class="n">{{ p.packages|selectattr('unblock')|list|length }}</div><div class="s">a supported version of the same software here already lists it</div></div>
+  <div class="receipt"><div class="k">On a prioritized system</div><div class="n">{{ p.packages|selectattr('item.prioritized')|list|length }}</div><div class="s">by the memo's own criteria</div></div>
+  <div class="receipt"><div class="k">CBOM entries covered</div><div class="n">{{ p.packages|sum(attribute='entries', start=[])|length }}</div><div class="s">each named by fingerprint</div></div>
+</div>
+{% for k in p.packages %}
+<section class="package" id="{{ k.item.service }}-{{ k.item.function }}">
+  <h2><span class="step">{{ loop.index }}</span> {{ k.item.service }} — {{ k.item.function }}</h2>
+  <p class="lede"><strong>{{ k.why.software }}</strong> lists no post-quantum algorithm for {{ k.item.function }}. {% if k.unblock %}A supported version of the same software in this estate does: {% for u in k.unblock %}<strong>{{ u.software }}</strong> on {{ u.service }} lists {{ u.lists|join(', ') }}{{ '; ' if not loop.last }}{% endfor %} — an upgrade, then a configuration change, then the test below.{% else %}Nothing in this estate's snapshot lists one for this function; the memo's answer is replacement or decommissioning.{% endif %}</p>
+  <table class="files"><tbody>
+    <tr><td>Queue</td><td>{{ k.item.queue or '—' }}{% if k.item.deadline %}, due {{ k.item.deadline }}{% endif %}{% if k.item.prioritized %} · <span class="tag">prioritized</span>{% endif %}</td></tr>
+    <tr><td>Owner</td><td>{% if k.item.owner %}{{ k.item.owner.value }} <span class="tag supplied">supplied</span>{% else %}<span class="dim">none supplied</span>{% endif %}</td></tr>
+    <tr><td>Why no configuration change</td><td>{{ k.why.basis }}<br><span class="dim small">{{ k.why.snapshot.method }}; taken {{ k.why.snapshot.taken_at }} · {% for x in k.why.evidence %}<code>{{ x.ref }}</code> sha256 <code>{{ x.sha256[:12] }}…</code>{% endfor %} · library {{ k.why.library|join(', ') }}</span></td></tr>
+    <tr><td>What the memo says</td><td>“{{ k.replace.quote }}” <span class="dim">— OMB M-26-15 §{{ k.replace.section }}</span></td></tr>
+    <tr><td>The test that will count</td><td>{{ k.verify }}</td></tr>
+    <tr><td>Rollback · rehearsal</td><td class="dim">none: nothing is applied · {{ k.rehearsal }}</td></tr>
+  </tbody></table>
+  <h3>The CBOM entries it covers</h3>
+  <table class="entries"><thead><tr><th>Listener</th><th>Entry</th><th>Type</th><th>Served from</th><th>Fingerprint</th></tr></thead><tbody>
+  {% for e in k.entries %}<tr><td class="mono small">{{ e.protocol|upper }} {{ e.listener }}</td><td>{{ e.name }}</td><td class="dim small">{{ e.type }}</td>
+    <td class="mono small">{% for f in e.files %}{{ f.path }}{{ ', ' if not loop.last }}{% else %}<span class="dim">—</span>{% endfor %}</td>
+    <td class="mono small"><a href="/cbom?run={{ k.item.run }}&ref=fp:{{ e.fingerprint }}#entry">{{ e.fingerprint[:12] }}…</a></td></tr>{% endfor %}
+  </tbody></table>
+</section>
+{% endfor %}
+<p class="note">The ledger of this run: <a href="/runs/{{ p.run }}/ledger.jsonl"><code>ledger.jsonl</code></a>, one <code>package.issued</code> event per package.</p>
+{% endif %}
+</main>
+</body>
+</html>

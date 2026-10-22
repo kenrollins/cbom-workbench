@@ -1,0 +1,7 @@
+# Management UI over TLS. Disabled 2024-03 when the plugin was removed; the
+# file is kept for the day it comes back. Not read: conf.d loads *.conf only.
+management.ssl.port       = 15671
+management.ssl.cacertfile = /etc/rmq-tls/retired/queue-2020.crt
+management.ssl.certfile   = /etc/rmq-tls/retired/queue-2020.crt
+management.ssl.keyfile    = /etc/rmq-tls/retired/queue-2020.key
+management.ssl.versions.1 = tlsv1

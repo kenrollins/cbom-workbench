@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- legacy-app: Tomcat 8.5. HTTPS only, on 8443. -->
+<Server port="-1" shutdown="SHUTDOWN">
+  <Service name="Catalina">
+    <Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+               sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+               SSLEnabled="true" scheme="https" secure="true" maxThreads="8">
+      <SSLHostConfig protocols="TLSv1.2" certificateVerification="none"
+                     ciphers="ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384">
+        <Certificate certificateKeystoreFile="conf/keystore.p12"
+                     certificateKeystorePassword="changeit"
+                     certificateKeystoreType="PKCS12" type="RSA"/>
+      </SSLHostConfig>
+    </Connector>
+    <!-- The intranet connector, retired 2021 with its keystore. Kept for reference.
+    <Connector port="8444" protocol="org.apache.coyote.http11.Http11NioProtocol"
+               SSLEnabled="true" scheme="https" secure="true" sslProtocol="TLS"
+               ciphers="TLS_RSA_WITH_3DES_EDE_CBC_SHA,TLS_RSA_WITH_AES_128_CBC_SHA"
+               keystoreFile="conf/intranet.jks" keystorePass="changeit"/>
+    -->
+    <Engine name="Catalina" defaultHost="localhost">
+      <Host name="localhost" appBase="webapps" unpackWARs="false" autoDeploy="false"/>
+    </Engine>
+  </Service>
+</Server>

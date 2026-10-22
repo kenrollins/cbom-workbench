@@ -1,0 +1,23 @@
+# Which verifier can confirm a change to each class of finding (ADR-0001,
+# decision 5: "a finding class with no verifier is recorded as such, and counted
+# in the receipts"). Data, read by the rule `verifier/class/1`, which records one
+# assessment per class present in a run; the CBOM carries the kind on each
+# component as `pqch:verifiable-by`, and the receipts count the entries that no
+# verifier can confirm.
+#
+# A class is matched by layer, then by asset type and role where given; the
+# first matching row wins. Kinds are the pqch.verifier/1 kinds: wire-kex (paired
+# probes and a witness), cert-parse, compat-run, or none.
+schema: pqch.verifiers/1
+classes:
+  - {layer: wire, type: algorithm, role: key-establishment, verifier: wire-kex,
+     why: a client offering only the new group must succeed and one offering every old group must be refused}
+  - {layer: wire, type: certificate, verifier: cert-parse,
+     why: the served certificate is parsed after the change}
+  - {layer: wire, type: algorithm, role: signature, verifier: none,
+     why: a host-key or signature algorithm change has no paired-probe verifier yet (the signature track, M3)}
+  - {layer: wire, verifier: none}
+  - {layer: host, verifier: none,
+     why: a file in an image is confirmed only through the listener that serves it}
+  - {layer: code, verifier: none,
+     why: a call site is confirmed only through the wire finding it causes}

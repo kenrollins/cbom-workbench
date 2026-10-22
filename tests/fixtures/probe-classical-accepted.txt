@@ -1,0 +1,59 @@
+Connecting to 172.16.106.10
+depth=0 O=Mini Agency, CN=portal.agency.test
+verify error:num=18:self-signed certificate
+verify return:1
+depth=0 O=Mini Agency, CN=portal.agency.test
+verify return:1
+CONNECTED(00000003)
+---
+Certificate chain
+ 0 s:O=Mini Agency, CN=portal.agency.test
+   i:O=Mini Agency, CN=portal.agency.test
+   a:PKEY: RSA, 2048 (bit); sigalg: sha256WithRSAEncryption
+   v:NotBefore: Oct  3 12:29:57 2026 GMT; NotAfter: Jan  5 12:29:57 2029 GMT
+-----BEGIN CERTIFICATE-----
+MIIDZjCCAk6gAwIBAgIUNNdfTFbfktfmaawXPgmh2w7r5p8wDQYJKoZIhvcNAQEL
+BQAwMzEUMBIGA1UECgwLTWluaSBBZ2VuY3kxGzAZBgNVBAMMEnBvcnRhbC5hZ2Vu
+Y3kudGVzdDAeFw0yNjEwMDMxMjI5NTdaFw0yOTAxMDUxMjI5NTdaMDMxFDASBgNV
+BAoMC01pbmkgQWdlbmN5MRswGQYDVQQDDBJwb3J0YWwuYWdlbmN5LnRlc3QwggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDIl5+K+2utRdaUOemoblWMQbx0
+5VSFJuEVIAIb80vY8E5n7u+GHhTiKTheaxxUFrkgsIlX3BDHfkOK2RERRMUcnwfW
+zXTdfhySO09iSaAdbCf8qeqZT5+FKOe79TI5Mw0lbhMh91SVyCzWAfqRa3WQ1QGU
+az6dMyw3JXg5dacuR++dB8K96SHm6uQo3i0Hwv3xk/uK5grFG4GE4BXd979oqEJS
+qr8H/jewbUDo8faKZ+Kknt9MVZyJKo+8S55OAgU1gAU0HRFrxDvRpsOk3VTVvEfg
+uq0f/AwnCFrdNk+41k2MpysSKKl7ERJLkmbgH6GYTviyDrjaPll9WoeQtxcNAgMB
+AAGjcjBwMB0GA1UdDgQWBBTUkk8l0f2WXhuL1OEdRDtJr/B9XTAfBgNVHSMEGDAW
+gBTUkk8l0f2WXhuL1OEdRDtJr/B9XTAPBgNVHRMBAf8EBTADAQH/MB0GA1UdEQQW
+MBSCEnBvcnRhbC5hZ2VuY3kudGVzdDANBgkqhkiG9w0BAQsFAAOCAQEAWFXtaC2s
+B6DkO715tXXyPumohHqCEW8XJ2g3IYIJmeKzbprPxbWWE1fEGQifTeDAjst4hjPF
+EkicqnPnrpRDBjbtHDvEacWZk/tt3vtxqeJq5ojeYanoexnRDXXdPXGbVYP07qnK
+F0gSlOhoaxUUpWy7V2ecjzo2n8N6H/QErXYy8ORuzoXYaednbzqdanymJiuSY10k
+F268XVXcAkuWV+dB1Fg7eQD/l5RDIAFS+S+6tvKkIKNMNVjIEfEz0jtUeYB/llMM
+MhCbQfLTdxe/nXiRgtFQMAuAS1MFhxNhM5rq1O/iZMuPuMEcgj091/3gPDg3d0pL
+ufBNiqloWD3HhQ==
+-----END CERTIFICATE-----
+---
+Server certificate
+subject=O=Mini Agency, CN=portal.agency.test
+issuer=O=Mini Agency, CN=portal.agency.test
+---
+No client certificate CA names sent
+Peer signing digest: SHA256
+Peer signature type: rsa_pss_rsae_sha256
+Peer Temp Key: X25519, 253 bits
+---
+SSL handshake has read 1434 bytes and written 408 bytes
+Verification error: self-signed certificate
+---
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+Protocol: TLSv1.3
+Server public key is 2048 bit
+This TLS version forbids renegotiation.
+Compression: NONE
+Expansion: NONE
+No ALPN negotiated
+Early data was not sent
+Verify return code: 18 (self-signed certificate)
+---
+DONE
+PQCH_EXIT=0

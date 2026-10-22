@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cbom-workbench/schemas/finding.json",
+  "title": "pqch.finding/1",
+  "type": "object",
+  "required": [
+    "schema",
+    "id",
+    "observed_at",
+    "layer",
+    "source",
+    "subject",
+    "asset",
+    "evidence",
+    "fingerprint"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pqch.finding/1"
+    },
+    "id": {
+      "$ref": "event.json#/$defs/ulid"
+    },
+    "observed_at": {
+      "$ref": "event.json#/$defs/ts"
+    },
+    "layer": {
+      "enum": [
+        "wire",
+        "host",
+        "code"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "tool",
+        "version",
+        "image_digest",
+        "profile"
+      ],
+      "properties": {
+        "tool": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "image_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "profile": {
+          "type": "string"
+        },
+        "subject_digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
+    "subject": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "host",
+            "port",
+            "protocol"
+          ],
+          "properties": {
+            "kind": {
+              "const": "endpoint"
+            },
+            "host": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer"
+            },
+            "protocol": {
+              "type": "string"
+            },
+            "sni": {
+              "type": "string"
+            },
+            "vlan": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4094
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "path"
+          ],
+          "properties": {
+            "kind": {
+              "const": "file"
+            },
+            "image": {
+              "type": "string",
+              "pattern": "^[^@\\s]+$"
+            },
+            "host": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "image"
+              ]
+            },
+            {
+              "required": [
+                "host"
+              ]
+            }
+          ]
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "repo",
+            "commit",
+            "path",
+            "line"
+          ],
+          "properties": {
+            "kind": {
+              "const": "call-site"
+            },
+            "repo": {
+              "type": "string"
+            },
+            "commit": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            },
+            "line": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "host",
+            "protocol"
+          ],
+          "properties": {
+            "kind": {
+              "const": "client"
+            },
+            "host": {
+              "type": "string"
+            },
+            "protocol": {
+              "type": "string"
+            },
+            "vlan": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4094
+            }
+          }
+        }
+      ]
+    },
+    "asset": {
+      "type": "object",
+      "required": [
+        "type",
+        "role",
+        "name"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "algorithm",
+            "certificate",
+            "protocol",
+            "related-crypto-material"
+          ]
+        },
+        "role": {
+          "enum": [
+            "key-establishment",
+            "signature",
+            "encryption",
+            "hash",
+            "mac",
+            "other"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "identity": {
+          "type": "string",
+          "pattern": "^(spki-sha256:[0-9a-f]{64}|openssh-sha256:[A-Za-z0-9+/]{43})$"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": [
+        "raw",
+        "sha256",
+        "excerpt"
+      ],
+      "properties": {
+        "raw": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "event.json#/$defs/sha256"
+        },
+        "excerpt": {
+          "type": "string"
+        }
+      }
+    },
+    "fingerprint": {
+      "$ref": "event.json#/$defs/sha256"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "subject": {
+            "properties": {
+              "kind": {
+                "const": "file"
+              }
+            },
+            "required": [
+              "image"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source": {
+            "required": [
+              "subject_digest"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

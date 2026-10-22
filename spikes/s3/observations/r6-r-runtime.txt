@@ -1,0 +1,1 @@
+openjdk version "21.0.8" 2025-07-15 LTS

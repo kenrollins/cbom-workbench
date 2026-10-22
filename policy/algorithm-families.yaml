@@ -1,0 +1,49 @@
+# The family each normalized algorithm name belongs to, by role, for the policy packs' tables.
+# Data. The names are the ones src/pqch/scout/names.py produces; the families are the rows of
+# a pack's table (policy/packs/*.yaml, `quantum_vulnerable`). Each line says what settles it.
+# A name not listed here is `unknown` and is treated as quantum-vulnerable when asymmetric, as
+# M-26-15's footnote 13 asks.
+schema: pqch.algorithm-families/1
+key-establishment:
+  X25519: {family: ecdh, why: "RFC 7748; IANA TLS group 29"}
+  X448: {family: ecdh, why: "RFC 7748"}
+  secp256r1: {family: ecdh, why: "IANA TLS group 23"}
+  secp384r1: {family: ecdh, why: "IANA TLS group 24"}
+  secp521r1: {family: ecdh, why: "IANA TLS group 25"}
+  brainpoolP256r1: {family: ecdh, why: "RFC 7027"}
+  brainpoolP384r1: {family: ecdh, why: "RFC 7027"}
+  brainpoolP512r1: {family: ecdh, why: "RFC 7027"}
+  DH-1024: {family: finite-field-dh, why: "RFC 4253 §8.1, Oakley group 2"}
+  DH-2048: {family: finite-field-dh, why: "RFC 3526 group 14"}
+  DH-3072: {family: finite-field-dh, why: "RFC 3526 group 15"}
+  DH-4096: {family: finite-field-dh, why: "RFC 3526 group 16"}
+  DH-GEX: {family: finite-field-dh, why: "RFC 4419"}
+  ffdhe2048: {family: finite-field-dh, why: "RFC 7919"}
+  ffdhe3072: {family: finite-field-dh, why: "RFC 7919"}
+  ffdhe4096: {family: finite-field-dh, why: "RFC 7919"}
+  RSA: {family: rsa-kex, why: "TLS_RSA_WITH_* suites: RSA key transport"}
+  X25519MLKEM768: {family: hybrid-ml-kem, why: "IANA TLS group 4588: X25519 with ML-KEM-768 (FIPS 203)"}
+  SecP256r1MLKEM768: {family: hybrid-ml-kem, why: "IANA TLS group 4587"}
+  SecP384r1MLKEM1024: {family: hybrid-ml-kem, why: "IANA TLS group 4589"}
+  ML-KEM-512: {family: ml-kem, why: "FIPS 203"}
+  ML-KEM-768: {family: ml-kem, why: "FIPS 203"}
+  ML-KEM-1024: {family: ml-kem, why: "FIPS 203"}
+  # Streamlined NTRU Prime with X25519 (OpenSSH). Not a FIPS algorithm and not named by M-26-15;
+  # footnote 13 asks that an asymmetric algorithm not definitively known to be quantum-resistant
+  # be treated as vulnerable, so it is listed as other-asymmetric, not as a hybrid with ML-KEM.
+  sntrup761x25519: {family: other-asymmetric, why: "OpenSSH sntrup761x25519-sha512; not FIPS 203; M-26-15 footnote 13"}
+signature:
+  RSA: {family: rsa-sig, why: "an RSA key used to sign"}
+  ECDSA: {family: ecdsa, why: "FIPS 186-5"}
+  DSA: {family: dsa, why: "FIPS 186-5 (DSA)"}
+  Ed25519: {family: other-asymmetric, why: "RFC 8032 EdDSA: asymmetric, classical; not enumerated in the table, footnote 13"}
+  Ed448: {family: other-asymmetric, why: "RFC 8032 EdDSA; footnote 13"}
+  ML-DSA-44: {family: ml-dsa, why: "FIPS 204"}
+  ML-DSA-65: {family: ml-dsa, why: "FIPS 204"}
+  ML-DSA-87: {family: ml-dsa, why: "FIPS 204"}
+  SLH-DSA: {family: slh-dsa, why: "FIPS 205"}
+  # cbomkit-theia names a certificate's signature algorithm with its hash.
+  ECDSA-SHA256: {family: ecdsa, why: "ecdsa-with-SHA256, FIPS 186-5"}
+  ECDSA-SHA384: {family: ecdsa, why: "ecdsa-with-SHA384, FIPS 186-5"}
+  SHA1-RSA: {family: rsa-sig, why: "sha1WithRSAEncryption"}
+  SHA256-RSA: {family: rsa-sig, why: "sha256WithRSAEncryption"}

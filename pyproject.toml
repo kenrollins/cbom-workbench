@@ -1,0 +1,58 @@
+[project]
+name = "cbom-workbench"
+version = "0.0.0"
+description = "A CBOM workbench, from visibility to crypto agility, on a signed ledger."
+requires-python = ">=3.12,<3.13"
+license = { text = "Apache-2.0" }
+dependencies = [
+    "cryptography>=50.0.2",
+    "docker>=7.2.0",
+    "fastapi>=0.142.2",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "jsonschema>=4.26.0",
+    "python-multipart>=0.0.32",
+    "pyyaml>=6.0.3",
+    "referencing>=0.37.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+pqch = "pqch.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pqch"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = [
+    "E4", "E7", "E9",   # pycodestyle errors
+    "F",                # pyflakes
+    "B",                # bugbear
+    "C4",               # comprehensions
+    "UP",               # pyupgrade
+    "RUF",              # ruff-native checks
+]
+ignore = [
+    # Typographic characters in prose strings and comments are deliberate.
+    "RUF001", "RUF002", "RUF003",
+    "E501",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Tests need no GPU, no model endpoint and no target network.
+addopts = "-q"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.16.10",
+]

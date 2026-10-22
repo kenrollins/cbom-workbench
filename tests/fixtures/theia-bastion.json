@@ -1,0 +1,98 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:5ec8ab05-1683-4848-b0f4-9e626d5f49b2",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-03T12:48:44Z",
+    "tools": {
+      "services": [
+        {
+          "provider": {
+            "name": "PQCA"
+          },
+          "name": "cbomkit-theia",
+          "version": "edge",
+          "services": [
+            {
+              "name": "Certificate File Plugin"
+            },
+            {
+              "name": "Secret Detection Plugin"
+            },
+            {
+              "name": "OpenSSL Config Plugin"
+            },
+            {
+              "name": "Problematic CA Detection Plugin"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "89ee8b12-0cc0-4f11-ad31-c2b10b85b8b9",
+      "type": "cryptographic-asset",
+      "name": "RSA-3072",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssh/ssh_host_rsa_key",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "size": 3072,
+          "format": "PEM"
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "15136ed3-cc78-49c4-a27a-67ad96e107c1",
+      "type": "file",
+      "name": "openssl.cnf",
+      "description": "OpenSSL configuration",
+      "properties": [
+        {
+          "name": "theia:openssl:default_md",
+          "value": "default\t\t# use public key default MD"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/openssl.cnf"
+          }
+        ]
+      }
+    },
+    {
+      "bom-ref": "3d659c46-b7df-43ed-a7c4-1b4a6c01193e",
+      "type": "file",
+      "name": "openssl.cnf.dist",
+      "description": "OpenSSL configuration",
+      "properties": [
+        {
+          "name": "theia:openssl:default_md",
+          "value": "default\t\t# use public key default MD"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/openssl.cnf.dist"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+# The slice's central crypto policy: key establishment on its TLS listeners.
+# Data. The migrator renders it into each target's TLS configuration; a change
+# to this file is proposed, approved, applied by the runner and verified on
+# the wire.
+#
+# intent, per target:
+#   none     classical groups only — the slice as built and keyed
+#   enable   offer the hybrid group first, still accept the classical ones
+#   require  the hybrid group only, TLS 1.3 only (TLS 1.2 cannot carry it)
+schema: pqch.crypto-policy/1
+key_establishment:
+  # What the estate is configured with.
+  hybrid: [X25519MLKEM768]
+  classical: [X25519, secp256r1]
+  # What a check refuses. Not the two groups above: every group of the other
+  # kind that a client could offer. A listener that requires the hybrid group
+  # must refuse a client offering any classical group, configured or not.
+  every_classical: [X25519, X448, secp256r1, secp384r1, secp521r1,
+                    ffdhe2048, ffdhe3072, ffdhe4096, ffdhe6144, ffdhe8192,
+                    brainpoolP256r1tls13, brainpoolP384r1tls13, brainpoolP512r1tls13]
+  every_post_quantum: [X25519MLKEM768, SecP256r1MLKEM768, SecP384r1MLKEM1024,
+                       MLKEM512, MLKEM768, MLKEM1024]
+# SSH key exchange, by OpenSSH's names. Rendered by rule into a KexAlgorithms line.
+ssh_key_exchange:
+  hybrid: [mlkem768x25519-sha256]
+  classical: [curve25519-sha256, curve25519-sha256@libssh.org]
+  # What a require check refuses: every key exchange that is not the ML-KEM hybrid. The NTRU
+  # Prime hybrid is post-quantum by design but not a FIPS algorithm, and M-26-15's footnote 13
+  # asks that what is not definitively known to be quantum-resistant be treated as vulnerable.
+  every_other: [curve25519-sha256, curve25519-sha256@libssh.org, ecdh-sha2-nistp256, ecdh-sha2-nistp384,
+                ecdh-sha2-nistp521, diffie-hellman-group14-sha256, diffie-hellman-group16-sha512,
+                diffie-hellman-group18-sha512, diffie-hellman-group-exchange-sha256,
+                diffie-hellman-group14-sha1, diffie-hellman-group1-sha1, diffie-hellman-group-exchange-sha1,
+                sntrup761x25519-sha512, sntrup761x25519-sha512@openssh.com]
+targets:
+  - service: portal
+    address: 172.16.106.10
+    port: 443
+    software: nginx
+    intent: none
+  - service: records-db
+    address: 172.16.106.30
+    port: 5432
+    protocol: postgres
+    # No renderer: a change to this listener is drafted by the change-plan role, checked
+    # against PostgreSQL's TLS lines, rehearsed in the twin and verified on the wire.
+    software: postgresql
+    # 2026-10-21: require — the records database's data stays sensitive for 75 years and it still
+    # accepts X25519, finite-field DH and RSA key transport (note 07). Set by the build session on
+    # Ken Rollins's instruction to build M3; the change it causes waits for his approval.
+    intent: require
+  - service: bastion
+    address: 172.16.106.21
+    port: 22
+    protocol: ssh
+    software: openssh
+    # 2026-10-21: require — the ML-KEM hybrid only, refusing curve25519 and the NTRU Prime hybrid;
+    # M3's first SSH change. Set by the build session on Ken Rollins's instruction to build M3; the
+    # change waits for his approval.
+    intent: require

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — the plan</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "plan" %}{% set lede = "<strong>The plan.</strong> What the CBOM says depends on what, what comes first, and in what order — the migration plan an inventory of systems cannot give, computed from the mini-agency's CBOM." %}{% include "_header.html" %}
+<main>
+{% if not public %}<nav class="estates" aria-label="estate">
+  <a href="/plan" class="{{ 'on' if estate == 'mini-agency' }}"><strong>The mini-agency's plan</strong><span>ranked by the memo, from the owner's facts</span></a>
+  <a href="/plan?estate=lab" class="{{ 'on' if estate == 'lab' }}"><strong>The lab's plan</strong><span>a real network: who holds whom back, measured</span></a>
+</nav>{% endif %}
+{% if not plan %}
+<p class="orient">No plan yet: it is computed from a scan of the mini-agency. Run one from <a href="/walkthrough">the walkthrough</a>.</p>
+{% elif estate == 'lab' %}
+<p class="orient">The same planning on a real network, where nothing was planted and no owner's facts are supplied — so nothing is ranked by mission, and the lanes are hosts in order of how much they are used. What the lab's CBOM gives instead is who holds whom back. A server that refuses a hybrid group its clients keep offering is the blocker; a listener that accepts one no client offers is waiting for its clients; and requiring the hybrid group refuses a measured share of today's handshakes, from clients on known VLANs. That is in the capture and the targeted scan, merged into one CBOM, and nowhere else.
+  <span class="ai">Computed by rules from capture run <code>{{ plan.run }}</code> and the latest targeted scan. Shown only to the owner; nothing from it is published.</span></p>
+<div class="versus">
+  <div class="side sheet-side">
+    <div class="k">Without the CBOM</div>
+    <div class="n">?</div>
+    <p class="s">A list of devices says what exists. It cannot say which server refuses what its clients offer, which clients would be shut out by a change, or what share of the traffic each change would break.</p>
+  </div>
+  <div class="arrow-big" aria-hidden="true">→</div>
+  <div class="side cbom-side">
+    <div class="k">Planned from the lab's CBOM</div>
+    <div class="row">
+      <div><div class="n">{{ plan.steps }}</div><div class="s">steps, from {{ '{:,}'.format(plan.entries) }} CBOM entries</div></div>
+      <div><div class="n">{{ plan.dependencies|length }}</div><div class="s">groups of clients that hold servers back, by VLAN</div></div>
+      <div><div class="n">{{ plan.waiting }}</div><div class="s">steps that wait for another first</div></div>
+      <div><div class="n">0</div><div class="s">ranked by mission: no owner's facts supplied</div></div>
+    </div>
+  </div>
+</div>
+{% if plan and plan.assumed %}{% include "_whatif.html" %}{% endif %}
+<div class="whatif" id="whatif-live" hidden></div>
+<section id="map">
+  <h2><span class="step">1</span> The plan, drawn</h2>
+  <p class="lede">A lane per client group and per host, the busiest first. Left to right: what can start now, the clients, then requiring the hybrid group. Hover a VLAN above to see every listener its clients reach.</p>
+  <figure class="planmap" data-plan='{{ plan|tojson }}'></figure>
+  <div class="legend">State: <span><i class="dot verifier"></i>done</span><span><i class="dot model"></i>ready to start</span><span><i class="dot scanner"></i>waiting on another step</span></div>
+</section>
+
+<section id="steps">
+  <h2>Every step, in order</h2>
+  <p class="lede">The same plan as a list: dependencies first, then the earlier deadline, then the higher priority.{% if plan.assumed %} Rows a what-if changes are marked.{% endif %}</p>
+  <table class="files steps"><thead><tr><th class="num">#</th><th>Step</th><th>Lane</th><th>Due</th><th>State</th><th>Waits for</th><th>Why</th></tr></thead><tbody>
+  {% set titles = {} %}{% for st in plan.order %}{% set _ = titles.update({st.id: st.title}) %}{% endfor %}
+  {% for st in plan.order %}<tr data-step="{{ st.id }}" class="{{ 'assumed' if st.assumed else ('freed' if st.id in (plan.freed or []) else '') }}">
+    <td class="num">{{ st.n }}</td><td><strong>{{ st.title }}</strong>{% if st.assumed %} <span class="tag whatif-tag">assumed done</span>{% elif st.id in (plan.freed or []) %} <span class="tag freed-tag">freed by the what-if</span>{% endif %}</td>
+    <td class="small">{{ st.service or ('internal CA' if st.kind == 'ca' else 'whole estate') }}</td><td class="small">{{ st.due or '—' }}</td>
+    <td class="small state">{{ {'done': 'done', 'ready': 'ready', 'waiting': 'waiting'}[st.state] }}</td>
+    <td class="small dim">{% for d in st.depends_on %}{{ titles.get(d, d) }}{{ '; ' if not loop.last }}{% else %}—{% endfor %}</td>
+    <td class="small">{{ st.why }}{% if st.resolve and st.state != 'done' %} <a href="{{ st.resolve }}">{{ st.resolve_label or 'resolve' }} →</a>{% endif %}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+<section id="traps">
+  <h2><span class="step">2</span> What a plan from a device list gets wrong</h2>
+  <table class="traps"><thead><tr><th>Planned from a list</th><th>What the CBOM shows</th></tr></thead><tbody>
+  {% for t in plan.traps %}<tr><td class="dim">{{ t.sheet }}</td><td>{{ t.cbom }}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+{% else %}
+<p class="orient">Moving an estate to post-quantum cryptography is not a list of changes. A certificate authority's root has to move before the certificates it issued; software that cannot take the new algorithms has to be replaced before anything that depends on it; a service is offered the new key exchange before it is required, and only once its clients can follow. None of that is in a list of systems. All of it is in the CBOM — which certificate was issued by which authority, which key sits on which listener, which build a service runs, what each listener accepts — and so the order can be computed, not guessed. That ability to plan the next change, and the one after, from the record is what crypto agility rests on.
+  <span class="ai">The plan is computed by rules from scan <a href="/walkthrough?run={{ plan.run }}"><code>{{ plan.run }}</code></a> and the change runs since, every time this page is shown. No model orders it.</span></p>
+
+<div class="versus">
+  <div class="side sheet-side">
+    <div class="k">Planned from the spreadsheet</div>
+    <div class="n">{{ sheet.rows }}<small>rows</small></div>
+    <ul>{% for r in sheet_rows %}<li class="{{ 'ghost' if not r.service }}">{{ r.system }} <span class="dim">— {{ r.says }}</span></li>{% endfor %}</ul>
+    <p class="s">{{ sheet.rows }} independent tasks, one per row, each on its owner's schedule. {{ sheet.ghosts }} have nothing behind them; {{ plan.ranking|length - sheet_rows|selectattr('service')|list|length }} services the estate runs are not on it at all. Nothing says what any row depends on.</p>
+  </div>
+  <div class="arrow-big" aria-hidden="true">→</div>
+  <div class="side cbom-side">
+    <div class="k">Planned from the CBOM</div>
+    <div class="row">
+      <div><div class="n">{{ plan.steps }}</div><div class="s">steps, each tied to the CBOM entries it moves — {{ plan.entries }} in all</div></div>
+      <div><div class="n">{{ plan.dependencies|length }}</div><div class="s">shared dependencies that tie services together</div></div>
+      <div><div class="n">{{ plan.waiting }}</div><div class="s">steps that must wait for another step first</div></div>
+      <div><div class="n">{{ plan.done }}</div><div class="s">done since the scan, by a change that landed</div></div>
+    </div>
+  </div>
+</div>
+
+{% if plan and plan.assumed %}{% include "_whatif.html" %}{% endif %}
+<div class="whatif" id="whatif-live" hidden></div>
+<section id="map">
+  <h2><span class="step">1</span> The plan, drawn</h2>
+  <p class="lede">One lane per service, most urgent at the top by the memo's own criteria; the certificate authority and the estate-wide work have lanes of their own. Left to right: what must start now, what is due by 2030, what by 2031. A line is a dependency: the step on the right cannot finish before the one on the left. Hover a shared dependency above the lanes to see everything it touches; click a step for why it is there, what it waits for, and the CBOM fields it was computed from.</p>
+  <figure class="planmap" data-plan='{{ plan|tojson }}'></figure>
+  <div class="legend">State: <span><i class="dot verifier"></i>done</span><span><i class="dot model"></i>ready to start</span><span><i class="dot scanner"></i>waiting on another step</span></div>
+</section>
+
+
+<section id="steps">
+  <h2>Every step, in order</h2>
+  <p class="lede">The same plan as a list: dependencies first, then the earlier deadline, then the higher priority.{% if plan.assumed %} Rows a what-if changes are marked.{% endif %}</p>
+  <table class="files steps"><thead><tr><th class="num">#</th><th>Step</th><th>Lane</th><th>Due</th><th>State</th><th>Waits for</th><th>Why</th></tr></thead><tbody>
+  {% set titles = {} %}{% for st in plan.order %}{% set _ = titles.update({st.id: st.title}) %}{% endfor %}
+  {% for st in plan.order %}<tr data-step="{{ st.id }}" class="{{ 'assumed' if st.assumed else ('freed' if st.id in (plan.freed or []) else '') }}">
+    <td class="num">{{ st.n }}</td><td><strong>{{ st.title }}</strong>{% if st.assumed %} <span class="tag whatif-tag">assumed done</span>{% elif st.id in (plan.freed or []) %} <span class="tag freed-tag">freed by the what-if</span>{% endif %}</td>
+    <td class="small">{{ st.service or ('internal CA' if st.kind == 'ca' else 'whole estate') }}</td><td class="small">{{ st.due or '—' }}</td>
+    <td class="small state">{{ {'done': 'done', 'ready': 'ready', 'waiting': 'waiting'}[st.state] }}</td>
+    <td class="small dim">{% for d in st.depends_on %}{{ titles.get(d, d) }}{{ '; ' if not loop.last }}{% else %}—{% endfor %}</td>
+    <td class="small">{{ st.why }}{% if st.resolve and st.state != 'done' %} <a href="{{ st.resolve }}">{{ st.resolve_label or 'resolve' }} →</a>{% endif %}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+<section id="traps">
+  <h2><span class="step">2</span> What a plan from the spreadsheet gets wrong</h2>
+  <p class="lede">Each row is computed from this estate's CBOM: the step a row-by-row plan would take, and what the CBOM shows instead.</p>
+  <table class="traps"><thead><tr><th>Planned from the sheet</th><th>What the CBOM shows</th></tr></thead><tbody>
+  {% for t in plan.traps %}<tr><td class="dim">{{ t.sheet }}</td><td>{{ t.cbom }}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+
+<section id="first">
+  <h2><span class="step">3</span> What comes first, and why</h2>
+  <p class="lede">The order of the lanes above. OMB M-26-15 prioritizes a high-impact system, a High Value Asset, or data still sensitive in 2030; among those, the longer the data must stay secret, the sooner its key exchange matters — traffic recorded today is decrypted when the key exchange falls. The owner's facts are supplied; the rest is the CBOM's.</p>
+  <table class="files"><thead><tr><th>#</th><th>Service</th><th>Why</th><th>Data secret until</th><th>Key exchange today</th><th>Blocked on its supplier</th></tr></thead><tbody>
+  {% for r in plan.ranking %}<tr><td class="num">{{ loop.index }}</td><td><strong>{{ r.service }}</strong> <span class="dim small">{{ r.mission }}</span></td>
+    <td class="small">{% if r.prioritized %}{{ r.criteria|join(', ') }}{% else %}<span class="dim">not prioritized</span>{% endif %}</td>
+    <td class="num">{{ r.sensitive_through or '—' }}</td>
+    <td class="small">{% for k in r.kex_now %}<span class="posture {{ k }}">{{ k }}</span> {% endfor %}</td>
+    <td class="small">{{ r.blocked|join(', ') or '—' }}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+
+<section id="resolve">
+  <h2><span class="step">4</span> Carrying out a step</h2>
+  <p class="note">Each step links to where it is resolved: a change proposed, rehearsed on a copy, checked against every kind of client, approved by a person and proved on the wire — <a href="/resolve">the resolution stage</a> — or, where no setting can move it, <a href="/packages">a change package</a> for the replacement. When a change lands, its step turns done here.</p>
+</section>
+{% endif %}
+</main>
+<script src="/static/vendor/d3.v7.min.js"></script>
+<script src="/static/plan.js"></script>
+</body>
+</html>

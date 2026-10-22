@@ -1,0 +1,50 @@
+Connecting to 172.16.106.11
+depth=0 O=Mini Agency, CN=api.agency.test
+verify error:num=18:self-signed certificate
+verify return:1
+depth=0 O=Mini Agency, CN=api.agency.test
+verify return:1
+CONNECTED(00000003)
+---
+Certificate chain
+ 0 s:O=Mini Agency, CN=api.agency.test
+   i:O=Mini Agency, CN=api.agency.test
+   a:PKEY: EC, (prime256v1); sigalg: ecdsa-with-SHA256
+   v:NotBefore: Oct  3 12:29:57 2026 GMT; NotAfter: Jan  5 12:29:57 2029 GMT
+-----BEGIN CERTIFICATE-----
+MIIB0TCCAXegAwIBAgIUdc1mhPJidoJOHGOsu/WXe/Tqz2EwCgYIKoZIzj0EAwIw
+MDEUMBIGA1UECgwLTWluaSBBZ2VuY3kxGDAWBgNVBAMMD2FwaS5hZ2VuY3kudGVz
+dDAeFw0yNjEwMDMxMjI5NTdaFw0yOTAxMDUxMjI5NTdaMDAxFDASBgNVBAoMC01p
+bmkgQWdlbmN5MRgwFgYDVQQDDA9hcGkuYWdlbmN5LnRlc3QwWTATBgcqhkjOPQIB
+BggqhkjOPQMBBwNCAASk5P7RXOv0Pha/A4a+x3CKvw0J9uxTgqh20xGwzeUiKUCj
+QcIFt/6sTcRcyzWJYrWckK2tBDJ5RYoMeVugzWbKo28wbTAdBgNVHQ4EFgQUi9xj
+KFQb/MCBWaUsHtBRM9RAArIwHwYDVR0jBBgwFoAUi9xjKFQb/MCBWaUsHtBRM9RA
+ArIwDwYDVR0TAQH/BAUwAwEB/zAaBgNVHREEEzARgg9hcGkuYWdlbmN5LnRlc3Qw
+CgYIKoZIzj0EAwIDSAAwRQIgOhdGaw9ILXIQAQwqvmQH528yAgPZ6sdYum/rbIwm
+tEYCIQCM39aG6r/5OtzCca0G+mXrERRjApRpuNywiQ+Rc84Qjg==
+-----END CERTIFICATE-----
+---
+Server certificate
+subject=O=Mini Agency, CN=api.agency.test
+issuer=O=Mini Agency, CN=api.agency.test
+---
+No client certificate CA names sent
+Peer signing digest: SHA256
+Peer signature type: ecdsa_secp256r1_sha256
+Negotiated TLS1.3 group: X25519MLKEM768
+---
+SSL handshake has read 1932 bytes and written 1506 bytes
+Verification error: self-signed certificate
+---
+New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+Protocol: TLSv1.3
+Server public key is 256 bit
+This TLS version forbids renegotiation.
+Compression: NONE
+Expansion: NONE
+No ALPN negotiated
+Early data was not sent
+Verify return code: 18 (self-signed certificate)
+---
+DONE
+PQCH_EXIT=0

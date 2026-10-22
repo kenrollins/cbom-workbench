@@ -1,0 +1,145 @@
+# The mini-agency, M1: eight services on an internal-only bridge with an
+# explicit subnet. Nothing here has a route out, and nothing here has a VLAN
+# address. The `x-pqch` block on each service is what the scope generator reads:
+# the listeners a wire scan may touch.
+#
+# Build order: the internal CA first, then the estate (README.md):
+#   docker build -t pqch-agency/pki:m1 agency/pki
+#   uv run pqch policy render
+#   docker compose -f agency/compose.yaml up -d --build
+name: pqch-agency
+
+x-limits: &limits
+  mem_limit: 64m
+  cpus: 0.5
+  restart: unless-stopped
+
+# Services whose certificates the internal CA issues copy them from its image.
+x-pki: &pki
+  additional_contexts:
+    pki: docker-image://pqch-agency/pki:m1
+
+services:
+  portal:
+    <<: *limits
+    build: portal
+    image: pqch-agency/portal:m0
+    hostname: portal
+    volumes:
+      # Rendered from the central crypto policy; the runner rewrites it only to
+      # apply an approved change.
+      - ./generated/portal:/etc/nginx/policy:ro
+    networks:
+      agency_net: {ipv4_address: 172.16.106.10}
+    x-pqch:
+      policy: {software: nginx, mount: /etc/nginx/policy}
+      twin: {address: 172.16.107.10}
+      endpoints: [{port: 443, protocol: tls, sni: portal.agency.test}]
+
+  api:
+    <<: *limits
+    build: api
+    image: pqch-agency/api:m0
+    hostname: api
+    networks:
+      agency_net: {ipv4_address: 172.16.106.11}
+    x-pqch:
+      endpoints:
+        - {port: 443, protocol: tls, sni: api.agency.test}
+        - {port: 8443, protocol: tls, sni: api.agency.test}
+
+  pq-gateway:
+    <<: *limits
+    build: pq-gateway
+    image: pqch-agency/pq-gateway:m1
+    hostname: pq-gateway
+    networks:
+      agency_net: {ipv4_address: 172.16.106.12}
+    x-pqch:
+      endpoints: [{port: 443, protocol: tls, sni: pq-gateway.agency.test}]
+
+  records-db:
+    <<: *limits
+    mem_limit: 256m
+    cpus: 1
+    build: {context: records-db, <<: *pki}
+    image: pqch-agency/records-db:m1
+    hostname: records-db
+    environment: {POSTGRES_PASSWORD: records-not-a-secret}
+    volumes:
+      # The policy's settings for this listener; the runner rewrites the file only to apply an
+      # approved change, and only with PostgreSQL's TLS lines.
+      - ./generated/records-db:/etc/pg/policy:ro
+    networks:
+      agency_net: {ipv4_address: 172.16.106.30}
+    x-pqch:
+      policy: {software: postgresql, mount: /etc/pg/policy}
+      twin: {address: 172.16.107.30}
+      # TLS after PostgreSQL's SSLRequest upgrade, not from the first byte.
+      endpoints: [{port: 5432, protocol: postgres}]
+
+  queue:
+    <<: *limits
+    mem_limit: 512m
+    cpus: 1
+    build: {context: queue, <<: *pki}
+    image: pqch-agency/queue:m1
+    hostname: queue
+    networks:
+      agency_net: {ipv4_address: 172.16.106.31}
+    x-pqch:
+      endpoints: [{port: 5671, protocol: tls}]
+
+  legacy-app:
+    <<: *limits
+    mem_limit: 256m
+    cpus: 1
+    build: {context: legacy-app, <<: *pki}
+    image: pqch-agency/legacy-app:m1
+    hostname: legacy-app
+    networks:
+      agency_net: {ipv4_address: 172.16.106.32}
+    x-pqch:
+      endpoints: [{port: 8443, protocol: tls, sni: legacy-app.agency.test}]
+
+  sftp-legacy:
+    <<: *limits
+    build: sftp-legacy
+    image: pqch-agency/sftp-legacy:m0
+    hostname: sftp-legacy
+    networks:
+      agency_net: {ipv4_address: 172.16.106.20}
+    x-pqch:
+      endpoints: [{port: 22, protocol: ssh}]
+
+  bastion:
+    <<: *limits
+    build: bastion
+    image: pqch-agency/bastion:m0
+    hostname: bastion
+    volumes:
+      # The policy's key exchange for this listener; the runner rewrites the file only to apply
+      # an approved change, and only with KexAlgorithms lines.
+      - ./generated/bastion:/etc/ssh/policy:ro
+    networks:
+      agency_net: {ipv4_address: 172.16.106.21}
+    x-pqch:
+      policy: {software: openssh, mount: /etc/ssh/policy}
+      twin: {address: 172.16.107.21}
+      endpoints: [{port: 22, protocol: ssh}]
+
+networks:
+  agency_net:
+    name: pqch-agency-net
+    internal: true
+    # No address for the host on this bridge. Without this the host holds the
+    # gateway address, and every service it binds to 0.0.0.0 is reachable from
+    # the slice. Needs Docker 28 or later.
+    driver_opts:
+      com.docker.network.bridge.gateway_mode_ipv4: isolated
+    ipam:
+      config:
+        # Static addresses for targets below .128; the runner's scan containers
+        # take dynamic addresses from the upper half.
+        - subnet: 172.16.106.0/24
+          ip_range: 172.16.106.128/25

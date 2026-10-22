@@ -1,0 +1,44 @@
+T13 X25519MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 SecP256r1MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 SecP384r1MLKEM1024 => Negotiated TLS1.3 group: <NULL>
+
+T13 MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 X25519 => Peer Temp Key: X25519, 253 bits
+
+T13 X448 => Peer Temp Key: X448, 448 bits
+
+T13 P-256 => Peer Temp Key: ECDH, prime256v1, 256 bits
+
+T13 P-384 => Peer Temp Key: ECDH, secp384r1, 384 bits
+
+T13 P-521 => Peer Temp Key: ECDH, secp521r1, 521 bits
+
+T13 ffdhe2048 => Negotiated TLS1.3 group: <NULL>
+
+T13 ffdhe3072 => Negotiated TLS1.3 group: <NULL>
+
+T13 brainpoolP256r1tls13 => Negotiated TLS1.3 group: <NULL>
+
+T12 X25519 => Peer Temp Key: X25519, 253 bits
+
+T12 X448 => Peer Temp Key: X448, 448 bits
+
+T12 P-256 => Peer Temp Key: ECDH, prime256v1, 256 bits
+
+T12 P-384 => Peer Temp Key: ECDH, secp384r1, 384 bits
+
+T12 P-521 => Peer Temp Key: ECDH, secp521r1, 521 bits
+
+T12 brainpoolP256r1 => Peer Temp Key: ECDH, brainpoolP256r1, 256 bits
+
+KRSA => New, (NONE), Cipher is (NONE)
+
+KDHE => 
+V12 => New, TLSv1.2, Cipher is ECDHE-ECDSA-AES256-GCM-SHA384
+
+V13 => New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+
+CERT =>  Subject: O=S2, CN=rabbitmq.s2.test| Public Key Algorithm: id-ecPublicKey| Public-Key: (256 bit)| ASN1 OID: prime256v1|sha256 Fingerprint=28:AA:DA:83:DF:32:7E:E8:FC:27:AA:38:8D:96:F1:DB:39:91:8C:22:5F:03:B6:CF:0B:4F:EC:D8:04:82:CF:2F|

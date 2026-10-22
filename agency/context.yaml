@@ -1,0 +1,77 @@
+# What no scan can discover: the mission function each service carries, how long
+# its data must stay secret, and whether it is a high-value asset. Typed in by the
+# system owner. The harness records each fact as a `link.asserted` event with a
+# human actor and `status: supplied`, so the CBOM labels every supplied link as
+# supplied and the score never counts one as coverage (BRIEF.md, "Claims
+# discipline"). The answer key (`answer-key.yaml`, class `supplied`) holds the
+# same facts as what a perfect inventory carries; this file is the owner's input.
+#
+# data_lifetime_years: how long the data the service handles must stay
+# confidential. Traffic recorded today can be decrypted once the key exchange
+# that protected it is broken, so a long lifetime puts a service in the first
+# queue (OMB M-26-15 Appendix A, section 6).
+#
+# fips199_impact: the system's FIPS 199 potential impact level (low, moderate, high); M-26-15
+# prioritizes a "high impact system" (§3.C.2, footnote 5). owner: who the migration item is
+# assigned to. national_security_system: whether CNSA 2.0 rather than M-26-15 governs it
+# (M-26-15 §3.B). All supplied, all typed in; the mini-agency's are planted like its weaknesses.
+schema: pqch.context/1
+estate: mini-agency
+supplied_by: the system owner
+services:
+  portal:
+    owner: Web team
+    fips199_impact: moderate
+    national_security_system: false
+    mission_function: benefits enrollment
+    data_lifetime_years: 10
+    high_value_asset: false
+  api:
+    owner: Integration
+    fips199_impact: moderate
+    national_security_system: false
+    mission_function: partner data exchange
+    data_lifetime_years: 10
+    high_value_asset: false
+  pq-gateway:
+    owner: Integration
+    fips199_impact: high
+    national_security_system: false
+    mission_function: inter-agency data exchange
+    data_lifetime_years: 25
+    high_value_asset: true
+  records-db:
+    owner: Records office
+    fips199_impact: high
+    national_security_system: false
+    mission_function: benefits records
+    data_lifetime_years: 75
+    high_value_asset: true
+  queue:
+    owner: Case processing
+    fips199_impact: moderate
+    national_security_system: false
+    mission_function: case processing
+    data_lifetime_years: 7
+    high_value_asset: false
+  legacy-app:
+    owner: Case management
+    fips199_impact: moderate
+    national_security_system: false
+    mission_function: case management
+    data_lifetime_years: 10
+    high_value_asset: false
+  sftp-legacy:
+    owner: Records office
+    fips199_impact: high
+    national_security_system: false
+    mission_function: records transfer with the archive
+    data_lifetime_years: 75
+    high_value_asset: true
+  bastion:
+    owner: Operations
+    fips199_impact: moderate
+    national_security_system: false
+    mission_function: administrative access
+    data_lifetime_years: 1
+    high_value_asset: false

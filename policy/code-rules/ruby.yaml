@@ -1,0 +1,22 @@
+# Candidate cryptographic call sites in Ruby, as data. The scout's code reader matches each
+# pattern line by line; every match is a candidate, recorded as the scanner's finding with the
+# rule that fired. Whether a candidate is a live cryptographic use is not decided here: the
+# call-site-read role (spike S3's R1, measured on this repository's lines) reads each one.
+# The hints are the family and role a match usually means; the model's judgement replaces them.
+schema: pqch.code-rules/1
+language: ruby
+paths: [app, lib, config]
+exclude: ["vendor/", "node_modules/", "spec/", "test/"]
+rules:
+  - {id: ruby/openssl-pkey, pattern: 'OpenSSL::PKey::(RSA|EC|DSA|DH)\b', family: "{1}", role: other}
+  - {id: ruby/openssl-pkey-read, pattern: 'OpenSSL::PKey\.read\b', family: unspecified, role: other}
+  - {id: ruby/openssl-cipher, pattern: 'OpenSSL::Cipher\b', family: unspecified, role: encryption}
+  - {id: ruby/openssl-digest, pattern: 'OpenSSL::Digest(::|\.)', family: unspecified, role: hash}
+  - {id: ruby/digest, pattern: 'Digest::(SHA1|SHA256|SHA384|SHA512|SHA2|MD5)\b', family: "{1}", role: hash}
+  - {id: ruby/openssl-hmac, pattern: 'OpenSSL::HMAC\b', family: HMAC, role: mac}
+  - {id: ruby/openssl-x509, pattern: 'OpenSSL::X509::', family: X.509, role: signature}
+  - {id: ruby/openssl-kdf, pattern: 'OpenSSL::KDF\b|OpenSSL::PKCS5\b', family: PBKDF2, role: other}
+  - {id: ruby/jwt, pattern: '\bJWT\.(encode|decode)\b', family: unspecified, role: signature}
+  - {id: ruby/jwe, pattern: '\bJWE\.(encrypt|decrypt)\b', family: unspecified, role: encryption}
+  - {id: ruby/scrypt, pattern: '\bSCrypt::', family: scrypt, role: other}
+  - {id: ruby/bcrypt, pattern: '\bBCrypt::', family: bcrypt, role: other}

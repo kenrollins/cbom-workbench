@@ -1,0 +1,185 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:4d7dceda-65e4-45b3-88e9-59cf07a4285e",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-03T12:48:50Z",
+    "tools": {
+      "services": [
+        {
+          "provider": {
+            "name": "PQCA"
+          },
+          "name": "cbomkit-theia",
+          "version": "edge",
+          "services": [
+            {
+              "name": "Secret Detection Plugin"
+            },
+            {
+              "name": "OpenSSL Config Plugin"
+            },
+            {
+              "name": "Certificate File Plugin"
+            },
+            {
+              "name": "Problematic CA Detection Plugin"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "cryptographic-asset",
+      "name": "private-key",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssh/ssh_host_dsa_key",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key"
+        }
+      }
+    },
+    {
+      "bom-ref": "9a2b45e3-9c33-495f-9af5-2898f214925d",
+      "type": "cryptographic-asset",
+      "name": "ECDSA",
+      "description": "Curve: P-256;Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssh/ssh_host_ecdsa_key",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "format": "PEM"
+        }
+      }
+    },
+    {
+      "bom-ref": "17903c83-5d85-4ce1-b7f7-8a7000b31953",
+      "type": "cryptographic-asset",
+      "name": "ECDSA",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssh/ssh_host_ecdsa_key",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "value": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0kbJCkFEqwhGPwJ4NTl7hMh5r0uXXIRiC01t5IdndyrGNnorXEa7eD21r1xbTBu86LCsQ4v5Uyvp7ZcatiioYg==",
+          "format": "PEM"
+        },
+        "oid": "1.2.840.10045.2.1"
+      }
+    },
+    {
+      "bom-ref": "5cc8eacb-731a-46d5-bc03-e3eab16e2719",
+      "type": "cryptographic-asset",
+      "name": "RSA-2048",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssh/ssh_host_rsa_key",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "size": 2048,
+          "format": "PEM"
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "ebdd8e66-15c4-4965-a449-36fa0f007db4",
+      "type": "cryptographic-asset",
+      "name": "RSA-2048",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssh/ssh_host_rsa_key",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArpKc0Chsfz8on6jszGY8XEF9whbFjVhczClEKdHFfj1Hjj1fTtonGwUEBoLfYHMHTKtIV7NAUIEmVFDvWTQ6ThRP3GPAB+zs/toKxIcfUEuNCFgOQpxq5S82eIfcan5OLU6QB3/CFetS9BASm008prT6+mrL5q29pwFF8ecDyCK8GXYpn4BD5NL64S3sXjwv1a6iG71ayzX6NJtveHqQ1+AkI9jgkXh4cXDffe1qLFq8u4KdxFUKj30jJrjLHx0m/tkdPsEmagWuW4DD13GK9e/xnwvm47ZjhoVDGIEuD6EJ/eNr2zEThcLXIsRu5AQQs1RZzGeDN3xMvGmTNXhoWQIDAQAB",
+          "size": 2048,
+          "format": "PEM"
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "151633d7-59d3-4f97-a41d-251639e9424b",
+      "type": "file",
+      "name": "openssl.cnf",
+      "description": "OpenSSL configuration",
+      "properties": [
+        {
+          "name": "theia:openssl:default_md",
+          "value": "default\t\t# use public key default MD"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/openssl.cnf"
+          }
+        ]
+      }
+    },
+    {
+      "bom-ref": "c25bad0b-5481-44b4-8d21-6862211890f9",
+      "type": "file",
+      "name": "openssl.cnf",
+      "description": "OpenSSL configuration",
+      "properties": [
+        {
+          "name": "theia:openssl:default_md",
+          "value": "default\t\t# use public key default MD"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/usr/lib/ssl/openssl.cnf"
+          }
+        ]
+      }
+    }
+  ]
+}

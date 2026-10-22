@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cbom-workbench/schemas/checkpoint.json",
+  "title": "pqch.checkpoint/1",
+  "type": "object",
+  "required": [
+    "schema",
+    "through_seq",
+    "head_hash",
+    "alg",
+    "key_id",
+    "signature"
+  ],
+  "properties": {
+    "schema": {
+      "const": "pqch.checkpoint/1"
+    },
+    "through_seq": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "head_hash": {
+      "$ref": "event.json#/$defs/sha256"
+    },
+    "alg": {
+      "const": "ML-DSA-65"
+    },
+    "key_id": {
+      "$ref": "event.json#/$defs/sha256"
+    },
+    "signature": {
+      "type": "string",
+      "contentEncoding": "base64",
+      "minLength": 1
+    },
+    "signed_at": {
+      "$ref": "event.json#/$defs/ts"
+    }
+  }
+}

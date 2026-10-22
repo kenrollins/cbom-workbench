@@ -1,0 +1,49 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+*.log
+.DS_Store
+
+# Deployment allocation and private working files for the authoring
+# environment. Not part of the project; never published.
+LAB.md
+workshop/
+
+# Runtime state: ledgers, scan output, generated CBOMs, SQLite.
+var/
+*.sqlite
+*.sqlite3
+
+# Offline bundle output (images, model weights, checksums).
+bundle/out/
+
+# Third-party repositories checked out for analysis; pinned in eval/.
+targets/
+
+# mkdocs build output and generated site content.
+site/
+site_src/notes/
+site_src/lessons/
+site_src/sources.md
+site_src/stylesheets/fonts/
+
+.env
+*.env
+!.env.example
+
+# Estate configuration rendered from the crypto policy; the runner rewrites it
+# when it applies an approved change.
+agency/generated/
+
+# Spike S2: downloaded tool binaries and saved images.
+spikes/s2/results/bin/
+spikes/s2/results/*/mldsa-image.tar
+
+# The public, static demo build (tools/build_public.py).
+public-build/
+public-build.work/
+public-preview/
+public-preview.work/

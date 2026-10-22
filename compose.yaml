@@ -1,0 +1,116 @@
+# The harness: the UI service and the runner. The estate is a separate compose
+# project (agency/compose.yaml) and must be up first; its network is joined here
+# as external.
+#
+# The base file gives the UI service no network at all: it reaches the runner
+# over a Unix socket and needs nothing else to scan. A deployment overlay
+# attaches it where it is served (in the lab, the tenant's VLAN address) and
+# where it reaches inference. Nothing here lets Compose create a default
+# bridge, so no network is made without an explicit subnet.
+name: pqch
+
+x-common: &common
+  image: pqch/harness:m0
+  restart: unless-stopped
+  user: "${PQCH_UID:-1000}:${PQCH_GID:-1000}"
+
+services:
+  runner:
+    <<: *common
+    build: .
+    command: ["uvicorn", "pqch.runner.service:app", "--uds", "/run/pqch/runner.sock",
+              "--log-level", "warning"]
+    # The only container with the Docker socket. No public leg: its one network
+    # is the internal target bridge, and the harness reaches it over a Unix
+    # socket on a shared volume.
+    group_add: ["${DOCKER_GID:-999}"]
+    environment:
+      PQCH_SCOPE: /etc/pqch/scope.json
+      PQCH_RAW: /var/pqch/raw
+      PQCH_TARGET_NETWORK: pqch-agency-net
+      PQCH_RUNS: /var/pqch/runs
+      PQCH_RUNNER_LOG: /var/pqch-runner
+      PQCH_SIGNER_SOCKET: /run/pqch-signer/signer.sock
+      PQCH_AGENCY_DIR: ${PQCH_AGENCY_DIR:?set PQCH_AGENCY_DIR to the absolute path of agency/}
+      PQCH_HARDWARE: ${PQCH_HARDWARE:-unlabelled}
+      HOME: /tmp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${PQCH_VAR:-./var}/scope:/etc/pqch:ro
+      - ${PQCH_VAR:-./var}/raw:/var/pqch/raw
+      - runner-sock:/run/pqch
+      # Applying a change: the ledgers to check the approval in, read-only; the
+      # signer's key and record to check the checkpoints with; its own log,
+      # which no other service mounts; and the estate's compose project at its
+      # host path (Compose hands host paths to the daemon), read-only except for
+      # the configuration rendered from the policy.
+      - ${PQCH_VAR:-./var}/runs:/var/pqch/runs:ro
+      # The signer's socket, read-only: a client connects to it and cannot put another in its place.
+      - signer-sock:/run/pqch-signer:ro
+      - runner-log:/var/pqch-runner
+      - ${PQCH_AGENCY_DIR}:${PQCH_AGENCY_DIR}:ro
+      - ${PQCH_AGENCY_DIR}/generated:${PQCH_AGENCY_DIR}/generated
+    networks: [agency_net]
+    mem_limit: 768m
+
+  signer:
+    <<: *common
+    command: ["uvicorn", "pqch.signer.service:app", "--uds", "/run/pqch-signer/signer.sock",
+              "--log-level", "warning"]
+    # Signs ledger checkpoints with ML-DSA-65 through the OpenSSL 3.5 command line.
+    # The key is on a volume no other service mounts; no network, no Docker
+    # socket; run ledgers are read-only to it. Its own record of what it signed
+    # lives beside the key, out of reach of the service that writes the ledger.
+    network_mode: none
+    environment:
+      PQCH_SIGNER_KEY_DIR: /var/pqch-signer
+      PQCH_RUNS: /var/pqch/runs
+      PQCH_HARDWARE: ${PQCH_HARDWARE:-unlabelled}
+    volumes:
+      - signer-key:/var/pqch-signer
+      - ${PQCH_VAR:-./var}/runs:/var/pqch/runs:ro
+      - signer-sock:/run/pqch-signer
+    mem_limit: 256m
+
+  app:
+    <<: *common
+    command: ["uvicorn", "pqch.ui.app:app", "--host", "0.0.0.0", "--port", "8080",
+              "--log-level", "warning"]
+    depends_on: [runner, signer]
+    network_mode: none
+    environment:
+      PQCH_VAR: /var/pqch
+      PQCH_RUNNER_SOCKET: /run/pqch/runner.sock
+      PQCH_SIGNER_SOCKET: /run/pqch-signer/signer.sock
+      PQCH_KEY: /app/agency/answer-key.yaml
+      PQCH_POLICY: /app/policy/pq-algorithms.yaml
+      PQCH_CRYPTO_POLICY: /app/policy/crypto-policy.yaml
+      PQCH_CONTEXT: /app/agency/context.yaml
+      PQCH_VERIFIERS: /app/policy/verifiers.yaml
+      PQCH_AGENCY_DIR: /app/agency
+      PQCH_INFERENCE_CONFIG: ${PQCH_INFERENCE_CONFIG_IN:-/app/config/inference.yaml}
+      PQCH_HARDWARE: ${PQCH_HARDWARE:-unlabelled}
+    volumes:
+      # Run ledgers and CBOMs, read-write. Raw scanner output, read-only: the
+      # runner writes it. The scope is not mounted here at all: the runner
+      # serves the one it enforces, and the UI service cannot change it.
+      - ${PQCH_VAR:-./var}/runs:/var/pqch/runs
+      - ${PQCH_VAR:-./var}/raw:/var/pqch/raw:ro
+      - ./agency:/app/agency:ro
+      - ./config:/app/config:ro
+      - ./policy:/app/policy:ro
+      # Both sockets read-only: the UI service is a client of each and can replace neither.
+      - runner-sock:/run/pqch:ro
+      - signer-sock:/run/pqch-signer:ro
+    mem_limit: 512m
+
+volumes:
+  runner-sock:
+  signer-sock:
+  signer-key:
+  runner-log:
+
+networks:
+  agency_net:
+    external: true
+    name: pqch-agency-net

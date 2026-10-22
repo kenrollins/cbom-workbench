@@ -1,0 +1,41 @@
+# A second projection of the same record: a flat agency inventory, one row per cryptographic
+# asset in use for key establishment or signatures, with the system it belongs to and where it
+# sits in the migration.
+#
+# ILLUSTRATIVE. The minimum elements of a federal CBOM are not published until 2027-03-19
+# (EO 14412, 270 days); this file is one plausible field list, not that one. Its point is the
+# mechanism: when the list is published, meeting it is another file like this one and a rebuild
+# from the ledger — no scanner runs.
+#
+# Each column reads one field: `asset.<x>` from the cryptographic-asset component (CycloneDX
+# fields by path, `pqch:` properties by name), `service.<x>` from the application component of
+# the service the asset belongs to (joined through the CBOM's dependencies), `item.<x>` from that
+# service's migration item for the asset's function.
+schema: pqch.projection/1
+id: agency-inventory
+title: "Agency cryptographic inventory (illustrative field list)"
+rows:
+  roles: [key-establishment, signature]
+  in_use_not: "false"
+columns:
+  - {name: system, from: service.name}
+  - {name: owner, from: service.pqch:owner}
+  - {name: mission_function, from: service.pqch:mission-function}
+  - {name: data_lifetime_years, from: service.pqch:data-lifetime-years}
+  - {name: high_value_asset, from: service.pqch:high-value-asset}
+  - {name: prioritized, from: service.pqch:priority.prioritized}
+  - {name: algorithm, from: asset.name}
+  - {name: function, from: asset.pqch:role}
+  - {name: asset_type, from: asset.cryptoProperties.assetType}
+  - {name: layer, from: asset.pqch:layer}
+  - {name: location, from: asset.evidence.occurrences.0.location}
+  - {name: quantum_vulnerable, from: asset.pqch:quantum-vulnerable}
+  - {name: family, from: asset.pqch:family}
+  - {name: migration_state, from: item.state}
+  - {name: queue, from: item.queue}
+  - {name: deadline, from: item.deadline}
+  - {name: blocked_on_supplier, from: item.blockers.supplier}
+  - {name: validated_module, from: item.blockers.validated-module}
+  - {name: verifiable_by, from: asset.pqch:verifiable-by}
+  - {name: evidence_events, from: asset.pqch:evidence}
+  - {name: fingerprint, from: asset.pqch:fingerprint}

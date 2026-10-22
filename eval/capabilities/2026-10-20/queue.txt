@@ -1,0 +1,21 @@
+## groups
+[x25519,x448,secp521r1,secp384r1,secp256r1,brainpoolP256r1tls13,
+ brainpoolP384r1tls13,brainpoolP512r1tls13,ffdhe2048,ffdhe3072,ffdhe4096,
+ ffdhe6144,ffdhe8192]
+## sig
+[eddsa_ed25519,eddsa_ed448,ecdsa_secp521r1_sha512,ecdsa_secp384r1_sha384,
+ ecdsa_secp256r1_sha256,ecdsa_brainpoolP512r1tls13_sha512,
+ ecdsa_brainpoolP384r1tls13_sha384,ecdsa_brainpoolP256r1tls13_sha256,
+ rsa_pss_pss_sha512,rsa_pss_pss_sha384,rsa_pss_pss_sha256,rsa_pss_rsae_sha512,
+ rsa_pss_rsae_sha384,rsa_pss_rsae_sha256,rsa_pkcs1_sha512,rsa_pkcs1_sha384,
+ rsa_pkcs1_sha256]
+## otp
+"27"
+## lib
+[{<<"OpenSSL">>,810549392,<<"OpenSSL 3.5.9 29 Sep 2026">>}]
+## fips
+fips-module: /opt/openssl/lib/ossl-modules/fips.so
+config /etc/ssl/openssl.cnf:
+config /usr/lib/ssl/openssl.cnf:
+config /opt/openssl/etc/ssl/openssl.cnf: fips = fips_sect
+fipsmodule /opt/openssl/etc/ssl/fipsmodule.cnf: #activate = 1

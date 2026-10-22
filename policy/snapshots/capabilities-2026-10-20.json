@@ -1,0 +1,224 @@
+{
+ "schema": "pqch.capabilities/1",
+ "taken_at": "2026-10-20T20:12:20Z",
+ "estate": "mini-agency",
+ "method": "each image run with --network none and its entry point replaced; the runtime's own list",
+ "services": {
+  "portal": {
+   "image": "pqch-agency/portal:m0",
+   "image_id": "sha256:cc0ff8754fa487e3a848ded0adeda695c9ba3dec222cc3b719fcd15fda8577b4",
+   "software": "nginx 1.28 on OpenSSL 3.5 (Alpine)",
+   "library": [
+    "OpenSSL 3.5.7",
+    "libssl3-3.5.8-r0"
+   ],
+   "pq": {
+    "kex": null,
+    "sig": null
+   },
+   "fips": {
+    "module_present": false,
+    "module_path": null,
+    "active": false
+   },
+   "same_build": [
+    "api",
+    "pq-gateway"
+   ],
+   "raw": "eval/capabilities/2026-10-20/portal.txt",
+   "sha256": "3c7eb773ff7ebd2c5c406ec6440f9ac5a6025e5b7366848e403c2acb813ae806"
+  },
+  "api": {
+   "image": "pqch-agency/api:m0",
+   "image_id": "sha256:12a6d8a4d67293f6323c424570c286057911f047e7d9fe508f43df10e11a31e0",
+   "software": "nginx 1.28 on OpenSSL 3.5 (Alpine)",
+   "library": [
+    "OpenSSL 3.5.7",
+    "libssl3-3.5.8-r0"
+   ],
+   "pq": {
+    "kex": null,
+    "sig": null
+   },
+   "fips": {
+    "module_present": false,
+    "module_path": null,
+    "active": false
+   },
+   "same_build": [
+    "api",
+    "pq-gateway"
+   ],
+   "raw": "eval/capabilities/2026-10-20/api.txt",
+   "sha256": "3c7eb773ff7ebd2c5c406ec6440f9ac5a6025e5b7366848e403c2acb813ae806"
+  },
+  "pq-gateway": {
+   "image": "pqch-agency/pq-gateway:m1",
+   "image_id": "sha256:a2ca8a32d690d763829badc254d066adba1e6aed045fdd76d10f14d651613d36",
+   "software": "nginx 1.28 on OpenSSL 3.5 (Alpine)",
+   "library": [
+    "OpenSSL 3.5.7",
+    "libssl3-3.5.8-r0"
+   ],
+   "pq": {
+    "kex": null,
+    "sig": null
+   },
+   "fips": {
+    "module_present": false,
+    "module_path": null,
+    "active": false
+   },
+   "same_build": [
+    "api",
+    "pq-gateway"
+   ],
+   "raw": "eval/capabilities/2026-10-20/pq-gateway.txt",
+   "sha256": "3c7eb773ff7ebd2c5c406ec6440f9ac5a6025e5b7366848e403c2acb813ae806"
+  },
+  "records-db": {
+   "image": "pqch-agency/records-db:m1",
+   "image_id": "sha256:d0f0ae1dea06c6bc8b9e001fd1276ac5c52bf4f1bfc04978eba7dff73ea1ced9",
+   "software": "PostgreSQL 18 on OpenSSL 3.5 (Debian)",
+   "library": [
+    "OpenSSL 3.5.7"
+   ],
+   "pq": {
+    "kex": [
+     "ML-KEM-1024",
+     "ML-KEM-512",
+     "ML-KEM-768"
+    ],
+    "sig": [
+     "ML-DSA-44",
+     "ML-DSA-65",
+     "ML-DSA-87",
+     "SLH-DSA-SHA2-128f",
+     "SLH-DSA-SHA2-128s",
+     "SLH-DSA-SHA2-192f",
+     "SLH-DSA-SHA2-192s",
+     "SLH-DSA-SHA2-256f",
+     "SLH-DSA-SHA2-256s",
+     "SLH-DSA-SHAKE-128f",
+     "SLH-DSA-SHAKE-128s",
+     "SLH-DSA-SHAKE-192f",
+     "SLH-DSA-SHAKE-192s",
+     "SLH-DSA-SHAKE-256f",
+     "SLH-DSA-SHAKE-256s"
+    ]
+   },
+   "fips": {
+    "module_present": false,
+    "module_path": null,
+    "active": false
+   },
+   "same_build": null,
+   "raw": "eval/capabilities/2026-10-20/records-db.txt",
+   "sha256": "c88d10cd5ea4026efca31c46a750cd0331d2feb7a15d01a1f9cc8f8ba47b97e5"
+  },
+  "queue": {
+   "image": "pqch-agency/queue:m1",
+   "image_id": "sha256:76b9929b7db7be34c6c4db6f5ff24ab6d924a53eece41d95bd88a3f2e3709bcc",
+   "software": "RabbitMQ 4 on Erlang/OTP",
+   "library": [
+    "\"27\"",
+    "OpenSSL 3.5.9"
+   ],
+   "pq": {
+    "kex": [],
+    "sig": []
+   },
+   "fips": {
+    "module_present": true,
+    "module_path": "/opt/openssl/lib/ossl-modules/fips.so",
+    "active": false
+   },
+   "same_build": null,
+   "raw": "eval/capabilities/2026-10-20/queue.txt",
+   "sha256": "2ab62adbe6ab2e0ccd6ca4c3da7a52cbd3217413b254e9f7e170e98fb2f6f609"
+  },
+  "legacy-app": {
+   "image": "pqch-agency/legacy-app:m1",
+   "image_id": "sha256:bfcfce5ea6c610efb285cf3f9862e2f7a7145f84f4d03da90686553c5118102a",
+   "software": "Tomcat 8.5 on Java 8 (Temurin)",
+   "library": [
+    "openjdk version \"1.8.0_402\""
+   ],
+   "pq": {
+    "kex": [],
+    "sig": []
+   },
+   "fips": {
+    "module_present": false,
+    "module_path": null,
+    "active": false
+   },
+   "same_build": null,
+   "raw": "eval/capabilities/2026-10-20/legacy-app.txt",
+   "sha256": "c78faf49e86a33a4afd0dfbc1e17e5e2a3040b34049aa7161803a8e3e629504d"
+  },
+  "sftp-legacy": {
+   "image": "pqch-agency/sftp-legacy:m0",
+   "image_id": "sha256:d9d55c953ad1bb42ac664958b12fc3688ba3248946dea4b8a82e9e989530c314",
+   "software": "OpenSSH 6.6 (Ubuntu 14.04)",
+   "library": [
+    "OpenSSH_6.6.1p1",
+    "OpenSSL 1.0.1"
+   ],
+   "pq": {
+    "kex": [],
+    "sig": []
+   },
+   "fips": {
+    "module_present": false,
+    "module_path": null,
+    "active": false
+   },
+   "same_build": null,
+   "raw": "eval/capabilities/2026-10-20/sftp-legacy.txt",
+   "sha256": "cb13bb4abcfa0b3e6719bccdfc02377c6c3a92e022dcf362c7faf41a49257f58"
+  },
+  "bastion": {
+   "image": "pqch-agency/bastion:m0",
+   "image_id": "sha256:a07ec585fd7196a41301103979a3c5870ac74990fbb9a8df9fdf3e938ccfadfb",
+   "software": "OpenSSH 10.0 (Alpine)",
+   "library": [
+    "OpenSSH_10.0p2",
+    "OpenSSL 3.5.8"
+   ],
+   "pq": {
+    "kex": [
+     "mlkem768x25519-sha256",
+     "sntrup761x25519-sha512",
+     "sntrup761x25519-sha512@openssh.com"
+    ],
+    "sig": []
+   },
+   "fips": {
+    "module_present": false,
+    "module_path": null,
+    "active": false
+   },
+   "same_build": null,
+   "raw": "eval/capabilities/2026-10-20/bastion.txt",
+   "sha256": "ec292a4b9564bb8b157c8a66d833cc476cbf87386429d9d1348a09e505f268af"
+  }
+ },
+ "same_build_check": {
+  "builds": {
+   "portal": [
+    "OpenSSL 3.5.7",
+    "libssl3-3.5.8-r0"
+   ],
+   "api": [
+    "OpenSSL 3.5.7",
+    "libssl3-3.5.8-r0"
+   ],
+   "pq-gateway": [
+    "OpenSSL 3.5.7",
+    "libssl3-3.5.8-r0"
+   ]
+  },
+  "identical": true
+ }
+}

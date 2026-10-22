@@ -1,0 +1,28 @@
+# NSA's Commercial National Security Algorithm Suite 2.0, as data — NOT READ FIRST-HAND.
+#
+# NSA's site refused the download on 2026-10-05 and again on 2026-10-20 (HTTP 403 for both the
+# FAQ and the advisory). The dates below are from secondary summaries that agree with one
+# another; every entry is `verified: false`, and the assessor applies none of them as a
+# deadline. The pack is here so the scope rule is real: CNSA 2.0 governs national security
+# systems, M-26-15 does not (M-26-15 §3.B), and a service is placed under one or the other by
+# the owner's `national_security_system` fact. No service of the mini-agency is one.
+schema: pqch.policy-pack/1
+id: cnsa-2.0
+title: "NSA CNSA 2.0 (secondary sources; primary not read)"
+source:
+  url: https://media.defense.gov/2022/Sep/07/2003071836/-1/-1/0/CSI_CNSA_2.0_FAQ_.PDF
+  read_first_hand: false
+  refused: ["2026-10-05", "2026-10-20"]
+  secondary:
+    - https://www.entrust.com/blog/2022/10/nsa-announces-new-post-quantum-resistant-algorithm-suite-2-0-and-transition-timetable
+    - https://www.encryptionconsulting.com/education-center/what-is-cnsa-2-0/
+applies_to:
+  national_security_system: true
+verified: false
+timeline:
+  - {category: "software and firmware signing", exclusive_by: 2030, verified: false}
+  - {category: "web browsers, servers and cloud services", prefer_by: 2025, exclusive_by: 2033, verified: false}
+  - {category: "traditional networking equipment", exclusive_by: 2030, verified: false}
+  - {category: "operating systems", prefer_by: 2027, exclusive_by: 2033, verified: false}
+  - {category: "niche equipment", prefer_by: 2030, exclusive_by: 2033, verified: false}
+  - {category: "new NSS acquisitions compliant", by: 2027-01-01, verified: false}

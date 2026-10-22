@@ -1,0 +1,394 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:cebe55c6-ad00-46f8-9aac-f0eb56f2ead9",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-03T12:48:44Z",
+    "tools": {
+      "services": [
+        {
+          "provider": {
+            "name": "PQCA"
+          },
+          "name": "cbomkit-theia",
+          "version": "edge",
+          "services": [
+            {
+              "name": "Secret Detection Plugin"
+            },
+            {
+              "name": "OpenSSL Config Plugin"
+            },
+            {
+              "name": "Certificate File Plugin"
+            },
+            {
+              "name": "Problematic CA Detection Plugin"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "d1d848b9-38bb-448e-b4d2-7981bb0518bf",
+      "type": "cryptographic-asset",
+      "name": "RSA-2048",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/portal.key",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "size": 2048,
+          "format": "PEM"
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "296deb62-e7ce-465a-a209-ef13c47514a8",
+      "type": "file",
+      "name": "openssl.cnf.dist",
+      "description": "OpenSSL configuration",
+      "properties": [
+        {
+          "name": "theia:openssl:default_md",
+          "value": "default\t\t# use public key default MD"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/openssl.cnf.dist"
+          }
+        ]
+      }
+    },
+    {
+      "bom-ref": "8a6ceaed-3c91-481e-a0d5-f9395296cbbc",
+      "type": "file",
+      "name": "openssl.cnf",
+      "description": "OpenSSL configuration",
+      "properties": [
+        {
+          "name": "theia:openssl:default_md",
+          "value": "default\t\t# use public key default MD"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/openssl.cnf"
+          }
+        ]
+      }
+    },
+    {
+      "bom-ref": "505d1f1c-63d4-48e3-a58e-a193972905f9",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/portal.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "cryptoFunctions": [
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "479f198a-7e78-425d-bde1-fa1afa5ef7cd",
+      "type": "cryptographic-asset",
+      "name": "SHA256",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/portal.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "256",
+          "cryptoFunctions": [
+            "digest"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "c487e341-2645-4462-84ae-a1c3ae8d9ef3",
+      "type": "cryptographic-asset",
+      "name": "SHA256-RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/portal.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "256",
+          "padding": "pkcs1v15",
+          "cryptoFunctions": [
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.11"
+      }
+    },
+    {
+      "bom-ref": "1b6e39b7-df46-416d-b752-44894caec992",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/portal.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "cryptoFunctions": [
+            "encapsulate",
+            "decapsulate",
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "296b569a-4ec9-4f66-b197-be0b4c507137",
+      "type": "cryptographic-asset",
+      "name": "RSA-2048",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/portal.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "algorithmRef": "1b6e39b7-df46-416d-b752-44894caec992",
+          "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyJefivtrrUXWlDnpqG5VjEG8dOVUhSbhFSACG/NL2PBOZ+7vhh4U4ik4XmscVBa5ILCJV9wQx35DitkREUTFHJ8H1s103X4ckjtPYkmgHWwn/KnqmU+fhSjnu/UyOTMNJW4TIfdUlcgs1gH6kWt1kNUBlGs+nTMsNyV4OXWnLkfvnQfCvekh5urkKN4tB8L98ZP7iuYKxRuBhOAV3fe/aKhCUqq/B/43sG1A6PH2imfipJ7fTFWciSqPvEueTgIFNYAFNB0Ra8Q70abDpN1U1bxH4LqtH/wMJwha3TZPuNZNjKcrEiipexESS5Jm4B+hmE74sg642j5ZfVqHkLcXDQIDAQAB",
+          "size": 2048,
+          "format": "PEM"
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "66ed00f8-0fbc-4e9d-9e0e-e554de288428",
+      "type": "cryptographic-asset",
+      "name": "portal.agency.test",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/portal.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "portal.agency.test",
+          "issuerName": "portal.agency.test",
+          "notValidBefore": "2026-10-03T12:29:57Z",
+          "notValidAfter": "2029-01-05T12:29:57Z",
+          "signatureAlgorithmRef": "c487e341-2645-4462-84ae-a1c3ae8d9ef3",
+          "subjectPublicKeyRef": "296b569a-4ec9-4f66-b197-be0b4c507137",
+          "certificateFormat": "X.509",
+          "certificateExtension": "crt"
+        }
+      }
+    },
+    {
+      "bom-ref": "948722b7-6d94-46be-aa2e-26b274672343",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/legacy/portal-2019.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "cryptoFunctions": [
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "9a5f84b1-e2a2-429b-88cf-eea46d13545c",
+      "type": "cryptographic-asset",
+      "name": "SHA1",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/legacy/portal-2019.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "1",
+          "cryptoFunctions": [
+            "digest"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "ff849c87-b237-46a6-8650-484ed3bb19a6",
+      "type": "cryptographic-asset",
+      "name": "SHA1-RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/legacy/portal-2019.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "160",
+          "padding": "pkcs1v15",
+          "cryptoFunctions": [
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.5"
+      }
+    },
+    {
+      "bom-ref": "c51614e1-1fc8-4c37-adbb-915f7499e579",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/legacy/portal-2019.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "cryptoFunctions": [
+            "encapsulate",
+            "decapsulate",
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "0f5f1a1a-cb8a-4bed-a52e-a86842260585",
+      "type": "cryptographic-asset",
+      "name": "RSA-1024",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/legacy/portal-2019.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "algorithmRef": "c51614e1-1fc8-4c37-adbb-915f7499e579",
+          "value": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDZmW9CL9EPr1lZEC8lcTI8w7o5JuHzKNIHkJzwzgwekcd3v45IHVKd7Tm21sTSoT7xPLh6EuHtT8ZkCCd7vD5SesX/apjQpPkcktwqcyCpVCcZfHFQeWDWd6GE2atdTU+FOvNvxSFmPThkzEHmRV2qKdb29ELJkvCuOrq5pmaH9QIDAQAB",
+          "size": 1024,
+          "format": "PEM"
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "de25555e-934f-4dc5-95cd-98ca798ee3cf",
+      "type": "cryptographic-asset",
+      "name": "portal.agency.test",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/legacy/portal-2019.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "portal.agency.test",
+          "issuerName": "portal.agency.test",
+          "notValidBefore": "2026-10-03T12:29:57Z",
+          "notValidAfter": "2027-10-03T12:29:57Z",
+          "signatureAlgorithmRef": "ff849c87-b237-46a6-8650-484ed3bb19a6",
+          "subjectPublicKeyRef": "0f5f1a1a-cb8a-4bed-a52e-a86842260585",
+          "certificateFormat": "X.509",
+          "certificateExtension": "crt"
+        }
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "c487e341-2645-4462-84ae-a1c3ae8d9ef3",
+      "dependsOn": [
+        "505d1f1c-63d4-48e3-a58e-a193972905f9",
+        "479f198a-7e78-425d-bde1-fa1afa5ef7cd"
+      ]
+    },
+    {
+      "ref": "ff849c87-b237-46a6-8650-484ed3bb19a6",
+      "dependsOn": [
+        "948722b7-6d94-46be-aa2e-26b274672343",
+        "9a5f84b1-e2a2-429b-88cf-eea46d13545c"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — the mini-agency</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "demo" %}{% set lede = "<strong>Walkthrough.</strong> Everything here runs against the <em>mini-agency</em>: eight small services — a benefits portal, a records database, a message queue, two SSH hosts and others — built in this lab for the purpose, with every cryptographic weakness planted, so there is an answer key to score against. Read top to bottom: the spreadsheet, the scan, the CBOM, what comes first, a change proved on the wire, the receipts." %}{% include "_header.html" %}
+
+<main>
+
+<p class="orient">A cryptographic inventory built from evidence, kept on a signed ledger, and used to plan the migration: what depends on what, what comes first, and in what order. The sections below go from a stale spreadsheet to that plan; carrying out a step of it is a separate stage, <a href="/resolve">resolution</a>.
+  <span class="ai">Where the models are: reading a call site, naming an unfamiliar spelling, resolving a conflict between findings — each role given to a model only where measurement showed it earned it. Scanners, rules and probes do the rest, and no model decides whether a change worked.</span></p>
+
+<figure class="clock" data-clock='{{ clock | tojson }}'></figure>
+<details class="why"><summary>Why the clock matters</summary><p>The inventory is required now, in the discovery phase, and what a federal CBOM must contain has not been published: CISA and NIST are to set its minimum elements by 2027-03-19. So this workbench keeps every finding with its evidence on a ledger and treats the CBOM as a projection of that record. When the minimum elements arrive, meeting them is a new projection of the same record — a rebuild, not a re-scan. Key establishment is the first queue because traffic recorded today can be decrypted once the key exchange is broken. <a href="/site/notes/03-what-federal-policy-requires-and-when/">What federal policy requires, and by when</a>.</p></details>
+
+<section id="opaque">
+  <h2><span class="step">1</span> The spreadsheet <span class="tag static">static</span></h2>
+  <p class="lede">This is most inventories today: kept by hand, already out of date.</p>
+  <table class="sheet">
+    <thead><tr><th>System</th><th>What the sheet says</th><th>Owner</th></tr></thead>
+    <tbody>
+      {% for row in sheet %}<tr><td>{{ row.system }}</td><td>{{ row.says }}</td><td>{{ row.owner }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="note">Illustrative rows, typed by hand. The last two systems are not in the estate, and four services that are have no row; the sheet never learned either.</p>
+  <details class="why"><summary>Why start here</summary><p>Every agency has to produce a cryptographic inventory and migrate off quantum-vulnerable algorithms by dates in OMB M-26-15 and Executive Order 14412. Most have a spreadsheet like this one: hand-kept, out of date the day it was written, and silent about what it never knew. Nothing on this page is typed in; everything below comes from a scan. <a href="/site/notes/00-what-the-cbom-workbench-is/">What the workbench is, and what it has shown</a>.</p></details>
+</section>
+
+<section id="scan">
+  <h2><span class="step">2</span> Scan the mini-agency</h2>
+  {% if public %}<p class="note">This is a snapshot of the demo, built ahead of time: the scan below is one the live workbench ran. The live workbench scans the mini-agency on demand.</p>{% else %}
+  <form method="post" action="/scan" class="scanform">
+    <button type="submit" {% if scan.running %}disabled{% endif %}>{% if scan.running %}Scanning…{% else %}Scan{% endif %}</button>
+    <span class="note">Targeted wire checks run live, each with a time budget. Image scans are replayed from the ledger with their original timestamps; the first run of a new image runs them live.</span>
+  </form>{% endif %}
+  <div id="progress" data-running="{{ 'true' if scan.running else 'false' }}">
+    {% if scan.running or scan.lines %}
+    <table class="jobs"><thead><tr><th>Profile</th><th>Target</th><th>Status</th><th class="num">Time</th><th class="num">Findings</th></tr></thead>
+    <tbody>
+      {% for l in scan.lines %}
+      <tr><td>{{ l.profile }}</td><td>{{ l.target.host ~ ':' ~ l.target.port if l.target.host else l.target.image.split('@')[0] }}</td>
+        <td>{{ l.status }}{% if l.replayed %} <span class="tag replay">replayed</span>{% endif %}</td>
+        <td class="num">{{ '%.1f' % (l.duration_ms / 1000) }} s</td><td class="num">{{ l.findings }}</td></tr>
+      {% endfor %}
+    </tbody></table>
+    {% endif %}
+    {% if scan.error %}<p class="error">{{ scan.error }}</p>{% endif %}
+  </div>
+</section>
+
+{% if v and v.broken %}
+<section id="run">
+  <p class="error">Run <code>{{ v.run }}</code>: the ledger does not verify — broken at event {{ v.ledger.at_seq }}: {{ v.ledger.error }}. Nothing is shown from it.</p>
+</section>
+{% elif v %}
+<section id="run">
+  <p class="runline">Run <code>{{ v.run }}</code> · started {{ v.started }}{% if v.closed %} · closed {{ v.closed }}{% endif %} · timings on {{ v.hardware or 'hardware not recorded in this run' }}</p>
+  <table class="jobs"><thead><tr><th>Profile</th><th>Target</th><th>Tool</th><th>Status</th><th class="num">Scan time</th><th class="num">Findings</th><th>Scanned at</th></tr></thead>
+  <tbody>
+    {% for s in v.scans %}
+    <tr><td>{{ s.profile }}</td><td>{{ s.target.host ~ ':' ~ s.target.port if s.target.host else s.target.image.split('@')[0] }}</td>
+      <td>{{ s.tool }} {{ s.version }}</td>
+      <td>{{ s.status }}{% if s.replayed %} <span class="tag replay" title="replayed from run {{ s.replayed.run }}, event {{ s.replayed.event }}">replayed</span>{% endif %}</td>
+      <td class="num">{{ '%.1f' % (s.ms / 1000) }} s</td><td class="num">{{ s.findings }}</td><td class="mono">{{ s.started_at }}</td></tr>
+    {% endfor %}
+  </tbody></table>
+</section>
+
+<section id="cbom">
+  <h2><span class="step">3</span> The CBOM, with its evidence</h2>
+  <p class="lede">The estate as the evidence shows it, left to right along the CBOM's dependency chain: the sheet's row, the service it is, the service's listeners and images, the assets each listener negotiates or serves, and the files they come from. Click a service to follow its chain, anything for the evidence behind it. Two of the sheet's rows have nothing behind them.</p>
+  <p class="note"><a href="/cbom?run={{ v.run }}"><strong>Open the CBOM itself</strong></a>: the document this run produced, any entry field by field with the evidence behind each, and the same record projected again without a scan.</p>
+  {% if graph %}<figure class="estate" data-graph='{{ graph|tojson }}'></figure>{% endif %}
+  <details class="why"><summary>What a CBOM is, and what this one holds</summary><p>A Cryptography Bill of Materials is a CycloneDX document — an Ecma standard, ECMA-424 — whose components are cryptographic assets: algorithms, certificates, protocols and key material, each with its properties and its dependencies. The format is settled; what an agency must put in one is not, until CISA and NIST publish the minimum elements in 2027. This CBOM adds what the standard leaves open under a <code>pqch:</code> namespace: which layer of evidence each entry came from, which tool, the ledger event holding the raw output and its hash, and whether a rule judged it in use. It is rebuilt from the ledger and never edited. <a href="/site/notes/01-what-is-a-cbom/">What is a CBOM, and what is in one?</a></p></details>
+  <h3>Listener by listener</h3>
+  <p class="lede">Each listener with its posture, what it negotiates, and where each entry came from. Open an entry for its evidence and the links the rules found.</p>
+  {% if v.unbound %}<p class="error">{{ v.unbound|length }} listener{{ 's' if v.unbound|length != 1 }} ({{ v.unbound|join(', ') }}) did not run the image the scope names while it was scanned. What was seen on the wire there is reported, but it is not joined to anything found in an image: no links, and no judgement of what is or is not in use. Regenerate the scope from the running estate, or find out what is running.</p>{% endif %}
+  {% for l in v.listeners %}
+  <details class="listener">
+    <summary>
+      <span class="addr">{{ l.protocol|upper }} {{ l.address }}</span>
+      {% if l.sni %}<span class="sni">{{ l.sni }}</span>{% endif %}
+      {% if l.posture %}<span class="posture {{ l.posture.posture }}">{{ l.posture.posture }}</span>{% else %}<span class="posture none">no posture</span>{% endif %}
+      <span class="count">{{ l.rows|length }} entries</span>
+      {% if l.service %}<span class="sni">service <strong>{{ l.service.name }}</strong></span>{% endif %}
+      {% if l.chain_complete %}<span class="tag discovered" title="every discovered link resolves to a ledger event; supplied links are labelled">chain complete</span>{% else %}<span class="tag missing">chain broken</span>{% endif %}
+      {% if l.binding and not l.binding.classification.bound %}<span class="posture classical">not bound to scope</span>{% endif %}
+    </summary>
+    {% if l.binding %}<p class="rule">Rule <code>binding/scope/1</code> (event <code>{{ l.binding.event }}</code>): {% if l.binding.classification.bound %}<span class="good">bound</span>{% else %}<span class="bad">not bound</span>{% endif %} — {{ l.binding.basis }}{% if l.binding.classification.container_id %}; container <code>{{ l.binding.classification.container_id[:12] }}</code>{% endif %}.</p>{% endif %}
+    {% if l.posture %}
+    <p class="rule">Rule <code>posture/kex-auth/1</code> (event <code>{{ l.posture_event }}</code>): post-quantum key establishment {{ l.posture.kex_pq|join(', ') or 'none' }}; classical {{ l.posture.kex_classical|join(', ') or 'none' }}; authentication {{ l.posture.auth|join(', ') }}.</p>
+    {% endif %}
+    <p class="note">Served from image <code>{{ l.image.split('@')[0] }}</code> <span class="mono dim">@{{ l.image.split('@')[1][:19] if '@' in l.image else '' }}…</span></p>
+    {% macro chain(links) %}
+    <ol class="chain">
+      {% for c in links %}
+      <li class="{{ c.status }}"><span class="step">{{ c.step }}</span> <span class="val">{{ c.label }}</span> <span class="tag {{ c.status }}">{{ c.status }}</span>
+        <span class="ev">{% if c.status == 'missing' %}— {{ c.why }}{% else %}— {{ c.basis }}{% if c.event %} · event <code>{{ c.event }}</code>{% endif %}{% if c.by %} · by {{ c.by }}{% endif %}{% if c.source %} · <code>{{ c.source.path.split('/')[-1] }}</code> sha256 <code>{{ c.source.sha256[:12] }}…</code>{% endif %}{% endif %}</span></li>
+      {% endfor %}
+    </ol>
+    {% endmacro %}
+    <p class="chainline">The dependency chain for every entry on this listener: what depends on it, and how long its data must stay secret. Discovered links resolve to ledger events; supplied links were typed in by the owner and are labelled so.</p>
+    {{ chain(l.chain) }}
+    {% for r in l.rows %}
+    <details class="entry">
+      <summary><span class="role {{ r.role }}">{{ r.role }}</span> <strong>{{ r.name }}</strong> <span class="dim">{{ r.type }}</span>
+        {% if r.links %}<span class="tag link">linked to image file</span>{% endif %}
+        {% if r.verifiable_by == 'none' %}<span class="tag" title="no verifier can confirm a change to this entry (rule verifier/class/1)">no verifier</span>{% endif %}</summary>
+      <dl>
+        <dt>Evidence</dt><dd class="mono">{{ r.excerpt }}</dd>
+        {% if r.trace %}{% set t = r.trace %}
+        <dt>Cause</dt><dd>{% if t.answer and t.answer.file %}<code>{{ t.answer.file }}</code> lines {{ t.answer.line_start }}–{{ t.answer.line_end }}{% if t.line_text %}: <code>{{ t.line_text }}</code>{% endif %}{% elif t.answer and t.answer.cause == 'default' %}no live line sets it; the software's default applies{% else %}no answer — {{ t.outcome }}{% endif %}
+          <br><span class="dim small">The model's claim, not a verification: {{ t.settings.model }} on {{ t.settings.hardware }}{% if t.settings.reasoning %}, reasoning on{% endif %}{% if t.settings.served_by %}, served by {{ t.settings.served_by }}{% endif %}; {{ t.used.steps }} of {{ t.budget.steps }} steps, {{ t.used.tokens }} of {{ t.budget.tokens }} tokens, {{ '%.1f' % (t.latency_ms / 1000) }} s; event <code>{{ t.event }}</code> in run <code>{{ t.run }}</code>{% if t.replayed %} <span class="tag replay" title="traced on an earlier scan of the same observation (run {{ t.from_run }})">replayed</span>{% endif %}.
+          {% if t.key_check %}{% if t.key_check.agrees %}<span class="good">Agrees with the answer key</span> (item <code>{{ t.key_check.item }}</code>){% else %}<span class="bad">Differs from the answer key</span> (item <code>{{ t.key_check.item }}</code>: {{ t.key_check.why }}){% endif %}.{% else %}The key names no cause for this entry.{% endif %}</span></dd>
+        {% endif %}
+        <dt>Verifier</dt><dd>{% if r.verifiable_by and r.verifiable_by != 'none' %}<code>{{ r.verifiable_by }}</code> can confirm a change to this entry{% elif r.verifiable_by == 'none' %}<span class="dim">none — a change here has no verifier; counted in the receipts</span>{% else %}<span class="dim">not stated in this run</span>{% endif %}{% if r.verifier_event %} <span class="dim">(rule <code>verifier/class/1</code>, event <code>{{ r.verifier_event }}</code>)</span>{% endif %}</dd>
+        <dt>Tool</dt><dd>{{ r.tool }} <span class="mono dim">{{ r.scanner_digest[:19] }}…</span></dd>
+        <dt>Raw output</dt><dd class="mono">{{ r.raw }} · sha256 {{ r.raw_sha256[:16] }}…</dd>
+        <dt>Ledger</dt><dd class="mono">event {{ r.event }} · seq {{ r.seq }} · observed {{ r.observed_at }}{% if r.replayed %} · replayed{% endif %}</dd>
+        {% if r.parameters %}<dt>Parameters</dt><dd class="mono small">{% for k, val in r.parameters.items() %}{{ k }}={{ val }}{% if not loop.last %} · {% endif %}{% endfor %}</dd>{% endif %}
+        {% for ln in r.links %}
+        <dt>Link</dt><dd>served from <code>{{ ln.to.path }}</code> in <code>{{ ln.to.image.split('@')[0] }}</code> — {{ ln.basis }} <span class="dim">(rule <code>{{ ln.rule }}</code>, event <code>{{ ln.event }}</code>, discovered)</span></dd>
+        {% endfor %}
+      </dl>
+    </details>
+    {% endfor %}
+  </details>
+  {% endfor %}
+
+  <h3>In the images</h3>
+  <p class="lede">Certificates and keys found by cbomkit-theia and the harness's own reader, whether a listener serves them, and how each conflict between what a file says and what the wire shows was settled — by a rule, never a model.</p>
+  {% for image, rows in v.images.items() %}
+  {% set ic = v.image_chains.get(image) %}
+  <details class="listener">
+    <summary><span class="addr">{{ image.split('@')[0] }}</span> <span class="count">{{ rows|length }} entries</span>
+      {% if ic and ic.service %}<span class="sni">service <strong>{{ ic.service }}</strong></span>{% endif %}
+      {% if ic %}{% if ic.complete %}<span class="tag discovered">chain complete</span>{% else %}<span class="tag missing">chain broken</span>{% endif %}{% endif %}</summary>
+    {% if ic %}<ol class="chain">
+      {% for c in ic.chain %}
+      <li class="{{ c.status }}"><span class="step">{{ c.step }}</span> <span class="val">{{ c.label }}</span> <span class="tag {{ c.status }}">{{ c.status }}</span>
+        <span class="ev">{% if c.status == 'missing' %}— {{ c.why }}{% else %}— {{ c.basis }}{% if c.event %} · event <code>{{ c.event }}</code>{% endif %}{% if c.by %} · by {{ c.by }}{% endif %}{% endif %}</span></li>
+      {% endfor %}
+    </ol>{% endif %}
+    <table class="files"><thead><tr><th>Path</th><th>Type</th><th>Name</th><th>Tool</th><th>In use</th><th>Conflict</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr class="{{ 'dormant' if r.in_use and r.in_use.classification.in_use == false }}">
+        <td class="mono">{{ r.subject.path }}</td><td>{{ r.type }}{% if r.role != 'other' %} <span class="dim">({{ r.role }})</span>{% endif %}</td><td>{{ r.name }}</td>
+        <td class="dim small">{{ r.tool.split(' ')[0] }}</td>
+        <td>{% if r.in_use %}{{ 'yes' if r.in_use.classification.in_use else 'no' }} <span class="dim" title="{{ r.in_use.basis }}">— {{ r.in_use.basis }} (<code>{{ r.in_use.rule_id }}</code>)</span>{% else %}<span class="dim">not judged</span>{% endif %}</td>
+        <td>{% if r.conflict %}<span class="tag conflict">{{ r.conflict.in_force }}{% if r.conflict.reason %} · {{ r.conflict.reason }}{% endif %}</span> <span class="dim" title="{{ r.conflict.basis }}">— {{ r.conflict.basis }} (<code>conflict/resolve/1</code>, event <code>{{ r.conflict.event }}</code>)</span>
+          {% if r.conflict.explanation %}<br><span class="dim small">A model's explanation beside the rule ({{ r.conflict.explanation.actor.model }}{% if r.conflict.explanation.actor.reasoning %}, reasoning on{% endif %}, {{ r.conflict.explanation.latency_ms }} ms; {{ 'agrees' if r.conflict.explanation.agrees_with_rule else 'disagrees' }} with the rule, not used by it): {{ r.conflict.explanation.explanation }}</span>{% endif %}
+          {% else %}<span class="dim">none</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody></table>
+  </details>
+  {% endfor %}
+
+  {% if v.models %}
+  <h3>Model calls in this run</h3>
+  {% for m in v.models %}
+  <p class="note">{{ m.payload.purpose }}: <strong>{{ m.payload.classification.kex_family }}</strong> — {{ m.actor.model }} on {{ m.actor.hardware }}, {{ m.payload.latency_ms }} ms, event <code>{{ m.event }}</code>. Not used by any rule; agrees with policy data: {{ m.payload.agrees_with_policy_data }}.</p>
+  {% endfor %}
+  {% endif %}
+</section>
+
+<section id="queues">
+  <h2><span class="step">4</span> What first: the queues</h2>
+  <p class="note"><a href="/plan"><strong>See the plan these queues make</strong></a>: what depends on what across the estate, and in what order the changes have to go.</p>
+  {% set m = v.managed %}
+  {% if m %}
+  <details class="why"><summary>Why two queues, and where the dates come from</summary><p>OMB M-26-15 puts key establishment first: traffic recorded today can be decrypted once the key exchange that protected it is broken, so prioritized systems move key establishment to post-quantum in Phase 3, by December 31, 2030, and signatures in Phase 4, in 2031. Everything else follows by 2035. Which systems are prioritized is the memo's own list: a high-impact system, a High Value Asset, or data expected to remain mission-sensitive in 2030. Every rule below quotes the memo's words; the pack refuses to load if a quote is not in the memo's text. A system whose software cannot offer post-quantum cryptography at all is blocked on its supplier, and the memo says to give it priority for replacement. <a href="/site/notes/03-what-federal-policy-requires-and-when/">What federal policy requires, and by when</a>.</p></details>
+  <p class="lede">Every open item, the queue the memo puts it in and why, who owns it, and what blocks it. Rules only; the owner's facts are supplied and labelled so. Pack <code>{{ m.pack }}</code>, read from the memo's PDF sha256 <code>{{ (m.pdf_sha256 or '')[:16] }}…</code>.</p>
+  <div class="receipts">
+    {% for qid, label in [('kex-2030', 'Key establishment, by 2030-12-31'), ('sig-2031', 'Signatures, 2031'), ('remaining-2035', 'Remaining, by 2035')] %}
+    <div class="receipt"><div class="k">{{ label }}</div><div class="n">{{ (m.queues.get(qid) or [])|length }}<small>open items</small></div>
+      <div class="s">{% if qid != 'remaining-2035' %}prioritized services only{% else %}services no criterion prioritizes: {{ m.counts.not_prioritized|join(', ') or 'none' }}{% endif %}</div></div>
+    {% endfor %}
+    <div class="receipt"><div class="k">TLS 1.3, by 2030-01-02</div><div class="n">{{ m.counts.tls13_open }}<small>listeners without it</small></div>
+      <div class="s">M-26-15 §4; from the versions each listener accepted a cipher suite with.</div></div>
+    <div class="receipt"><div class="k">Blocked on a supplier</div><div class="n">{{ m.counts.supplier_blocked }}<small>items</small></div>
+      <div class="s">For replacement (§3.C.3): {{ m.counts.replace|join(', ') or 'none' }}. Measured: each image's runtime asked for its own list, no network. <a href="/packages">The change packages</a>.</div></div>
+    <div class="receipt"><div class="k">No validated module</div><div class="n">{{ m.counts.validated_none }}<small>items</small></div>
+      <div class="s">No active CMVP certificate for the service's library covers the post-quantum algorithm; {{ m.counts.validated_available }} more have one available and not in use.</div></div>
+  </div>
+  <table class="conflicts">
+    <thead><tr><th>Service</th><th>Function</th><th>Queue · deadline</th><th>Owner</th><th>Why it is there</th><th>Blockers</th><th>Approval</th></tr></thead>
+    <tbody>
+    {% for r in m.rows %}
+      {% set sup = r.blockers.get('blocker/supplier/1') %}{% set vm = r.blockers.get('blocker/validated-module/1') %}
+      <tr>
+        <td><strong>{{ r.service }}</strong></td><td>{{ r.function }}</td>
+        <td><code>{{ r.queue }}</code><br><span class="dim small">{{ r.deadline }}{% if r.deadline_basis == 'computed' %} (end of the year the memo names){% endif %} · §{{ r.section }}</span></td>
+        <td>{{ r.owner or '—' }} {% if r.owner %}<span class="tag supplied">supplied</span>{% endif %}</td>
+        <td class="small">{{ r.basis }}.<br><span class="dim">Prioritized: {{ r.criteria|join(', ') if r.criteria else 'no' }} (<code>priority/m-26-15/1</code>, event <code>{{ r.priority_event }}</code>); item event <code>{{ r.event }}</code>.</span>
+          {% if r.explained %}{% set x = r.explained %}<br><span class="small">{% if x.passed %}<span class="good">In plain words</span>{% else %}<span class="bad">A model's explanation that failed its check</span>{% endif %}: {{ x.explanation }}</span>
+          <br><span class="dim small">{{ x.actor.model }} on {{ x.actor.hardware }}; {{ x.passes }} of {{ x.calls }} calls passed the check against the rule; passages {{ x.retrieved|join(', ') }}; event <code>{{ x.event }}</code>{% if x.replayed %} <span class="tag replay">replayed</span>{% endif %}. Not used by any rule.</span>{% endif %}</td>
+        <td class="small">{% if sup %}<span class="tag {{ 'missing' if sup.state == 'blocked' else ('discovered' if sup.state == 'not-blocked' else '') }}">supplier: {{ sup.state }}</span> <span class="dim">{{ sup.basis }}</span>{% if sup.state == 'blocked' %} <a href="/packages#{{ r.service }}-{{ r.function }}">change package →</a>{% endif %}{% endif %}
+          {% if vm %}<br><span class="tag {{ 'missing' if vm.state == 'none-validated' else '' }}">validated module: {{ vm.state }}</span> <span class="dim">{{ vm.basis }}</span>{% endif %}</td>
+        <td class="small">{% if r.approval %}{{ r.approval.state }} <span class="dim">— change <code>{{ r.approval.change_id }}</code>, intent {{ r.approval.intent }}{% if r.approval.by %}, approved by {{ r.approval.by }}{% endif %}, {{ r.approval.ts[:16] }}</span>{% else %}<span class="dim">no change yet</span>{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% if m.met %}<p class="note">Met, nothing vulnerable in the function: {% for r in m.met %}{{ r.service }} {{ r.function }} ({{ r.post_quantum|join(', ') }}){% if not loop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
+  {% if m.tls13 %}<p class="note">TLS 1.3 (§4): {% for t in m.tls13 %}{{ t.address }} {% if t.state == 'open' %}<span class="bad">{{ t.basis }}</span>{% else %}<span class="good">{{ t.basis }}</span>{% endif %}{% if not loop.last %} · {% endif %}{% endfor %}.</p>{% endif %}
+  <details class="evidence"><summary>Which algorithms the memo's table makes quantum-vulnerable, as seen in this run</summary>
+    <table class="files"><thead><tr><th>Role</th><th>Name</th><th>Family</th><th>Vulnerable</th><th>Basis (Appendix A)</th></tr></thead><tbody>
+    {% for x in m.vulnerable %}<tr><td>{{ x.role }}</td><td>{{ x.name }}</td><td>{{ x.family }}</td><td>{{ 'yes' if x.quantum_vulnerable else ('no' if x.quantum_vulnerable == false else '—') }}</td><td class="dim small">{{ x.basis }}</td></tr>{% endfor %}
+    </tbody></table></details>
+  {% else %}
+  <p class="note">This run carries no queue assessment: it was made before the Managed rules existed, or without the policy pack.</p>
+  {% endif %}
+</section>
+
+
+<section id="ledger">
+  <h2>The ledger</h2>
+  <p>{{ v.ledger.events }} events · head <code>{{ v.ledger.head[:16] }}…</code> · chain {% if v.ledger.ok %}<span class="good">consistent</span>{% else %}<span class="bad">broken at event {{ v.ledger.at_seq }}: {{ v.ledger.error }}</span>{% endif %} · scope sha256 <code>{{ v.scope_hash[:16] }}…</code> (event 0)</p>
+  {% set sg = v.signed %}
+  <p>Signatures:
+    {% if not sg.ok %}<span class="bad">{{ sg.error }}</span>
+    {% elif sg.checkpoints %}<span class="good">{{ sg.checkpoints }} checkpoint{{ 's' if sg.checkpoints != 1 }} verified</span>, ML-DSA-65, signed through event {{ sg.signed_through }}{% if sg.unsigned_after %}; <span class="bad">{{ sg.unsigned_after }} event{{ 's' if sg.unsigned_after != 1 }} after it unsigned</span>{% endif %}
+    {% else %}<span class="dim">no checkpoint yet</span>{% endif %}
+    · checked against {{ sg.source }}{% if sg.pub_mismatch %} · <span class="bad">the ledger.pub beside this run is not the signer's key</span>{% endif %}</p>
+  {% if sg.key_id %}<p class="note">Public key id (SHA-256 of the key): <code>{{ sg.key_id }}</code>{% if sg.last %} · latest checkpoint head <code>{{ sg.last.head_hash }}</code> through event {{ sg.last.through_seq }}, signed in {{ sg.last.signing_ms }} ms on {{ sg.last.hardware }}{% endif %}.
+  Record these two values somewhere outside this system: with them, anyone holding the public key can detect alteration of any event at or before that checkpoint. The signature does not protect against whoever holds the signing key, and events after the latest checkpoint are unsigned.</p>{% endif %}
+  <p class="downloads">{% for f in ['ledger.jsonl', 'workbench.cdx.json', 'baseline-cbomkit.cdx.json', 'baseline-scanners.cdx.json', 'score.json'] %}{% if f in v.files %}<a href="/runs/{{ v.run }}/{{ f }}">{{ f }}</a>{% endif %}{% endfor %}</p>
+</section>
+{% else %}
+<section><p class="note">No run yet. Press Scan.</p></section>
+{% endif %}
+
+<section id="plan">
+  <h2><span class="step">5</span> The plan: what depends on what, and in what order</h2>
+  {% if plan %}
+  <p class="lede">The queues say what is due; the CBOM says what is tied to what. Together they give an order: a certificate authority's root before the certificates it issued, a replacement before anything that depends on it, a hybrid group offered before it is required. From this scan, rules compute <strong>{{ plan.steps }} steps</strong> over {{ plan.entries }} CBOM entries, held together by <strong>{{ plan.dependencies|length }} shared dependencies</strong>; <strong>{{ plan.waiting }}</strong> of them wait for another step first. The spreadsheet above has six rows that say nothing about each other.</p>
+  <figure class="planmap" data-plan='{{ plan|tojson }}'></figure>
+  <div class="legend">State: <span><i class="dot verifier"></i>done</span><span><i class="dot model"></i>ready to start</span><span><i class="dot scanner"></i>waiting on another step</span> · hover a shared dependency for its reach; click a step for its reasons</div>
+  <table class="traps"><thead><tr><th>Planned from the sheet</th><th>What the CBOM shows</th></tr></thead><tbody>
+  {% for t in plan.traps[:3] %}<tr><td class="dim">{{ t.sheet }}</td><td>{{ t.cbom }}</td></tr>{% endfor %}
+  </tbody></table>
+  <p class="note"><a href="/plan"><strong>The whole plan</strong></a>: every trap, the ranking and its reasons. Carrying out a step — proposing the change, rehearsing it on a copy, checking which clients it shuts out, approving it and proving it on the wire — is <a href="/resolve">the resolution stage</a>, reached from the step.</p>
+  {% else %}<p class="note">The plan is computed from a scan; none yet.</p>{% endif %}
+</section>
+
+{% if v and not v.broken %}
+<section id="score">
+  <h2><span class="step">6</span> The receipts</h2>
+  <p class="lede">What this deployment can show for itself, counted from its ledgers: coverage against the answer key beside both baselines, the chains and their supplied links, the entries no verifier can confirm, the conflicts and how each was settled, and every change ever run here.</p>
+  {% if receipts %}
+  <div class="receipts">
+    {% set ch = receipts.chains %}
+    <div class="receipt"><div class="k">Chains</div><div class="n">{{ ch.complete }}<small>of {{ ch.listeners }} listeners complete</small></div>
+      <div class="s">{{ ch.service_links }} service links discovered (rule <code>link/service/1</code>); {{ ch.supplied }} facts supplied by the owner for {{ ch.services_supplied }} services, each labelled supplied{% if receipts.supplied %}; against the key: {{ receipts.supplied.carried }} of {{ receipts.supplied.total }} carried{% if receipts.supplied.unlabelled %}, <span class="bad">{{ receipts.supplied.unlabelled|length }} carried unlabelled</span>{% endif %}{% endif %}.</div></div>
+    {% set vf = receipts.verifiers %}
+    <div class="receipt"><div class="k">No verifier</div><div class="n">{{ vf.none }}<small>of {{ vf.entries }} entries</small></div>
+      <div class="s">{% for k, n in vf.by_kind.items() %}<code>{{ k }}</code> {{ n }}{% if not loop.last %} · {% endif %}{% endfor %}. A change to an entry with no verifier cannot be shown to have landed (rule <code>verifier/class/1</code>, <code>policy/verifiers.yaml</code>).</div></div>
+    {% set cf = receipts.conflicts %}
+    <div class="receipt"><div class="k">Conflicts</div><div class="n">{{ cf.total }}<small>settled by rule</small></div>
+      <div class="s">{% for k, n in cf.by_outcome.items() %}{{ k[0] }}{% if k[1] %} · {{ k[1] }}{% endif %}: {{ n }}{% if not loop.last %}; {% endif %}{% endfor %}{% if not cf.by_outcome %}none in this run{% endif %}. {% if cf.explained %}{{ cf.explained }} explained by a model beside the rule, none settled by one.{% else %}No model took part.{% endif %}</div></div>
+    {% set tr = receipts.traces %}
+    {% if tr and tr.traces %}
+    <div class="receipt"><div class="k">Traces to cause</div><div class="n">{{ tr.agree }}<small>of {{ tr.keyed }} keyed agree</small></div>
+      <div class="s">{{ tr.traces }} wire findings traced to a configuration line by the model bound to <code>trace-to-cause</code> ({{ tr.engines|join('; ') }}): {{ tr.answered }} answered within budget{% if tr.replayed %}, {{ tr.replayed }} replayed from an earlier scan{% endif %}; median {{ '%.1f' % (tr.latency_ms[tr.latency_ms|length // 2] / 1000) }} s per trace. Each is the model's claim, checked against the key where it names one.</div></div>
+    {% endif %}
+    {% set cg = receipts.changes %}
+    <div class="receipt"><div class="k">Changes</div><div class="n">{{ cg.applied }}<small>applied · {{ cg.landed }} verified landed</small></div>
+      <div class="s">{{ cg.runs }} change runs on this deployment: {{ cg.proposed }} proposed{% if cg.drafted %} ({{ cg.drafted }} drafted by a model, {{ cg.rehearsals }} rehearsals on a copy){% endif %}, {{ cg.approved }} approved{% if cg.denied %}, {{ cg.denied }} denied{% endif %}, {{ cg.applied }} applied, {{ cg.verdicts }} verdicts ({{ cg.enforced }} enforced, {{ cg.enabled_not_enforced }} enabled-not-enforced, {{ cg.not_landed }} not landed{% if cg.inconclusive %}, {{ cg.inconclusive }} inconclusive{% endif %}{% if cg.not_borne_out %}, <span class="bad">{{ cg.not_borne_out }} whose own raw output gives another status</span> — the M0B review's deliberate forgeries among them{% endif %}); {{ cg.durable }} repeated after a recreate{% if cg.broken %}; <span class="bad">{{ cg.broken }} ledgers do not verify</span>{% endif %}.{% if cg.latest %} Latest: run <code>{{ cg.latest.run }}</code>, {{ cg.latest.events }} events, head <code>{{ cg.latest.head[:12] }}…</code>.{% endif %}</div></div>
+  </div>
+  {% endif %}
+  <h3>Coverage against the answer key</h3>
+  <details class="why"><summary>Why two baselines, and why decoys</summary><p>The test estate was built with every weakness planted, so the answer key is exact: items that are present, decoys that look like findings and are not, and items that are real and out of reach. The workbench is scored beside CBOMkit alone and beside every scanner run alone with no harness; at this rung it finds what the scanners find, and what it adds is the link from a wire finding to the file holding the key, the judgement that a certificate in an image is not served, and a posture per listener. <a href="/site/notes/15-what-the-open-source-scanners-cover/">What the open-source scanners cover, and what is built on top</a>.</p></details>
+  {% if v.score %}
+  {% set cols = v.score.columns %}
+  <p class="lede">Against the answer key, by layer. Coverage counts out-of-reach items in the denominator. A false positive is a flagged decoy, or a key-establishment or signature claim on a listener that the key does not hold. Any other discovery tool can be scored the same way: <a href="/imports">bring your own scanner</a>.</p>
+  <table class="score">
+    <thead><tr><th></th>{% for n in ['baseline-cbomkit', 'baseline-scanners', 'workbench'] %}<th>{{ cols[n].label }}</th>{% endfor %}</tr></thead>
+    <tbody>
+    {% for layer in ['wire', 'host', 'code'] %}
+      <tr><th>{{ layer }}</th>
+      {% for n in ['baseline-cbomkit', 'baseline-scanners', 'workbench'] %}
+        {% set r = cols[n].layers[layer] %}
+        <td>{% if not r.scanned and not r.denominator %}<span class="dim">not scanned{% if r.decoys %} — {{ r.decoys }} decoy untested{% endif %}</span>
+          {% else %}<span class="big">{{ r.covered }}/{{ r.denominator }}</span>
+          {% if r.decoys %}<br><span class="{{ 'bad' if r.flagged_decoys else 'good' }}">decoys flagged {{ r.flagged_decoys|length }}/{{ r.decoys }}</span>{% endif %}
+          {% if r.unplanted %}<br><span class="bad">unplanted claims {{ r.unplanted|length }}</span>{% endif %}{% endif %}</td>
+      {% endfor %}</tr>
+    {% endfor %}
+      <tr><th>posture</th>{% for n in ['baseline-cbomkit', 'baseline-scanners', 'workbench'] %}<td>{% if cols[n].posture %}{{ cols[n].posture.correct }}/{{ cols[n].posture.total }}{% else %}<span class="dim">not stated</span>{% endif %}</td>{% endfor %}</tr>
+      <tr><th>unkeyed</th>{% for n in ['baseline-cbomkit', 'baseline-scanners', 'workbench'] %}<td class="dim">{{ cols[n].unkeyed }}</td>{% endfor %}</tr>
+      <tr><th>supplied</th>{% for n in ['baseline-cbomkit', 'baseline-scanners', 'workbench'] %}<td>{% set sp = cols[n].supplied %}{% if sp %}{{ sp.carried }}/{{ sp.total }} <span class="dim">labelled</span>{% if sp.unlabelled %} <span class="bad">{{ sp.unlabelled|length }} unlabelled</span>{% endif %}{% else %}<span class="dim">none</span>{% endif %}</td>{% endfor %}</tr>
+    </tbody>
+  </table>
+  <h3>What the workbench missed</h3>
+  <ul class="misses">
+    {% for layer in ['wire', 'host', 'code'] %}{% for id in cols.workbench.layers[layer].missed %}<li><code>{{ id }}</code> <span class="dim">({{ layer }})</span></li>{% endfor %}{% endfor %}
+  </ul>
+  <p class="note">Unkeyed: components outside the key's scope (hashes, symmetric algorithms, public halves of certificates) or not planted; neither credited nor penalized. Supplied: the owner's facts the key lists, carried on the service and labelled supplied; never coverage. Code layer: no source scanner runs in M0.
+  Score computed from this run's CBOMs on {{ v.score.labels.hardware if v.score.labels else hardware }}; key <code>{{ v.score.key.path.split('/')[-1] }}</code> sha256 <code>{{ v.score.key.sha256[:16] }}…</code>, the hash this run recorded.</p>
+  {% else %}
+  <p class="note">No score for this run.</p>
+  {% endif %}
+</section>
+{% endif %}
+</main>
+<script src="/static/vendor/d3.v7.min.js"></script>
+<script src="/static/app.js"></script>
+<script src="/static/figures.js"></script>
+<script src="/static/plan.js"></script>
+</body>
+</html>

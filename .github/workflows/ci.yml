@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: pip install -e . ruff pytest mkdocs-material
+      - name: Lint
+        run: ruff check .
+      - name: Tests
+        run: '[ -d tests ] && pytest tests -q || echo "no tests yet"'
+      - name: Site builds
+        run: python tools/build_site.py && mkdocs build --strict && python tools/check_links.py site

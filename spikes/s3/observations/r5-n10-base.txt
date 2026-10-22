@@ -1,0 +1,38 @@
+T13 X25519MLKEM768 => Negotiated TLS1.3 group: X25519MLKEM768
+
+T13 SecP256r1MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 SecP384r1MLKEM1024 => Negotiated TLS1.3 group: <NULL>
+
+T13 MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 X25519 => Peer Temp Key: X25519, 253 bits
+
+T13 X448 => Peer Temp Key: X448, 448 bits
+
+T13 P-256 => Peer Temp Key: ECDH, prime256v1, 256 bits
+
+T13 P-384 => Peer Temp Key: ECDH, secp384r1, 384 bits
+
+T13 P-521 => Peer Temp Key: ECDH, secp521r1, 521 bits
+
+T13 ffdhe2048 => Peer Temp Key: DH, 2048 bits
+
+T13 ffdhe3072 => Peer Temp Key: DH, 3072 bits
+
+T13 brainpoolP256r1tls13 => Negotiated TLS1.3 group: <NULL>
+
+T12 X25519 => 
+T12 X448 => 
+T12 P-256 => 
+T12 P-384 => 
+T12 P-521 => 
+T12 brainpoolP256r1 => 
+KRSA => New, (NONE), Cipher is (NONE)
+
+KDHE => 
+V12 => New, (NONE), Cipher is (NONE)
+
+V13 => New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+
+CERT =>  Subject: O=S3 lab, CN=lab.s3.test| Public Key Algorithm: id-ecPublicKey| Public-Key: (256 bit)| ASN1 OID: prime256v1|sha256 Fingerprint=B3:BD:B6:DA:6F:01:2A:EE:92:51:16:36:8C:85:32:85:51:FF:0A:3F:3F:3A:B8:75:EC:CF:23:DA:3B:7E:CD:F4|

@@ -1,0 +1,199 @@
+# The runner's fixed set of jobs. A job names one of these profiles and one
+# target; the runner refuses anything else. Scanner images are pinned by their
+# multi-arch index digest; the runner never pulls (see `pqch scanners pull`).
+#
+# Placeholders in args: {host} {port} {sni} {url}. `url` is https://{sni}:{port}
+# when the scope gives an SNI name, else https://{host}:{port}.
+
+tls-targeted:
+  layer: wire
+  protocols: [tls]
+  tool: testssl.sh
+  version: "3.2.4"
+  image: ghcr.io/testssl/testssl.sh@sha256:31213829a371e90afc9beae12a715793190aecebe9b64488ea49f72de7ff3c62
+  network: target
+  budget_s: 180
+  mem_limit: 256m
+  # -S server defaults (the served certificate); -f forward secrecy (the
+  # offered groups, KEMs included); -E every cipher suite per protocol, which
+  # is what shows RSA key transport — key establishment with no group, absent
+  # from any list of groups. No DNS: the target network has no resolver.
+  args: [--quiet, --color, "0", --warnings, "off", --nodns, none, --ip, "{host}",
+         -S, -f, -E, --jsonfile, /tmp/out.json, "{url}"]
+  args_no_sni: [--quiet, --color, "0", --warnings, "off", --nodns, none,
+                -S, -f, -E, --jsonfile, /tmp/out.json, "{url}"]
+  output: {file: /tmp/out.json, ext: json}
+
+# TLS after PostgreSQL's SSLRequest upgrade: the same scan, with testssl.sh
+# speaking the upgrade before each handshake. A listener in the scope with
+# protocol `postgres` is scanned by this profile and refused by `tls-targeted`;
+# a scan that does not speak the upgrade sees no TLS there at all. No SNI: the
+# upgrade carries none, and the URL names the address.
+tls-starttls-postgres:
+  layer: wire
+  protocols: [postgres]
+  tool: testssl.sh
+  version: "3.2.4"
+  image: ghcr.io/testssl/testssl.sh@sha256:31213829a371e90afc9beae12a715793190aecebe9b64488ea49f72de7ff3c62
+  network: target
+  # Every handshake repeats the upgrade; the same scan takes about twice as long.
+  budget_s: 360
+  mem_limit: 256m
+  args: [--quiet, --color, "0", --warnings, "off", --nodns, none, --ip, "{host}",
+         --starttls, postgres, -S, -f, -E, --jsonfile, /tmp/out.json, "https://{host}:{port}"]
+  output: {file: /tmp/out.json, ext: json}
+
+ssh-targeted:
+  layer: wire
+  protocols: [ssh]
+  tool: ssh-audit
+  version: "3.9.0"
+  image: positronsecurity/ssh-audit@sha256:6d5dee75fe91b5f6279f683f0e7d4374d2ba83e2227c8d9a17097aac2775127d
+  network: target
+  budget_s: 30
+  mem_limit: 128m
+  args: [-j, -p, "{port}", "{host}"]
+  output: {stdout: true, ext: json}
+
+image-theia:
+  layer: host
+  tool: cbomkit-theia
+  version: "1.1.2"
+  image: ghcr.io/cbomkit/cbomkit-theia@sha256:46a72eadc9849b919fc4c72e1c851f9783e03c35db8fad49ba99341ac97f8dea
+  network: none
+  budget_s: 600
+  mem_limit: 1g
+  # The runner saves the scoped image to a tarball and copies it in; theia
+  # never sees the Docker socket or a network.
+  input: image-archive
+  args: [image, docker-archive:/scan/image.tar]
+  output: {stdout: true, ext: json}
+
+# The harness's own reader of key material, run from the runner's image over the
+# same archive theia receives, with no network: ML-DSA certificates, DSA and
+# Ed25519 keys, PKCS#12 keystores, and a certificate's CA flag. It is the
+# workbench's contribution to the host layer and is in neither baseline.
+image-files:
+  layer: host
+  tool: pqch-image-files
+  version: "1"
+  image: self
+  network: none
+  budget_s: 300
+  mem_limit: 512m
+  input: image-archive
+  args: [pqch, image-files, /scan/image.tar]
+  output: {stdout: true, ext: json}
+
+# ---- Verifier probes (M0A). No model; pqch.verifier/1.
+
+# One TLS handshake offering only the named groups, from the runner's own image
+# (OpenSSL 3.5). `tls13` is empty or -tls1_3. The output carries the served
+# certificate and the negotiated group.
+tls-group-probe:
+  layer: wire
+  protocols: [tls]
+  tool: openssl s_client
+  version: "3.5"
+  image: self
+  network: target
+  budget_s: 20
+  mem_limit: 128m
+  params:
+    groups: "^[A-Za-z0-9_-]+(:[A-Za-z0-9_-]+)*$"
+    tls13: "^(-tls1_3)?$"
+  args: [sh, -c, "openssl s_client -connect {host}:{port} -servername {sni} -groups {groups} {tls13} -showcerts </dev/null 2>&1; echo PQCH_EXIT=$?"]
+  output: {stdout: true, ext: txt}
+
+# The same probe through PostgreSQL's SSLRequest upgrade (OpenSSL 3.5 speaks it with
+# -starttls postgres). No SNI: the upgrade carries none.
+tls-group-probe-postgres:
+  layer: wire
+  protocols: [postgres]
+  tool: openssl s_client
+  version: "3.5"
+  image: self
+  network: target
+  budget_s: 20
+  mem_limit: 128m
+  params:
+    groups: "^[A-Za-z0-9_-]+(:[A-Za-z0-9_-]+)*$"
+    tls13: "^(-tls1_3)?$"
+  args: [sh, -c, "openssl s_client -connect {host}:{port} -starttls postgres -groups {groups} {tls13} -showcerts </dev/null 2>&1; echo PQCH_EXIT=$?"]
+  output: {stdout: true, ext: txt}
+
+# The legacy probe: a TLS 1.2 handshake with OpenSSL's default suites. TLS 1.2 cannot carry a
+# hybrid group, so any TLS 1.2 handshake that completes is classical key establishment —
+# elliptic-curve or finite-field Diffie-Hellman, or RSA key transport, which no list of groups
+# shows. A check whose intent is `require` prescribes it, and it must be refused.
+tls-legacy-probe:
+  layer: wire
+  protocols: [tls]
+  tool: openssl s_client
+  version: "3.5"
+  image: self
+  network: target
+  budget_s: 20
+  mem_limit: 128m
+  args: [sh, -c, "openssl s_client -connect {host}:{port} -servername {sni} -tls1_2 -showcerts </dev/null 2>&1; echo PQCH_EXIT=$?"]
+  output: {stdout: true, ext: txt}
+
+tls-legacy-probe-postgres:
+  layer: wire
+  protocols: [postgres]
+  tool: openssl s_client
+  version: "3.5"
+  image: self
+  network: target
+  budget_s: 20
+  mem_limit: 128m
+  args: [sh, -c, "openssl s_client -connect {host}:{port} -starttls postgres -tls1_2 -showcerts </dev/null 2>&1; echo PQCH_EXIT=$?"]
+  output: {stdout: true, ext: txt}
+
+# The witness through PostgreSQL's upgrade.
+tls-witness-postgres:
+  layer: wire
+  protocols: [postgres]
+  tool: testssl.sh
+  version: "3.2.4"
+  image: ghcr.io/testssl/testssl.sh@sha256:31213829a371e90afc9beae12a715793190aecebe9b64488ea49f72de7ff3c62
+  network: target
+  budget_s: 360
+  mem_limit: 256m
+  args: [--quiet, --color, "0", --warnings, "off", --nodns, none, --ip, "{host}",
+         --starttls, postgres, -f, --jsonfile, /tmp/out.json, "https://{host}:{port}"]
+  output: {file: /tmp/out.json, ext: json}
+
+# The verifier's SSH probe: an OpenSSH 10 client offering only the named key exchanges. It stops
+# at authentication (no credentials are offered); the debug log names the key exchange the server
+# agreed to, or that no method matched.
+ssh-kex-probe:
+  layer: wire
+  protocols: [ssh]
+  tool: openssh client
+  version: "10"
+  image: self
+  network: target
+  budget_s: 20
+  mem_limit: 128m
+  params:
+    kex: "^[a-z0-9@._-]+(,[a-z0-9@._-]+)*$"
+  args: [sh, -c, "ssh -vv -o KexAlgorithms={kex} -o BatchMode=yes -o PreferredAuthentications=none -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 -p {port} pqch-probe@{host} true </dev/null 2>&1; echo PQCH_EXIT=$?"]
+  output: {stdout: true, ext: txt}
+
+# The second witness, of a different kind: testssl.sh's own handshakes, which
+# enumerate the groups a listener accepts one at a time.
+tls-witness:
+  layer: wire
+  protocols: [tls]
+  tool: testssl.sh
+  version: "3.2.4"
+  image: ghcr.io/testssl/testssl.sh@sha256:31213829a371e90afc9beae12a715793190aecebe9b64488ea49f72de7ff3c62
+  network: target
+  budget_s: 90
+  mem_limit: 256m
+  args: [--quiet, --color, "0", --warnings, "off", --nodns, none, --ip, "{host}",
+         -f, --jsonfile, /tmp/out.json, "{url}"]
+  args_no_sni: [--quiet, --color, "0", --warnings, "off", --nodns, none,
+                -f, --jsonfile, /tmp/out.json, "{url}"]
+  output: {file: /tmp/out.json, ext: json}

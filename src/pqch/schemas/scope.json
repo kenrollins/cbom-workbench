@@ -1,0 +1,263 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://cbom-workbench/schemas/scope.json",
+ "title": "pqch.scope/1",
+ "type": "object",
+ "required": [
+  "schema",
+  "id",
+  "estate",
+  "owned",
+  "authorized_by",
+  "endpoints",
+  "images",
+  "sources",
+  "reach"
+ ],
+ "properties": {
+  "schema": {
+   "const": "pqch.scope/1"
+  },
+  "id": {
+   "$ref": "event.json#/$defs/ulid"
+  },
+  "estate": {
+   "enum": [
+    "colocated",
+    "remote",
+    "external"
+   ]
+  },
+  "owned": {
+   "type": "boolean"
+  },
+  "authorized_by": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "endpoints": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "host",
+     "port",
+     "transport",
+     "protocol"
+    ],
+    "properties": {
+     "host": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.:_-]*$",
+      "maxLength": 253
+     },
+     "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535
+     },
+     "transport": {
+      "enum": [
+       "tcp",
+       "udp"
+      ]
+     },
+     "protocol": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     },
+     "sni": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$",
+      "maxLength": 253
+     },
+     "image": {
+      "type": "string",
+      "pattern": "^[^@\\s]+@sha256:[0-9a-f]{64}$"
+     },
+     "vlan": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4094
+     },
+     "service": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "maxLength": 63
+     }
+    }
+   }
+  },
+  "images": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "pattern": "^[^@\\s]+@sha256:[0-9a-f]{64}$"
+   }
+  },
+  "sources": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "repo",
+     "commit"
+    ],
+    "properties": {
+     "repo": {
+      "type": "string"
+     },
+     "commit": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "reach": {
+   "oneOf": [
+    {
+     "type": "object",
+     "required": [
+      "kind"
+     ],
+     "properties": {
+      "kind": {
+       "const": "local"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "kind",
+      "context"
+     ],
+     "properties": {
+      "kind": {
+       "const": "ssh-docker"
+      },
+      "context": {
+       "type": "string"
+      }
+     }
+    }
+   ]
+  },
+  "captures": {
+   "description": "Passive capture points: a mirror or tap the harness listens on. Nothing is sent on them. Present only for an external estate, beside the operator's authorization.",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "interface",
+     "host",
+     "vlans"
+    ],
+    "properties": {
+     "interface": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "maxLength": 32
+     },
+     "host": {
+      "type": "string",
+      "maxLength": 253
+     },
+     "vlans": {
+      "type": "array",
+      "items": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 4094
+      }
+     },
+     "mirror": {
+      "type": "string",
+      "maxLength": 200
+     }
+    }
+   }
+  },
+  "twins": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "host",
+     "port",
+     "transport",
+     "protocol",
+     "service",
+     "image",
+     "network"
+    ],
+    "properties": {
+     "host": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.:_-]*$",
+      "maxLength": 253
+     },
+     "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535
+     },
+     "transport": {
+      "enum": [
+       "tcp",
+       "udp"
+      ]
+     },
+     "protocol": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     },
+     "sni": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$",
+      "maxLength": 253
+     },
+     "image": {
+      "type": "string",
+      "pattern": "^[^@\\s]+@sha256:[0-9a-f]{64}$"
+     },
+     "vlan": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4094
+     },
+     "service": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "maxLength": 63
+     },
+     "network": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+     }
+    }
+   }
+  }
+ },
+ "allOf": [
+  {
+   "if": {
+    "properties": {
+     "estate": {
+      "const": "external"
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "authorized_by": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   }
+  }
+ ]
+}

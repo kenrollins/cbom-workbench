@@ -1,0 +1,126 @@
+# OMB M-26-15, Execution of the Migration to Post-Quantum Cryptography (2026-06-24), as data.
+#
+# The assessor's queue, priority and blocker rules read this file and nothing else for what the
+# memo requires. Every rule carries the memo's own words, the section they are from, and the
+# hash of the PDF they were read from; a rule that cannot quote the memo is not in this pack.
+# Dates the memo states are given as it states them; a date the memo gives only as a year is
+# carried as the year, with the end of that year marked `computed`.
+#
+# Text: policy/sources/m-26-15.txt, `pdftotext -layout` of the PDF below, read 2026-10-20.
+schema: pqch.policy-pack/1
+id: m-26-15
+title: "OMB M-26-15, Execution of the Migration to Post-Quantum Cryptography"
+dated: 2026-06-24
+source:
+  url: https://www.whitehouse.gov/wp-content/uploads/2026/06/M-26-15-Execution-of-the-Migration-to-Post-Quantum-Cryptography.pdf
+  pdf_sha256: 515af70472d3a4a2107c61a1bc5f8014523d99feab9b2cf92a95e4bcc790da2c
+  text: policy/sources/m-26-15.txt
+  read_first_hand: 2026-10-20
+applies_to:
+  # §1 and §3.B: agencies' information systems; national security systems are out of its scope.
+  national_security_system: false
+
+# Which systems the memo says to prioritize (§3.C.2). A service is prioritized when any holds.
+prioritize:
+  section: "3.C.2"
+  quote: >-
+    agencies must prioritize the following in their migration plans: A high impact system; ...
+    A High Value Asset (HVA); ... Any other system with highly-sensitive data or systems that an
+    agency determines is likely to be particularly vulnerable to CRQC-based attacks. ... Agencies
+    should include information systems or components that: ... Contain data expected to remain
+    mission-sensitive in 2030.
+  criteria:
+    - id: high-impact
+      fact: fips199_impact
+      equals: high
+      quote: "A high impact system"   # footnote 5: a FIPS 199 potential impact value of 'high'
+    - id: high-value-asset
+      fact: high_value_asset
+      equals: true
+      quote: "A High Value Asset (HVA)"
+    - id: sensitive-in-2030
+      fact: data_lifetime_years
+      # Data the service handles on the assessment date stays mission-sensitive until that date
+      # plus its lifetime; the criterion holds when that reaches 2030. Computed, not quoted.
+      sensitive_through_year_at_least: 2030
+      quote: "Contain data expected to remain mission-sensitive in 2030"
+
+# Which algorithms are quantum-vulnerable: Appendix A §2, the memo's table, and its footnote 13.
+quantum_vulnerable:
+  section: "Appendix A, 2"
+  # Footnote 13 to the table.
+  quote_note: >-
+    Agencies are encouraged to treat as quantum-vulnerable any asymmetric algorithm that is not
+    definitively known to be quantum-resistant.
+  families:
+    ecdh: {row: "Elliptic Curve Diffie-Hellman (ECDH) Key Exchange", function: key-establishment}
+    mqv: {row: "Menezes-Qu-Vanstone (MQV) Key Exchange", function: key-establishment}
+    finite-field-dh: {row: "Diffie-Hellman (DH) Key Exchange and variants", function: key-establishment}
+    rsa-kex: {row: "RSA Key Establishment", function: key-establishment}
+    ecdsa: {row: "Elliptic Curve Digital Signature Algorithm (ECDSA)", function: signature}
+    rsa-sig: {row: "Rivest-Shamir-Adleman (RSA) Signature Algorithm", function: signature}
+    dsa: {row: "Digital Signature Algorithm", function: signature}
+    other-asymmetric: {row: "Other non-PQC Asymmetric Algorithms (footnote 13)", function: either}
+  resistant:
+    # §1: FIPS 203, 204, 205. §3: a hybrid needs both parts broken, "if properly implemented".
+    ml-kem: {quote: "FIPS 203 ML-KEM", section: "Appendix A, 1.1"}
+    ml-dsa: {quote: "FIPS 204 ML-DSA", section: "Appendix A, 1.2"}
+    slh-dsa: {quote: "FIPS 205 SLH-DSA", section: "Appendix A, 1.3"}
+    hybrid-ml-kem: {quote: "Compromising the security of the operation requires an attacker to break both the classical and the PQC schemes if properly implemented.", section: "Appendix A, 3"}
+
+# The queues. One per function, and one for the remaining systems; a separate obligation for TLS 1.3.
+queues:
+  - id: kex-2030
+    function: key-establishment
+    prioritized: true
+    deadline: 2030-12-31
+    deadline_basis: stated
+    section: "3.A; 3.D Phase 3"
+    quote: >-
+      Agencies must execute a prioritized migration ... with the objective of mitigating as much
+      quantum risk as feasible by December 31, 2030. ... Phase 3 (Prioritized Migration – 2028 -
+      2030): The prioritized migration phase should migrate to the use of PQC for key
+      establishment all HVAs, high impact systems, systems with highly sensitive data
+  - id: sig-2031
+    function: signature
+    prioritized: true
+    deadline: 2031-12-31
+    deadline_basis: computed   # the memo says "2031"; the end of that year is ours
+    section: "3.D Phase 4"
+    quote: >-
+      Phase 4 (Signature Migration – 2031): The signature migration phase should migrate to the
+      use of PQC for digital signatures all HVAs, high impact systems, systems with highly
+      sensitive data
+  - id: remaining-2035
+    function: either
+    prioritized: false
+    deadline: 2035-12-31
+    deadline_basis: computed   # the memo says "by 2035"
+    section: "3.D Phase 5"
+    quote: >-
+      Phase 5 (Full Migration – 2035): The final phase should focus on completing the migration
+      of remaining systems with consideration based on risk assessment and the availability of
+      commercial offerings by 2035.
+  - id: tls13-2030
+    function: protocol
+    applies_to_protocol: [tls, postgres]
+    deadline: 2030-01-02
+    deadline_basis: stated
+    section: "4"
+    quote: >-
+      agencies must support Transport Layer Security (TLS) protocol version 1.3 or a successor
+      version as soon as practicable, but not later than January 2, 2030.
+
+# What the memo says to do with a system that cannot take PQC (§3.C.3). The supplier blocker
+# marks such a service for this; the blocker's evidence is the capability snapshot.
+replace:
+  section: "3.C.3"
+  quote: >-
+    Systems incapable of supporting PQC or hybrid cryptography must be identified and given
+    priority for replacement or decommissioning.
+
+# Enforcement, not enablement (Appendix A §5): an item stays open while a classical algorithm
+# is still accepted beside a post-quantum one.
+enforce:
+  section: "Appendix A, 5"
+  quote: "To avoid downgrade attacks, ensure that devices can be configured to use only acceptable algorithms."

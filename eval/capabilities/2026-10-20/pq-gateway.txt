@@ -1,0 +1,6 @@
+libcrypto3-3.5.8-r0
+libssl3-3.5.8-r0
+built with OpenSSL 3.5.7
+## fips
+fips-module:
+config /etc/ssl/openssl.cnf:

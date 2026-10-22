@@ -1,0 +1,46 @@
+# pqch.inference/1 — the tier map and the role bindings (spec/interfaces.md, section 4). Copy
+# to the path named by PQCH_INFERENCE_CONFIG and fill in. The key itself never goes in this
+# file: api_key_env names the environment variable that holds it.
+#
+# A deployment keeps its own copy outside the repository; this one shows the shape.
+# `hardware` is copied onto every timing the tier produces. A tier's `reasoning` block says
+# how the same engine is reached with reasoning on: another model id or gateway lane, a
+# longer timeout, and any extra request fields the endpoint needs (vLLM: chat_template_kwargs).
+# `roles` binds each role the pipeline names to a tier and a reasoning flag. The bindings
+# below are spike S3's result (2026-10-08); change them only on a new measurement.
+schema: pqch.inference/1
+profile: example
+tiers:
+  fast:
+    base_url: http://127.0.0.1:8000/v1
+    api_key_env: PQCH_FAST_KEY
+    model: fast-model-id
+    hardware: label-the-machine
+    max_context: 32768
+    timeout_s: 60
+    residency: resident
+    reasoning:
+      model: fast-model-id          # the same engine; a different lane on a gateway, if that is how it is switched
+      timeout_s: 600
+      request: {chat_template_kwargs: {enable_thinking: true}}
+  deliberate:
+    base_url: http://127.0.0.1:8001/v1
+    api_key_env: PQCH_DELIBERATE_KEY
+    model: deliberate-model-id
+    hardware: label-the-machine
+    max_context: 131072
+    timeout_s: 600
+    residency: resident
+  embed:
+    base_url: http://127.0.0.1:8002/v1
+    api_key_env: PQCH_EMBED_KEY
+    model: embed-model-id
+    hardware: label-the-machine
+    residency: resident
+roles:
+  call-site-read:      {tier: fast, reasoning: true}        # S3 R1: 28 of 30 with reasoning, 21 without
+  classify-algorithm:  {tier: fast, reasoning: true}        # S3 R3: 30 of 30 with reasoning
+  trace-to-cause:      {tier: deliberate, reasoning: false} # S3 R5: 28 of 30; the small engine 9
+  change-plan:         {tier: deliberate, reasoning: false} # S3 R6: 24 of 30
+  normalize-name:      {tier: fast, reasoning: true}        # S3 R2: no arm reached the floor; a labelled fallback behind the name table
+  # resolve-conflict (S3 R4) is not bound: no model reached its floor, and it is a rule's job.

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — crypto agility</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "overview" %}{% set lede = "<strong>Overview.</strong> Where the CBOM sits in NIST's plan for crypto agility, and what this workbench does in each part — " ~ ("read from its ledgers when this snapshot was built." if public else "read live from its ledgers.") %}{% include "_header.html" %}
+<main>
+{% macro who(list) %}<span class="who">{% for w in list %}<span class="actor {{ w }}" title="{{ {'scanner': 'a scanner observes', 'rule': 'a rule decides, from data', 'model': 'a language model acts here, under a measured floor', 'person': 'a person decides', 'verifier': 'probes on the wire decide; no model'}[w] }}">{{ 'verifier — no model' if w == 'verifier' else w }}</span>{% endfor %}</span>{% endmacro %}
+{% macro body(b) %}
+  <p class="here">{{ b.here }}</p>
+  <ul>{% for l in b.lines %}<li>{{ l }}</li>{% endfor %}</ul>
+  {% for m in b.ai or [] %}<p class="aiuse" title="Bound by measurement: spike S3, three calls an item, against a floor written before the run">
+    <span class="mark">model</span> <code>{{ m.role }}</code> — {{ m.model }}; {{ m.score }}</p>{% endfor %}
+  <div class="foot">{{ who(b.who) }}{% if b.state != 'off' %}<a href="{{ b.link }}">see it →</a>{% endif %}</div>
+{% endmacro %}
+{# A tile: NIST's name, the estate's headline, who acts. The detail opens below the figure. #}
+{% macro tile(key, title, cls, sub='') %}{% set b = a.boxes[key] %}
+<a class="box {{ cls }} {{ b.state }}" data-box="{{ key }}" href="#d-{{ key }}">
+  <span class="name">{{ title }}{% if sub %}<small>{{ sub }}</small>{% endif %}</span>
+  <span class="big">{{ b.big }}</span><span class="small">{{ b.small }}</span>
+  {% if caller %}{{ caller() }}{% endif %}
+  <span class="acts">{% for w in b.who %}<i class="dot {{ w }}" title="{{ w }}"></i>{% endfor %}{% if b.ai %}<span class="aitag">model ×{{ b.ai|length }}</span>{% endif %}</span>
+</a>{% endmacro %}
+{% macro items(region) %}<ul class="nist">{% for i in a.nist[region] %}<li class="{{ i.state }}" title="{{ i.what }}">{{ i.label }}</li>{% endfor %}</ul>{% endmacro %}
+
+<p class="orient">NIST's plan for crypto agility, drawn as NIST draws it, filled with what this workbench does in each part. The CBOM is the <strong>Information Repository</strong> in the middle. <span class="hint">Click any box for what is behind it.</span></p>
+
+{% if not public %}<nav class="estates" aria-label="estate">
+  <a href="/?estate=mini-agency" class="{{ 'on' if a.estate == 'mini-agency' }}"><strong>The mini-agency</strong><span>built for the demo, every answer known</span></a>
+  <a href="/?estate=lab" class="{{ 'on' if a.estate == 'lab' }}"><strong>A real network</strong><span>the owner's lab, observed, nothing planted</span></a>
+</nav>{% endif %}
+
+<div class="playbar">
+  <a class="cta" href="/plan{{ '?estate=lab' if a.estate == 'lab' else '' }}">See the plan this CBOM makes →</a>
+  <span>what depends on what, what comes first, and in what order: the risk engine's work, drawn</span>
+</div>
+{% if a.story %}
+<div class="playbar">
+  <button type="button" id="play">▶ Watch one change go around the loop</button>
+  <span>{{ a.story.service }} made to {{ a.story.intent_words }}: {{ a.story.steps|length }} ledger events; approved, applied and proved in {{ a.story.approval_s }} s.</span>
+</div>
+{% else %}
+<p class="note">{{ a.about }}</p>
+{% endif %}
+
+<figure class="agility" id="frame">
+  <div class="loop top"><span>Crypto</span><i>▶</i><span>Agility</span></div>
+  <div class="loop left" aria-hidden="true">▲</div><div class="loop right" aria-hidden="true">▼</div>
+  <div class="caption" id="caption" aria-live="polite"></div>
+  <div class="frame">
+    {% call tile('governance', 'Governance', 'gov') %}{{ items('governance') }}{% endcall %}
+    {% call tile('assets', 'Assets', 'assets') %}{{ items('assets') }}{% endcall %}
+    <div class="arrow" aria-hidden="true"><span>automation</span>⇄</div>
+    {% call tile('tools', 'Management Tools', 'tools', 'Discovery, Assessment, Configuration, Enforcement') %}{{ items('tools') }}{% endcall %}
+    <div class="arrow" aria-hidden="true"><span>automation</span>→</div>
+    <section class="dcrm">
+      <h3>Data-Centric Risk Management</h3>
+      {{ tile('repository', 'Information Repository', 'sub repo', 'the ledger and the CBOM') }}
+      {{ tile('engine', 'Risk Analysis Prioritization Engine', 'sub engine') }}
+      {{ tile('kpi', 'Monitoring, Dashboards, Reports, Measurements / Metrics (KPI)', 'sub kpi') }}
+    </section>
+    <div class="arrow" aria-hidden="true"><span>inform</span>→</div>
+    <section class="outs">
+      {{ tile('mitigation', 'Mitigation', 'out') }}
+      {{ tile('migration', 'Migration', 'out') }}
+    </section>
+    <div class="feedback"><span>←</span> back to the tools: {{ a.loop }}</div>
+  </div>
+  <div class="loop bottom"><span>Crypto</span><i>◀</i><span>Agility</span></div>
+</figure>
+<p class="credit">Layout after NIST CSWP 39-upd1, <cite>Considerations for Achieving Crypto Agility: Strategies and Practices</cite> (Barker, Chen, Cooper, Moody, Regenscheid, Souppaya, Newhouse, Housley, Turner, Barker and Kent; December 19, 2025, updated June 29, 2026), Fig. 3, “Crypto agility strategic plan for managing an organization’s cryptographic risks” — <a href="https://doi.org/10.6028/NIST.CSWP.39-upd1">doi:10.6028/NIST.CSWP.39-upd1</a>. Redrawn; NIST’s labels kept, its “…” boxes left out. NIST has not reviewed this page. Contents are this deployment’s live state: a label is bright where this estate reaches it, dashed in part, dim where it does not.</p>
+<div class="legend">Who acts: {% for w in ['scanner', 'rule', 'model', 'person', 'verifier'] %}<span><i class="dot {{ w }}"></i>{{ 'verifier — probes, no model' if w == 'verifier' else w }}</span>{% endfor %}</div>
+
+<div id="details">
+  <p class="note">{% if a.story %}{{ a.about }} {% endif %}{% if a.run %}Latest run <code>{{ a.run }}</code>.{% endif %}</p>
+  {% for key, title in [('governance', 'Governance'), ('assets', 'Assets'), ('tools', 'Management Tools'), ('repository', 'Information Repository'), ('engine', 'Risk Analysis Prioritization Engine'), ('kpi', 'Monitoring, Dashboards, Reports, Measurements / Metrics (KPI)'), ('mitigation', 'Mitigation'), ('migration', 'Migration')] %}
+  <section class="detail {{ a.boxes[key].state }}" id="d-{{ key }}" data-detail="{{ key }}">
+    <h3>{{ title }}</h3>
+    {{ body(a.boxes[key]) }}
+    {% if key in a.nist %}<table class="nistitems"><tbody>{% for i in a.nist[key] %}<tr class="{{ i.state }}"><td>{{ i.label }}</td><td>{{ {'on': 'reached', 'partial': 'in part', 'off': 'not reached'}[i.state] }}</td><td>{{ i.what }}</td></tr>{% endfor %}</tbody></table>{% endif %}
+  </section>
+  {% endfor %}
+  {% if a.story %}
+  <section class="detail" id="d-replay" data-detail="replay">
+    <h3>One change, around the loop</h3>
+    <p class="lede">The last change that landed toward post-quantum and whose every verdict re-derives from its raw output: <strong>{{ a.story.service }}</strong> made to {{ a.story.intent_words }} (policy intent <code>{{ a.story.intent }}</code>), run <a href="/resolve?change={{ a.story.run }}"><code>{{ a.story.run }}</code></a>{% if a.story.hardware %}, on {{ a.story.hardware }}{% endif %}. Each step is a ledger event; the time is from the first.</p>
+    <ol class="story">{% for s in a.story.steps %}<li data-box="{{ s.box }}"><span class="t">{{ '%.1f'|format(s.ms / 1000) }} s</span> {{ s.label }}</li>{% endfor %}</ol>
+  </section>
+  {% endif %}
+</div>
+
+<section id="next">
+  <h2><span class="step">→</span> Where to go from here</h2>
+  <ul class="next">
+    <li><a href="/plan">The plan</a> — what the CBOM says depends on what, what comes first, and in what order: the migration plan no list of systems can give.</li>
+    <li><a href="/walkthrough">The walkthrough</a> — the mini-agency from a stale spreadsheet to a verified change, step by step.</li>
+    <li><a href="/cbom">Inside the CBOM</a> — the repository box opened: the document, one entry field by field, projections, and what changed between scans.</li>
+    <li><a href="/imports">Bring your own scanner</a> — any discovery tool's CBOM, imported and scored against the same answer key.</li>
+    {% if not public %}<li><a href="/lab">A real network</a> — the lab estate as passive capture and targeted checks see it.</li>{% endif %}
+    <li><a href="/site/notes/16-what-a-cbom-makes-possible/">What a CBOM makes possible</a> — the note behind this page, and the rungs from Opaque to Agile.</li>
+  </ul>
+</section>
+</main>
+<script>
+// Click a box: its detail opens below the figure. Replay: each box lights in turn as the change's
+// ledger events did. Without script every detail is listed below and the boxes are links to them.
+(function () {
+  var frame = document.getElementById("frame"), details = document.querySelectorAll("[data-detail]");
+  var boxes = document.querySelectorAll("#frame [data-box]"), cap = document.getElementById("caption"), timer = null;
+  document.body.classList.add("js");
+  function show(key) {
+    details.forEach(function (d) { d.hidden = d.dataset.detail !== key; });
+    boxes.forEach(function (b) { b.classList.toggle("sel", b.dataset.box === key); });
+  }
+  boxes.forEach(function (b) {
+    b.addEventListener("click", function (ev) {
+      ev.preventDefault(); stop(); show(b.dataset.box);
+      document.getElementById("d-" + b.dataset.box).scrollIntoView({behavior: "smooth", block: "nearest"});
+    });
+  });
+  show(null);
+  function stop() {
+    clearInterval(timer); frame.classList.remove("playing"); cap.textContent = "";
+    boxes.forEach(function (b) { b.classList.remove("lit"); });
+  }
+  var btn = document.getElementById("play"); if (!btn) return;
+  var steps = Array.prototype.slice.call(document.querySelectorAll(".story li"));
+  btn.addEventListener("click", function () {
+    stop(); show("replay"); var i = 0;
+    frame.scrollIntoView({behavior: "smooth", block: "start"});
+    frame.classList.add("playing");
+    timer = setInterval(function () {
+      boxes.forEach(function (b) { b.classList.remove("lit"); }); steps.forEach(function (s) { s.classList.remove("now"); });
+      if (i >= steps.length) { stop(); return; }
+      var s = steps[i++]; s.classList.add("now"); cap.textContent = s.textContent;
+      var b = document.querySelector('#frame [data-box="' + s.dataset.box + '"]'); if (b) b.classList.add("lit");
+    }, 1500);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — resolution</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "resolve" %}{% set lede = "<strong>Resolution.</strong> Carrying out a step of <a href=\"/plan\">the plan</a>: the change proposed from the policy, rehearsed on a copy, checked against every kind of client, approved by a person and proved on the wire, twice. Nothing here is the plan; it is the proof that a step of it can be done." %}{% include "_header.html" %}
+<main>
+<p class="orient">Each step of the plan that a setting can move is carried out here. The order is always the same: propose, rehearse on a copy of the service, see who the change would shut out, approve — a person, signed into the ledger — and then the runner applies it and probes on the wire decide whether it landed, before and after the service is recreated. No model decides that.
+  <span class="ai">Approve only a step the plan says is ready: <a href="/plan">the plan</a> shows what each waits for.</span></p>
+<section id="change">
+  <h2>The change, step by step</h2>
+  {% if c and c.broken %}<p class="error">Change run <code>{{ c.run }}</code>: the ledger does not verify — {{ c.error }} (event {{ c.at_seq }}). Nothing is shown from it.</p>
+  {% elif c %}
+  <details class="why"><summary>Enabled is not enforced</summary><p>Adding the hybrid group to a server changes nothing for a client that does not offer it. So the verifier runs a pair: a client offering only the hybrid group must be accepted, and a client offering every classical group — not just the two the server used to have — must be refused. Both hold: <code>enforced</code>. Only the first: <code>enabled-not-enforced</code>, a real state and not a pass. A second tool enumerates what the listener accepts and can only lower the verdict; the check is repeated after the service is recreated; no model takes part. The ledger behind it is hash-chained and checkpointed with ML-DSA-65 by a signer that keeps the key where nothing else can read it. <a href="/site/notes/08-what-verified-means/">What "verified" means</a> · <a href="/site/notes/12-what-an-auditable-record-contains/">What an auditable record contains</a>.</p></details>
+  <p class="lede">The central crypto policy sets key establishment for the portal and the records database. For the portal a rule renders the change; for the database, whose software has no renderer, a model drafts it from the CBOM's entries and the investigator's trace, and the draft is rehearsed on a copy before anyone sees an approve button. Either way the change is proposed with its diff and the check that will count as verified, approved by a person, applied by the runner, then verified by probes — no model — and verified again after the service is recreated.</p>
+  {% if c.policy %}<p class="runline">Run <code>{{ c.run }}</code> · policy {{ c.policy.path.split('/')[-1] }} sha256 <code>{{ c.policy.sha256[:16] }}…</code> changed by {{ c.policy.by }} ({{ c.policy.authenticated_by }}) at {{ c.policy.ts }}{% if not c.closed %} · <span class="bad">run open</span>{% endif %}</p>{% endif %}
+  {% for ch in c.changes %}
+  {% set t = c.intervals[ch.change_id] %}
+  <details class="listener" open>
+    <summary><span class="addr">{{ ch.proposal.target.service }} {{ ch.proposal.target.address }}:{{ ch.proposal.target.port }}</span>
+      <span class="sni">intent {{ ch.proposal.intent }}</span>
+      {% if ch.verdicts %}{% set last = (ch.verdicts|rejectattr('target_override')|list)[-1] if (ch.verdicts|rejectattr('target_override')|list) else None %}
+        {% if last and ch.confirmed is not true %}<span class="posture classical">{{ last.status }} — {{ 'not borne out by the runner' if ch.confirmed is false else 'unchecked' }}</span>
+        {% elif last %}{% if ch.proposal.intent == 'none' and last.status == 'enforced' %}<span class="posture classical">classical only — verified</span>{% else %}<span class="posture {{ 'pq' if last.status == 'enforced' else ('mixed' if last.status == 'enabled-not-enforced' else 'classical') }}">{{ last.status }}</span>{% endif %}{% endif %}{% endif %}
+      <span class="count">change <code>{{ ch.change_id }}</code></span></summary>
+    {% if ch.drafted_by %}{% set dr = ch.proposal.drafted %}
+    <p class="rule"><span class="tag">drafted by a model</span> {{ ch.drafted_by.model }} on {{ ch.drafted_by.hardware }} (role <code>change-plan</code>{% if ch.drafted_by.reasoning %}, reasoning on{% endif %}), from the CBOM: {{ dr.context.findings|length }} entries for this listener from scan <a href="/cbom?run={{ dr.context.scan_run }}"><code>{{ dr.context.scan_run }}</code></a>{% if dr.context.trace %}, the investigator's trace <code>{{ dr.context.trace }}</code>{% endif %}, and the service's {{ dr.context.files|length }} build files. {{ dr.calls|selectattr('usable')|list|length }} of {{ dr.calls|length }} replies were usable — edits to the policy file only, every line one the runner writes for this software{% for c in dr.calls if not c.usable %}; one was not: {{ c.why }}{% endfor %}. A draft is the model's; it is rehearsed on a copy of the service before anyone approves, and the verifier decides whether it landed.</p>
+    {% endif %}
+    <pre class="mono small diff">{{ ch.proposal.diff }}</pre>
+    {% for r in ch.rehearsals %}{% set rv = r.verdict %}
+    <p class="rule">Rehearsed on a copy at <code>{{ r.twin }}</code> (container <code>{{ r.container[:12] }}</code>, the scope's image <code>{{ (r.image_digest or '')[:19] }}…</code>): {% if rv.status == 'did-not-start' %}<span class="bad">the copy did not start with this file</span>{% else %}<span class="{{ 'good' if rv.meets_intent else 'bad' }}">{{ rv.status }}</span>{% if rv.also_accepts %} — also accepts {{ rv.also_accepts|join(', ') }}{% endif %}{% if rv.reasons %} — {{ rv.reasons|join('; ') }}{% endif %}{% endif %} · event <code>{{ r.event }}</code></p>
+    {% endfor %}
+    {% set mx = ch.matrices[-1] if ch.matrices else none %}{% if mx %}
+    <h4>Who it shuts out — kinds of client, today and with this change</h4>
+    <table class="matrix"><thead><tr><th>Client</th><th>Offers</th><th>Today</th><th>With the change <span class="dim">(copy at {{ mx.twin }})</span></th><th>Effect</th></tr></thead><tbody>
+    {% for r in mx.rows %}<tr><td>{{ r.label }}</td><td class="small dim">{{ r.offers }}</td>
+      <td class="small"><span class="{{ 'good' if r.today.result == 'accepted' else ('bad' if r.today.result == 'refused' else 'dim') }}">{{ r.today.result }}</span>{% if r.today.negotiated %} · {{ r.today.negotiated }}{% endif %}</td>
+      <td class="small"><span class="{{ 'good' if r.proposed.result == 'accepted' else ('bad' if r.proposed.result == 'refused' else 'dim') }}">{{ r.proposed.result }}</span>{% if r.proposed.negotiated %} · {{ r.proposed.negotiated }}{% endif %}</td>
+      <td class="small {{ 'bad' if r.effect == 'shut out' else '' }}">{{ r.effect }}</td></tr>{% endfor %}
+    </tbody></table>
+    <p class="note">One handshake per kind of client against the listener as deployed and against a copy with the proposed file, by probe — no model. {% if mx.shut_out %}With this change, <strong>{{ mx.shut_out|join(', ') }}</strong> would be refused: the evidence an approver weighs for <code>{{ mx.intent }}</code>.{% else %}No kind of client is shut out.{% endif %} Event <code>{{ mx.event }}</code>.</p>
+    {% endif %}
+    <p class="note">Check fixed before the apply: offer only {{ ch.proposal.check.must_accept|join(', ') }} — must be accepted; offer only {{ ch.proposal.check.must_refuse|join(', ') }} — {{ 'must be refused for enforced' }}. Rollback recorded (sha256 <code>{{ ch.proposal.rollback_sha256[:12] }}…</code>).</p>
+    {% for a in ch.approvals %}<p class="rule">{{ a.type }} by <strong>{{ a.by }}</strong> — {{ a.authenticated_by }} — at {{ a.ts }} (event <code>{{ a.event }}</code>)</p>{% endfor %}
+    {% set rehearsed_ok = ch.rehearsals and (ch.rehearsals[-1].verdict.meets_intent) %}
+    {% if not ch.approvals and ch.drafted_by and not rehearsed_ok %}
+      {% if who %}<form method="post" action="/changes/{{ c.run }}/{{ ch.change_id }}/rehearse"><button type="submit" {% if change.running %}disabled{% endif %}>Rehearse on a copy</button></form>{% endif %}
+      <p class="note">A change a model drafted is rehearsed before it can be approved; the runner refuses to apply one whose rehearsal did not meet its intent.</p>
+    {% elif not ch.approvals %}
+      {% if who %}<form method="post" action="/changes/{{ c.run }}/{{ ch.change_id }}/approve"><button type="submit" {% if change.running %}disabled{% endif %}>Approve as {{ who }}</button></form>
+      {% else %}<p class="note">Waiting for approval. Approving needs the lab's sign-on; this request carried none.</p>{% endif %}
+    {% endif %}
+    {% for a in ch.actions %}<p class="rule">{{ a.type }} at {{ a.ts }}: container <code>{{ a.payload.containers[0].before[:12] }}</code> → <code>{{ (a.payload.containers[0].after or '')[:12] }}</code>, image <code>{{ (a.payload.containers[0].image_digest or '')[:19] }}…</code>
+      {% if a.in_runner_log is true %}<span class="good">matches the runner's own log</span>{% elif a.in_runner_log is false %}<span class="bad">not in the runner's own log</span>{% else %}<span class="dim">runner log unreachable</span>{% endif %}</p>{% endfor %}
+    {% for v in ch.verdicts %}
+    <details class="entry">
+      <summary><span class="role">verdict{% if v.repeats %}, repeated{% endif %}</span> <strong>{{ v.status }}</strong>
+        <span class="dim">meets intent {{ v.meets_intent }} · durable {{ v.durable }}{% if v.target_override %} · <span class="bad">probed {{ v.target_override.host }}:{{ v.target_override.port }} instead</span>{% endif %}</span></summary>
+      <figure class="probes" data-verdict='{{ v|tojson }}' data-check='{{ ch.proposal.check|tojson }}'></figure>
+      {% set vc = c.probe_checks.get('verdict:' ~ v.event) %}
+      <p class="rule">{% if vc and vc.ok %}<span class="good">Borne out by the runner's own record:</span> it ran the jobs this check prescribes, after its own apply, against the container it made, and its raw outputs give this status.{% elif vc and vc.ok is false %}<span class="bad">Not borne out by the runner's record:</span> {{ vc.why }}.{% else %}<span class="dim">Not checked against the runner's record.</span>{% endif %}
+        {% if v.reasons %}<span class="bad">Why not: {{ v.reasons|join('; ') }}.</span>{% endif %}</p>
+      <details class="evidence"><summary>Evidence: the three probes, by job id and raw output hash</summary>
+      <dl>
+        <dt>Bound to</dt><dd class="mono">{{ v.binding.address }} · container {{ (v.binding.container_id or 'none')[:12] }} · image {{ (v.binding.image_digest or 'none')[:19] }}… · certificate sha256 {{ (v.binding.cert_fingerprint or 'none')[:16] }}…</dd>
+        {% for p in v.probes %}{% set pc = c.probe_checks.get(p.job_id) if p.job_id else None %}<dt>{{ p.name }}</dt><dd class="mono small">{{ p.tool }} {{ p.tool_version }} · {{ p.result }}{% if p.negotiated %} ({{ p.negotiated }}){% endif %} · {{ p.started_at }} → {{ p.ended_at }} · raw sha256 {{ (p.raw_sha256 or '')[:12] }}…
+          {% if pc and pc.ok %}· <span class="good">job {{ p.job_id }} in the runner's own log</span>{% elif pc and pc.ok is false %}· <span class="bad">job {{ p.job_id }}: {{ pc.why }}</span>{% elif pc %}· <span class="dim">{{ pc.why }}</span>{% else %}· <span class="dim">no job id (recorded before the runner logged jobs)</span>{% endif %}</dd>{% endfor %}
+        {% if v.also_accepts %}<dt>Also accepts</dt><dd class="bad">{{ v.also_accepts|join(', ') }} — found by the witness</dd>{% endif %}
+        <dt>Ledger</dt><dd class="mono">event {{ v.event }} · {{ v.ts }} · after event {{ v.after_event }}</dd>
+      </dl>
+      </details>
+    </details>
+    {% endfor %}
+    {% if t.policy_to_verdict_ms is not none and ch.confirmed is false %}
+    <p class="error">The runner's own record does not bear this change out: an apply, a recreate or a verdict's probes above do not match what the runner logged. No time-to-change is shown.</p>
+    {% elif t.policy_to_verdict_ms is not none and not t.landed %}
+    <p class="error">This change did not land{% if t.durable is false %}: the verdict did not repeat after the service was recreated{% endif %}. It has no time-to-change. Elapsed from the policy change to the last verdict: {{ '%.1f' % (t.policy_to_verdict_ms / 1000) }} s on {{ t.hardware }}.</p>
+    {% elif t.policy_to_verdict_ms is not none and ch.confirmed is none %}
+    <p class="note">Not checked against the runner's own record — its log could not be read, or this run's verdicts name no runner jobs (it is from before the runner logged them). Elapsed by the ledger's timestamps, policy change to last verdict: {{ '%.1f' % (t.policy_to_verdict_ms / 1000) }} s on {{ t.hardware }}; not shown as a time-to-change.</p>
+    {% elif t.clocks_disagree_ms is not none %}
+    <p class="error">The ledger's timestamps and the signer's clock disagree by {{ '%.1f' % (t.clocks_disagree_ms / 1000) }} s over this change (ledger {{ '%.1f' % (t.policy_to_verdict_ms / 1000) }} s, signer {{ '%.1f' % (t.signer_policy_to_verdict_ms / 1000) }} s). No time-to-change is shown.</p>
+    {% elif t.policy_to_verdict_ms is not none %}
+    <figure class="timeline" data-timeline='{{ c.timeline|tojson }}' data-intervals='{{ t|tojson }}'></figure>
+    <table class="score"><tbody>
+      <tr><th>Policy change to last verdict</th><td><span class="big">{{ '%.1f' % (t.policy_to_verdict_ms / 1000) }} s</span></td><td class="dim">{{ t.policy_ts }} → {{ t.verdict_ts }}</td></tr>
+      <tr><th>Approval to last verdict</th><td><span class="big">{{ '%.1f' % (t.approval_to_verdict_ms / 1000) }} s</span></td><td class="dim">{{ t.approval_ts }} → {{ t.verdict_ts }}</td></tr>
+    </tbody></table>
+    {% if t.signer_policy_to_verdict_max_ms is not none %}<p class="note">By the signer's clock: policy to verdict no more than {{ '%.1f' % (t.signer_policy_to_verdict_max_ms / 1000) }} s, approval to verdict no more than {{ '%.1f' % (t.signer_approval_to_verdict_max_ms / 1000) }} s — each from the last signature made before the event was written to the first signature over the verdict. The signer holds the ledger's timestamps within 2 s of its own at each end. What no signature shows is how long a person's decision waited before the harness wrote it down.</p>
+    {% elif t.signer_policy_to_verdict_ms is not none %}<p class="note">By the signer's clock, from the first checkpoint over each event: policy to verdict {{ '%.1f' % (t.signer_policy_to_verdict_ms / 1000) }} s, approval to verdict {{ '%.1f' % (t.signer_approval_to_verdict_ms / 1000) }} s. This run has no signature from before its policy event, so the signer says only when it first saw each event, not that the policy event was not held back before then.</p>{% endif %}
+    <p class="note">From ledger timestamps, on {{ t.hardware }}. The first includes the time the change waited for a person. Both include the repeat after the service was recreated.</p>
+    {% endif %}
+  </details>
+  {% endfor %}
+  {% for n in c.no_draft %}<p class="note">No proposal for <strong>{{ n.service }}</strong>: the model's {{ n.calls|length }} drafts were not usable — {{ n.basis }} (event <code>{{ n.event }}</code>).</p>{% endfor %}
+  {% if not c.changes and not c.no_draft %}<p class="note">The policy matched what was deployed; nothing was proposed.</p>{% endif %}
+  {% set cs = c.signed %}<p class="note">This run's ledger: {% if cs.ok %}<span class="good">{{ cs.checkpoints }} checkpoint{{ 's' if cs.checkpoints != 1 }} verified</span>, signed through event {{ cs.signed_through }}{% if cs.unsigned_after %}, {{ cs.unsigned_after }} event{{ 's' if cs.unsigned_after != 1 }} after it unsigned{% endif %}{% else %}<span class="bad">{{ cs.error }}</span>{% endif %}, checked against {{ cs.source }}.</p>
+  {% if change.error %}<p class="error">{{ change.error }}</p>{% endif %}
+  <p class="note">Who wrote what: the harness writes every event; the runner applies only after reading this ledger itself and finding the approval under a signed checkpoint. An approval is only as good as the harness process that wrote it — anyone who controls that process could write one no person gave, and so could anyone able to connect from the front door's own address. The same holds for a verdict: its probes' raw output is the runner's, but the event is the harness's. Approvals signed by the approver's own key would close that; they are not built yet.</p>
+  {% else %}<p class="note">No change run yet.</p>{% endif %}
+  {% if who %}<form method="post" action="/changes/propose"><button type="submit" {% if change.running %}disabled{% endif %}>Propose from the policy as {{ who }}</button></form>{% endif %}
+</section>
+</main>
+<script src="/static/vendor/d3.v7.min.js"></script>
+<script src="/static/app.js"></script>
+<script src="/static/figures.js"></script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — the lab estate</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "lab" %}{% set lede = "<strong>A real network.</strong> The same method on the owner's own lab, watched passively from a mirror of its firewall: nothing planted, nothing sent, no answer key. Shown only to the owner; nothing from it is published." %}{% include "_header.html" %}
+
+<main>
+{% if not lab %}
+<p class="orient">No capture run yet. Ingest Zeek's rotated logs with <code>pqch capture ingest</code>.</p>
+{% elif lab.broken %}
+<p class="error">The capture run's ledger does not verify at event {{ lab.ledger.at_seq }}: {{ lab.ledger.error }}. Nothing is drawn from it.</p>
+{% else %}
+<p class="orient">A real estate, seen passively. A mirror of the lab's firewall trunk feeds Zeek, which records what every client offered and what every server chose in each TLS and SSH handshake. Nothing was sent; nothing here is planted; no answer key exists for it. Every number is read from one capture run on the ledger, and every count carries the share of the mirror the sensor missed.
+  <span class="ai">No model took part. Each listener's posture and each client's capability is a rule over what was observed, and the rule's event is cited beside it.</span></p>
+<details class="why"><summary>Why a real estate beside the planted one</summary><p>The test estate proves the method against an exact answer key. This one shows what the method finds where nothing was planted: appliances, phones, a hypervisor, a backup server, things that will never do post-quantum key exchange and things that already do. The scope is authorized by the owner, recorded as the first event of the run ({{ lab.scope.authorized_by }}), and lists only passive capture; targeted checks touch only endpoints the scope names. <a href="/site/notes/03-what-federal-policy-requires-and-when/">Why the inventory is required now</a> · <a href="/site/lessons/23-mirror-from-the-live-switch-config/">how the mirror was set up</a>.</p></details>
+
+<section id="summary">
+  <table class="score strip">
+    <tbody><tr>
+      <td><span class="big">{{ '{:,}'.format(lab.handshakes) }}</span><br><span class="dim">handshakes with a key exchange</span></td>
+      <td><span class="big">{{ '{:,}'.format(lab.hybrid) }}</span><br><span class="dim">negotiated a hybrid post-quantum group</span></td>
+      <td><span class="big">{{ lab.clients|length }}</span><br><span class="dim">clients inside, on {{ lab.vlans|length }} VLANs</span></td>
+      <td><span class="big">{{ lab.inside_servers|length }}</span><br><span class="dim">TLS listeners inside; {{ lab.ssh|length }} SSH</span></td>
+      <td><span class="big">{{ lab.outside|length }}</span><br><span class="dim">outside names reached</span></td>
+      <td><span class="big">{% if lab.loss.median_bp is not none %}{{ '%.1f'|format(lab.loss.median_bp / 100) }}%{% else %}—{% endif %}</span><br><span class="dim">median capture loss{% if lab.loss.max_bp is not none %}, max {{ '%.0f'|format(lab.loss.max_bp / 100) }}%{% endif %}</span></td>
+    </tr></tbody>
+  </table>
+  <p class="runline">Capture run <code>{{ lab.run }}</code> · {{ lab.files|length }} hourly files · {{ lab.span[0] }} to {{ lab.span[1] }} · sensor on {{ lab.scope.captures[0].host }} <code>{{ lab.scope.captures[0].interface }}</code> ({{ lab.scope.captures[0].mirror }}) · scope <code>{{ lab.scope.hash[:16] }}…</code> · {{ lab.ledger.events }} events, verified</p>
+  <p class="note">Capture loss is Zeek's own estimate of mirrored traffic it never saw, per 15 minutes. The first evening ran with receive offload on, which merges packets before the sensor sees them and is counted as loss; the figure fell to a fraction of a percent once it was turned off. A handshake is seen whole or not at all, so loss costs completeness, not correctness.</p>
+</section>
+
+<section id="radial">
+  <h2><span class="step">1</span> The estate, every handshake</h2>
+  <p class="lede">Inside the ring: each VLAN an arc, each device a point on it, listeners inside the house marked. Outside: the names the house talks to. Every line is a client–server pair, bundled, coloured by what the pair negotiated. Hover a point to isolate it; click to hold.</p>
+  <figure class="radial" data-lab='{{ {"clients": lab.clients, "servers": lab.inside_servers, "outside": lab.outside[:60], "edges": lab.edges, "vlans": lab.vlans}|tojson }}'></figure>
+  <details class="why"><summary>How to read it</summary><p><span style="color:var(--good)">Green</span> lines negotiated a hybrid post-quantum group. <span style="color:var(--bad)">Red</span> lines are the ones to look at: the client offered a hybrid group and the server chose a classical one. <span style="color:var(--classical)">Grey</span> lines never had a hybrid group on offer. A listener inside the house fed by many red lines is enabled nowhere and could be with one setting; a device with only grey lines cannot be fixed from the server side at all. Line width is the number of handshakes.</p></details>
+</section>
+
+<section id="hours">
+  <h2><span class="step">2</span> The house against the internet</h2>
+  <p class="lede">Per hour: the share of handshakes that negotiated a hybrid group, inside the house and to the outside, and the share where a client offered one. Below it, each VLAN on its own.</p>
+  <figure class="hours" data-hours='{{ lab.hours|tojson }}' data-vlans='{{ lab.vlans|tojson }}'></figure>
+  <details class="why"><summary>What the gap between the two lines means</summary><p>Where "offered" sits above "negotiated", clients asked for post-quantum key exchange and servers declined. Outside the house that gap is the providers that have not moved; inside, it is the listeners in the table below. Cloudflare Radar publishes the same share for the Internet at large — about 70% of browser traffic to its network by its own figure — which is the bar to read these lines against.</p></details>
+</section>
+
+<section id="matrix">
+  <h2><span class="step">3</span> Who can offer what</h2>
+  <p class="lede">Every client inside the house, grouped by VLAN, against every key-exchange group seen on offer, strongest first. A dot: the client offered it. A filled dot: it was also the client's first choice. The last columns are the TLS versions it offered and what the rule concluded.</p>
+  <figure class="matrix" data-clients='{{ lab.clients|tojson }}' data-groups='{{ lab.groups|tojson }}'></figure>
+  <details class="why"><summary>What the rows at the bottom of each block are</summary><p>A device that offers no hybrid group but does offer TLS 1.3 is current enough to be fixed by a software update; a device with no TLS 1.3 at all will never negotiate ML-KEM, because hybrid key exchange is a TLS 1.3 mechanism. Those rows are the ones a migration plan has to replace, not configure. The rule is <code>capability/observed/1</code>; its event is cited on each row.</p></details>
+</section>
+
+<section id="listeners">
+  <h2><span class="step">4</span> The listeners inside the house</h2>
+  <table>
+    <thead><tr><th>Listener</th><th>VLAN (by subnet)</th><th>Posture</th><th class="num">Handshakes</th><th>Chose</th><th class="num">Clients offered hybrid</th><th class="num">Refused</th><th>Versions</th><th>Rule event</th></tr></thead>
+    <tbody>
+    {% for s in lab.inside_servers %}
+    <tr>
+      <td><span class="addr">{{ s.host }}:{{ s.port }}</span>{% if s.sni %} <span class="sni">{{ s.sni }}</span>{% endif %}</td>
+      <td>{{ s.vlan if s.vlan is not none else '—' }}</td>
+      <td>{% if s.posture %}<span class="posture {{ s.posture.posture }}">{{ s.posture.posture }}</span>{% endif %}</td>
+      <td class="num">{{ '{:,}'.format(s.handshakes) }}</td>
+      <td>{% for c in s.chosen %}<span class="{{ 'good' if c.hybrid else 'dim' }}">{{ c.name }}</span> ×{{ c.n }}{{ ', ' if not loop.last }}{% endfor %}</td>
+      <td class="num">{{ s.posture.hybrid_offered if s.posture else '' }}</td>
+      <td class="num">{% if s.posture and s.posture.hybrid_refused %}<span class="bad">{{ s.posture.hybrid_refused }} ({{ s.refused_share }}%)</span>{% else %}0{% endif %}</td>
+      <td class="small">{% for v in s.versions %}{{ v.name }} ×{{ v.n }}{{ ', ' if not loop.last }}{% endfor %}</td>
+      <td class="mono small">{{ s.posture.event if s.posture else '' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="note">A listener's VLAN is inferred from the tag the clients on its subnet carried; the mirror tags a connection with the client's VLAN, not the server's. A listener's certificate is not in this table: in TLS 1.3 it travels encrypted, so passive capture never sees it. That column comes from a targeted check against each listener, once the scope names it.</p>
+  {% if lab.ssh %}
+  <h3>SSH</h3>
+  <table>
+    <thead><tr><th>Server</th><th>VLAN (by subnet)</th><th class="num">Sessions</th><th>Key exchange</th><th>Host key</th><th>Server</th><th>Clients</th></tr></thead>
+    <tbody>{% for s in lab.ssh %}<tr><td class="addr">{{ s.host }}:{{ s.port }}</td><td>{{ s.vlan if s.vlan is not none else ('outside' if not s.inside else '—') }}</td><td class="num">{{ s.sessions }}</td>
+      <td>{% for k in s.kex %}<span class="{{ 'good' if k.hybrid else 'dim' }}">{{ k.name }}</span> ×{{ k.n }}{{ ', ' if not loop.last }}{% endfor %}</td>
+      <td>{% for k in s.hostkeys %}{{ k.name }} ×{{ k.n }}{{ ', ' if not loop.last }}{% endfor %}</td>
+      <td class="small">{{ s.server_software|join(', ') if s.server_software else '' }}</td><td class="small">{{ s.client_software|join(', ') if s.client_software else '' }}</td></tr>{% endfor %}</tbody>
+  </table>
+  {% endif %}
+</section>
+
+{% if scan and not scan.broken %}
+<section id="scanned">
+  <h2><span class="step">4b</span> The listeners, asked directly</h2>
+  <p class="lede">A targeted scan of each listener the scope names, through a runner with one leg on the lab network: everything it accepts, and the certificate it serves. What the capture could only infer, asked and answered. Run <code>{{ scan.run }}</code>, {{ scan.scans|length }} jobs on {{ scan.hardware }}, ledger verified{% if scan.signed.ok %}, {{ scan.signed.checkpoints }} checkpoint{{ 's' if scan.signed.checkpoints != 1 }} signed{% endif %}.</p>
+  <table>
+    <thead><tr><th>Listener</th><th>Posture (asked)</th><th>Key establishment accepted</th><th>Certificate</th><th>Scan</th></tr></thead>
+    <tbody>
+    {% for l in scan.listeners %}
+    {% set kex = l.rows|selectattr('role','equalto','key-establishment')|list %}
+    {% set certs = l.rows|selectattr('type','equalto','certificate')|list %}
+    {% set sigs = l.rows|selectattr('role','equalto','signature')|rejectattr('type','equalto','certificate')|list %}
+    <tr>
+      <td><span class="addr">{{ l.protocol|upper }} {{ l.address }}</span>{% if l.sni %} <span class="sni">{{ l.sni }}</span>{% endif %}</td>
+      <td>{% if l.posture %}<span class="posture {{ l.posture.posture }}">{{ l.posture.posture }}</span>{% elif l.scan and l.scan.status != 'ok' %}<span class="posture none">{{ l.scan.status }}</span>{% else %}<span class="posture none">no posture</span>{% endif %}</td>
+      <td class="small">{% for r in kex %}<span class="{{ 'good' if 'MLKEM' in r.name or 'sntrup' in r.name else ('bad' if r.parameters.mode == 'key-transport' else '') }}">{{ r.name }}</span>{{ ', ' if not loop.last }}{% endfor %}</td>
+      <td class="small">{% for c in certs %}{{ c.name }}{% if c.parameters.key_bits %}-{{ c.parameters.key_bits }}{% endif %}{% if c.parameters.signature %}, {{ c.parameters.signature }}{% endif %}{% if c.parameters.not_after %}, until {{ c.parameters.not_after[:10] }}{% endif %}{% if c.parameters.issuer %} <span class="dim">({{ c.parameters.issuer[:40] }})</span>{% endif %}{{ '; ' if not loop.last }}{% endfor %}{% for s in sigs %}{{ '; ' if certs or not loop.first }}host key {{ s.name }}{% if s.parameters.key_bits %}-{{ s.parameters.key_bits }}{% endif %}{% endfor %}</td>
+      <td class="small">{% if l.scan %}{{ l.scan.tool }} {{ (l.scan.ms / 1000)|round(1) }} s, {{ l.scan.status }}{% else %}not run{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="note">Posture here is the rule <code>posture/kex-auth/1</code> over what the listener accepts when asked, beside the capture's <code>posture/observed/1</code> over what it chose in real handshakes. A listener can accept a hybrid group it never gets to choose, or refuse one its clients keep offering; the two columns together say which. Certificates come only from here: TLS 1.3 encrypts them on the wire.</p>
+</section>
+{% endif %}
+
+<section id="outside">
+  <h2><span class="step">5</span> The outside world, by name</h2>
+  <p class="lede">What the house's clients negotiated with each name they reached, most handshakes first. A name is the registered domain from the server name the client sent.</p>
+  <figure class="outside" data-outside='{{ lab.outside[:40]|tojson }}'></figure>
+</section>
+
+{% if house %}
+<section id="house-cbom">
+  <h2><span class="step">6</span> The house as a CBOM</h2>
+  <p class="lede">Everything above is also one inventory. Each cryptographic asset the capture saw inside the house, and each the targeted scan found, is an entry in a CycloneDX 1.6 CBOM, with where it was found, by which tool, and the ledger event behind it. An entry is named by what it is and where — this group on this listener — not by the tool that saw it, so where both layers saw the same asset they make <em>one</em> entry with two pieces of evidence. That join is what neither report gives alone.</p>
+  <div class="receipts">
+    <div class="receipt"><div class="k">Entries</div><div class="n">{{ '{:,}'.format(house.entries) }}</div>
+      <div class="s">{% for k, n in house.by_type.items() %}{{ n }} {{ k }}{{ 's' if n != 1 }}{% if not loop.last %} · {% endif %}{% endfor %}</div></div>
+    <div class="receipt"><div class="k">Seen by both layers</div><div class="n">{{ house.both }}</div>
+      <div class="s">{{ house.capture_only }} from the capture alone, {{ house.scan_only }} from the scan alone</div></div>
+    <div class="receipt"><div class="k">Clients</div><div class="n">{{ house.clients }}</div>
+      <div class="s">{{ house.client_entries }} entries for what they offer — a scan never sees a client</div></div>
+    <div class="receipt"><div class="k">Certificates</div><div class="n">{{ house.certs }}</div>
+      <div class="s">every one from the scan: TLS 1.3 encrypts them on the wire</div></div>
+  </div>
+  {% if house_graph %}<h3>Along its chain</h3>
+  <p class="lede">Subnet, host, listener, and every entry on the listener. Click a host to follow it, anything for its evidence.</p>
+  <figure class="estate" data-graph='{{ house_graph|tojson }}'></figure>{% endif %}
+  <h3>Listener by listener, both layers</h3>
+  <table class="house">
+    <thead><tr><th>Listener</th><th>Chosen in real handshakes <span class="dim">(capture)</span></th><th>Accepted when asked <span class="dim">(scan)</span></th><th>Certificate</th><th>What the entries say together</th></tr></thead>
+    <tbody>
+    {% for r in house.listeners %}
+    <tr class="{{ 'both' if r.layers|length == 2 else 'one' }}">
+      <td><span class="addr">{{ r.protocol|upper }} {{ r.address }}</span>{% if r.sni %} <span class="sni">{{ r.sni }}</span>{% endif %}</td>
+      <td class="small">{% if 'capture' in r.layers %}{% for x in r.chosen[:3] %}<span class="{{ 'good' if 'MLKEM' in x.name or 'sntrup' in x.name }}">{{ x.name }}</span> ×{{ '{:,}'.format(x.n) }}{{ ', ' if not loop.last }}{% endfor %}{% else %}<span class="dim">—</span>{% endif %}</td>
+      <td class="small">{% if 'scan' in r.layers %}{% if r.hybrid_accepted %}<span class="good">{{ r.hybrid_accepted|join(', ') }}</span> and {{ r.accepted|length - r.hybrid_accepted|length }} classical{% else %}{{ r.accepted|length }} classical, no hybrid{% endif %}{% else %}<span class="dim">—</span>{% endif %}</td>
+      <td class="small">{% for c in r.certs %}{{ c.name }}{% if c.bits %}-{{ c.bits }}{% endif %}{% if c.not_after %}, until {{ c.not_after }}{% endif %}{% if c.self_signed %}, self-signed{% endif %}{{ '; ' if not loop.last }}{% endfor %}</td>
+      <td class="small {{ 'reading' if r.layers|length == 2 else 'dim' }}">{{ r.reading }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <p class="note"><a href="/lab/house.cdx.json"><strong>Download the house's CBOM</strong></a> (CycloneDX 1.6, {{ '{:,}'.format(house.entries) }} entries) · {% if scan.run %}<a href="/cbom?run={{ scan.run }}">open the targeted scan's CBOM entry by entry</a>, with the evidence behind every field · {% endif %}<a href="/site/notes/05-what-can-be-seen-on-the-wire-host-and-code/">what each layer can and cannot see</a>.
+  Not in it: the {{ '{:,}'.format(lab.outside|length) }} outside names the house reached, which stay in the capture's ledger; images and code, which need their own authorization; and anything owned — no owner's facts are supplied, so no entry is ranked. Like everything on this page, it stays with the deployment.</p>
+</section>
+{% endif %}
+{% endif %}
+</main>
+<script src="/static/vendor/d3.v7.min.js"></script>
+<script src="/static/lab.js"></script>
+<script src="/static/figures.js"></script>
+</body>
+</html>
