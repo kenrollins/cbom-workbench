@@ -82,6 +82,7 @@ The dates this runs against: the minimum elements of a federal CBOM are due from
 - [`docs/adr/`](docs/adr/) — the decisions the rest depends on
 - [`docs/journal/`](docs/journal/) — technical notes and lessons
 - [`spec/`](spec/) — the interfaces, precise enough to rebuild the core from
+- [Pointing it at your own network](https://kenrollins.github.io/cbom-workbench/site/your-own-network/) — what is involved, step by step, and what does not carry over
 
 ## License
 

@@ -198,17 +198,28 @@ def build_site(out: Path, base: str, tree: Path) -> None:
 
 
 def leak_check(out: Path) -> list[str]:
-    patterns = LEAKS + RULES["page_leaks"]
-    if not patterns:
-        return []
-    rx = re.compile("|".join(patterns))
+    """Every file against the leak patterns; the demo's rendered pages also against the page patterns
+    (signs that lab data got into a render), which the docs may name as commands and terms."""
+    everywhere = re.compile("|".join(LEAKS)) if LEAKS else None
+    demo_only = re.compile("|".join(RULES["page_leaks"])) if RULES["page_leaks"] else None
     hits = []
     for p in out.rglob("*"):
-        if p.is_file() and p.suffix in (".html", ".js", ".json", ".css", ".txt", ".xml", ".jsonl", ".md"):
-            for n, line in enumerate(p.read_text(errors="replace").splitlines(), 1):
-                for m in rx.finditer(line):
-                    hits.append(f"{p.relative_to(out)}:{n}: {m.group(0)}")
+        if not (p.is_file() and p.suffix in (".html", ".js", ".json", ".css", ".txt", ".xml", ".jsonl", ".md")):
+            continue
+        rel = p.relative_to(out)
+        checks = [rx for rx in (everywhere, None if rel.parts[0] == "site" else demo_only) if rx]
+        for n, line in enumerate(p.read_text(errors="replace").splitlines(), 1):
+            for rx in checks:
+                hits += [f"{rel}:{n}: {m.group(0)}" for m in rx.finditer(line)]
     return hits
+
+
+def clear(out: Path) -> None:
+    """Empty the output folder in place: a running container that bind-mounts it (the lab's /preview/)
+    keeps seeing it, where a deleted and recreated folder would leave the mount pointing at nothing."""
+    if out.exists():
+        for child in out.iterdir():
+            shutil.rmtree(child) if child.is_dir() else child.unlink()
 
 
 def main() -> int:
@@ -219,13 +230,12 @@ def main() -> int:
     ap.add_argument("--tree", type=Path, default=ROOT.parent / "cbom-workbench-export", help="the exported public tree (tools/export_public.py)")
     args = ap.parse_args()
     out = args.out.resolve()
-    if out.exists():
-        shutil.rmtree(out)
+    clear(out)
     work = out.parent / (out.name + ".work")
     if work.exists():
         shutil.rmtree(work)
     ids = curate(args.var, work)
-    out.mkdir(parents=True)
+    out.mkdir(parents=True, exist_ok=True)
     pages = render(work, out, args.base)
     build_site(out, args.base, args.tree.resolve())
     (out / ".nojekyll").write_text("")
@@ -234,7 +244,7 @@ def main() -> int:
     if hits:
         print("\n".join(hits[:60]))
         print(f"LEAK CHECK FAILED: {len(hits)} matches; nothing to publish", file=sys.stderr)
-        shutil.rmtree(out)
+        clear(out)
         return 1
     print(f"{len(pages)} demo pages from {len(ids)} mini-agency runs, the site, and no lab pattern in {sum(1 for _ in out.rglob('*'))} files: {out}")
     return 0
