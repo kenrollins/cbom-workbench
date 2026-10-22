@@ -175,7 +175,6 @@ class Applier:
         """Start a copy of the service, from the image the scope names, on the twin network, with the
         proposed policy file — before anyone approves. Nothing in the estate is touched. The copy
         listens at the twin address the scope lists; the verifier probes it there."""
-        import docker as docker_mod
 
         from pqch import scope as scope_mod
 
@@ -366,6 +365,57 @@ class Applier:
             "listening": listening, "started_at": started, "ended_at": ended,
             "duration_ms": ms_between(started, ended),
         }
+        self._append_log(entry)
+        return entry
+
+    def reset(self, run_id: str) -> dict:
+        """Put the owned estate back to its starting state: every policy-managed service's file from
+        agency/baseline/, then the service recreated from it. Only on a reset run whose ledger verifies
+        and records a person's request under a signed checkpoint, once per run."""
+        events = self._ledger(run_id)
+        req = [e for e in events if e["type"] == "reset.requested"]
+        if not req:
+            raise Refused(409, f"run {run_id} records no reset request")
+        if not any(e["type"] == "checkpoint.signed" and e["payload"]["through_seq"] >= req[0]["seq"] for e in events):
+            raise Refused(409, "no signed checkpoint covers the reset request yet")
+        if any(e.get("kind") == "reset" and e.get("run") == run_id for e in self.log()):
+            raise Refused(409, f"run {run_id} has already reset the estate")
+        scope, _ = self.runner.scope()
+        if not scope.get("owned"):
+            raise Refused(403, "the scope is not an owned estate; it cannot be reset")
+        import yaml
+
+        compose = yaml.safe_load(Path(self.compose_files[0]).read_text())
+        client = self.runner._client()
+        started, done = utc_now(), []
+        for service, d in sorted((compose.get("services") or {}).items()):
+            pol = (d.get("x-pqch") or {}).get("policy")
+            if not pol or not SERVICE.match(service):
+                continue
+            software = pol["software"]
+            path = render.target_path(self.agency_dir, service, software)
+            base = self.agency_dir / "baseline" / service / path.name
+            if not base.exists():
+                raise Refused(409, f"no starting state for {service}: {base} is missing")
+            old = path.read_bytes() if path.exists() else b""
+            new = base.read_bytes()
+            eps = [e for e in scope["endpoints"] if e.get("service") == service]
+            before = [self.runner.binding(client, e["host"]).get("container_id") for e in eps[:1]]
+            path.write_bytes(new)
+            try:
+                self._recreate(service)
+            except subprocess.CalledProcessError as e:
+                path.write_bytes(old)
+                raise Refused(500, f"recreate of {service} failed: {e.stderr[-300:]}") from e
+            listening = all(self._wait_listening(e["host"], e["port"]) for e in eps)
+            after = [self.runner.binding(client, e["host"]).get("container_id") for e in eps[:1]]
+            done.append({"service": service, "file": str(path.relative_to(self.agency_dir)),
+                         "before_sha256": sha256_hex(old), "after_sha256": sha256_hex(new), "changed": old != new,
+                         "containers": [{"before": (before or [None])[0], "after": (after or [None])[0]}],
+                         "listening": listening})
+        ended = utc_now()
+        entry = {"kind": "reset", "run": run_id, "services": done, "started_at": started, "ended_at": ended,
+                 "duration_ms": ms_between(started, ended)}
         self._append_log(entry)
         return entry
 

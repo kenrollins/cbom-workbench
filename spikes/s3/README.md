@@ -328,7 +328,7 @@ R5 and R6 roles on the larger one, and the queue between them are what S6 measur
 The lab latencies per arm in the table above are the numbers, each labelled with the engine and
 the machine that served it. The second arm is now every other model the lab holds — Gemma 4
 31B on the xr7620's L4s, GPT-OSS 120B and Llama 3.3 70B through the lab GB10's orchestrator,
-`ollama` on a desktop GPU host — on the same items against the same floors (PLAN, M1). The design section is
+`ollama` on a desktop GPU host — on the same items against the same floors. The design section is
 left as it was committed before the run.
 
 **Correction, 2026-10-12.** The fast and thinking arms did not run on the L4 fleet. The lab's gateway

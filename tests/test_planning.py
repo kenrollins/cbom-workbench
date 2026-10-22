@@ -27,8 +27,9 @@ def test_the_lab_plan_names_the_server_or_the_clients_as_the_blocker():
         {"host": "10.0.0.5", "port": 443, "handshakes": 100, "hybrid_offered": 80},   # refuses what clients offer
         {"host": "10.0.0.6", "port": 443, "handshakes": 50, "hybrid_offered": 0}],    # accepts, never offered
         "ssh": [], "vlans": [{"vlan": 28, "clients": 3, "hybrid": 1, "classical13": 1, "legacy": 1}]}
-    comp = lambda host, vl: {"properties": [{"name": "pqch:subject", "value": '{"kind": "endpoint", "host": "%s", "port": 443}' % host},
-                                            {"name": "pqch:parameters", "value": '{"client_vlans": {"%d": 10}}' % vl}]}
+    def comp(host, vl):
+        return {"properties": [{"name": "pqch:subject", "value": f'{{"kind": "endpoint", "host": "{host}", "port": 443}}'},
+                                                {"name": "pqch:parameters", "value": f'{{"client_vlans": {{"{vl}": 10}}}}'}]}
     house = {"entries": 4, "doc": {"components": [comp("10.0.0.5", 28), comp("10.0.0.6", 28)]}, "listeners": [
         {"address": "10.0.0.5:443", "protocol": "tls", "layers": ["capture", "scan"], "hybrid_accepted": [], "hybrid_chosen": 0, "certs": []},
         {"address": "10.0.0.6:443", "protocol": "tls", "layers": ["capture", "scan"], "hybrid_accepted": ["X25519MLKEM768"], "hybrid_chosen": 0, "certs": []}]}

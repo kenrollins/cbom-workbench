@@ -7,6 +7,7 @@ audience: [engineer, architect]
 rung: all
 tags: [inference, provenance, measurement]
 one_line: "When model calls go through a gateway that can move a lane between machines, the hardware label in the caller's config is a claim that goes stale silently; record the upstream the gateway names on each reply beside the label, and check the label against it before publishing a timing."
+claims: []
 reuse: [runbook, whitepaper]
 ---
 

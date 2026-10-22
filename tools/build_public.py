@@ -109,7 +109,7 @@ def render(work: Path, out: Path, base: str) -> dict[str, str]:
     code = (work / "runs" / "LATEST_SCAN-CODE").read_text().strip() if (work / "runs" / "LATEST_SCAN-CODE").exists() else None
     scan = (work / "runs" / "LATEST_SCAN").read_text().strip()
     pages = {"/": "index.html", "/walkthrough": "walkthrough/index.html", "/cbom": "cbom/index.html",
-             "/plan": "plan/index.html", "/packages": "packages/index.html", "/imports": "imports/index.html",
+             "/plan": "plan/index.html", "/agency": "agency/index.html", "/packages": "packages/index.html", "/imports": "imports/index.html",
              "/resolve": "resolve/index.html"}
     if code:
         pages[f"/cbom?run={code}"] = "cbom/code/index.html"
@@ -192,7 +192,7 @@ def build_site(out: Path, base: str, tree: Path) -> None:
     site = out / "site"
     for page in site.rglob("*.html"):
         # The site's own links into the demo ("/", "/walkthrough", …) point at the Pages path.
-        text = re.sub(r'href="/(walkthrough|cbom|plan|packages|imports|resolve)?(/?)(["#?])',
+        text = re.sub(r'href="/(walkthrough|agency|cbom|plan|packages|imports|resolve)?(/?)(["#?])',
                       lambda m: f'href="{base}{m.group(1) + "/" if m.group(1) else ""}{m.group(3)}', page.read_text())
         page.write_text(text)
 

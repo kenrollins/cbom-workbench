@@ -49,6 +49,9 @@ class RunnerClient:
     def rehearse(self, run_id: str, change_id: str) -> dict:
         return self._post("/rehearse", {"run": run_id, "change_id": change_id})
 
+    def reset(self, run_id: str) -> dict:
+        return self._post("/reset", {"run": run_id})
+
     def rehearse_end(self, run_id: str, change_id: str) -> dict:
         return self._post("/rehearse/end", {"run": run_id, "change_id": change_id})
 

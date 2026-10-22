@@ -67,7 +67,7 @@ def main() -> int:
         if n.endswith(".md"):
             text = strip_lab(files[n].decode())
             if n in ("docs/journal/notes/README.md", "docs/journal/lessons/README.md"):
-                text = "\n".join(l for l in text.splitlines() if not any(l.startswith(f"| {g} |") for g in gone)) + "\n"
+                text = "\n".join(ln for ln in text.splitlines() if not any(ln.startswith(f"| {g} |") for g in gone)) + "\n"
             files[n] = text.encode()
     hits = []
     if LEAKS:

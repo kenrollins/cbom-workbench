@@ -87,3 +87,10 @@
 .site-hdr .tabs .learn-group .group { margin-left: 0; }
 .site-hdr .tabs .demo-group .group { margin-left: 0; color: rgba(196,207,221,.55); }
 @media (max-width: 1100px) { .site-hdr .tabs { height: auto !important; flex-wrap: wrap; padding-bottom: 8px; } .site-hdr .tabs .demo-group { height: auto; flex-wrap: wrap; padding: 4px 10px; } }
+/* As the demo's header (style.css): no label breaks inside itself; the spacing gives way first. */
+.site-hdr .tabs a, .site-hdr .tabs .group { white-space: nowrap; }
+.site-hdr .tabs { gap: 2px 16px; }
+.site-hdr .tabs .demo-group, .site-hdr .tabs .learn-group { flex-shrink: 0; gap: 2px 15px; }
+.site-hdr .tabs .demo-group a { font-size: 14px; }
+.site-hdr .tabs .learn-group { gap: 2px 13px; }
+@media (max-width: 1100px) { .site-hdr .tabs .demo-group, .site-hdr .tabs .learn-group { flex-shrink: 1; flex-wrap: wrap; } }

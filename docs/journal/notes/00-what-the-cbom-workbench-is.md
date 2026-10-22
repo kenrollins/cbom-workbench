@@ -189,6 +189,12 @@ item no scan can reach (what a service offers when it connects *out*), and 1
 fact that can only be typed in. It was committed before any scanner code was
 written.
 
+The full test estate is eight services, these four among them, with a key of
+74 items (58 to find, 9 decoys, 2 out of reach, 5 supplied); the demo's
+[test agency](https://kenrollins.github.io/cbom-workbench/agency/) page shows
+each service and what was planted in it. The slice's key is kept, frozen, in
+`eval/answer-keys/mini-agency-m0.yaml`, and the scores below are the slice's.
+
 **Enumerated and Structured.** One scan, scored (measured 2026-10-03, xr7620,
 x86_64):
 
@@ -308,7 +314,10 @@ raw output before it is shown as verified. What neither covers is how long a
 person's decision waited before the harness recorded it. The limits are
 stated on the page.
 
-The mini-agency is the only target. This is a personal research project, not
+The mini-agency is the only estate the workbench changes; a network of one's
+own can be scanned and planned, never changed
+([the guide](https://kenrollins.github.io/cbom-workbench/site/your-own-network/)).
+This is a personal research project, not
 a Dell product, reference architecture or supported offering.
 
 ## References

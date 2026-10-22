@@ -636,7 +636,7 @@ def capture_view(run: Run) -> dict:
 
     # The outside world, by registered name.
     outside: dict[str, dict] = {}
-    for (host, port), sv in servers.items():
+    for (host, _port), sv in servers.items():
         if sv["inside"]:
             continue
         d = _domain(sv["sni"]) or host
@@ -804,7 +804,7 @@ def queues_view(var: Path, events: list[dict]) -> dict | None:
             approvals[svc] = {"run": run.id, "change_id": cid, "state": state, "intent": prop["payload"].get("intent"),
                               "by": by, "ts": (verdict or rel[-1] if rel else prop)["ts"]}
     # A model's explanation is shown only while the deployment binds the role: a role below its
-    # floor is unbound, and then the page shows the rule's basis alone (PLAN.md, M2).
+    # floor is unbound, and then the page shows the rule's basis alone.
     explained = explanations_by_item(var) if role_bound("explain-queue") else {}
     items, met = [], []
     for e in by_rule["queue/m-26-15/1"]:

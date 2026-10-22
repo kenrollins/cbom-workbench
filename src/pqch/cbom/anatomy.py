@@ -221,7 +221,7 @@ def diff(before: dict, after: dict) -> dict:
         return v
 
     def fields_of(c):
-        out = {k: v for k, v in _flatten({k: v for k, v in c.items() if k != "properties"})}
+        out = dict(_flatten({k: v for k, v in c.items() if k != "properties"}))
         for k, v in _props(c).items():
             if k in skip:
                 continue

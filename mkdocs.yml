@@ -153,6 +153,8 @@ nav:
       - "42 \u2014 Before trusting a discovery tool's silence, show it something it should find; an empty result is a finding about the tool until then": lessons/42-show-a-tool-what-it-should-find-before-trusting-its-silence.md
       - "43 \u2014 Report a change's time from approval to proof beside its time from policy to proof; the gap is the wait for a person, not the system": lessons/43-report-the-machines-time-apart-from-the-wait-for-a-person.md
       - "44 \u2014 Publish a curated export, checked for leaks, not the working repository; and keep the list of what must not leak out of the published tools": lessons/44-publish-a-curated-export-not-the-working-repository.md
+      - "45 \u2014 Score an inventory against a key that knows about changes: an item a verified change removed is remediated, not missed": lessons/45-count-what-a-verified-change-removed-as-remediated.md
+      - "46 \u2014 After publishing a repository, read its own checks: they run in an environment the export was never tested in": lessons/46-read-the-public-repositorys-own-checks-after-the-first-push.md
   # <<< end generated
   - Sources: sources.md
   - About: about.md

@@ -1,6 +1,6 @@
-import json
 """The verifier (pqch.verifier/1): no model, a pair of probes and a witness, bound to what was probed."""
 
+import json
 from pathlib import Path
 
 import pytest

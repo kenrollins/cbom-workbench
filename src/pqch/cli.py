@@ -368,6 +368,23 @@ def _change_rehearse(args: argparse.Namespace) -> int:
     return 0 if v["meets_intent"] else 1
 
 
+def _estate_reset(args: argparse.Namespace) -> int:
+    """The mini-agency back to its starting state (agency/baseline/), through the runner, on the record."""
+    import os
+    from pathlib import Path
+
+    from pqch.migrator.reset import reset_estate
+
+    runner, signer = _clients()
+    how = "command line in the harness container" + (f"; {args.via}" if args.via else "")
+    run, out, closed = reset_estate(Path(os.environ.get("PQCH_VAR", "var")), runner, signer, by=args.by, authenticated_by=how)
+    for s in out["services"]:
+        print(f"{s['service']:<12} {s['file']:<36} {'restored' if s['changed'] else 'already at start'}"
+              f"  listening {s['listening']}")
+    print(f"reset run {run.id}; closed {len(closed)} open change run(s). Scan next: the plan and the score read the latest scan.")
+    return 0
+
+
 def _change_matrix(args: argparse.Namespace) -> int:
     """Kinds of client against the listener as deployed and a copy with the proposed file."""
     import os
@@ -476,7 +493,7 @@ def _capture_ingest(args: argparse.Namespace) -> int:
     var = Path(os.environ.get("PQCH_VAR", "var"))
     scope, h = scope_mod.load(args.scope)
     try:
-        run, summary = capture.ingest(var, scope, args.capture_dir,
+        _run, summary = capture.ingest(var, scope, args.capture_dir,
                                       hardware=os.environ.get("PQCH_HARDWARE", "unlabelled"))
     except ValueError as e:
         print(str(e), file=sys.stderr)
@@ -592,6 +609,12 @@ def build_parser() -> argparse.ArgumentParser:
     im.add_argument("--commit", help="for call sites: the pinned commit")
     im.add_argument("--key", help="an answer key to score against (the mini-agency's: agency/answer-key.yaml)")
     im.set_defaults(func=_import)
+
+    es = sub.add_parser("estate", help="the owned estate").add_subparsers(dest="sub", required=True)
+    er = es.add_parser("reset", help="put the mini-agency back to its starting state (agency/baseline/), through the runner, on the record")
+    er.add_argument("--as", dest="by", required=True, help="who asks for the reset")
+    er.add_argument("--via", help="how the request reached the command line, when someone else typed it")
+    er.set_defaults(func=_estate_reset)
 
     pk = sub.add_parser("package", help="a change package for each item blocked on its supplier: why no configuration change can do it, with the evidence, and what would unblock it")
     pk.add_argument("--run", help="the scan run (default: the latest scan)")

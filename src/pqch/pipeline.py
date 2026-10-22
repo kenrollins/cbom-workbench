@@ -5,11 +5,10 @@ Used by the CLI and by the scan button; both call `run_once`.
 
 from __future__ import annotations
 
+import json
 import os
 from collections.abc import Callable
 from pathlib import Path
-
-import json
 
 from pqch import cbom, scout
 from pqch import schemas
@@ -69,7 +68,7 @@ def scan_external(var: Path, client, *, progress: Callable[[dict], None] | None 
     return run, summary
 
 
-def enrich(run: Run, *, author: str, context: Path | None | str = "env") -> dict:
+def enrich(run: Run, *, author: str, context: Path | str | None = "env") -> dict:
     """The rules after the structural ones: the service links of the dependency chain, the owner's
     supplied facts, the verifier kind per finding class, and the resolution of each conflict.
     `context` is the owner's context file; `"env"` reads PQCH_CONTEXT, None supplies nothing (an
@@ -103,10 +102,52 @@ def write_score(run: Run, key_path: Path) -> dict:
     """Score the run's CBOMs against the key whose hash the run recorded."""
     recorded = next(e["payload"]["sha256"] for e in run.ledger.events() if e["type"] == "key.committed")
     result = score_run(run.dir, key_path, recorded_sha256=recorded)
+    remediated(run, key_path, result)
     result["labels"] = {"hardware": os.environ.get("PQCH_HARDWARE", "unlabelled"),
                         "build": os.environ.get("PQCH_BUILD", "unlabelled"), "run": run.id}
     (run.dir / "score.json").write_text(json.dumps(result, indent=1) + "\n")
     return result
+
+
+def remediated(run: Run, key_path: Path, result: dict) -> None:
+    """A keyed wire item the scan no longer finds because a change removed it is not a miss. When a
+    change requiring the hybrid group on the item's listener landed — verified, and verified again after
+    a recreate — before this scan began, and no estate reset came after it, the item moves from `missed`
+    to `remediated`, out of the denominator, in every column. Anything else stays missed."""
+    import yaml
+
+    from pqch.migrator import intervals
+    from pqch.ui.view import change_runs
+
+    start = next(run.ledger.events())["ts"]
+    resets = []
+    for d in sorted((run.var / "runs").iterdir()):
+        led = d / "ledger.jsonl"
+        if led.is_file() and json.loads(led.open().readline()).get("payload", {}).get("kind") == "reset":
+            resets += [e["ts"] for e in Run(run.var, d.name).ledger.events() if e["type"] == "estate.reset"]
+    last_reset = max([t for t in resets if t < start], default="")
+    by_listener = {}
+    for cr in change_runs(run.var):
+        for iv in intervals(list(cr.ledger.events())):
+            t = iv.get("target") or {}
+            if iv.get("landed") and iv.get("intent") == "require" and last_reset < (iv.get("verdict_ts") or "") < start:
+                by_listener[(t.get("address"), t.get("port"))] = {"run": cr.id, "change_id": iv["change_id"]}
+    key = yaml.safe_load(key_path.read_text())
+    items = {i["id"]: i for i in key.get("items", [])}
+    for col in result.get("columns", {}).values():
+        row = col.get("layers", {}).get("wire")
+        if not row:
+            continue
+        moved = []
+        for item_id in list(row["missed"]):
+            subj = (items.get(item_id) or {}).get("subject") or {}
+            asset = (items.get(item_id) or {}).get("asset") or {}
+            hit = by_listener.get((subj.get("host"), subj.get("port")))
+            if hit and asset.get("role") == "key-establishment":
+                row["missed"].remove(item_id)
+                moved.append({"item": item_id, **hit})
+        row["remediated"] = moved
+        row["present"] -= len(moved)
 
 
 def signer_from_env():

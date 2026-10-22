@@ -96,7 +96,7 @@ def test_the_plan_pages_render(slice_run, monkeypatch):
         import pqch.ui.app as ui
         importlib.reload(ui)
         c = TestClient(ui.app)
-    for url in ("/plan", "/plan?estate=lab", "/plan?assume=replace:queue", "/resolve", "/imports", "/packages"):
+    for url in ("/agency", "/plan", "/plan?estate=lab", "/plan?assume=replace:queue", "/resolve", "/imports", "/packages"):
         assert c.get(url).status_code == 200, url
 
 
@@ -112,9 +112,23 @@ def test_public_mode_leaves_no_way_into_the_lab(slice_run, monkeypatch):
         c = TestClient(ui.app)
     for url in ("/lab", "/lab/house.cdx.json", "/?estate=lab", "/plan?estate=lab"):
         assert c.get(url).status_code == 404, url
-    for url in ("/", "/walkthrough", "/plan", "/cbom", "/resolve"):
+    for url in ("/", "/agency", "/walkthrough", "/plan", "/cbom", "/resolve"):
         html = c.get(url).text
         assert 'href="/lab"' not in html and "estate=lab" not in html.replace("estate=lab|", ""), url
         assert "<form" not in html or url == "/cbom", url
     monkeypatch.delenv("PQCH_PUBLIC")
     importlib.reload(ui)
+
+
+def test_the_test_agency_matches_its_files():
+    # The page is read from the estate's files; every service in compose has a description, and the
+    # answer key's items all land on a service.
+    from pathlib import Path
+
+    from pqch.ui import estate
+
+    e = estate.build(Path("agency"), Path("agency/answer-key.yaml"))
+    assert len(e["services"]) == 8 and e["listeners"] == 9
+    assert sum(s["counts"]["present"] for s in e["services"]) == e["totals"]["present"]
+    assert sum(s["counts"]["decoy"] for s in e["services"]) == e["totals"]["decoy"]
+    assert sum(s["counts"]["out-of-reach"] for s in e["services"]) == e["totals"]["out-of-reach"]

@@ -64,7 +64,7 @@ daemon, the registry container and the harness's UI service could have
 reached the internet throughout; the test shows they did not fetch images from
 it, not that they could not. Cutting the host's route is a host change and was
 not made. The test that settles it is a second host with its cable out and an
-empty image store (PLAN, M4 rehearsal).
+empty image store (the rehearsal in ROADMAP.md).
 
 ## What the integrity checks cover, and what they do not
 
@@ -88,7 +88,7 @@ that (journal lesson 07 states the same rule for a signed ledger's key).
   in the M4 rehearsal.
 - `load.py` runs `uv run pqch scope generate` on the host. On a clean machine
   that needs `uv`, Python and the project's wheels, which the bundle does not
-  carry yet (PLAN M4).
+  carry yet (ROADMAP.md).
 - The registry is needed to load, not to run: once the images are in the
   host's store, scans and changes run with it stopped. Pruning images
   afterwards brings the need back.

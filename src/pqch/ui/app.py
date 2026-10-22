@@ -69,6 +69,7 @@ if PREVIEW.is_dir():
     app.mount("/preview", StaticFiles(directory=PREVIEW, html=True), name="preview")
 templates = Jinja2Templates(directory=HERE / "templates")
 # Under "Demo" in the header: "live" when this app serves the pages; a static copy sets another word.
+templates.env.filters["first_up"] = lambda s: s[:1].upper() + s[1:] if s else s
 templates.env.globals["demo_mode"] = os.environ.get("PQCH_DEMO_MODE", "live")
 # Public: the mini-agency only, read-only. No lab page, link or data; no scan, propose or approve.
 # Set for the static build published on GitHub Pages (tools/build_public.py).
@@ -147,6 +148,14 @@ def overview(request: Request, estate: str = "mini-agency"):
     else:
         a = agility.build("mini-agency", VAR)
     return templates.TemplateResponse(request, "overview.html", {"a": a, "hardware": HARDWARE})
+
+
+@app.get("/agency")
+def agency(request: Request):
+    """The test agency at a glance: what the mini-agency is, its services and what was planted in each."""
+    from pqch.ui import estate
+
+    return templates.TemplateResponse(request, "agency.html", {"e": estate.build(AGENCY, KEY)})
 
 
 @app.get("/plan")
@@ -509,6 +518,20 @@ def approve_change(request: Request, run_id: str, change_id: str):
                 authenticated_by=SIGN_ON)
         execute(run, RunnerClient(SOCKET), signer, change_id)
     _start_change(go)
+    return RedirectResponse("/resolve", status_code=303)
+
+
+@app.post("/estate/reset")
+def estate_reset(request: Request):
+    """Put the mini-agency back to its starting state, as the signed-on person asked; then scan."""
+    if PUBLIC:
+        raise HTTPException(404)
+    from pqch.migrator.reset import reset_estate
+    from pqch.pipeline import signer_from_env
+    from pqch.runner.client import RunnerClient
+
+    who = _who(request)
+    _start_change(lambda: reset_estate(VAR, RunnerClient(SOCKET), signer_from_env(), by=who, authenticated_by=SIGN_ON))
     return RedirectResponse("/resolve", status_code=303)
 
 

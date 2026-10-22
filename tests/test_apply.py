@@ -207,3 +207,30 @@ def test_a_run_with_another_change_pending_stays_open(setup):
     assert pending(run) == [cid]
     run.ledger.append("approval.denied", {"kind": "human", "id": "ken"}, {"change_id": cid, "by": "ken", "authenticated_by": "test"})
     assert pending(run) == []
+
+
+def test_the_estate_is_reset_only_on_a_signed_request_and_once(setup, tmp_path):
+    from pqch import scope as scope_mod
+    from pqch.run import Run
+
+    _run, _cid, signer, applier = setup()
+    agency = applier.agency_dir
+    (agency / "baseline" / "portal").mkdir(parents=True)
+    (agency / "baseline" / "portal" / "tls.conf").write_text("ssl_protocols TLSv1.2 TLSv1.3;\\nssl_ecdh_curve X25519:prime256v1;\\n")
+    (agency / "generated" / "portal" / "tls.conf").write_text("ssl_protocols TLSv1.3;\\nssl_ecdh_curve X25519MLKEM768;\\n")
+    recreated = []
+    applier._recreate = lambda service: recreated.append(service)
+    applier._wait_listening = lambda address, port, timeout_s=30: True
+    scope, _ = applier.runner.scope()
+    r = Run.start(applier.runs_dir.parent, scope, runner_scope_hash=scope_mod.scope_hash(scope), profile="estate-reset", kind="reset")
+    with pytest.raises(Refused):                       # no request on the record
+        applier.reset(r.id)
+    r.ledger.append("reset.requested", {"kind": "human", "id": "ken"}, {"by": "ken", "authenticated_by": "test"})
+    with pytest.raises(Refused):                       # requested, but no signed checkpoint covers it
+        applier.reset(r.id)
+    r.checkpoint(signer)
+    out = applier.reset(r.id)
+    assert recreated == ["portal"] and out["services"][0]["changed"] is True
+    assert (agency / "generated" / "portal" / "tls.conf").read_text().startswith("ssl_protocols TLSv1.2 TLSv1.3;")
+    with pytest.raises(Refused):                       # once per run
+        applier.reset(r.id)

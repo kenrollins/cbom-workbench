@@ -1,5 +1,9 @@
 name: CI
 
+# Lint, the tests and the documentation site. The tests need no GPU, no model endpoint, no Docker
+# and no target network. `mkdocs build --strict` fails on a broken link between pages of the site;
+# its links into the demo leave the site and are rewritten by the static build
+# (tools/build_public.py). GitHub Pages is served from the gh-pages branch, which tools/publish.py pushes.
 on:
   push:
     branches: [main]
@@ -7,17 +11,19 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.12"
       - name: Install
-        run: pip install -e . ruff pytest mkdocs-material
+        run: uv sync --group dev
       - name: Lint
-        run: ruff check .
+        run: uv run ruff check .
       - name: Tests
-        run: '[ -d tests ] && pytest tests -q || echo "no tests yet"'
+        run: uv run python -m pytest -p no:warnings
       - name: Site builds
-        run: python tools/build_site.py && mkdocs build --strict && python tools/check_links.py site
+        run: |
+          uv run --with mkdocs-material python tools/build_site.py
+          uv run --with mkdocs-material mkdocs build --strict

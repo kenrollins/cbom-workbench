@@ -37,7 +37,16 @@ targets:
     address: 172.16.106.10
     port: 443
     software: nginx
-    intent: none
+    # 2026-10-22: enable — the plan's first portal step (offer the hybrid group; nobody is refused),
+    # set on Ken Rollins's instruction to carry out the plan's changeable steps.
+    intent: enable
+  - service: api
+    address: 172.16.106.11
+    port: 443
+    software: nginx
+    # 2026-10-22: require — the plan's step for the partner API, which already offers the hybrid
+    # group (enabled, not enforced). Both its listeners include the one policy file.
+    intent: require
   - service: records-db
     address: 172.16.106.30
     port: 5432

@@ -7,6 +7,9 @@ audience: [engineer]
 rung: enumerated
 tags: [runner, containers, networking, operations]
 one_line: "When scanners run as containers on a network with a fixed address range, the range bounds how many can run at once; a job that fails because no address was free must be recorded as a runner failure with its reason, never as a scan the target did not answer."
+claims:
+  - text: "With eight scan jobs in flight on a scanner network of seven free addresses, thirteen listeners were recorded as unreachable in under a second each, with no raw output; with the pool widened to sixteen addresses, every listener that was up answered."
+    provenance: "measured 2026-10-14, two targeted scans of the author's network with the runner's default eight workers; the daemon's message in the runner's stderr tail"
 reuse: [runbook]
 ---
 
@@ -31,10 +34,8 @@ second. Those fast failures look, from the harness's side, like thirteen
 listeners that refused to talk: the same status, no raw output, nothing in
 the ledger that a reader could tell apart from a host firewall. The daemon's
 message — no available IPv4 addresses — was in the runner's stderr tail and
-nowhere a page would show it.
-
-The second run, with the pool widened to sixteen addresses, answered for
-every listener that was actually up.
+nowhere a page would show it. Widened past the parallelism, the same pool
+lets every reachable listener answer.
 
 ## When it applies
 

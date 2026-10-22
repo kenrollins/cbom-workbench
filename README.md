@@ -1,5 +1,7 @@
 # cbom-workbench
 
+[![CI](https://github.com/kenrollins/cbom-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/kenrollins/cbom-workbench/actions/workflows/ci.yml)
+
 > A cryptography bill of materials, built from evidence, kept on a signed
 > ledger, and put to work — with the role of AI in that work measured, not
 > assumed.
@@ -61,9 +63,11 @@ the open-source scanners run alone with no harness. The second is the bar.
 
 **[The demo](https://kenrollins.github.io/cbom-workbench/)** — a snapshot of the workbench run against
 the *mini-agency*, an eight-service test estate built with every cryptographic weakness planted and an
-answer key: the overview on NIST's crypto-agility plan, the walkthrough from a stale spreadsheet to a
-CBOM, the CBOM itself opened field by field, and the migration plan it makes possible, with what-ifs.
-The snapshot is read-only; the live workbench scans, proposes and verifies on demand.
+answer key. Start at [the test agency](https://kenrollins.github.io/cbom-workbench/agency/) for what is
+being scanned, then the overview on NIST's crypto-agility plan, the walkthrough from a stale
+spreadsheet to a CBOM, the CBOM itself opened field by field, and the migration plan it makes
+possible, with what-ifs. The snapshot is read-only; the live workbench scans, proposes and verifies on
+demand.
 
 ## Status
 
@@ -75,6 +79,41 @@ The dates this runs against: the minimum elements of a federal CBOM are due from
 2027-03-19; key establishment on prioritized systems by the end of 2030, signatures by the end of 2031
 (`BRIEF.md`, "The clock").
 
+## Run it
+
+Python 3.12 and [uv](https://docs.astral.sh/uv/). The tests need no Docker, no GPU and no model:
+
+```sh
+git clone https://github.com/kenrollins/cbom-workbench && cd cbom-workbench
+uv sync --group dev
+uv run python -m pytest            # about 290 tests, under a minute
+```
+
+The whole workbench — the mini-agency, the scanners, the signer, the runner and the pages — needs Linux
+with Docker and Docker Compose:
+
+```sh
+uv run pqch scanners pull                                  # every scanner image, by pinned digest
+docker build -t pqch-agency/pki:m1 agency/pki              # the test estate's internal CA
+uv run pqch policy render                                  # the services' TLS settings, from the policy
+docker compose -f agency/compose.yaml up -d --build        # the mini-agency
+uv run pqch scope generate agency/compose.yaml --out var/scope/scope.json
+PQCH_AGENCY_DIR=$PWD/agency docker compose -f compose.yaml -f compose.local.yaml up -d --build
+```
+
+`compose.local.yaml` is a small overlay of your own that publishes the page on
+`127.0.0.1:8080` (the base file gives the web app no network); it, and pointing the workbench at a
+network of your own, are in [the guide](https://kenrollins.github.io/cbom-workbench/site/your-own-network/).
+Then open the page, run a scan from the walkthrough, and the overview, the CBOM and the plan fill in.
+This sequence has not yet been rehearsed on a clean machine; an issue is welcome if a step fails.
+
+The notes and lessons in `docs/journal/` build into the site under `/site/`:
+
+```sh
+uv run --with mkdocs-material python tools/build_site.py   # copies the journal into site_src/
+uv run --with mkdocs-material mkdocs build --strict         # writes site/
+```
+
 ## Read next
 
 - [`BRIEF.md`](BRIEF.md) — the design, the claim, and what was ruled out
@@ -82,20 +121,14 @@ The dates this runs against: the minimum elements of a federal CBOM are due from
 - [`docs/adr/`](docs/adr/) — the decisions the rest depends on
 - [`docs/journal/`](docs/journal/) — technical notes and lessons
 - [`spec/`](spec/) — the interfaces, precise enough to rebuild the core from
+- [`eval/`](eval/) — the answer keys and how a CBOM is scored against them
 - [Pointing it at your own network](https://kenrollins.github.io/cbom-workbench/site/your-own-network/) — what is involved, step by step, and what does not carry over
+
+## Feedback
+
+Questions, corrections and ideas are welcome as [issues](https://github.com/kenrollins/cbom-workbench/issues);
+[`CONTRIBUTING.md`](CONTRIBUTING.md) says how the project works and what a change needs.
 
 ## License
 
 [Apache License 2.0](LICENSE).
-
-## The journal site
-
-`docs/journal/` is published as a static site. To build it:
-
-```sh
-uv run --with mkdocs-material python tools/build_site.py   # copies the journal into site_src/
-uv run --with mkdocs-material mkdocs build --strict         # writes site/
-```
-
-A deployment may mount `site/` into the UI service (`PQCH_SITE_DIR`, default
-`/app/site`); it is then served at `/site/` behind the same door as the page.

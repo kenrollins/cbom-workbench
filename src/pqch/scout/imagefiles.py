@@ -15,7 +15,6 @@ was read from it; nothing is inferred from a file name alone. A file that could 
 from __future__ import annotations
 
 import gzip
-import io
 import json
 import re
 import sys
@@ -236,7 +235,7 @@ def _read_pkcs12(data: bytes) -> list[dict]:
 
 def read_file(path: str, data: bytes) -> list[dict]:
     ext = PurePosixPath(path).suffix.lower()
-    if data[:4] == b"\xfe\xed\xfe\xed" or ext in (".jks", ".keystore") and data[:1] != b"-":
+    if data[:4] == b"\xfe\xed\xfe\xed" or (ext in (".jks", ".keystore") and data[:1] != b"-"):
         return [{"type": "related-crypto-material", "name": "unknown",
                  "parameters": {"kind": "keystore", "format": "JKS", "opened": False,
                                 "why": "this reader does not open Java keystores"},

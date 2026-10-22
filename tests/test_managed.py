@@ -207,6 +207,6 @@ def test_the_page_shows_no_model_explanation_while_the_role_is_unbound(monkeypat
     from pqch.ui import view
 
     class Cfg:
-        config = {"roles": {"trace-to-cause": {"tier": "deliberate"}}}
+        config = {"roles": {"trace-to-cause": {"tier": "deliberate"}}}  # noqa: RUF012
     monkeypatch.setattr("pqch.inference.default", lambda: Cfg())
     assert view.role_bound("explain-queue") is False and view.role_bound("trace-to-cause") is True

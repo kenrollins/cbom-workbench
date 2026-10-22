@@ -8,7 +8,7 @@ put to the model bound to `explain-queue` with the item's facts. The reply names
 passages by id. It passes when the queue is the one the rule placed the item in and every cited
 passage was retrieved, one of them that queue's own. Every item is asked three times.
 
-The floor was written before the first call (PLAN.md, M2). Each item's result is an
+The floor was written before the first call. Each item's result is an
 `assessment.made` with the model actor, `used_by_rules: false`, the three calls, the retrieval
 with its scores (in thousandths: hashed objects carry no floats), and the check. It runs in a
 run of kind `explain` over a scan run, never in the scan run itself.
@@ -84,7 +84,7 @@ def check(reply: dict, item_queue: str, retrieved: list[str]) -> dict:
 def explain(var: Path, scan_run: Run, *, pack_path: str | Path, seam: inference.Seam | None = None,
             repeats: int = 3, signer=None, progress=None, only_items: set | None = None) -> tuple[Run | None, dict]:
     s = seam or inference.default()
-    tier, _ = s.for_role(ROLE)      # raises TierUnavailable when the role is unbound
+    _tier, _ = s.for_role(ROLE)      # raises TierUnavailable when the role is unbound
     pack = load_pack(pack_path)
     events = list(scan_run.ledger.events())
     scope = events[0]["payload"]["scope"]

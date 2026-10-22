@@ -7,6 +7,7 @@ audience: [engineer]
 tags: [deployment, containers, operations]
 rung: all
 one_line: "A running container that bind-mounts a directory from a development tree breaks silently when a branch switch replaces that directory; run a deployment from its own detached checkout, with its state beside it, and move it to a commit on purpose."
+claims: []
 reuse: [runbook, customer-question]
 ---
 

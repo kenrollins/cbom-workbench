@@ -25,7 +25,7 @@ claims:
   - text: "The investigator's loop traced nine wire findings of the eight-service mini-agency, one per listener, on the live lab/reason lane: 2 to 4 steps and 1,846 to 6,433 tokens each, median 27.6 s, range 23.1 to 89.1 s; eight agreed with the answer key's cause and the ninth was right where the key was wrong; repeated with a 4,000-token reply cap the ninth returned no answer after 449 s, and with a 16,000 cap answered in 44.9 s."
     provenance: "measured 2026-10-20, investigate runs 01M5CV4QP9K8M4EE4EDTKYRV2H, 01M5D0J6AR6TNT904C40Y3JJ2S and 01M5D11HXJZ4GDAV7KJBYD1CVX; lab/reason served by the GB10 (Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking) per the gateway's response header"
   - text: "A seventh role, explaining an item's queue over retrieved passages of the policy pack, reached 3 of 14 items against a floor of 13 on Gemma 4 31B with 3 harmful calls; retrieval missed the settling passage in 11 of 14."
-    provenance: "measured 2026-10-20, explain run 01M5DG1NY5M7E165RF1TCYVSRN; floor in PLAN.md M2"
+    provenance: "measured 2026-10-20, explain run 01M5DG1NY5M7E165RF1TCYVSRN; floor of 13 of 14 written before the first call"
   - text: "Spike S3 round 5, the live lab/reason lane (Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking) on R1 to R4 and R6: call-site reads 25 of 30, normalization 28 with none harmful (its floor), classification 30, conflict resolution 26 of 29 with 2 harmful (its floor, 10 items unstable), change plans 19 with 4 harmful."
     provenance: "measured 2026-10-21 14:48 to 18:21 UTC through the lab gateway, three calls per item; spikes/s3/README.md, Round 5"
 reuse: [whitepaper, talk, customer-question]

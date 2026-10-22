@@ -93,7 +93,7 @@ def run_matrix(run: Run, client, signer, change_id: str, *, hardware: str = "unl
     finally:
         client.rehearse_end(run.id, change_id)
     rows = []
-    for c, t, p in zip(clients, today, proposed):
+    for c, t, p in zip(clients, today, proposed, strict=False):
         rows.append({"client": c["id"], "label": c["label"], "offers": c["offers"], "today": t, "proposed": p,
                      "effect": effect(t["result"], p["result"])})
     payload = {"change_id": change_id, "intent": prop["payload"]["intent"], "target": prop["payload"]["target"],

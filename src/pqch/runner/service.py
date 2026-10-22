@@ -7,6 +7,7 @@
     POST /recreate  {"run", "change_id"} -> the service recreated, unchanged, or a refusal
     POST /rehearse  {"run", "change_id"} -> a copy of the service on the twin network with the proposal
     POST /rehearse/end  {"run", "change_id"} -> the copy removed
+    POST /reset     {"run"} -> the owned estate back to its starting state (agency/baseline/), on a recorded request
     GET  /log       every apply and recreate this runner has done
     GET  /jobs      ?ids=a,b — the runner's own record of those jobs
 """
@@ -100,6 +101,18 @@ def post_rehearse(c: Change) -> dict:
         return _applier().rehearse(c.run, c.change_id)
     except Refused as r:
         raise HTTPException(status_code=r.code, detail=r.reason) from r
+
+
+class Reset(BaseModel):
+    run: str
+
+
+@app.post("/reset")
+def post_reset(r: Reset) -> dict:
+    try:
+        return _applier().reset(r.run)
+    except Refused as e:
+        raise HTTPException(status_code=e.code, detail=e.reason) from e
 
 
 @app.post("/rehearse/end")

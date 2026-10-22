@@ -37,6 +37,7 @@ ACTORS = {
     "assessment.made": {"rule", "model"}, "link.asserted": {"rule", "model", "human"},
     "change.proposed": {"rule", "model"}, "rehearsal.completed": {"verifier"}, "matrix.completed": {"verifier"},
     "package.issued": {"rule"}, "import.completed": {"scanner"},
+    "reset.requested": {"human"}, "estate.reset": {"runner"},
     "approval.granted": {"human"}, "approval.denied": {"human"}, "change.applied": {"runner"},
     "verdict.issued": {"verifier"}, "queue.enqueued": {"controller"}, "queue.drained": {"controller"},
     "engine.swapped": {"controller"}, "checkpoint.signed": {"controller"}, "trace.completed": {"model"},

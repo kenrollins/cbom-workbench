@@ -1,4 +1,4 @@
-"""The runner's apply acts only on the estate's own container for the service (PLAN M3): one it would
+"""The runner's apply acts only on the estate's own container for the service (resolution): one it would
 recreate itself, from the same Compose files, running the image the scope pins. Anything else that
 holds the address is refused, whatever its labels say."""
 

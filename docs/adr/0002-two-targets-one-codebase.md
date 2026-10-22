@@ -38,7 +38,7 @@ box stops and what more hardware changes.
    the first choice; an NVIDIA-supplied manager is used instead if spike S6
    finds one that fits better. The swap is shown, not hidden: one GB10 can do
    this work, with waits that more capable hardware removes. Which roles go to the deliberate
-   engine is decided by the role bake-off (PLAN spike S3) against a threshold
+   engine is decided by the role bake-off (spike S3, `spikes/s3/`) against a threshold
    written before it runs.
 4. **No shared services.** State is the ledger plus SQLite on local disk.
 5. **Multi-arch, digest-pinned images for everything in the subset.** amd64
@@ -77,7 +77,7 @@ box stops and what more hardware changes.
   leave too little for the workload and fail quietly under pressure. This is
   shown as what a second GB10 buys.
 - **Single small model throughout.** Simplest; adopted for any role where the
-  role bake-off (PLAN spike S3) shows it is sufficient. The seam makes this a
+  role bake-off (spike S3, `spikes/s3/`) shows it is sufficient. The seam makes this a
   config change.
 
 ## Consequences

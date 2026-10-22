@@ -56,3 +56,5 @@ day it was learned.
 | 42 | Before trusting a discovery tool's silence, show it something it should find | enumerated |
 | 43 | Report a change's time from approval to proof beside its time from policy to proof | agile |
 | 44 | Publish a curated export, checked for leaks, not the working repository | all |
+| 45 | Score an inventory against a key that knows about changes: an item a verified change removed is remediated, not missed | agile |
+| 46 | After publishing a repository, read its own checks | all |

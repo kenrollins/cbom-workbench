@@ -11,6 +11,7 @@
     <div class="demo-group">
     <span class="group">Demo<small>{{ demo_mode }}</small></span>
     <a href="/" class="{{ 'on' if active == 'overview' }}" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    <a href="/agency" class="{{ 'on' if active == 'agency' }}" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
     <a href="/walkthrough" class="{{ 'on' if active == 'demo' }}" title="The walkthrough, on a test agency built for it">Walkthrough</a>
     <a href="/cbom" class="{{ 'on' if active == 'cbom' }}" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
     <a href="/plan" class="{{ 'on' if active == 'plan' }}" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
@@ -37,11 +38,30 @@
     if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
     if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
     if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    var u = new URL(url, location.href);
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
     return "Loading…";
   }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
   function show(url) {
     clearTimeout(timer);
-    timer = setTimeout(function () { box.querySelector(".msg").textContent = what(url); box.hidden = false; }, 250);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
   }
   document.addEventListener("click", function (ev) {
     var a = ev.target.closest && ev.target.closest("a[href]");
@@ -52,6 +72,6 @@
     show(u.href);
   });
   document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
-  window.addEventListener("pageshow", function () { clearTimeout(timer); box.hidden = true; });
+  window.addEventListener("pageshow", hide);
 })();
 </script>

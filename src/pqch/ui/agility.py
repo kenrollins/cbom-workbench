@@ -218,7 +218,7 @@ def mini_agency(var: Path) -> dict:
     wire = kinds.get(("endpoint", "cryptographic-asset"), 0)
     files = kinds.get(("file", "cryptographic-asset"), 0)
     _heads(d, {
-        "governance": ("M-26-15", "as data, every quote checked; owner's facts for " + str(services) + " services"),
+        "governance": ("OMB M-26-15", "the federal memo as data, every quote checked; owner's facts for " + str(services) + " services"),
         "assets": (f"{services} services", f"{wire} assets on the wire, {files} in image files; {code_uses} call sites in one repository's code"),
         "tools": (f"{len(view.get('scans', []))}", f"scanner jobs a scan; {len(rules)} rules; {ch['verdicts']} verdicts by probe"),
         "repository": (f"{len(bom['components'])}", f"CBOM components, rebuilt from {len(ev)} signed ledger events"),

@@ -87,9 +87,9 @@ def test_ingest_builds_a_verifiable_capture_run(tmp_path):
     # the live file was not read; every finding names the scan events of its files
     assert all("posture.log" not in e["payload"]["target"].get("file", "") for e in events if e["type"] == "scan.completed")
     # the CBOM projects, with client subjects as components and listeners as before
-    summ = [e for e in events if e["payload"].get("profile") == "capture-summary"][0]["payload"]
+    summ = next(e for e in events if e["payload"].get("profile") == "capture-summary")["payload"]
     assert {(e["client"], e["server"]) for e in summ["edges"]} == {("10.20.30.5", "10.20.30.222"), ("172.30.1.27", "93.184.216.34"), ("10.20.30.5", "10.20.33.3")}
-    assert [e for e in summ["edges"] if e["server"] == "10.20.30.222"][0]["refused"] == 1
+    assert next(e for e in summ["edges"] if e["server"] == "10.20.30.222")["refused"] == 1
     boms = build_all(events)
     assert any(c["name"] == "TLS 10.20.30.222:8007" for c in boms["workbench"]["components"])
 

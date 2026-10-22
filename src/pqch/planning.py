@@ -177,8 +177,8 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
     for cr in change_runs(var):
         ce = list(cr.ledger.events())
         for iv in intervals(ce):
-            if iv.get("landed") and iv.get("intent") == "require" and (iv.get("verdict_ts") or "") > events[-1]["ts"]:
-                landed[iv["target"]["service"]] = {"run": cr.id, "change_id": iv["change_id"], "ts": iv["verdict_ts"]}
+            if iv.get("landed") and iv.get("intent") in ("enable", "require") and (iv.get("verdict_ts") or "") > events[-1]["ts"]:
+                landed[(iv["target"]["service"], iv["intent"])] = {"run": cr.id, "change_id": iv["change_id"], "ts": iv["verdict_ts"]}
     met = {(r["service"], r["function"]) for r in q.get("met", [])}
     pk = packages_view(Run.latest(var, "package"))
     pk = pk if pk and not pk.get("broken") else None
@@ -221,11 +221,14 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
                            if accepts else "") + "M-26-15 counts a classical key exchange still accepted as open; requiring refuses "
                            "every client that cannot offer the hybrid group, so the clients are measured first",
                       resolve="/resolve", resolve_label="change, with its compatibility matrix")
-            if svc in landed or (svc, fn) in met:
+            if (svc, "require") in landed or (svc, fn) in met:
                 st["state"] = "done"
-                st["done"] = landed.get(svc)
+                st["done"] = landed.get((svc, "require"))
                 for d in st["depends_on"]:
                     steps[d]["state"] = "done"
+            elif (svc, "enable") in landed and f"enable:{svc}" in steps:
+                steps[f"enable:{svc}"]["state"] = "done"
+                steps[f"enable:{svc}"]["done"] = landed[(svc, "enable")]
         else:
             pre = [f"replace:{svc}"] if (svc, fn) in blocked else []
             mine = leaf.get(svc, [])
@@ -337,7 +340,7 @@ def _traps(deps: list[dict], steps: dict, rows: list[dict], blocked: set) -> lis
             ca = next((s for s in steps.values() if s["kind"] == "ca"), None)
             if ca and ca["depends_on"]:
                 waits = ", ".join(x.split(":", 1)[1] for x in ca["depends_on"])
-                out.append({"dependency": d["id"], "sheet": f"re-issue each service's certificate with ML-DSA, one row at a time",
+                out.append({"dependency": d["id"], "sheet": "re-issue each service's certificate with ML-DSA, one row at a time",
                             "cbom": f"{len(d['services'])} services chain to one internal CA; its new root must be verifiable "
                                     f"everywhere it is held, and {waits} cannot verify ML-DSA until their software is replaced — "
                                     "so the replacement comes first, then the root, then every leaf at once"})

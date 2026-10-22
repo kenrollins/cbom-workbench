@@ -15,23 +15,29 @@ What the workbench is scored against.
 
   A key is committed, and its hash recorded on the ledger, before the scanner
   code it scores is written.
-- `answer-keys/mini-agency-m0.yaml` — the M0 slice's key, frozen when the
-  estate grew to M1 (2026-10-19); the recorded M0 runs and the tests score
-  against it. The live key is `agency/answer-key.yaml`
-- `answer-keys/held-out/` — a variant of the mini-agency with ports moved,
-  configs renamed and plants changed. It is scored once, at the dress
-  rehearsal, and never tuned against.
-- `pins.yaml` — third-party repositories and the exact commits analyzed
-- `score.py` — coverage and false positives of a CBOM against an answer key,
-  by layer. The logic is `src/pqch/score.py`; the matching rules are written
-  in the key's header. The M0 key is `agency/answer-key.yaml`
-- `baseline/cbomkit/` — CBOMkit alone on the same targets. On the M0 slice
-  this is cbomkit-theia on the images: the slice holds no Java, Python or Go
-  source for CBOMkit's source scanners to read
-- `baseline/scanners/` — every scanner the workbench uses, run alone with no
-  harness, raw output unioned. The workbench's own contribution is the delta
-  over this one: the rules, and from M1 the harness's own reader of key
-  material in images (`pqch image-files`), which is in neither baseline
+  The live key is [`agency/answer-key.yaml`](../agency/answer-key.yaml): 74 items for the eight
+  services — 58 present, 9 decoys, 2 out of reach, 5 supplied. The demo's
+  [test agency page](https://kenrollins.github.io/cbom-workbench/agency/) shows them by service.
+- `answer-keys/mini-agency-m0.yaml` — the first, three-service slice's key, frozen when the estate
+  grew to eight services (2026-10-19); the recorded runs of that slice and the tests score against it.
+- `pins.yaml` — third-party repositories and the exact commits analyzed.
+- `capabilities/<date>/` — what each service's runtime says it supports (key exchanges, signatures,
+  the FIPS module), asked of the image with no network. A change package cites it when no setting can
+  make a service post-quantum (lessons 32 and 33).
+- `score.py` — coverage and false positives of a CBOM against an answer key, by layer. The logic is
+  `src/pqch/score.py`; the matching rules are written in the key's header. Every scan scores itself;
+  `uv run python eval/score.py var/runs/<run-id>` scores a recorded run again.
+
+Every scan also writes two baselines beside the workbench's own CBOM, in the run's directory:
+
+- `baseline-cbomkit.cdx.json` — CBOMkit alone on the same targets: cbomkit-theia on the images. The
+  estate holds no Java, Python or Go source for CBOMkit's source scanners to read.
+- `baseline-scanners.cdx.json` — every scanner the workbench uses, run alone with no harness, raw
+  output unioned. The workbench's own contribution is the delta over this one: the rules, and the
+  harness's own reader of key material in images (`pqch image-files`), which is in neither baseline.
+
+A held-out variant of the estate — ports moved, configs renamed, plants changed, scored once and never
+tuned against — is on the [roadmap](../ROADMAP.md), not yet built.
 
 Both baselines are projected from the same run ledger as the workbench, using
 the same normalizer, so they are scored on what the tools said in the key's

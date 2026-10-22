@@ -5,10 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>cbom-workbench — resolution</title>
 <link rel="stylesheet" href="/static/style.css">
+{% if change.running %}<meta http-equiv="refresh" content="3">{% endif %}
 </head>
 <body>
 {% set active = "resolve" %}{% set lede = "<strong>Resolution.</strong> Carrying out a step of <a href=\"/plan\">the plan</a>: the change proposed from the policy, rehearsed on a copy, checked against every kind of client, approved by a person and proved on the wire, twice. Nothing here is the plan; it is the proof that a step of it can be done." %}{% include "_header.html" %}
 <main>
+{% if change.running %}<p class="whatif"><strong>Working…</strong> a proposal or an approval is being carried out — applied, probed, the service recreated and probed again. This page refreshes itself until it is done.</p>{% endif %}
 <p class="orient">Each step of the plan that a setting can move is carried out here. The order is always the same: propose, rehearse on a copy of the service, see who the change would shut out, approve — a person, signed into the ledger — and then the runner applies it and probes on the wire decide whether it landed, before and after the service is recreated. No model decides that.
   <span class="ai">Approve only a step the plan says is ready: <a href="/plan">the plan</a> shows what each waits for.</span></p>
 <section id="change">
@@ -101,6 +103,9 @@
   {% if change.error %}<p class="error">{{ change.error }}</p>{% endif %}
   <p class="note">Who wrote what: the harness writes every event; the runner applies only after reading this ledger itself and finding the approval under a signed checkpoint. An approval is only as good as the harness process that wrote it — anyone who controls that process could write one no person gave, and so could anyone able to connect from the front door's own address. The same holds for a verdict: its probes' raw output is the runner's, but the event is the harness's. Approvals signed by the approver's own key would close that; they are not built yet.</p>
   {% else %}<p class="note">No change run yet.</p>{% endif %}
+  <h3>Back to the start</h3>
+  <p class="note">Changes here are real, on the mini-agency. A reset puts every service it manages back to its planted state (<code>agency/baseline/</code>), through the runner and on the record, and closes any change run still open. Then scan from the walkthrough: the plan and the score start over.</p>
+  {% if who %}<form method="post" action="/estate/reset" onsubmit="return confirm('Put the mini-agency back to its starting state? Changes made since are undone; their record stays.')"><button type="submit" class="secondary" {% if change.running %}disabled{% endif %}>Reset the mini-agency as {{ who }}</button></form>{% endif %}
   {% if who %}<form method="post" action="/changes/propose"><button type="submit" {% if change.running %}disabled{% endif %}>Propose from the policy as {{ who }}</button></form>{% endif %}
 </section>
 </main>

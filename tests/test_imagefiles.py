@@ -3,7 +3,7 @@
 import io
 import json
 import tarfile
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, UTC
 
 import pytest
 from cryptography import x509
@@ -21,7 +21,7 @@ def _name(cn):
 
 
 def _cert(subject, issuer_name, pub, signer, *, ca=False, cert_sign=False, key_usage=True):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     b = (x509.CertificateBuilder().subject_name(_name(subject)).issuer_name(_name(issuer_name)).public_key(pub)
          .serial_number(x509.random_serial_number()).not_valid_before(now).not_valid_after(now + timedelta(days=30))
          .add_extension(x509.BasicConstraints(ca=ca, path_length=None), critical=True))

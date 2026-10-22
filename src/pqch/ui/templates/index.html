@@ -19,7 +19,7 @@
 
 <section id="opaque">
   <h2><span class="step">1</span> The spreadsheet <span class="tag static">static</span></h2>
-  <p class="lede">This is most inventories today: kept by hand, already out of date.</p>
+  <p class="lede">This is most inventories today: kept by hand, already out of date. Here it is the sheet of <a href="/agency">the test agency</a>, a fictional estate of eight services built for this demo, with every weakness planted and keyed.</p>
   <table class="sheet">
     <thead><tr><th>System</th><th>What the sheet says</th><th>Owner</th></tr></thead>
     <tbody>
@@ -302,6 +302,11 @@
   <ul class="misses">
     {% for layer in ['wire', 'host', 'code'] %}{% for id in cols.workbench.layers[layer].missed %}<li><code>{{ id }}</code> <span class="dim">({{ layer }})</span></li>{% endfor %}{% endfor %}
   </ul>
+  {% set rem = cols.workbench.layers.wire.remediated or [] %}{% if rem %}
+  <h3>Remediated since the estate was built</h3>
+  <p class="lede">Planted weaknesses this scan no longer finds because a verified change removed them — out of the denominator, not counted as misses. A reset of the mini-agency puts them back.</p>
+  <ul class="misses">{% for r in rem %}<li><code>{{ r.item }}</code> <span class="dim">— removed by change <code>{{ r.change_id }}</code> (run <a href="/resolve?change={{ r.run }}"><code>{{ r.run }}</code></a>)</span></li>{% endfor %}</ul>
+  {% endif %}
   <p class="note">Unkeyed: components outside the key's scope (hashes, symmetric algorithms, public halves of certificates) or not planted; neither credited nor penalized. Supplied: the owner's facts the key lists, carried on the service and labelled supplied; never coverage. Code layer: no source scanner runs in M0.
   Score computed from this run's CBOMs on {{ v.score.labels.hardware if v.score.labels else hardware }}; key <code>{{ v.score.key.path.split('/')[-1] }}</code> sha256 <code>{{ v.score.key.sha256[:16] }}…</code>, the hash this run recorded.</p>
   {% else %}

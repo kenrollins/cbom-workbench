@@ -1,0 +1,69 @@
+# The mini-agency as a reader first meets it: what each service is for, in a phrase, and what was
+# planted in it. Shown on the demo's "The estate" page beside the owner's facts (context.yaml), the
+# listeners (compose.yaml) and the answer key's counts. Keep it in step with README.md's table.
+schema: pqch.agency-about/1
+name: the mini-agency
+summary: >-
+  A small, fictional federal agency — a benefits portal, a partner API, an inter-agency gateway, a
+  records database and its file drop, a message queue, a case-management application and an
+  administrator's jump host — built in containers on an internal network with no route out. Every
+  cryptographic weakness in it is planted on purpose and written down in an answer key, so what the
+  workbench finds can be scored exactly: what it found, what it missed, and which decoys it was
+  fooled by.
+groups:
+  - {id: public, label: "Facing the public and partners"}
+  - {id: records, label: "Records"}
+  - {id: operations, label: "Operations"}
+services:
+  portal:
+    clients: the public, in a browser
+    software: nginx on Alpine 3.22
+    group: public
+    role: the public benefits enrollment site
+    planted: "classical key exchange only (X25519, P-256) and TLS 1.2 still on; an unserved 2019 certificate left in the image"
+  api:
+    clients: partner agencies, each with a client certificate
+    software: nginx on Alpine 3.22
+    group: public
+    role: the API partner agencies call
+    planted: "the hybrid group offered but classical X25519 still accepted (enabled, not enforced); one key on two listeners; partners must present certificates from a partner CA"
+  pq-gateway:
+    clients: other agencies
+    software: nginx on Alpine 3.22
+    group: public
+    role: the inter-agency exchange, already post-quantum
+    planted: "the one listener that requires the hybrid group, with a self-signed ML-DSA-65 certificate — the target state, to show what done looks like"
+  records-db:
+    clients: the case-management application and the file drop
+    software: PostgreSQL 18
+    group: records
+    role: the benefits records, kept for 75 years
+    planted: "hybrid offered, but X25519, 2048-bit finite-field DH and RSA key transport over TLS 1.2 still accepted; certificate from the internal CA"
+  sftp-legacy:
+    clients: the records office
+    software: OpenSSH 6.6 on Ubuntu 14.04
+    group: records
+    role: the file drop that sends records to the archive
+    planted: "OpenSSH 6.6 on Ubuntu 14.04: key exchange down to 1024-bit DH, a DSA host key, and as a client it still offers DH-1024 to the archive; no setting can make it post-quantum"
+  queue:
+    clients: the case-management application
+    software: RabbitMQ 4
+    group: operations
+    role: case-processing messages
+    planted: "RabbitMQ 4: TLS 1.2, P-256 and P-384 only; a retired certificate left in the image; its runtime lists no post-quantum algorithm"
+  legacy-app:
+    clients: caseworkers
+    software: Tomcat 8.5 on Java 8
+    group: operations
+    role: the case-management application
+    planted: "Tomcat 8.5 on Java 8: TLS 1.2 only, two ECDHE-RSA suites; the keystore's password in plain text in server.xml; no post-quantum support"
+  bastion:
+    clients: the operations staff
+    software: OpenSSH 10.0 on Alpine 3.22
+    group: operations
+    role: the administrators' jump host
+    planted: "OpenSSH 10.0: the ML-KEM hybrid offered first, but X25519 and sntrup761 still accepted; post-quantum signatures not yet available"
+ca:
+  name: the internal certificate authority
+  issues: [records-db, queue, legacy-app]
+  note: "ECDSA P-384, built once and never run; it issues three services' certificates, which ties their signature migration together"

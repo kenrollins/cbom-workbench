@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — the test agency</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% set active = "agency" %}{% set lede = "<strong>The test agency.</strong> What the workbench is pointed at in this demo: a small, fictional agency built for it, every weakness planted on purpose and written down in an answer key." %}{% include "_header.html" %}
+<main>
+<p class="orient">{{ e.summary }}
+  <span class="ai">Everything on this page is read from the estate's own files — what each service is for, the owner's facts, the listeners and the answer key — not from a scan. It is the estate as built: the state the walkthrough starts from{% if not public %}, and the state a reset returns it to{% endif %}.</span></p>
+
+<div class="receipts">
+  <div class="receipt"><div class="k">Services</div><div class="n">{{ e.services|length }}</div><div class="s">in containers on one internal network, {{ e.network.subnet }}{% if e.network.internal %}, no route out{% endif %}</div></div>
+  <div class="receipt"><div class="k">Listeners</div><div class="n">{{ e.listeners }}</div><div class="s">{{ e.postures.classical }} classical · {{ e.postures.mixed }} mixed · {{ e.postures.pq }} post-quantum, as built</div></div>
+  <div class="receipt"><div class="k">The answer key</div><div class="n">{{ e.keyed }} <small>items</small></div><div class="s">{{ e.totals.present }} to find · {{ e.totals.decoy }} decoys · {{ e.totals['out-of-reach'] }} out of reach · {{ e.totals.supplied }} supplied by the owner</div></div>
+  <div class="receipt"><div class="k">Internal CA</div><div class="n">1</div><div class="s">issues {{ e.ca.issues|length }} services' certificates — one signature migration, not three</div></div>
+</div>
+
+<h2>The estate</h2>
+<p class="lede">Three groups of services on one internal network. Each card says who it serves, what runs it, the posture of each listener as built, and how many answer-key items it holds. Select one for the detail below.</p>
+<div class="estate-map" role="figure" aria-label="The mini-agency's services, grouped, on one internal network">
+  <div class="net-label"><code>{{ e.network.name }}</code> · {{ e.network.subnet }}{% if e.network.internal %} · internal, no route out{% endif %}</div>
+  <div class="groups">
+  {% for g in e.groups %}
+    <div class="group-col">
+      <div class="group-head">{{ g.label }}</div>
+      {% for s in g.services %}
+      {% set worst = 'classical' if s.listeners|selectattr('posture', 'equalto', 'classical')|list else ('mixed' if s.listeners|selectattr('posture', 'equalto', 'mixed')|list else 'pq') %}
+      <a class="svc {{ worst }}" href="#svc-{{ s.name }}">
+        <div class="svc-top"><strong>{{ s.name }}</strong><span class="mono small dim">{{ s.address }}</span></div>
+        <div class="svc-role">{{ s.role }}</div>
+        <div class="svc-for small dim">for {{ s.clients }}</div>
+        <div class="svc-sw small">{{ s.software }}</div>
+        <div class="svc-ls">{% for l in s.listeners %}<span class="posture {{ l.posture }}" title="{{ l.protocol }} on port {{ l.port }}, {{ l.posture }} as built">{{ l.port }}/{{ l.protocol }}</span>{% endfor %}</div>
+        <div class="svc-k small dim">{{ s.counts.present }} to find{% if s.counts.decoy %} · {{ s.counts.decoy }} decoy{{ 's' if s.counts.decoy > 1 }}{% endif %}{% if s.counts['out-of-reach'] %} · {{ s.counts['out-of-reach'] }} out of reach{% endif %}</div>
+        <div class="svc-flags">{% if s.issued_by_ca %}<span class="tag">internal CA</span>{% endif %}{% if s.context.high_value_asset %}<span class="tag supplied">high-value asset</span>{% endif %}{% if s.managed %}<span class="tag link">policy-managed</span>{% endif %}</div>
+      </a>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  </div>
+  <div class="ca-strip"><strong>{{ e.ca.name|first_up }}</strong> — {{ e.ca.note }}: {{ e.ca.issues|join(', ') }}.</div>
+  <div class="legend small dim"><span><span class="posture classical">classical</span> no post-quantum key exchange</span> <span><span class="posture mixed">mixed</span> a hybrid offered, classical still accepted</span> <span><span class="posture pq">pq</span> post-quantum required</span> <span><span class="tag link">policy-managed</span> settings from the central crypto policy, so the workbench can propose a change</span></div>
+</div>
+
+<h2>Service by service</h2>
+<table class="agency-table">
+  <thead><tr><th>Service</th><th>What it is</th><th>The owner's facts, supplied</th><th>What was planted</th><th class="num">Key items</th></tr></thead>
+  <tbody>
+  {% for s in e.services %}
+  <tr id="svc-{{ s.name }}">
+    <td><strong class="mono">{{ s.name }}</strong><br>{% for l in s.listeners %}<span class="mono small dim">{{ l.address }}:{{ l.port }}{% if l.sni %} {{ l.sni }}{% endif %}</span><br>{% endfor %}</td>
+    <td>{{ s.role|first_up }}, for {{ s.clients }}.<br><span class="dim small">{{ s.software }}</span></td>
+    <td class="small">{% if s.context %}{{ s.context.mission_function|first_up }} · {{ s.context.owner }}<br>secret for {{ s.context.data_lifetime_years }} year{{ 's' if s.context.data_lifetime_years != 1 }} · FIPS 199 {{ s.context.fips199_impact }}{% if s.context.high_value_asset %} · high-value asset{% endif %}{% else %}<span class="dim">none supplied</span>{% endif %}</td>
+    <td class="small">{{ s.planted|first_up }}.</td>
+    <td class="num small">{{ s.counts.present }}{% if s.counts.decoy %}<br><span class="dim">+{{ s.counts.decoy }} decoy</span>{% endif %}{% if s.counts['out-of-reach'] %}<br><span class="dim">+{{ s.counts['out-of-reach'] }} unreachable</span>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2>Why an answer key</h2>
+<p class="lede">A scan of a real network says what it found; it cannot say what it missed. Here every cryptographic item is written down before any scan runs, so each run is scored against it — found, missed, or fooled.</p>
+<table class="files"><tbody>
+  <tr><td><strong>{{ e.totals.present }}</strong> to find</td><td>Present and reachable: a key exchange a listener accepts, a certificate it serves, a key file in an image, a weak setting in a configuration file.</td></tr>
+  <tr><td><strong>{{ e.totals.decoy }}</strong> decoys</td><td>Things that look like findings and are not: a certificate left in an image that nothing serves, a weak setting in a comment or a file the software never loads. Reporting one is a false positive; a scanner that greps does.</td></tr>
+  <tr><td><strong>{{ e.totals['out-of-reach'] }}</strong> out of reach</td><td>Real, but invisible to any probe from this side: what the file drop offers when it connects out, and which keys partners present. Only passive capture beside them would show it. They stay in the score's denominator and are reported as known misses: the limit of a scan is part of the result.</td></tr>
+  <tr><td><strong>{{ e.totals.supplied }}</strong> supplied</td><td>What no scan can discover — the mission each service carries, how long its data must stay secret, whether it is a high-value asset — typed in by the owner. The CBOM carries them labelled <span class="tag supplied">supplied</span>, and they never count as coverage. They decide what comes first in the plan.</td></tr>
+</tbody></table>
+<p class="note">The roles and clients above are the agency's story; the workbench learns none of it from this page. What it knows comes from the evidence — the wire, the images, the code — and from the owner's facts. Certificates and keys are generated when the images are built, so the key names them by path and algorithm, never by fingerprint. The full list: <a href="https://github.com/kenrollins/cbom-workbench/blob/main/agency/answer-key.yaml"><code>agency/answer-key.yaml</code></a>.</p>
+
+<p class="orient"><a href="/walkthrough">Next: the walkthrough</a> — from the agency's stale spreadsheet to a CBOM of all of this, scored against the key.</p>
+</main>
+</body>
+</html>

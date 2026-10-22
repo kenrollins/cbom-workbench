@@ -2,7 +2,6 @@
 
 import csv
 import io
-import json
 import warnings
 from pathlib import Path
 
@@ -78,12 +77,12 @@ def test_a_projection_definition_is_checked(tmp_path):
     (tmp_path / "p.yaml").write_text("schema: pqch.projection/1\nid: x\ntitle: x\nrows: {roles: [signature]}\n"
                                      "columns: [{name: a, from: scanner.name}]\n")
     import pytest
-    with pytest.raises(ValueError, match="asset., service. or item."):
+    with pytest.raises(ValueError, match=r"asset., service. or item."):
         tables.load(tmp_path / "p.yaml")
 
 
 def test_the_cbom_page_renders_the_document_an_entry_and_the_projection(tmp_path, monkeypatch, slice_run):
-    events, _ = built(slice_run)
+    _events, _ = built(slice_run)
     write_cboms(slice_run)
     write_score(slice_run, Path("eval/answer-keys/mini-agency-m0.yaml"))
     monkeypatch.setenv("PQCH_VAR", str(slice_run.var))
@@ -107,16 +106,16 @@ def test_the_cbom_page_renders_the_document_an_entry_and_the_projection(tmp_path
 
 def test_two_cboms_are_compared_by_component(slice_run, tmp_path):
     from .conftest import JOBS, make_run
-    events, bom = built(slice_run)
+    _events, bom = built(slice_run)
     other = make_run(tmp_path / "b", jobs=[j for j in JOBS if j[0] != "ssh-audit-bastion.json"])
-    ev2, bom2 = built(other)
+    _ev2, bom2 = built(other)
     d = anatomy.diff(bom, bom2)
     assert d["removed"] and all("172.16.106.21" in x["label"] or x["kind"] != "wire asset" for x in d["removed"])
     assert anatomy.diff(bom, bom)["added"] == [] and anatomy.diff(bom, bom)["changed"] == []
 
 
 def test_an_entry_shows_what_a_model_was_given_and_said(slice_run):
-    events, bom = built(slice_run)
+    _events, bom = built(slice_run)
     fp = next(c for c in bom["components"] if c["bom-ref"].startswith("fp:"))["bom-ref"]
     fake = {fp[3:]: {"id": "E1", "run": "R1", "actor": {"model": "m"}, "payload": {
         "finding": {"subject": {"host": "h"}, "asset": {"name": "X25519"}}, "service": "portal",
