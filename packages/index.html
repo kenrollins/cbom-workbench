@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — change packages</title>
+<link rel="stylesheet" href="/cbom-workbench/static/style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/cbom-workbench/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    
+    <div class="demo-group">
+    <span class="group">Demo<small>snapshot</small></span>
+    <a href="/cbom-workbench/" class="" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    <a href="/cbom-workbench/agency/" class="" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
+    <a href="/cbom-workbench/walkthrough/" class="" title="The walkthrough, on a test agency built for it">Walkthrough</a>
+    <a href="/cbom-workbench/cbom/" class="" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    <a href="/cbom-workbench/plan/" class="" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
+    
+    </div>
+    <div class="learn-group">
+    <span class="group">Learn<small>notes &amp; docs</small></span>
+    <a href="/cbom-workbench/site/how-it-works/">How it works</a>
+    <a href="/cbom-workbench/site/notes/">Notes</a>
+    <a href="/cbom-workbench/site/lessons/">Lessons</a>
+    <a href="/cbom-workbench/site/sources/">Sources</a>
+    <a href="/cbom-workbench/site/about/">About</a>
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner"><strong>Change packages.</strong> For the items no configuration change can move: why, with the evidence, what would unblock each, and the test that will count once the software is replaced. Written by a rule from the ledger; nothing here is applied.</div></div>
+
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  function what(url) {
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    var u = new URL(url, location.href);
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
+    return "Loading…";
+  }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", hide);
+})();
+</script>
+<main>
+
+<p class="orient">Some of the estate cannot be migrated by changing a setting: the software lists no post-quantum algorithm for the job. OMB M-26-15 says such systems must be identified and given priority for replacement; in NIST's plan this is <strong>mitigation</strong>, beside migration. Each package below is that identification for one item, built from the CBOM and the runtime's own list of what it supports.
+  <span class="ai">No model wrote these. The rule <code>package/supplier/1</code> reads the blocker, the queue, the snapshot and the CBOM entries; each package is an event on run <code>01M5G36BJANYEKWVTHDVNQ98YE</code>, over scan <a href="#" title="in the live workbench only" data-offline="1"><code>01M5FYXR40S3FRWW9NXYVA5A7K</code></a>.</span></p>
+<div class="receipts">
+  <div class="receipt"><div class="k">Packages</div><div class="n">7</div><div class="s">for 4 services: bastion, legacy-app, queue, sftp-legacy</div></div>
+  <div class="receipt"><div class="k">Upgrade path in the estate</div><div class="n">1</div><div class="s">a supported version of the same software here already lists it</div></div>
+  <div class="receipt"><div class="k">On a prioritized system</div><div class="n">6</div><div class="s">by the memo's own criteria</div></div>
+  <div class="receipt"><div class="k">CBOM entries covered</div><div class="n">19</div><div class="s">each named by fingerprint</div></div>
+</div>
+
+<section class="package" id="bastion-signature">
+  <h2><span class="step">1</span> bastion — signature</h2>
+  <p class="lede"><strong>OpenSSH 10.0 (Alpine)</strong> lists no post-quantum algorithm for signature. Nothing in this estate's snapshot lists one for this function; the memo's answer is replacement or decommissioning.</p>
+  <table class="files"><tbody>
+    <tr><td>Queue</td><td>remaining-2035, due 2035-12-31</td></tr>
+    <tr><td>Owner</td><td>Operations <span class="tag supplied">supplied</span></td></tr>
+    <tr><td>Why no configuration change</td><td>OpenSSH 10.0 (Alpine) lists no post-quantum algorithm for signature: the change needs the supplier&#39;s software, not a configuration line; §3.C.3 gives it priority for replacement<br><span class="dim small">each image run with --network none and its entry point replaced; the runtime&#39;s own list; taken 2026-10-20T20:12:20Z · <code>eval/capabilities/2026-10-20/bastion.txt</code> sha256 <code>ec292a4b9564…</code> · library OpenSSH_10.0p2, OpenSSL 3.5.8</span></td></tr>
+    <tr><td>What the memo says</td><td>“Systems incapable of supporting PQC or hybrid cryptography must be identified and given priority for replacement or decommissioning.” <span class="dim">— OMB M-26-15 §3.C.3</span></td></tr>
+    <tr><td>The test that will count</td><td>once replaced, a parse of the certificate or host key each listener presents, showing a post-quantum signature algorithm</td></tr>
+    <tr><td>Rollback · rehearsal</td><td class="dim">none: nothing is applied · not rehearsed: there is no configuration to rehearse</td></tr>
+  </tbody></table>
+  <h3>The CBOM entries it covers</h3>
+  <table class="entries"><thead><tr><th>Listener</th><th>Entry</th><th>Type</th><th>Served from</th><th>Fingerprint</th></tr></thead><tbody>
+  <tr><td class="mono small">SSH 172.16.106.21:22</td><td>Ed25519</td><td class="dim small">algorithm</td>
+    <td class="mono small">/etc/ssh/ssh_host_ed25519_key, /etc/ssh/ssh_host_ed25519_key.pub</td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/8/#entry">3127dcf54972…</a></td></tr><tr><td class="mono small">SSH 172.16.106.21:22</td><td>RSA</td><td class="dim small">algorithm</td>
+    <td class="mono small">/etc/ssh/ssh_host_rsa_key, /etc/ssh/ssh_host_rsa_key.pub</td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/5/#entry">1798a68b6fe3…</a></td></tr>
+  </tbody></table>
+</section>
+
+<section class="package" id="legacy-app-key-establishment">
+  <h2><span class="step">2</span> legacy-app — key-establishment</h2>
+  <p class="lede"><strong>Tomcat 8.5 on Java 8 (Temurin)</strong> lists no post-quantum algorithm for key-establishment. Nothing in this estate's snapshot lists one for this function; the memo's answer is replacement or decommissioning.</p>
+  <table class="files"><tbody>
+    <tr><td>Queue</td><td>kex-2030, due 2030-12-31 · <span class="tag">prioritized</span></td></tr>
+    <tr><td>Owner</td><td>Case management <span class="tag supplied">supplied</span></td></tr>
+    <tr><td>Why no configuration change</td><td>Tomcat 8.5 on Java 8 (Temurin) lists no post-quantum algorithm for key-establishment: the change needs the supplier&#39;s software, not a configuration line; §3.C.3 gives it priority for replacement<br><span class="dim small">each image run with --network none and its entry point replaced; the runtime&#39;s own list; taken 2026-10-20T20:12:20Z · <code>eval/capabilities/2026-10-20/legacy-app.txt</code> sha256 <code>c78faf49e86a…</code> · library openjdk version &#34;1.8.0_402&#34;</span></td></tr>
+    <tr><td>What the memo says</td><td>“Systems incapable of supporting PQC or hybrid cryptography must be identified and given priority for replacement or decommissioning.” <span class="dim">— OMB M-26-15 §3.C.3</span></td></tr>
+    <tr><td>The test that will count</td><td>once replaced, the verifier&#39;s wire-kex check on each listener: a client offering only the hybrid group is accepted and one offering every classical group is refused</td></tr>
+    <tr><td>Rollback · rehearsal</td><td class="dim">none: nothing is applied · not rehearsed: there is no configuration to rehearse</td></tr>
+  </tbody></table>
+  <h3>The CBOM entries it covers</h3>
+  <table class="entries"><thead><tr><th>Listener</th><th>Entry</th><th>Type</th><th>Served from</th><th>Fingerprint</th></tr></thead><tbody>
+  <tr><td class="mono small">TLS 172.16.106.32:8443</td><td>secp256r1</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/14/#entry">963b21a0fdbd…</a></td></tr><tr><td class="mono small">TLS 172.16.106.32:8443</td><td>secp384r1</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/16/#entry">b6fbee1b963a…</a></td></tr>
+  </tbody></table>
+</section>
+
+<section class="package" id="legacy-app-signature">
+  <h2><span class="step">3</span> legacy-app — signature</h2>
+  <p class="lede"><strong>Tomcat 8.5 on Java 8 (Temurin)</strong> lists no post-quantum algorithm for signature. Nothing in this estate's snapshot lists one for this function; the memo's answer is replacement or decommissioning.</p>
+  <table class="files"><tbody>
+    <tr><td>Queue</td><td>sig-2031, due 2031-12-31 · <span class="tag">prioritized</span></td></tr>
+    <tr><td>Owner</td><td>Case management <span class="tag supplied">supplied</span></td></tr>
+    <tr><td>Why no configuration change</td><td>Tomcat 8.5 on Java 8 (Temurin) lists no post-quantum algorithm for signature: the change needs the supplier&#39;s software, not a configuration line; §3.C.3 gives it priority for replacement<br><span class="dim small">each image run with --network none and its entry point replaced; the runtime&#39;s own list; taken 2026-10-20T20:12:20Z · <code>eval/capabilities/2026-10-20/legacy-app.txt</code> sha256 <code>c78faf49e86a…</code> · library openjdk version &#34;1.8.0_402&#34;</span></td></tr>
+    <tr><td>What the memo says</td><td>“Systems incapable of supporting PQC or hybrid cryptography must be identified and given priority for replacement or decommissioning.” <span class="dim">— OMB M-26-15 §3.C.3</span></td></tr>
+    <tr><td>The test that will count</td><td>once replaced, a parse of the certificate or host key each listener presents, showing a post-quantum signature algorithm</td></tr>
+    <tr><td>Rollback · rehearsal</td><td class="dim">none: nothing is applied · not rehearsed: there is no configuration to rehearse</td></tr>
+  </tbody></table>
+  <h3>The CBOM entries it covers</h3>
+  <table class="entries"><thead><tr><th>Listener</th><th>Entry</th><th>Type</th><th>Served from</th><th>Fingerprint</th></tr></thead><tbody>
+  <tr><td class="mono small">TLS 172.16.106.32:8443</td><td>RSA</td><td class="dim small">certificate</td>
+    <td class="mono small">/usr/local/tomcat/conf/keystore.p12</td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/9/#entry">5e373375cadd…</a></td></tr>
+  </tbody></table>
+</section>
+
+<section class="package" id="queue-key-establishment">
+  <h2><span class="step">4</span> queue — key-establishment</h2>
+  <p class="lede"><strong>RabbitMQ 4 on Erlang/OTP</strong> lists no post-quantum algorithm for key-establishment. Nothing in this estate's snapshot lists one for this function; the memo's answer is replacement or decommissioning.</p>
+  <table class="files"><tbody>
+    <tr><td>Queue</td><td>kex-2030, due 2030-12-31 · <span class="tag">prioritized</span></td></tr>
+    <tr><td>Owner</td><td>Case processing <span class="tag supplied">supplied</span></td></tr>
+    <tr><td>Why no configuration change</td><td>RabbitMQ 4 on Erlang/OTP lists no post-quantum algorithm for key-establishment: the change needs the supplier&#39;s software, not a configuration line; §3.C.3 gives it priority for replacement<br><span class="dim small">each image run with --network none and its entry point replaced; the runtime&#39;s own list; taken 2026-10-20T20:12:20Z · <code>eval/capabilities/2026-10-20/queue.txt</code> sha256 <code>2ab62adbe6ab…</code> · library &#34;27&#34;, OpenSSL 3.5.9</span></td></tr>
+    <tr><td>What the memo says</td><td>“Systems incapable of supporting PQC or hybrid cryptography must be identified and given priority for replacement or decommissioning.” <span class="dim">— OMB M-26-15 §3.C.3</span></td></tr>
+    <tr><td>The test that will count</td><td>once replaced, the verifier&#39;s wire-kex check on each listener: a client offering only the hybrid group is accepted and one offering every classical group is refused</td></tr>
+    <tr><td>Rollback · rehearsal</td><td class="dim">none: nothing is applied · not rehearsed: there is no configuration to rehearse</td></tr>
+  </tbody></table>
+  <h3>The CBOM entries it covers</h3>
+  <table class="entries"><thead><tr><th>Listener</th><th>Entry</th><th>Type</th><th>Served from</th><th>Fingerprint</th></tr></thead><tbody>
+  <tr><td class="mono small">TLS 172.16.106.31:5671</td><td>secp256r1</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/13/#entry">9393b517ff63…</a></td></tr><tr><td class="mono small">TLS 172.16.106.31:5671</td><td>secp384r1</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/11/#entry">7272b28d763b…</a></td></tr>
+  </tbody></table>
+</section>
+
+<section class="package" id="queue-signature">
+  <h2><span class="step">5</span> queue — signature</h2>
+  <p class="lede"><strong>RabbitMQ 4 on Erlang/OTP</strong> lists no post-quantum algorithm for signature. Nothing in this estate's snapshot lists one for this function; the memo's answer is replacement or decommissioning.</p>
+  <table class="files"><tbody>
+    <tr><td>Queue</td><td>sig-2031, due 2031-12-31 · <span class="tag">prioritized</span></td></tr>
+    <tr><td>Owner</td><td>Case processing <span class="tag supplied">supplied</span></td></tr>
+    <tr><td>Why no configuration change</td><td>RabbitMQ 4 on Erlang/OTP lists no post-quantum algorithm for signature: the change needs the supplier&#39;s software, not a configuration line; §3.C.3 gives it priority for replacement<br><span class="dim small">each image run with --network none and its entry point replaced; the runtime&#39;s own list; taken 2026-10-20T20:12:20Z · <code>eval/capabilities/2026-10-20/queue.txt</code> sha256 <code>2ab62adbe6ab…</code> · library &#34;27&#34;, OpenSSL 3.5.9</span></td></tr>
+    <tr><td>What the memo says</td><td>“Systems incapable of supporting PQC or hybrid cryptography must be identified and given priority for replacement or decommissioning.” <span class="dim">— OMB M-26-15 §3.C.3</span></td></tr>
+    <tr><td>The test that will count</td><td>once replaced, a parse of the certificate or host key each listener presents, showing a post-quantum signature algorithm</td></tr>
+    <tr><td>Rollback · rehearsal</td><td class="dim">none: nothing is applied · not rehearsed: there is no configuration to rehearse</td></tr>
+  </tbody></table>
+  <h3>The CBOM entries it covers</h3>
+  <table class="entries"><thead><tr><th>Listener</th><th>Entry</th><th>Type</th><th>Served from</th><th>Fingerprint</th></tr></thead><tbody>
+  <tr><td class="mono small">TLS 172.16.106.31:5671</td><td>ECDSA</td><td class="dim small">certificate</td>
+    <td class="mono small">/etc/rmq-tls/queue.crt, /etc/rmq-tls/queue.crt</td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/21/#entry">fc5b12065deb…</a></td></tr>
+  </tbody></table>
+</section>
+
+<section class="package" id="sftp-legacy-key-establishment">
+  <h2><span class="step">6</span> sftp-legacy — key-establishment</h2>
+  <p class="lede"><strong>OpenSSH 6.6 (Ubuntu 14.04)</strong> lists no post-quantum algorithm for key-establishment. A supported version of the same software in this estate does: <strong>OpenSSH 10.0 (Alpine)</strong> on bastion lists mlkem768x25519-sha256, sntrup761x25519-sha512, sntrup761x25519-sha512@openssh.com — an upgrade, then a configuration change, then the test below.</p>
+  <table class="files"><tbody>
+    <tr><td>Queue</td><td>kex-2030, due 2030-12-31 · <span class="tag">prioritized</span></td></tr>
+    <tr><td>Owner</td><td>Records office <span class="tag supplied">supplied</span></td></tr>
+    <tr><td>Why no configuration change</td><td>OpenSSH 6.6 (Ubuntu 14.04) lists no post-quantum algorithm for key-establishment: the change needs the supplier&#39;s software, not a configuration line; §3.C.3 gives it priority for replacement<br><span class="dim small">each image run with --network none and its entry point replaced; the runtime&#39;s own list; taken 2026-10-20T20:12:20Z · <code>eval/capabilities/2026-10-20/sftp-legacy.txt</code> sha256 <code>cb13bb4abcfa…</code> · library OpenSSH_6.6.1p1, OpenSSL 1.0.1</span></td></tr>
+    <tr><td>What the memo says</td><td>“Systems incapable of supporting PQC or hybrid cryptography must be identified and given priority for replacement or decommissioning.” <span class="dim">— OMB M-26-15 §3.C.3</span></td></tr>
+    <tr><td>The test that will count</td><td>once replaced, the verifier&#39;s wire-kex check on each listener: a client offering only the hybrid group is accepted and one offering every classical group is refused</td></tr>
+    <tr><td>Rollback · rehearsal</td><td class="dim">none: nothing is applied · not rehearsed: there is no configuration to rehearse</td></tr>
+  </tbody></table>
+  <h3>The CBOM entries it covers</h3>
+  <table class="entries"><thead><tr><th>Listener</th><th>Entry</th><th>Type</th><th>Served from</th><th>Fingerprint</th></tr></thead><tbody>
+  <tr><td class="mono small">SSH 172.16.106.20:22</td><td>DH-1024</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/10/#entry">611d45fc6a2e…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>DH-2048</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/6/#entry">200c1aad26a6…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>DH-GEX</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/18/#entry">c1289c9774bb…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>X25519</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/20/#entry">d80c4de2588a…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>secp256r1</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/3/#entry">020aa3d4d480…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>secp384r1</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/15/#entry">a33d89511660…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>secp521r1</td><td class="dim small">algorithm</td>
+    <td class="mono small"><span class="dim">—</span></td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/4/#entry">0c423357c8ec…</a></td></tr>
+  </tbody></table>
+</section>
+
+<section class="package" id="sftp-legacy-signature">
+  <h2><span class="step">7</span> sftp-legacy — signature</h2>
+  <p class="lede"><strong>OpenSSH 6.6 (Ubuntu 14.04)</strong> lists no post-quantum algorithm for signature. Nothing in this estate's snapshot lists one for this function; the memo's answer is replacement or decommissioning.</p>
+  <table class="files"><tbody>
+    <tr><td>Queue</td><td>sig-2031, due 2031-12-31 · <span class="tag">prioritized</span></td></tr>
+    <tr><td>Owner</td><td>Records office <span class="tag supplied">supplied</span></td></tr>
+    <tr><td>Why no configuration change</td><td>OpenSSH 6.6 (Ubuntu 14.04) lists no post-quantum algorithm for signature: the change needs the supplier&#39;s software, not a configuration line; §3.C.3 gives it priority for replacement<br><span class="dim small">each image run with --network none and its entry point replaced; the runtime&#39;s own list; taken 2026-10-20T20:12:20Z · <code>eval/capabilities/2026-10-20/sftp-legacy.txt</code> sha256 <code>cb13bb4abcfa…</code> · library OpenSSH_6.6.1p1, OpenSSL 1.0.1</span></td></tr>
+    <tr><td>What the memo says</td><td>“Systems incapable of supporting PQC or hybrid cryptography must be identified and given priority for replacement or decommissioning.” <span class="dim">— OMB M-26-15 §3.C.3</span></td></tr>
+    <tr><td>The test that will count</td><td>once replaced, a parse of the certificate or host key each listener presents, showing a post-quantum signature algorithm</td></tr>
+    <tr><td>Rollback · rehearsal</td><td class="dim">none: nothing is applied · not rehearsed: there is no configuration to rehearse</td></tr>
+  </tbody></table>
+  <h3>The CBOM entries it covers</h3>
+  <table class="entries"><thead><tr><th>Listener</th><th>Entry</th><th>Type</th><th>Served from</th><th>Fingerprint</th></tr></thead><tbody>
+  <tr><td class="mono small">SSH 172.16.106.20:22</td><td>DSA</td><td class="dim small">algorithm</td>
+    <td class="mono small">/etc/ssh/ssh_host_dsa_key, /etc/ssh/ssh_host_dsa_key.pub</td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/17/#entry">bc50ebb20579…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>ECDSA</td><td class="dim small">algorithm</td>
+    <td class="mono small">/etc/ssh/ssh_host_ecdsa_key, /etc/ssh/ssh_host_ecdsa_key, /etc/ssh/ssh_host_ecdsa_key.pub</td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/7/#entry">2989cae52b63…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>Ed25519</td><td class="dim small">algorithm</td>
+    <td class="mono small">/etc/ssh/ssh_host_ed25519_key, /etc/ssh/ssh_host_ed25519_key.pub</td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/19/#entry">c5aefa909eac…</a></td></tr><tr><td class="mono small">SSH 172.16.106.20:22</td><td>RSA</td><td class="dim small">algorithm</td>
+    <td class="mono small">/etc/ssh/ssh_host_rsa_key, /etc/ssh/ssh_host_rsa_key, /etc/ssh/ssh_host_rsa_key.pub</td>
+    <td class="mono small"><a href="/cbom-workbench/cbom/entry/12/#entry">75b45438637e…</a></td></tr>
+  </tbody></table>
+</section>
+
+<p class="note">The ledger of this run: <a href="#" title="in the live workbench only" data-offline="1"><code>ledger.jsonl</code></a>, one <code>package.issued</code> event per package.</p>
+
+</main>
+</body>
+</html>

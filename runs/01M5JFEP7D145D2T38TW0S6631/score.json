@@ -1,0 +1,395 @@
+{
+ "key": {
+  "path": "/app/agency/answer-key.yaml",
+  "sha256": "6ded64eec636bbb3400754ec60532c301509e9ed217489233cc56b4fe4345592"
+ },
+ "columns": {
+  "baseline-cbomkit": {
+   "label": "CBOMkit alone",
+   "layers": {
+    "wire": {
+     "present": 38,
+     "covered": 0,
+     "out_of_reach": 2,
+     "decoys": 2,
+     "false_positives": 0,
+     "missed": [
+      "portal-kex-x25519",
+      "portal-kex-secp256r1",
+      "portal-cert",
+      "api-kex-x25519mlkem768",
+      "api-kex-x25519",
+      "api-cert",
+      "legacy-kex-x25519",
+      "legacy-kex-secp256r1",
+      "legacy-kex-secp384r1",
+      "legacy-kex-secp521r1",
+      "legacy-kex-dh-gex",
+      "legacy-kex-dh-2048",
+      "legacy-kex-dh-1024",
+      "legacy-hostkey-rsa",
+      "legacy-hostkey-dsa",
+      "legacy-hostkey-ecdsa",
+      "legacy-hostkey-ed25519",
+      "legacy-client-kex-records-archive",
+      "bastion-kex-x25519mlkem768",
+      "bastion-kex-sntrup761x25519",
+      "bastion-kex-x25519",
+      "bastion-hostkey-ed25519",
+      "bastion-hostkey-rsa",
+      "api-partners-kex-x25519mlkem768",
+      "api-partners-kex-x25519",
+      "api-partners-cert",
+      "api-partners-client-certificates",
+      "pqgw-kex-x25519mlkem768",
+      "pqgw-cert",
+      "records-kex-x25519mlkem768",
+      "records-kex-x25519",
+      "records-kex-dh-2048",
+      "records-kex-rsa-key-transport",
+      "records-cert",
+      "queue-kex-secp256r1",
+      "queue-kex-secp384r1",
+      "queue-cert",
+      "legacy-app-kex-secp256r1",
+      "legacy-app-kex-secp384r1",
+      "legacy-app-cert"
+     ],
+     "flagged_decoys": [],
+     "covered_items": [],
+     "unplanted": [],
+     "scanned": false,
+     "denominator": 40
+    },
+    "host": {
+     "present": 20,
+     "covered": 14,
+     "out_of_reach": 0,
+     "decoys": 2,
+     "false_positives": 2,
+     "missed": [
+      "legacy-hostkey-dsa-file",
+      "legacy-hostkey-ed25519-file",
+      "bastion-hostkey-ed25519-file",
+      "pqgw-cert-file",
+      "pqgw-key-file",
+      "legacy-app-keystore-file"
+     ],
+     "flagged_decoys": [
+      "portal-decoy-unserved-cert",
+      "queue-decoy-retired-cert"
+     ],
+     "covered_items": [
+      "portal-cert-file",
+      "portal-key-file",
+      "api-cert-file",
+      "api-key-file",
+      "legacy-hostkey-rsa-file",
+      "legacy-hostkey-ecdsa-file",
+      "bastion-hostkey-rsa-file",
+      "api-partner-ca-file",
+      "records-cert-file",
+      "records-key-file",
+      "records-ca-file",
+      "queue-cert-file",
+      "queue-key-file",
+      "queue-ca-file"
+     ],
+     "unplanted": [],
+     "scanned": true,
+     "denominator": 20
+    },
+    "code": {
+     "present": 0,
+     "covered": 0,
+     "out_of_reach": 0,
+     "decoys": 5,
+     "false_positives": 0,
+     "missed": [],
+     "flagged_decoys": [],
+     "covered_items": [],
+     "unplanted": [],
+     "scanned": false,
+     "denominator": 0
+    }
+   },
+   "posture": null,
+   "unkeyed": 54,
+   "components": 70,
+   "supplied": {
+    "total": 5,
+    "carried": 0,
+    "unlabelled": [],
+    "missed": [
+     "portal-context",
+     "pqgw-context",
+     "records-context",
+     "queue-context",
+     "legacy-app-context"
+    ]
+   },
+   "verifiers": {
+    "unstated": 70
+   }
+  },
+  "baseline-scanners": {
+   "label": "Scanners alone",
+   "layers": {
+    "wire": {
+     "present": 38,
+     "covered": 35,
+     "out_of_reach": 2,
+     "decoys": 2,
+     "false_positives": 0,
+     "missed": [
+      "legacy-client-kex-records-archive",
+      "api-partners-client-certificates",
+      "records-kex-x25519",
+      "records-kex-dh-2048",
+      "records-kex-rsa-key-transport"
+     ],
+     "flagged_decoys": [],
+     "covered_items": [
+      "portal-kex-x25519",
+      "portal-kex-secp256r1",
+      "portal-cert",
+      "api-kex-x25519mlkem768",
+      "api-kex-x25519",
+      "api-cert",
+      "legacy-kex-x25519",
+      "legacy-kex-secp256r1",
+      "legacy-kex-secp384r1",
+      "legacy-kex-secp521r1",
+      "legacy-kex-dh-gex",
+      "legacy-kex-dh-2048",
+      "legacy-kex-dh-1024",
+      "legacy-hostkey-rsa",
+      "legacy-hostkey-dsa",
+      "legacy-hostkey-ecdsa",
+      "legacy-hostkey-ed25519",
+      "bastion-kex-x25519mlkem768",
+      "bastion-kex-sntrup761x25519",
+      "bastion-kex-x25519",
+      "bastion-hostkey-ed25519",
+      "bastion-hostkey-rsa",
+      "api-partners-kex-x25519mlkem768",
+      "api-partners-kex-x25519",
+      "api-partners-cert",
+      "pqgw-kex-x25519mlkem768",
+      "pqgw-cert",
+      "records-kex-x25519mlkem768",
+      "records-cert",
+      "queue-kex-secp256r1",
+      "queue-kex-secp384r1",
+      "queue-cert",
+      "legacy-app-kex-secp256r1",
+      "legacy-app-kex-secp384r1",
+      "legacy-app-cert"
+     ],
+     "unplanted": [],
+     "scanned": true,
+     "denominator": 40
+    },
+    "host": {
+     "present": 20,
+     "covered": 14,
+     "out_of_reach": 0,
+     "decoys": 2,
+     "false_positives": 2,
+     "missed": [
+      "legacy-hostkey-dsa-file",
+      "legacy-hostkey-ed25519-file",
+      "bastion-hostkey-ed25519-file",
+      "pqgw-cert-file",
+      "pqgw-key-file",
+      "legacy-app-keystore-file"
+     ],
+     "flagged_decoys": [
+      "portal-decoy-unserved-cert",
+      "queue-decoy-retired-cert"
+     ],
+     "covered_items": [
+      "portal-cert-file",
+      "portal-key-file",
+      "api-cert-file",
+      "api-key-file",
+      "legacy-hostkey-rsa-file",
+      "legacy-hostkey-ecdsa-file",
+      "bastion-hostkey-rsa-file",
+      "api-partner-ca-file",
+      "records-cert-file",
+      "records-key-file",
+      "records-ca-file",
+      "queue-cert-file",
+      "queue-key-file",
+      "queue-ca-file"
+     ],
+     "unplanted": [],
+     "scanned": true,
+     "denominator": 20
+    },
+    "code": {
+     "present": 0,
+     "covered": 0,
+     "out_of_reach": 0,
+     "decoys": 5,
+     "false_positives": 0,
+     "missed": [],
+     "flagged_decoys": [],
+     "covered_items": [],
+     "unplanted": [],
+     "scanned": false,
+     "denominator": 0
+    }
+   },
+   "posture": null,
+   "unkeyed": 62,
+   "components": 113,
+   "supplied": {
+    "total": 5,
+    "carried": 0,
+    "unlabelled": [],
+    "missed": [
+     "portal-context",
+     "pqgw-context",
+     "records-context",
+     "queue-context",
+     "legacy-app-context"
+    ]
+   },
+   "verifiers": {
+    "unstated": 113
+   }
+  },
+  "workbench": {
+   "label": "Workbench",
+   "layers": {
+    "wire": {
+     "present": 38,
+     "covered": 35,
+     "out_of_reach": 2,
+     "decoys": 2,
+     "false_positives": 0,
+     "missed": [
+      "legacy-client-kex-records-archive",
+      "api-partners-client-certificates",
+      "records-kex-x25519",
+      "records-kex-dh-2048",
+      "records-kex-rsa-key-transport"
+     ],
+     "flagged_decoys": [],
+     "covered_items": [
+      "portal-kex-x25519",
+      "portal-kex-secp256r1",
+      "portal-cert",
+      "api-kex-x25519mlkem768",
+      "api-kex-x25519",
+      "api-cert",
+      "legacy-kex-x25519",
+      "legacy-kex-secp256r1",
+      "legacy-kex-secp384r1",
+      "legacy-kex-secp521r1",
+      "legacy-kex-dh-gex",
+      "legacy-kex-dh-2048",
+      "legacy-kex-dh-1024",
+      "legacy-hostkey-rsa",
+      "legacy-hostkey-dsa",
+      "legacy-hostkey-ecdsa",
+      "legacy-hostkey-ed25519",
+      "bastion-kex-x25519mlkem768",
+      "bastion-kex-sntrup761x25519",
+      "bastion-kex-x25519",
+      "bastion-hostkey-ed25519",
+      "bastion-hostkey-rsa",
+      "api-partners-kex-x25519mlkem768",
+      "api-partners-kex-x25519",
+      "api-partners-cert",
+      "pqgw-kex-x25519mlkem768",
+      "pqgw-cert",
+      "records-kex-x25519mlkem768",
+      "records-cert",
+      "queue-kex-secp256r1",
+      "queue-kex-secp384r1",
+      "queue-cert",
+      "legacy-app-kex-secp256r1",
+      "legacy-app-kex-secp384r1",
+      "legacy-app-cert"
+     ],
+     "unplanted": [],
+     "scanned": true,
+     "denominator": 40
+    },
+    "host": {
+     "present": 20,
+     "covered": 20,
+     "out_of_reach": 0,
+     "decoys": 2,
+     "false_positives": 0,
+     "missed": [],
+     "flagged_decoys": [],
+     "covered_items": [
+      "portal-cert-file",
+      "portal-key-file",
+      "api-cert-file",
+      "api-key-file",
+      "legacy-hostkey-rsa-file",
+      "legacy-hostkey-dsa-file",
+      "legacy-hostkey-ecdsa-file",
+      "legacy-hostkey-ed25519-file",
+      "bastion-hostkey-ed25519-file",
+      "bastion-hostkey-rsa-file",
+      "api-partner-ca-file",
+      "pqgw-cert-file",
+      "pqgw-key-file",
+      "records-cert-file",
+      "records-key-file",
+      "records-ca-file",
+      "queue-cert-file",
+      "queue-key-file",
+      "queue-ca-file",
+      "legacy-app-keystore-file"
+     ],
+     "unplanted": [],
+     "scanned": true,
+     "denominator": 20
+    },
+    "code": {
+     "present": 0,
+     "covered": 0,
+     "out_of_reach": 0,
+     "decoys": 5,
+     "false_positives": 0,
+     "missed": [],
+     "flagged_decoys": [],
+     "covered_items": [],
+     "unplanted": [],
+     "scanned": false,
+     "denominator": 0
+    }
+   },
+   "posture": {
+    "correct": 9,
+    "total": 9,
+    "wrong": []
+   },
+   "unkeyed": 157,
+   "components": 225,
+   "supplied": {
+    "total": 5,
+    "carried": 5,
+    "unlabelled": [],
+    "missed": []
+   },
+   "verifiers": {
+    "none": 196,
+    "wire-kex": 22,
+    "cert-parse": 7
+   }
+  }
+ },
+ "labels": {
+  "hardware": "xr7620 (x86_64)",
+  "build": "unlabelled",
+  "run": "01M5JFEP7D145D2T38TW0S6631"
+ }
+}

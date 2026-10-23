@@ -1,0 +1,2988 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A cryptography bill of materials, built from wire, host and code evidence, kept on a signed ledger and put to work — with the role of AI in that work measured, not assumed.">
+      
+      
+        <meta name="author" content="Ken Rollins">
+      
+      
+        <link rel="canonical" href="https://kenrollins.github.io/cbom-workbench/site/notes/15-what-the-open-source-scanners-cover/">
+      
+      
+        <link rel="prev" href="../13-where-models-belong/">
+      
+      
+        <link rel="next" href="../16-what-a-cbom-makes-possible/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>What do the open-source scanners cover, and what is built on top? - cbom-workbench</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#what-do-the-open-source-scanners-cover-and-what-is-built-on-top" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      <header class="md-header site-hdr" data-md-component="header">
+  <div class="bar">
+    <a class="brand" href="/cbom-workbench/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <div class="tools">
+      <label class="md-header__button md-icon drawer" for="__drawer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg></label>
+      <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+      
+        <label class="md-header__button md-icon" for="__search"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg></label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg></a>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    <div class="demo-group">
+    <span class="group">Demo<small>snapshot</small></span>
+    <a href="/cbom-workbench/">Overview</a>
+    <a href="/cbom-workbench/agency">Test agency</a>
+    <a href="/cbom-workbench/walkthrough">Walkthrough</a>
+    <a href="/cbom-workbench/cbom">Inside the CBOM</a>
+    <a href="/cbom-workbench/plan">The plan</a>
+    
+    </div>
+    <div class="learn-group">
+    <span class="group">Learn<small>notes &amp; docs</small></span>
+    <a href="../../how-it-works/" class="">How it works</a>
+    <a href="../" class="on">Notes</a>
+    <a href="../../lessons/" class="">Lessons</a>
+    <a href="../../sources/" class="">Sources</a>
+    <a href="../../about/" class="">About</a>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="/cbom-workbench/" title="cbom-workbench" class="md-nav__button md-logo" aria-label="cbom-workbench" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    cbom-workbench
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kenrollins/cbom-workbench" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kenrollins/cbom-workbench
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About the demo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-it-works/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How It Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../your-own-network/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your own network
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technical notes
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_7" id="__nav_7_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technical notes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-what-the-cbom-workbench-is/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00 — What is the CBOM workbench, and what has it shown so far?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-what-is-a-cbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 — What is a CBOM, and what is in one?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-what-federal-policy-requires-and-when/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 — What does federal policy require, and by when?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-what-can-be-seen-on-the-wire-host-and-code/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 — What can be seen on the wire, on a host and in code — and what cannot?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-how-a-finding-becomes-a-dependency-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 — How does a finding become a dependency chain?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-how-a-migration-priority-is-computed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 — How is a migration priority computed?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-what-verified-means/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 — What does "verified" mean for a cryptographic change?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-what-an-auditable-record-contains/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 — What does an auditable record of agent work contain?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-where-models-belong/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 — Where do language models belong in this pipeline, and where not?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 — What do the open-source scanners cover, and what is built on top?
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 — What do the open-source scanners cover, and what is built on top?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-concept-three-layers-three-kinds-of-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The concept: three layers, three kinds of tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-mechanism-how-the-comparison-is-made-fair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The mechanism: how the comparison is made fair
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#beyond-the-slice-what-each-scanner-can-see" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Beyond the slice: what each scanner can see
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#other-open-source-tools-tried-and-not-adopted" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other open-source tools, tried and not adopted
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#any-tools-cbom-scored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Any tool's CBOM, scored
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-follows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What follows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-harness-adds-at-m1-its-own-reader-of-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the harness adds at M1: its own reader of files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-what-a-cbom-makes-possible/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 — What does a CBOM make possible once it exists?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-how-a-cbom-becomes-a-migration-plan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 — How does a CBOM become a migration plan, and why can't a list of systems?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../lessons/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lessons
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_8" id="__nav_8_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Lessons
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/01-refuse-every-classical-group/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 — When verifying that a post-quantum key exchange is required, offer every classical group, not the ones the server was configured with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/02-give-an-internal-bridge-no-host-address/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 — Give an isolated Docker network no host address, and test for it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/03-digest-references-need-a-registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 — Carry a registry in an offline bundle; `docker save` and `docker load` do not preserve digest references
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/04-identity-header-only-from-the-proxy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 — Believe an identity header only on a connection from the proxy that sets it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/05-penalize-what-an-inventory-invents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 — Score an inventory for what it invents, and put a decoy in every layer it is scored on
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/06-bind-a-scan-to-what-it-reached/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 — Record which container a scan reached, and join evidence only when it is the one you think it is
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/07-verification-key-from-outside-the-ledger/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 — Take the key that verifies a signed log from somewhere other than the log
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/08-identify-a-key-by-its-public-key-hash/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 — Identify a key in an inventory by the hash of its public key, not by where it was found
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/09-time-a-scanner-on-the-bare-base-image/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 — Time a file scanner on the bare base image first; symlinks, not size, can set its cost
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/10-a-group-is-accepted-when-it-is-negotiated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 — Count a key-exchange group as accepted only when it is the one negotiated — and sweep TLS 1.2 groups as TLS 1.2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/11-check-that-a-monitor-script-fires/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    11 — Prove a passive-monitoring script fires on traffic you generated before reading its silence as absence
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/12-check-evidence-against-the-question/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    12 — Check cited evidence against the question it was meant to answer, then derive the conclusion again
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/13-bracket-an-event-between-two-signatures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    13 — To bound when a logged event happened, sign the log just before it and just after
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/14-do-not-replace-a-bind-mounted-directory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    14 — Do not switch branches under a running container that bind-mounts the tree; make the health check read the files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/15-check-a-bundles-blobs-and-anchor-its-checksums/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    15 — Hash every blob in an offline bundle's registry before serving it, and keep the checksum file's own hash somewhere else
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/16-a-service-that-never-listens-is-a-failed-change/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    16 — Count a change as applied only when the service answers, and put the old configuration back when it does not
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/17-rebuild-what-must-match-the-source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    17 — In a bundle build, always rebuild what must match the source and record the commit; reuse only what must not change
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/18-observe-a-services-defaults-before-planning-its-change/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    18 — Observe what a service accepts with nothing configured before planning its migration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/19-confirm-a-cause-by-changing-it/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    19 — Label a cause only after changing it and watching the effect go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/20-know-each-servers-precedence-rule/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    20 — Before reading a configuration, know which occurrence of a setting wins in that software
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/21-set-a-floor-before-comparing-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    21 — Set a floor per role before comparing two models, and repeat every call before believing it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/22-deploy-from-a-checkout-nobody-edits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    22 — Deploy from a checkout nobody edits
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/24-a-hardware-label-is-a-claim/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    24 — A hardware label in a config is a claim; record what served the call
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/25-size-the-scanner-network-to-the-parallelism/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    25 — Size the scanner network's address range to the parallelism, and record a job that never started as its own failure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/26-name-the-reasoning-setting-beside-the-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    26 — Name the reasoning setting beside the model in every measurement and binding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/27-probe-each-kind-of-key-exchange-on-its-own/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    27 — Before keying a TLS listener, probe each kind of key exchange on its own: named groups, finite-field DHE, RSA key transport
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/28-read-a-certificates-ca-flag-with-its-key-usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    28 — Read a certificate's CA flag together with its key usage; a self-signed server certificate is usually marked CA:TRUE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/29-a-plain-tls-scan-of-an-upgrade-port-is-silent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    29 — Give a listener that carries TLS behind a protocol upgrade its own scan profile; a plain TLS scan of its port is silent, not negative
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/31-confirm-an-answer-keys-annotations-the-same-way/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    31 — Confirm every cause an answer key names by changing it, including the ones written as annotations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/32-ask-the-runtime-what-it-supports/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    32 — Ask the protocol stack's runtime what it will negotiate before calling a migration blocked, or not blocked, by its supplier
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/33-read-a-validated-modules-certificate-for-the-algorithm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    33 — Read a validated module's certificate for the algorithm you need, and check that the module is active, before calling a system validated
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/34-score-retrieval-before-the-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    34 — Score the retrieval step on its own before scoring a model's answer over it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/35-compare-inventories-by-what-they-say/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    35 — Compare two inventories by the identity of each observation and by what it says, leaving out references to the records behind it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/36-probe-tls-1-2-apart-when-requiring-post-quantum/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    36 — When verifying that a listener requires post-quantum key establishment, probe TLS 1.2 on its own; a classical-only TLS 1.3 client is refused, not downgraded
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/37-a-contradiction-between-two-witnesses-is-inconclusive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    37 — When a probe claims a handshake the enumerating witness does not find, call the verdict inconclusive and say why; neither side settles it
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/38-read-a-standards-status-before-citing-it/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    38 — Before citing or redrawing a standard, read its status on the publisher's page; cite the current revision by its own identifier
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/39-a-diagrams-labels-are-claims/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    39 — Every label in a diagram of what a system does is a claim; fill it from the record and check each against the record before it is shown
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/40-draw-an-inventory-along-its-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    40 — Draw a cryptographic inventory in columns along its dependency chain, not as a force-directed graph
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/41-before-requiring-probe-who-it-shuts-out/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    41 — Before approving a change that requires post-quantum key establishment, probe each kind of client against a copy with the change; enforced says it landed, not whom it refuses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/42-show-a-tool-what-it-should-find-before-trusting-its-silence/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    42 — Before trusting a discovery tool's silence, show it something it should find; an empty result is a finding about the tool until then
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/43-report-the-machines-time-apart-from-the-wait-for-a-person/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    43 — Report a change's time from approval to proof beside its time from policy to proof; the gap is the wait for a person, not the system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/44-publish-a-curated-export-not-the-working-repository/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    44 — Publish a curated export, checked for leaks, not the working repository; and keep the list of what must not leak out of the published tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/45-count-what-a-verified-change-removed-as-remediated/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    45 — Score an inventory against a key that knows about changes: an item a verified change removed is remediated, not missed
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lessons/46-read-the-public-repositorys-own-checks-after-the-first-push/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    46 — After publishing a repository, read its own checks: they run in an environment the export was never tested in
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="what-do-the-open-source-scanners-cover-and-what-is-built-on-top">What do the open-source scanners cover, and what is built on top?<a class="headerlink" href="#what-do-the-open-source-scanners-cover-and-what-is-built-on-top" title="Permanent link">&para;</a></h1>
+<h2 id="the-answer">The answer<a class="headerlink" href="#the-answer" title="Permanent link">&para;</a></h2>
+<p>Run together, three open-source tools produce most of a first cryptographic
+inventory for network listeners and container images: testssl.sh for TLS,
+ssh-audit for SSH, and cbomkit-theia for certificates and keys inside images.
+On the four-service slice they find 22 of 23 items on the wire and 7 of 10 in
+images; on the eight-service estate, 38 of 40 and 14 of 20, the two wire
+misses being keyed out of reach. A harness built on top of them finds the
+same wire items. What it adds is in the images and in the structure: its own
+reader of key material finds what theia cannot read — an ML-DSA certificate
+and its key, a PKCS#12 keystore, DSA and Ed25519 host keys — and its rules
+say which wire finding and which file are the same key, which certificate in
+an image is not served by anything (while leaving a certificate authority's
+alone), and what each listener's posture is. On the estate that is 20 of 20
+image items against 14, two decoys avoided against two flagged, and nine
+postures stated against none.</p>
+<h2 id="the-concept-three-layers-three-kinds-of-tool">The concept: three layers, three kinds of tool<a class="headerlink" href="#the-concept-three-layers-three-kinds-of-tool" title="Permanent link">&para;</a></h2>
+<p>A cryptography bill of materials (CBOM) is an inventory of cryptographic
+assets: algorithms, keys, certificates, protocols, each with where it was
+found. Evidence for it comes from three layers:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What is observed</th>
+<th>Tool here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wire</td>
+<td>What a listener negotiates when a client connects</td>
+<td>testssl.sh (TLS), ssh-audit (SSH)</td>
+</tr>
+<tr>
+<td>Host</td>
+<td>Files in an image or on a disk: certificates, keys, configuration</td>
+<td>cbomkit-theia</td>
+</tr>
+<tr>
+<td>Code</td>
+<td>Calls to cryptographic libraries in source</td>
+<td>CBOMkit's source scanners (Java, Python, Go) — not yet run in this project</td>
+</tr>
+</tbody>
+</table>
+<p>No single tool spans the layers. CBOMkit, the open-source CBOM toolset, does
+not scan networks, so against a wire-only estate it scores zero by
+construction. That makes "better than CBOMkit" an empty comparison for
+anything that includes a network scanner. The comparison that means something
+is against all the scanners run together with no harness.</p>
+<h2 id="the-mechanism-how-the-comparison-is-made-fair">The mechanism: how the comparison is made fair<a class="headerlink" href="#the-mechanism-how-the-comparison-is-made-fair" title="Permanent link">&para;</a></h2>
+<p>An answer key lists what a perfect inventory holds. Each item has a class:
+<em>present</em> (planted, findable), <em>decoy</em> (looks like a finding, is not),
+<em>out-of-reach</em> (real, but no scan can see it) or <em>supplied</em> (can only be typed
+in). Out-of-reach items stay in the denominator and are reported as known
+misses. A reported decoy is a false positive. So is a claim, on a keyed
+listener, of a key-establishment or signature algorithm the key does not hold.</p>
+<p>Three inventories are scored from one scan:</p>
+<ul>
+<li><strong>CBOMkit alone</strong> — cbomkit-theia's findings only.</li>
+<li><strong>Scanners alone</strong> — every tool's findings, unioned, with names normalized
+  and duplicates folded, and nothing else.</li>
+<li><strong>Workbench</strong> — the same findings plus the output of three rules.</li>
+</ul>
+<p>Both baselines pass through the same normalizer as the workbench, so they are
+scored on what the tools said in one vocabulary. That is generous to the
+baselines: name normalization and de-duplication are credited to them.</p>
+<h2 id="worked-example">Worked example<a class="headerlink" href="#worked-example" title="Permanent link">&para;</a></h2>
+<p>The estate: two TLS listeners (one classical, one offering a hybrid group) and
+two SSH listeners (OpenSSH 6.6 and OpenSSH 10.0), with their four images.
+Measured 2026-10-03 on an x86_64 lab server.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>CBOMkit alone</th>
+<th>Scanners alone</th>
+<th>Workbench</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Wire, of 23</td>
+<td>0</td>
+<td>22</td>
+<td>22</td>
+</tr>
+<tr>
+<td>Host, of 10</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Host decoy flagged</td>
+<td>yes</td>
+<td>yes</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Listener posture, of 4</td>
+<td>not stated</td>
+<td>not stated</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What the scanners got right.</strong> Both wire tools report post-quantum hybrids
+by name: testssl.sh lists X25519MLKEM768 under its KEM line, and ssh-audit
+lists <code>mlkem768x25519-sha256</code> and <code>sntrup761x25519-sha512</code>. Every classical
+key-exchange group and every host-key type on all four listeners was found.</p>
+<p><strong>What they missed, and why.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Miss</th>
+<th>Layer</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What the legacy SFTP server offers when it connects <em>out</em></td>
+<td>Wire</td>
+<td>No listener shows it; only traffic capture beside the client would. Keyed as out-of-reach</td>
+</tr>
+<tr>
+<td>DSA host key file</td>
+<td>Host</td>
+<td>cbomkit-theia reports it as "private-key" with no algorithm. The workbench does not guess one</td>
+</tr>
+<tr>
+<td>Two Ed25519 host key files</td>
+<td>Host</td>
+<td>cbomkit-theia 1.1.2 reported neither; both are in OpenSSH's own key format</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The decoy.</strong> One image holds a second certificate, RSA-1024 with SHA-1,
+that no listener serves. cbomkit-theia reports it identically to the served
+certificate, as it should: it reads files. The workbench compares the public
+key of each certificate served on the wire with each certificate found in the
+image, links the ones that match, and marks the unmatched one, and everything
+read from that file, as not in use. It makes that judgement only when every
+listener of that image was scanned and each served certificate was found in
+the image; otherwise it says nothing.</p>
+<p><strong>What the rules add.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Adds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Link by public key</td>
+<td>"The certificate at 172.16.106.10:443 is the file <code>/etc/nginx/tls/portal.crt</code> in this image" — the first link of a dependency chain, with the hash as evidence</td>
+</tr>
+<tr>
+<td>In use or not</td>
+<td>Separates what an image <em>contains</em> from what a service <em>uses</em></td>
+</tr>
+<tr>
+<td>Posture</td>
+<td>Per listener: classical, mixed (post-quantum key exchange, classical authentication) or post-quantum</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cost.</strong> A targeted TLS scan takes 27 to 46 s per listener; SSH takes 2 to 3
+s. An image scan takes 71 to 96 s for images of a few megabytes, nearly all of
+it in cbomkit-theia's secrets plugin, which reads a file once for every symlink
+that points to it — Alpine's BusyBox has 304
+(<a href="../../lessons/09-time-a-scanner-on-the-bare-base-image/">lesson 09</a>). Image
+contents change only when an image does, so those results are replayed from
+the ledger with their original timestamps, and a routine re-scan takes as long
+as its slowest TLS listener.</p>
+<p><strong>The baseline is the tool's own document.</strong> Scored with no normalizer at all,
+cbomkit-theia's own CBOM files give the same 7 of 10 and the same flagged decoy
+as the projected baseline — once a reader follows theia's own reference from a
+certificate to its key. Read by component name alone they give 5 of 10,
+because theia names a certificate by its subject, not its algorithm.</p>
+<h2 id="beyond-the-slice-what-each-scanner-can-see">Beyond the slice: what each scanner can see<a class="headerlink" href="#beyond-the-slice-what-each-scanner-can-see" title="Permanent link">&para;</a></h2>
+<p>A second set of targets was built to ask the questions the slice does not:
+a TLS 1.3 server with an ML-DSA-65 certificate, Postgres 18 over its in-protocol
+TLS upgrade, RabbitMQ 4 and Kafka 4.1 over TLS, a listener that demands a
+client certificate, a client watched passively by Zeek, and one Ruby call
+site. Each tool ran on x86_64 and again as arm64 under emulation.</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>testssl.sh</th>
+<th>OpenSSL sweep</th>
+<th>ssh-audit</th>
+<th>cbomkit-theia</th>
+<th>Zeek</th>
+<th>Opengrep</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hybrid told from classical, TLS</td>
+<td>yes</td>
+<td>yes</td>
+<td>—</td>
+<td>—</td>
+<td>yes (x86_64)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Hybrid told from classical, SSH</td>
+<td>—</td>
+<td>—</td>
+<td>yes</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>ML-DSA-65 certificate</td>
+<td>yes, on the wire</td>
+<td>yes, on the wire</td>
+<td>—</td>
+<td><strong>no</strong>: drops the file</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Postgres over its TLS upgrade</td>
+<td>yes</td>
+<td>yes</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>RabbitMQ, Kafka over TLS</td>
+<td>yes</td>
+<td>yes</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Client-certificate listener</td>
+<td>yes</td>
+<td>yes</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>A client's offered groups</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>yes (x86_64)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>A Ruby call site</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>yes, one rule</td>
+</tr>
+</tbody>
+</table>
+<p>The open-source wire tools are further along than expected: testssl.sh reads
+an ML-DSA certificate even though its own bundled OpenSSL predates ML-DSA. The
+weak point is the file layer. Neither broker offered any post-quantum group,
+so on those images a hybrid requirement cannot be configured at all — a
+migration fact, not a scanner gap.</p>
+<p>Two limits of this table. A list of accepted groups is not the whole of key
+establishment: in TLS 1.2 a server may also accept RSA key transport, where
+the client encrypts the session secret to the server's RSA key and no group
+is involved. The Postgres target, configured with the hybrid group and
+X25519, still accepts it. A scan that reports groups reports that server as
+"hybrid and X25519"; anyone recording its traffic needs only the server's RSA
+key, later. An inventory of key establishment on a TLS 1.2 listener needs the
+cipher suites as well as the groups. The harness's TLS scan therefore asks
+testssl.sh for every cipher suite as well (<code>-E</code>), which costs 9 to 17 s more
+per listener on the slice, and reports each <code>TLS_RSA_WITH_*</code> suite as key
+establishment by RSA. On the slice's portal — an RSA certificate, TLS 1.2
+allowed, only ECDHE suites configured — it correctly reports none; that
+listener is the answer key's wire decoy for exactly this inference. And a "yes" in the table means the two
+wire tools agree with each other and with what the target was configured to
+offer; for the two brokers, whose group lists are their runtimes' defaults,
+it means the tools agree. A server's own account is not a third witness:
+RabbitMQ lists three Brainpool TLS 1.3 groups it then refuses on the wire.</p>
+<p>Three times testssl.sh looked wrong and the reference was wrong instead
+(<a href="../../lessons/10-a-group-is-accepted-when-it-is-negotiated/">lesson 10</a>): a
+comparison of scanners is only as good as its reference probe.</p>
+<h2 id="other-open-source-tools-tried-and-not-adopted">Other open-source tools, tried and not adopted<a class="headerlink" href="#other-open-source-tools-tried-and-not-adopted" title="Permanent link">&para;</a></h2>
+<p>Three more free tools were tried on the same terms — pinned image, run on the
+workbench's networks or offline, judged against what they should find:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it should find</th>
+<th>What it did</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sslyze 6.2.0</td>
+<td>the groups each TLS listener accepts</td>
+<td>lists no post-quantum group; reports a hybrid-only listener as no TLS at all; reported secp256r1 rejected where a direct P-256 handshake completed</td>
+<td>not adopted for key establishment; testssl.sh stays, and the second witness stays OpenSSL 3.5 probes</td>
+</tr>
+<tr>
+<td>cdxgen 11.11.0, CBOM mode</td>
+<td>crypto call sites in Java and Python</td>
+<td>none, offline, in either pinned repository</td>
+<td>not adopted: needs a build and the network</td>
+</tr>
+<tr>
+<td>sonar-cryptography 1.6.1 (CBOMkit) in SonarQube</td>
+<td>crypto call sites in Java, Python, Go</td>
+<td>none: Python coverage is pyca/cryptography only, which the Python repository does not use; Java needs compiled classes</td>
+<td>not adopted while third-party repositories are never built; the right tool for a team scanning its own built code</td>
+</tr>
+</tbody>
+</table>
+<p>The pattern is the one a reader should test for in any tool: silence is not a
+finding until the tool has been shown something it should report. All three
+were silent where the planted or labelled material says otherwise.</p>
+<h2 id="any-tools-cbom-scored">Any tool's CBOM, scored<a class="headerlink" href="#any-tools-cbom-scored" title="Permanent link">&para;</a></h2>
+<p>Federal agencies inventory with commercial discovery tools. Rather than pick
+among them, the workbench imports any tool's CycloneDX CBOM as evidence
+(<code>pqch import</code>): each entry is placed on a scoped listener, a file in a named
+image or a call site in a pinned repository, named the way the workbench names
+its own, and scored against the answer key. Entries the importer cannot place —
+the CycloneDX project's own CBOM examples have no locations — are kept in the
+import's record by name and not counted. cbomkit-theia's own CBOMs, imported
+this way, score exactly what its native reader scores.</p>
+<h2 id="what-follows">What follows<a class="headerlink" href="#what-follows" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Start with the free scanners.</strong> For listeners and images they give most of
+  an Enumerated-rung inventory with no harness at all.</li>
+<li><strong>Expect noise at the host layer.</strong> This estate's images had their system
+  trust stores removed so the key could be exact. The base images they are
+  built from carry 148 (Ubuntu 14.04) and 121 (Alpine 3.22)
+  certificate-authority certificates, and a file scanner reports every one.
+  Telling "contains" from "uses" is the first real problem there.</li>
+<li><strong>Check each scanner against a known target before trusting an absence.</strong> A
+  tool that does not parse one key format reports nothing, which reads the
+  same as "none present".</li>
+<li><strong>State the delta honestly.</strong> At this rung a harness earns its place by
+  structure and by what it enables next — tracing, prioritizing, verifying a
+  change — not by finding more.</li>
+</ul>
+<h2 id="what-the-harness-adds-at-m1-its-own-reader-of-files">What the harness adds at M1: its own reader of files<a class="headerlink" href="#what-the-harness-adds-at-m1-its-own-reader-of-files" title="Permanent link">&para;</a></h2>
+<p>cbomkit-theia stays the candidate generator and the baseline for the image
+layer. Beside it the runner runs the harness's own reader (<code>pqch
+image-files</code>) from its own image, with no network, over the same archive:
+it walks the image's layers, honouring whiteouts, reads PEM and DER
+certificates (ML-DSA included), private and public keys (OpenSSH included),
+Diffie-Hellman parameters and PKCS#12 keystores — trying no password, the
+empty one and the Java default, and recording which opened the store — and
+writes on every certificate whether it is a certificate authority's
+(basicConstraints CA with keyUsage keyCertSign,
+<a href="../../lessons/28-read-a-certificates-ca-flag-with-its-key-usage/">lesson 28</a>)
+and on every file which configuration files name it. It is in neither
+baseline, so the scanners-alone column is still exactly the tools. On the
+eight images it took 1 to 8 s each where theia took 75 to 136 s, and it is
+what closes the image layer from 14 of 20 to 20 of 20.</p>
+<h2 id="scope">Scope<a class="headerlink" href="#scope" title="Permanent link">&para;</a></h2>
+<p>Covered: eight services and nine listeners (TLS 1.2 and 1.3, TLS behind
+PostgreSQL's upgrade, SSH), wire and image layers, pinned tool versions
+(testssl.sh 3.2.4, ssh-audit 3.9.0, cbomkit-theia 1.1.2) and the harness's
+own reader, on x86_64. The four-service numbers are from 2026-10-03.</p>
+<p>Also covered, outside the slice and its answer key: Postgres, RabbitMQ and
+Kafka over TLS, a client-certificate listener, an ML-DSA-65 certificate, a
+client's offered groups, one Ruby rule — each tool on x86_64 and on arm64
+under qemu-user emulation (spike S2).</p>
+<p>Not covered: symmetric ciphers and MACs in a suite (the scan reads suites
+only for RSA key transport); CBOMkit's source scanners on real code (the
+key's five code-layer decoys are untested, the code layer is not scanned);
+Java keystores in JKS format (reported as unopened); UDP protocols; Zeek on
+arm64 (packet capture does not run under emulation); the M1 images under
+arm64. Arm64 results are from emulation, not a native arm64 host.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>agency/answer-key.yaml</code> — the items, classes and matching rules.</li>
+<li><code>eval/README.md</code> — how the two baselines are constructed; <code>eval/score_raw_theia.py</code>.</li>
+<li><code>spikes/s2/README.md</code>, <code>results.md</code>, <code>results/matrix.md</code> — the targets, the
+  predictions written before the run, and every cell's evidence.</li>
+<li><code>docs/fable-review/M0-review.md</code> F-32 to F-36 — what was found wrong with
+  the first scorer and key, and what was changed.</li>
+<li>PQCA, <em>CBOMkit architecture</em> — what CBOMkit covers.</li>
+<li>OWASP CycloneDX, <em>Authoritative Guide to CBOM</em> — asset types.</li>
+<li>Related: <a href="../00-what-the-cbom-workbench-is/">what the CBOM workbench is</a>;
+  <a href="../../lessons/05-penalize-what-an-inventory-invents/">lesson 05, penalize what an inventory invents</a>;
+  <a href="../../lessons/08-identify-a-key-by-its-public-key-hash/">lesson 08, identify a key by its public-key hash</a>.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../13-where-models-belong/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 13 — Where do language models belong in this pipeline, and where not?">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                13 — Where do language models belong in this pipeline, and where not?
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../16-what-a-cbom-makes-possible/" class="md-footer__link md-footer__link--next" aria-label="Next: 16 — What does a CBOM make possible once it exists?">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                16 — What does a CBOM make possible once it exists?
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      &copy; 2026 Ken Rollins. Apache-2.0. A personal exploration — not an official Dell
+product, reference architecture, or Dell position.
+<a href="https://kenrollins.github.io/cbom-workbench/site/about/">Read the full disclaimer.</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tracking", "navigation.sections", "navigation.indexes", "navigation.top", "navigation.footer", "toc.integrate", "toc.follow", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.tooltips"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — crypto agility</title>
+<link rel="stylesheet" href="/cbom-workbench/static/style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/cbom-workbench/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    
+    <div class="demo-group">
+    <span class="group">Demo<small>snapshot</small></span>
+    <a href="/cbom-workbench/" class="on" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    <a href="/cbom-workbench/agency/" class="" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
+    <a href="/cbom-workbench/walkthrough/" class="" title="The walkthrough, on a test agency built for it">Walkthrough</a>
+    <a href="/cbom-workbench/cbom/" class="" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    <a href="/cbom-workbench/plan/" class="" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
+    
+    </div>
+    <div class="learn-group">
+    <span class="group">Learn<small>notes &amp; docs</small></span>
+    <a href="/cbom-workbench/site/how-it-works/">How it works</a>
+    <a href="/cbom-workbench/site/notes/">Notes</a>
+    <a href="/cbom-workbench/site/lessons/">Lessons</a>
+    <a href="/cbom-workbench/site/sources/">Sources</a>
+    <a href="/cbom-workbench/site/about/">About</a>
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner"><strong>Overview.</strong> Where the CBOM sits in NIST's plan for crypto agility, and what this workbench does in each part — read from its ledgers when this snapshot was built.</div></div>
+
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  function what(url) {
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    var u = new URL(url, location.href);
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
+    return "Loading…";
+  }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", hide);
+})();
+</script>
+<main>
+
+
+
+
+
+
+<p class="orient">NIST's plan for crypto agility, drawn as NIST draws it, filled with what this workbench does in each part. The CBOM is the <strong>Information Repository</strong> in the middle. <span class="hint">Click any box for what is behind it.</span></p>
+
+
+
+<div class="playbar">
+  <a class="cta" href="/cbom-workbench/plan/">See the plan this CBOM makes →</a>
+  <span>what depends on what, what comes first, and in what order: the risk engine's work, drawn</span>
+</div>
+
+<div class="playbar">
+  <button type="button" id="play">▶ Follow one weakness from finding to fixed</button>
+  <span>records-db: 13 steps around NIST's loop, from the scan that found it to the scan that shows it gone — 2 by a model, 3 by a person, the rest by scanners, rules, the runner and probes, every one reading from or writing to the CBOM.</span>
+</div>
+
+
+<figure class="agility" id="frame">
+  <div class="loop top"><span>Crypto</span><i>▶</i><span>Agility</span></div>
+  <div class="loop left" aria-hidden="true">▲</div><div class="loop right" aria-hidden="true">▼</div>
+  <div class="caption" id="caption">
+    <div class="cap-controls" role="toolbar" aria-label="Replay controls">
+      <button type="button" data-act="prev" title="Previous step (←)" aria-label="Previous step">◀ Back</button>
+      <button type="button" data-act="toggle" title="Pause or play (space)" aria-label="Pause">Pause</button>
+      <button type="button" data-act="next" title="Next step (→)" aria-label="Next step">Next ▶</button>
+      <button type="button" data-act="stop" title="Stop (Esc)" aria-label="Stop">■ Stop</button>
+      <button type="button" data-act="speed" title="Seconds a step" aria-label="Speed">4.5 s</button>
+      <span class="cap-pos" aria-live="polite"></span>
+      <span class="cap-keys">space pauses · ← → step · Esc stops · click any step below to jump to it</span>
+    </div>
+    <div class="cap-text" aria-live="polite"></div>
+  </div>
+  <div class="frame">
+    
+<a class="box gov on" data-box="governance" href="#d-governance">
+  <span class="name">Governance</span>
+  <span class="big">OMB M-26-15</span><span class="small">the federal memo as data, every quote checked; owner&#39;s facts for 8 services</span>
+  <ul class="nist"><li class="on" title="FIPS 203 and 204 names, CycloneDX 1.6 for the CBOM">Standards</li><li class="on" title="OMB M-26-15 as a policy pack, quotes checked against the memo; CNSA 2.0 unverified">Regulations, Mandates</li><li class="on" title="each runtime&#39;s own algorithm list and the CMVP snapshot decide the supplier and validated-module blockers">Technology Supply Chains</li><li class="on" title="M-26-15&#39;s table of quantum-vulnerable algorithms, as data">Threats</li><li class="on" title="propose, rehearse on a copy, approve, apply, verify — each an event on the ledger">Processes</li><li class="on" title="the owner&#39;s facts per service: mission function, data lifetime, impact">Business Requirements</li><li class="off" title="not modelled">Partner Ecosystem</li><li class="on" title="an owner per service, supplied and labelled">Stakeholders</li><li class="on" title="the crypto policy: which services must offer or require a post-quantum group">Crypto Policies</li><li class="partial" title="one policy-file shape per software (nginx, PostgreSQL, OpenSSH)">Crypto Architecture</li></ul>
+  <span class="acts"><i class="dot person" title="person"></i><i class="dot rule" title="rule"></i></span>
+</a>
+    
+<a class="box assets on" data-box="assets" href="#d-assets">
+  <span class="name">Assets</span>
+  <span class="big">8 services</span><span class="small">43 assets on the wire, 182 in image files; 79 call sites in one repository&#39;s code</span>
+  <ul class="nist"><li class="on" title="one pinned federal repository: rule pack, then a model judges each call site">Code</li><li class="partial" title="each runtime&#39;s TLS library and version, read for its capability list; not yet a CBOM entry">Libraries</li><li class="on" title="eight services, each tied to its listeners and image">Applications</li><li class="on" title="keys, certificates and configuration in each image">Files</li><li class="on" title="TLS and SSH, every group and version each listener accepts">Protocols</li><li class="on" title="the containers and the network they sit on">Systems</li></ul>
+  <span class="acts"><i class="dot scanner" title="scanner"></i></span>
+</a>
+    <div class="arrow" aria-hidden="true"><span>automation</span>⇄</div>
+    
+<a class="box tools on" data-box="tools" href="#d-tools">
+  <span class="name">Management Tools<small>Discovery, Assessment, Configuration, Enforcement</small></span>
+  <span class="big">25</span><span class="small">scanner jobs a scan; 13 rules; 51 verdicts by probe</span>
+  <ul class="nist"><li class="off" title="no data-discovery tool">Data</li><li class="on" title="testssl.sh, ssh-audit, cbomkit-theia, the workbench&#39;s readers">Crypto</li><li class="on" title="quantum-vulnerable by rule, from the memo&#39;s table">Vulnerability</li><li class="on" title="chains: service → listener → asset → file, by rule">Assets</li><li class="on" title="the ledger: every observation, decision and change, hash-chained and signed">Log</li><li class="off" title="not modelled">Zero-Trust</li></ul>
+  <span class="acts"><i class="dot scanner" title="scanner"></i><i class="dot rule" title="rule"></i><i class="dot model" title="model"></i><i class="dot verifier" title="verifier"></i><span class="aitag">model ×2</span></span>
+</a>
+    <div class="arrow" aria-hidden="true"><span>automation</span>→</div>
+    <section class="dcrm">
+      <h3>Data-Centric Risk Management</h3>
+      
+<a class="box sub repo on" data-box="repository" href="#d-repository">
+  <span class="name">Information Repository<small>the ledger and the CBOM</small></span>
+  <span class="big">250</span><span class="small">CBOM components, rebuilt from 535 signed ledger events</span>
+  
+  <span class="acts"><i class="dot rule" title="rule"></i></span>
+</a>
+      
+<a class="box sub engine on" data-box="engine" href="#d-engine">
+  <span class="name">Risk Analysis Prioritization Engine</span>
+  <span class="big">25</span><span class="small">plan steps from the CBOM: 4 shared dependencies, 15 waiting on another</span>
+  
+  <span class="acts"><i class="dot rule" title="rule"></i><i class="dot model" title="model"></i><span class="aitag">model ×2</span></span>
+</a>
+      
+<a class="box sub kpi on" data-box="kpi" href="#d-kpi">
+  <span class="name">Monitoring, Dashboards, Reports, Measurements / Metrics (KPI)</span>
+  <span class="big">35/40</span><span class="small">keyed wire items found; 19 changes verified landed</span>
+  
+  <span class="acts"><i class="dot verifier" title="verifier"></i></span>
+</a>
+    </section>
+    <div class="arrow" aria-hidden="true"><span>inform</span>→</div>
+    <section class="outs">
+      
+<a class="box out on" data-box="mitigation" href="#d-mitigation">
+  <span class="name">Mitigation</span>
+  <span class="big">7</span><span class="small">change packages for software that cannot take post-quantum cryptography</span>
+  
+  <span class="acts"><i class="dot rule" title="rule"></i></span>
+</a>
+      
+<a class="box out on" data-box="migration" href="#d-migration">
+  <span class="name">Migration</span>
+  <span class="big">19</span><span class="small">changes verified landed; 3 waiting for approval</span>
+  
+  <span class="acts"><i class="dot model" title="model"></i><i class="dot person" title="person"></i><i class="dot verifier" title="verifier"></i><span class="aitag">model ×1</span></span>
+</a>
+    </section>
+    <div class="feedback"><span>←</span> back to the tools: verified by re-scan; watch mode re-examines only what changed</div>
+  </div>
+  <div class="loop bottom"><span>Crypto</span><i>◀</i><span>Agility</span></div>
+</figure>
+<p class="credit">Layout after NIST CSWP 39-upd1, <cite>Considerations for Achieving Crypto Agility: Strategies and Practices</cite> (Barker, Chen, Cooper, Moody, Regenscheid, Souppaya, Newhouse, Housley, Turner, Barker and Kent; December 19, 2025, updated June 29, 2026), Fig. 3, “Crypto agility strategic plan for managing an organization’s cryptographic risks” — <a href="https://doi.org/10.6028/NIST.CSWP.39-upd1">doi:10.6028/NIST.CSWP.39-upd1</a>. Redrawn; NIST’s labels kept, its “…” boxes left out. NIST has not reviewed this page. Contents are this deployment’s live state: a label is bright where this estate reaches it, dashed in part, dim where it does not.</p>
+<div class="legend">Who acts: <span><i class="dot scanner"></i>scanner</span><span><i class="dot rule"></i>rule</span><span><i class="dot model"></i>model</span><span><i class="dot person"></i>person</span><span><i class="dot runner"></i>runner</span><span><i class="dot verifier"></i>verifier — probes, no model</span></div>
+
+<div id="details">
+  <p class="note">Eight small services built in this lab with every weakness planted, so every answer can be checked against a key. Latest run <code>01M5JFEP7D145D2T38TW0S6631</code>.</p>
+  
+  <section class="detail on" id="d-governance" data-detail="governance">
+    <h3>Governance</h3>
+    
+  <p class="here">policy packs and the owner&#39;s facts</p>
+  <ul><li>OMB M-26-15 as data: every rule in the memo&#39;s own words, checked against its text</li><li>CNSA 2.0 carried unverified (the primary was not readable)</li><li>the crypto policy: portal, records-db, bastion under policy</li><li>owner&#39;s facts for 8 services — mission, data lifetime, impact, owner — labelled supplied</li></ul>
+  
+  <div class="foot"><span class="who"><span class="actor person" title="a person decides">person</span><span class="actor rule" title="a rule decides, from data">rule</span></span><a href="/cbom-workbench/walkthrough/#queues">see it →</a></div>
+
+    <table class="nistitems"><tbody><tr class="on"><td>Standards</td><td>reached</td><td>FIPS 203 and 204 names, CycloneDX 1.6 for the CBOM</td></tr><tr class="on"><td>Regulations, Mandates</td><td>reached</td><td>OMB M-26-15 as a policy pack, quotes checked against the memo; CNSA 2.0 unverified</td></tr><tr class="on"><td>Technology Supply Chains</td><td>reached</td><td>each runtime&#39;s own algorithm list and the CMVP snapshot decide the supplier and validated-module blockers</td></tr><tr class="on"><td>Threats</td><td>reached</td><td>M-26-15&#39;s table of quantum-vulnerable algorithms, as data</td></tr><tr class="on"><td>Processes</td><td>reached</td><td>propose, rehearse on a copy, approve, apply, verify — each an event on the ledger</td></tr><tr class="on"><td>Business Requirements</td><td>reached</td><td>the owner&#39;s facts per service: mission function, data lifetime, impact</td></tr><tr class="off"><td>Partner Ecosystem</td><td>not reached</td><td>not modelled</td></tr><tr class="on"><td>Stakeholders</td><td>reached</td><td>an owner per service, supplied and labelled</td></tr><tr class="on"><td>Crypto Policies</td><td>reached</td><td>the crypto policy: which services must offer or require a post-quantum group</td></tr><tr class="partial"><td>Crypto Architecture</td><td>in part</td><td>one policy-file shape per software (nginx, PostgreSQL, OpenSSH)</td></tr></tbody></table>
+  </section>
+  
+  <section class="detail on" id="d-assets" data-detail="assets">
+    <h3>Assets</h3>
+    
+  <p class="here">what the scans reached</p>
+  <ul><li>8 services, 9 listeners, 8 images</li><li>43 assets on the wire, 182 in image files</li><li>code: 85 candidate call sites in one federal repository, 79 judged uses</li></ul>
+  
+  <div class="foot"><span class="who"><span class="actor scanner" title="a scanner observes">scanner</span></span><a href="/cbom-workbench/cbom/">see it →</a></div>
+
+    <table class="nistitems"><tbody><tr class="on"><td>Code</td><td>reached</td><td>one pinned federal repository: rule pack, then a model judges each call site</td></tr><tr class="partial"><td>Libraries</td><td>in part</td><td>each runtime&#39;s TLS library and version, read for its capability list; not yet a CBOM entry</td></tr><tr class="on"><td>Applications</td><td>reached</td><td>eight services, each tied to its listeners and image</td></tr><tr class="on"><td>Files</td><td>reached</td><td>keys, certificates and configuration in each image</td></tr><tr class="on"><td>Protocols</td><td>reached</td><td>TLS and SSH, every group and version each listener accepts</td></tr><tr class="on"><td>Systems</td><td>reached</td><td>the containers and the network they sit on</td></tr></tbody></table>
+  </section>
+  
+  <section class="detail on" id="d-tools" data-detail="tools">
+    <h3>Management Tools</h3>
+    
+  <p class="here">scanners, rules, runner, verifier</p>
+  <ul><li>discovery: cbomkit-theia, pqch-image-files, ssh-audit, testssl.sh — 25 jobs a scan; a rule pack and a model on code</li><li>assessment: 13 rules over the findings</li><li>any other tool&#39;s CBOM can be imported and scored against the same key (bring your own scanner)</li><li>configuration: rendered by rule (nginx, OpenSSH) or drafted by a model (PostgreSQL)</li><li>enforcement: the runner applies only on approval; the verifier&#39;s probes decide — 51 verdicts</li></ul>
+  <p class="aiuse" title="Bound by measurement: spike S3, three calls an item, against a floor written before the run">
+    <span class="mark">model</span> <code>trace-to-cause</code> — Nemotron 3.5 Super VL 120B, GB10; 27 of 30, floor 24</p><p class="aiuse" title="Bound by measurement: spike S3, three calls an item, against a floor written before the run">
+    <span class="mark">model</span> <code>call-site-read</code> — Gemma 4 31B, four L4s, reasoning on; 29 of 30, floor 27</p>
+  <div class="foot"><span class="who"><span class="actor scanner" title="a scanner observes">scanner</span><span class="actor rule" title="a rule decides, from data">rule</span><span class="actor model" title="a language model acts here, under a measured floor">model</span><span class="actor verifier" title="probes on the wire decide; no model">verifier — no model</span></span><a href="/cbom-workbench/walkthrough/#cbom">see it →</a></div>
+
+    <table class="nistitems"><tbody><tr class="off"><td>Data</td><td>not reached</td><td>no data-discovery tool</td></tr><tr class="on"><td>Crypto</td><td>reached</td><td>testssl.sh, ssh-audit, cbomkit-theia, the workbench&#39;s readers</td></tr><tr class="on"><td>Vulnerability</td><td>reached</td><td>quantum-vulnerable by rule, from the memo&#39;s table</td></tr><tr class="on"><td>Assets</td><td>reached</td><td>chains: service → listener → asset → file, by rule</td></tr><tr class="on"><td>Log</td><td>reached</td><td>the ledger: every observation, decision and change, hash-chained and signed</td></tr><tr class="off"><td>Zero-Trust</td><td>not reached</td><td>not modelled</td></tr></tbody></table>
+  </section>
+  
+  <section class="detail on" id="d-repository" data-detail="repository">
+    <h3>Information Repository</h3>
+    
+  <p class="here">the signed ledger and the CBOM built from it</p>
+  <ul><li>535 events in the latest scan, hash-chained, checkpointed with ML-DSA-65</li><li>a CycloneDX 1.6 CBOM of 250 components, rebuilt from the ledger, never edited</li><li>projected again on demand: an agency inventory in milliseconds, no scan</li></ul>
+  
+  <div class="foot"><span class="who"><span class="actor rule" title="a rule decides, from data">rule</span></span><a href="/cbom-workbench/cbom/">see it →</a></div>
+
+    
+  </section>
+  
+  <section class="detail on" id="d-engine" data-detail="engine">
+    <h3>Risk Analysis Prioritization Engine</h3>
+    
+  <p class="here">queues, blockers and the plan, by rule</p>
+  <ul><li>the migration plan: what depends on what, what comes first, in what order — computed from the CBOM</li><li>13 migration items open: 5 in kex-2030; 6 in sig-2031; 2 in remaining-2035</li><li>7 blocked on a supplier; 7 with no validated module</li><li>3 conflicts between file and wire settled by rule</li></ul>
+  <p class="aiuse" title="Bound by measurement: spike S3, three calls an item, against a floor written before the run">
+    <span class="mark">model</span> <code>resolve-conflict</code> — Nemotron 3.5 Super VL, GB10; 26 of 29, floor 24; explains beside the rule</p><p class="aiuse" title="Bound by measurement: spike S3, three calls an item, against a floor written before the run">
+    <span class="mark">model</span> <code>normalize-name</code> — Nemotron 3.5 Super VL, GB10; 28 of 30, floor 28; fallback to the name table</p>
+  <div class="foot"><span class="who"><span class="actor rule" title="a rule decides, from data">rule</span><span class="actor model" title="a language model acts here, under a measured floor">model</span></span><a href="/cbom-workbench/plan/">see it →</a></div>
+
+    
+  </section>
+  
+  <section class="detail on" id="d-kpi" data-detail="kpi">
+    <h3>Monitoring, Dashboards, Reports, Measurements / Metrics (KPI)</h3>
+    
+  <p class="here">the receipts</p>
+  <ul><li>coverage against the answer key: wire 35 of 40, images 20 of 20; 0 of 4 decoys flagged</li><li>19 changes verified landed; 6 verdicts that do not re-derive, counted apart</li><li>the last change that landed: records-db, require a hybrid post-quantum key exchange, proved on the wire and again after a restart</li></ul>
+  
+  <div class="foot"><span class="who"><span class="actor verifier" title="probes on the wire decide; no model">verifier — no model</span></span><a href="/cbom-workbench/walkthrough/#score">see it →</a></div>
+
+    
+  </section>
+  
+  <section class="detail on" id="d-mitigation" data-detail="mitigation">
+    <h3>Mitigation</h3>
+    
+  <p class="here">where no change can be made</p>
+  <ul><li>7 items whose software cannot take post-quantum cryptography: marked for replacement (M-26-15 §3.C.3)</li><li>7 change packages: why no configuration change can do it, with the runtime&#39;s own list; what would unblock it; the CBOM entries it covers; the test that will count — 1 with an upgrade path already in the estate</li></ul>
+  
+  <div class="foot"><span class="who"><span class="actor rule" title="a rule decides, from data">rule</span></span><a href="/cbom-workbench/packages/">see it →</a></div>
+
+    
+  </section>
+  
+  <section class="detail on" id="d-migration" data-detail="migration">
+    <h3>Migration</h3>
+    
+  <p class="here">a change, proposed, rehearsed, approved, applied</p>
+  <ul><li>23 changes applied, 19 verified landed</li><li>waiting for approval: portal (by rule, rehearsed), api (by rule, rehearsed), bastion (by rule, rehearsed)</li></ul>
+  <p class="aiuse" title="Bound by measurement: spike S3, three calls an item, against a floor written before the run">
+    <span class="mark">model</span> <code>change-plan</code> — Gemma 4 31B, four L4s; 27 of 30, none harmful, floor 24</p>
+  <div class="foot"><span class="who"><span class="actor model" title="a language model acts here, under a measured floor">model</span><span class="actor person" title="a person decides">person</span><span class="actor verifier" title="probes on the wire decide; no model">verifier — no model</span></span><a href="/cbom-workbench/resolve/">see it →</a></div>
+
+    
+  </section>
+  
+  
+  <section class="detail loopstory" id="d-replay" data-detail="replay">
+    <h3>One weakness, from finding to fixed</h3>
+    <p class="lede">The last change that landed toward post-quantum, with every verdict re-deriving from its raw output: <strong>records-db</strong> made to require a hybrid post-quantum key exchange. Each step says who acts, what happened, and what the CBOM gives it; every step is an event on a signed ledger (12 ML-DSA-65 checkpoints on the change run alone). A model acts in 2 of the 13, each in a role it earned by measurement, and never where the question is whether the change worked.</p>
+    <ol class="story">
+      <li data-box="tools" data-caption="1. Found — A scan of records-db&#39;s listener (172.16.106.30:5432) records what it accepts: key exchange by X25519MLKEM768, X25519, DH-2048, RSA key transport; TLS 1.2, TLS 1.3; it serves an RSA-2048 certificate." data-cbom="Each finding becomes a CBOM entry, tied to the listener it was seen on, with the scanner&#39;s raw output and its hash as evidence." class="">
+        <div class="st-head"><span class="st-n">1</span><strong>Found</strong>
+          <span class="st-who"><span><i class="dot scanner"></i>scanner</span></span>
+          </div>
+        <p class="st-did">A scan of records-db&#39;s listener (172.16.106.30:5432) records what it accepts: key exchange by X25519MLKEM768, X25519, DH-2048, RSA key transport; TLS 1.2, TLS 1.3; it serves an RSA-2048 certificate.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> Each finding becomes a CBOM entry, tied to the listener it was seen on, with the scanner&#39;s raw output and its hash as evidence.</p>
+        
+        <details><summary>The record</summary><ul><li class="">X25519MLKEM768 — key exchange, seen by testssl.sh</li><li class="">X25519 — key exchange, seen by testssl.sh</li><li class="">DH-2048 — key exchange, seen by testssl.sh</li><li class="">RSA-2048 certificate — certificate, seen by testssl.sh</li><li class="">RSA key transport — key exchange, seen by testssl.sh</li><li class="">TLS 1.2 — protocol, seen by testssl.sh</li><li class="">TLS 1.3 — protocol, seen by testssl.sh</li><li class="">7 findings from testssl.sh, scan 01M5FHJHNTJVRPMZ09KQ7YN9TM</li></ul><a href="/cbom-workbench/cbom/01m5fhjhntjvrpmz09kq7yn9tm/">open it →</a></details>
+      </li>
+      <li data-box="repository" data-caption="2. Connected — Rules link the listener to the records-db service and the image it runs, from what the runner saw at the address; the owner&#39;s facts attach to the service: mission: benefits records; data secret for 75 years; a high-value asset; FIPS 199 high impact; owner: Records office." data-cbom="The links turn an algorithm on a port into part of a service with a mission and a data lifetime — the facts every later step reasons from. Typed-in facts stay labelled supplied." class="">
+        <div class="st-head"><span class="st-n">2</span><strong>Connected</strong>
+          <span class="st-who"><span><i class="dot rule"></i>rule</span><span><i class="dot person"></i>person</span></span>
+          </div>
+        <p class="st-did">Rules link the listener to the records-db service and the image it runs, from what the runner saw at the address; the owner&#39;s facts attach to the service: mission: benefits records; data secret for 75 years; a high-value asset; FIPS 199 high impact; owner: Records office.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The links turn an algorithm on a port into part of a service with a mission and a data lifetime — the facts every later step reasons from. Typed-in facts stay labelled supplied.</p>
+        
+        <details><summary>The record</summary><ul><li class="">served-by: the scope names service records-db for this listener, and the runner found container 140ec78f0a0c at the address running the scope&#39;s image pqch-agency/records-db for the whole scan</li><li class="">runs: the container the runner found serving records-db&#39;s listener runs this image</li><li class="">supplied by the owner: mission-function = benefits records</li><li class="">supplied by the owner: data-lifetime = 75</li><li class="">supplied by the owner: high-value-asset = True</li><li class="">supplied by the owner: fips199-impact = high</li><li class="">supplied by the owner: owner = Records office</li><li class="">supplied by the owner: national-security-system = False</li></ul><a href="/cbom-workbench/cbom/01m5fhjhntjvrpmz09kq7yn9tm/">open it →</a></details>
+      </li>
+      <li data-box="engine" data-caption="3. Ranked — The OMB M-26-15 rules mark the service prioritized (high-impact, high-value-asset, sensitive-in-2030; the data must stay secret through 2101) and open a key-establishment item in queue kex-2030, due 2030-12-31: DH-2048, RSA, X25519 are quantum-vulnerable; X25519MLKEM768 is offered but not enforced. Its software can take post-quantum cryptography, so no supplier blocks it." data-cbom="The queue is computed from the CBOM&#39;s entries and the owner&#39;s facts, so when either changes it is recomputed, not re-typed." class="">
+        <div class="st-head"><span class="st-n">3</span><strong>Ranked</strong>
+          <span class="st-who"><span><i class="dot rule"></i>rule</span></span>
+          </div>
+        <p class="st-did">The OMB M-26-15 rules mark the service prioritized (high-impact, high-value-asset, sensitive-in-2030; the data must stay secret through 2101) and open a key-establishment item in queue kex-2030, due 2030-12-31: DH-2048, RSA, X25519 are quantum-vulnerable; X25519MLKEM768 is offered but not enforced. Its software can take post-quantum cryptography, so no supplier blocks it.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The queue is computed from the CBOM&#39;s entries and the owner&#39;s facts, so when either changes it is recomputed, not re-typed.</p>
+        
+        <details><summary>The record</summary><ul><li class="">queue kex-2030, due 2030-12-31 (stated): DH-2048, RSA, X25519</li><li class="">queue sig-2031, due 2031-12-31 (computed): ECDSA, ECDSA-SHA384, RSA</li></ul><a href="/cbom-workbench/plan/">open it →</a></details>
+      </li>
+      <li data-box="tools" data-caption="4. Traced to its cause · AI, trace-to-cause — A model, given the DH-2048 finding and the service&#39;s 3 configuration files, reads agency/records-db/postgresql.conf and answers: postgresql.conf line 21 sets ssl_groups to X25519MLKEM768:X25519 (ECDHE only), and line 24 (ssl_dh_params_file) is commented out, so no live line selects DH-2048; the DH-2048/RFC3526 Group 14 behavior is PostgreSQL&#39;s built-in default DH parameters." data-cbom="The model is handed one CBOM finding and the files the CBOM links to its service, not the estate. What it says is recorded as a claim beside the evidence, never as a fact." class="ai">
+        <div class="st-head"><span class="st-n">4</span><strong>Traced to its cause</strong>
+          <span class="st-who"><span><i class="dot model"></i>model</span></span>
+          <span class="tag ai" title="measured 27 of 30, floor 24">AI · trace-to-cause</span></div>
+        <p class="st-did">A model, given the DH-2048 finding and the service&#39;s 3 configuration files, reads agency/records-db/postgresql.conf and answers: postgresql.conf line 21 sets ssl_groups to X25519MLKEM768:X25519 (ECDHE only), and line 24 (ssl_dh_params_file) is commented out, so no live line selects DH-2048; the DH-2048/RFC3526 Group 14 behavior is PostgreSQL&#39;s built-in default DH parameters.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The model is handed one CBOM finding and the files the CBOM links to its service, not the estate. What it says is recorded as a claim beside the evidence, never as a fact.</p>
+        <p class="st-model small dim">Nemotron 3.5 Super VL 120B, GB10, in the trace-to-cause role: 27 of 30, floor 24 on the role's test set, against a floor written before the run.</p>
+        <details><summary>The record</summary><ul><li class="">answer: cause default</li><li class="">2 of 8 steps of its budget used</li><li class="">the answer key agrees</li><li class="">recorded as: the model&#39;s; settles nothing by itself</li></ul></details>
+      </li>
+      <li data-box="governance" data-caption="5. Policy set — The central crypto policy sets records-db&#39;s intent to require: require a hybrid post-quantum key exchange." data-cbom="The policy is written against the services the CBOM names; the distance between the policy and the CBOM is the work." class="">
+        <div class="st-head"><span class="st-n">5</span><strong>Policy set</strong>
+          <span class="st-who"><span><i class="dot person"></i>person</span></span>
+          </div>
+        <p class="st-did">The central crypto policy sets records-db&#39;s intent to require: require a hybrid post-quantum key exchange.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The policy is written against the services the CBOM names; the distance between the policy and the CBOM is the work.</p>
+        
+        <details><summary>The record</summary><ul><li class="">policy file sha256 4b964e911c0cdb5d…</li><li class="">recorded by: Claude Opus 5.5 (build session, on Ken Rollins&#39;s instruction of 2026-10-21)</li></ul></details>
+      </li>
+      <li data-box="migration" data-caption="6. Change drafted · AI, change-plan — A model drafts the edit from what the CBOM holds: 7 findings on the listener, the trace and 4 files, each by hash. Asked 3 times, it gave the same edit each time." data-cbom="Everything the draft was shown is on the proposal, by CBOM entry and file hash, so a reviewer can see what it was given and the rollback is recorded before anything changes." class="ai">
+        <div class="st-head"><span class="st-n">6</span><strong>Change drafted</strong>
+          <span class="st-who"><span><i class="dot model"></i>model</span></span>
+          <span class="tag ai" title="measured 27 of 30, none harmful, floor 24">AI · change-plan</span></div>
+        <p class="st-did">A model drafts the edit from what the CBOM holds: 7 findings on the listener, the trace and 4 files, each by hash. Asked 3 times, it gave the same edit each time.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> Everything the draft was shown is on the proposal, by CBOM entry and file hash, so a reviewer can see what it was given and the rollback is recorded before anything changes.</p>
+        <p class="st-model small dim">Gemma 4 31B, four L4s, in the change-plan role: 27 of 30, none harmful, floor 24 on the role's test set, against a floor written before the run.</p>
+        <details><summary>The record</summary><ul><li class="mono">+ ssl_groups = &#39;X25519MLKEM768&#39;</li><li class="mono">+ ssl_min_protocol_version = &#39;TLSv1.3&#39;</li><li class="mono">+ ssl_ciphers = &#39;HIGH:!aNULL:!kRSA&#39;</li><li class="">files shown: agency/records-db/Dockerfile, agency/records-db/pg_hba.conf, agency/records-db/postgresql.conf, agency/generated/records-db/tls.conf</li><li class="">the rollback is recorded with the proposal</li></ul><a href="/cbom-workbench/resolve/">open it →</a></details>
+      </li>
+      <li data-box="tools" data-caption="7. Rehearsed on a copy — A copy of records-db with the edit is started beside the estate, and the verifier probes it: enforced, as the policy intends." data-cbom="The copy runs the image digest the CBOM recorded for the service, so the rehearsal tests what is actually deployed." class="">
+        <div class="st-head"><span class="st-n">7</span><strong>Rehearsed on a copy</strong>
+          <span class="st-who"><span><i class="dot verifier"></i>verifier</span></span>
+          </div>
+        <p class="st-did">A copy of records-db with the edit is started beside the estate, and the verifier probes it: enforced, as the policy intends.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The copy runs the image digest the CBOM recorded for the service, so the rehearsal tests what is actually deployed.</p>
+        
+        <details><summary>The record</summary><ul><li class="">a client offering only the post-quantum group: accepted (X25519MLKEM768)</li><li class="">a client offering only classical groups: refused</li><li class="">testssl.sh, as a witness: accepted (X25519MLKEM768)</li><li class="">a TLS 1.2 client: refused</li><li class="">copy at 172.16.107.30:5432, same image digest 8bb6e7912698…</li></ul></details>
+      </li>
+      <li data-box="tools" data-caption="8. Who it would shut out — Each kind of client is tried against the copy, before and after: 2 still served; shut out: classical, TLS 1.3; TLS 1.2 only." data-cbom="The approver sees, before deciding, which kinds of client the change would refuse; on a real network the CBOM&#39;s client entries from passive capture say who those clients are." class="">
+        <div class="st-head"><span class="st-n">8</span><strong>Who it would shut out</strong>
+          <span class="st-who"><span><i class="dot verifier"></i>verifier</span></span>
+          </div>
+        <p class="st-did">Each kind of client is tried against the copy, before and after: 2 still served; shut out: classical, TLS 1.3; TLS 1.2 only.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The approver sees, before deciding, which kinds of client the change would refuse; on a real network the CBOM&#39;s client entries from passive capture say who those clients are.</p>
+        
+        <details><summary>The record</summary><ul><li class="">post-quantum only (offers X25519MLKEM768, TLS 1.3): accepted → accepted</li><li class="">hybrid first, classical fallback (offers X25519MLKEM768, X25519, P-256; TLS 1.3 or 1.2): accepted → accepted</li><li class="">classical, TLS 1.3 (offers X25519, P-256, P-384; TLS 1.3): accepted → refused</li><li class="">TLS 1.2 only (offers OpenSSL&#39;s default groups and suites, TLS 1.2): accepted → refused</li></ul></details>
+      </li>
+      <li data-box="governance" data-caption="9. Approved — A person reviews the diff, the rehearsal and the matrix, and approves: the owner." data-cbom="Nothing is applied without an approval event on the ledger, and the approval names the proposal it approves." class="">
+        <div class="st-head"><span class="st-n">9</span><strong>Approved</strong>
+          <span class="st-who"><span><i class="dot person"></i>person</span></span>
+          </div>
+        <p class="st-did">A person reviews the diff, the rehearsal and the matrix, and approves: the owner.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> Nothing is applied without an approval event on the ledger, and the approval names the proposal it approves.</p>
+        
+        <details><summary>The record</summary><ul><li class="">approval event 01M5GB5FA6BF0P4MPFATWBAQ5Y</li></ul><a href="/cbom-workbench/resolve/">open it →</a></details>
+      </li>
+      <li data-box="migration" data-caption="10. Applied — The runner writes the approved file and replaces records-db&#39;s container; the service is listening again." data-cbom="The CBOM&#39;s links from service to container and image are how the runner knows which container is the service&#39;s own and touches no other." class="">
+        <div class="st-head"><span class="st-n">10</span><strong>Applied</strong>
+          <span class="st-who"><span><i class="dot runner"></i>runner</span></span>
+          </div>
+        <p class="st-did">The runner writes the approved file and replaces records-db&#39;s container; the service is listening again.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The CBOM&#39;s links from service to container and image are how the runner knows which container is the service&#39;s own and touches no other.</p>
+        
+        <details><summary>The record</summary><ul><li class="">generated/records-db/tls.conf: sha256 2c9bb0a4f763… → b4d49399154d…</li><li class="">applies only with approval event 01M5GB5FA6BF0P4MPFATWBAQ5Y</li></ul></details>
+      </li>
+      <li data-box="tools" data-caption="11. Proved on the wire — The verifier probes the live listener: enforced. Then the service is recreated from scratch and the probes repeated: enforced, durable." data-cbom="No model takes part. The verdict is bound to the container, the image digest and the certificate it probed, and re-derives from the probes&#39; raw output." class="">
+        <div class="st-head"><span class="st-n">11</span><strong>Proved on the wire</strong>
+          <span class="st-who"><span><i class="dot verifier"></i>verifier</span></span>
+          </div>
+        <p class="st-did">The verifier probes the live listener: enforced. Then the service is recreated from scratch and the probes repeated: enforced, durable.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> No model takes part. The verdict is bound to the container, the image digest and the certificate it probed, and re-derives from the probes&#39; raw output.</p>
+        
+        <details><summary>The record</summary><ul><li class="">a client offering only the post-quantum group: accepted (X25519MLKEM768)</li><li class="">a client offering only classical groups: refused</li><li class="">testssl.sh, as a witness: accepted (X25519MLKEM768)</li><li class="">a TLS 1.2 client: refused</li><li class="">bound to container 7a681fbfbb8b, certificate 5a3199e22cc4…</li></ul><a href="/cbom-workbench/resolve/">open it →</a></details>
+      </li>
+      <li data-box="repository" data-caption="12. The CBOM shows it — The next scan&#39;s CBOM for the listener holds X25519MLKEM768, RSA-2048 certificate, TLS 1.3; gone: DH-2048, RSA key transport, TLS 1.2, X25519. The key-establishment item is met." data-cbom="The CBOM is rebuilt from the new scan; both scans stay on the ledger, and the difference between them is the evidence the change landed." class="">
+        <div class="st-head"><span class="st-n">12</span><strong>The CBOM shows it</strong>
+          <span class="st-who"><span><i class="dot scanner"></i>scanner</span><span><i class="dot rule"></i>rule</span></span>
+          </div>
+        <p class="st-did">The next scan&#39;s CBOM for the listener holds X25519MLKEM768, RSA-2048 certificate, TLS 1.3; gone: DH-2048, RSA key transport, TLS 1.2, X25519. The key-establishment item is met.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The CBOM is rebuilt from the new scan; both scans stay on the ledger, and the difference between them is the evidence the change landed.</p>
+        
+        <details><summary>The record</summary><ul><li class="">no longer accepted: DH-2048</li><li class="">no longer accepted: RSA key transport</li><li class="">no longer accepted: TLS 1.2</li><li class="">no longer accepted: X25519</li><li class="">scan 01M5JFEP7D145D2T38TW0S6631</li></ul><a href="/cbom-workbench/cbom/">open it →</a></details>
+      </li>
+      <li data-box="engine" data-caption="13. What is next — Still open for records-db: queue sig-2031 (ECDSA, ECDSA-SHA384, RSA), due 2031-12-31. The plan says where that comes in the order." data-cbom="The loop starts again from the CBOM: what is still open for this service, and the plan&#39;s place for it." class="">
+        <div class="st-head"><span class="st-n">13</span><strong>What is next</strong>
+          <span class="st-who"><span><i class="dot rule"></i>rule</span></span>
+          </div>
+        <p class="st-did">Still open for records-db: queue sig-2031 (ECDSA, ECDSA-SHA384, RSA), due 2031-12-31. The plan says where that comes in the order.</p>
+        <p class="st-cbom"><span>The CBOM's part</span> The loop starts again from the CBOM: what is still open for this service, and the plan&#39;s place for it.</p>
+        
+        <details><summary>The record</summary><ul></ul><a href="/cbom-workbench/plan/">open it →</a></details>
+      </li>
+    </ol>
+  </section>
+  
+</div>
+
+<section id="next">
+  <h2><span class="step">→</span> Where to go from here</h2>
+  <ul class="next">
+    <li><a href="/cbom-workbench/agency/">The test agency</a> — the mini-agency at a glance: eight services, what each is for, and what was planted where.</li>
+    <li><a href="/cbom-workbench/walkthrough/">The walkthrough</a> — the mini-agency from a stale spreadsheet to a CBOM and the plan it makes possible, step by step.</li>
+    <li><a href="/cbom-workbench/cbom/">Inside the CBOM</a> — the repository box opened: the document, one entry field by field, projections, and what changed between scans.</li>
+    <li><a href="/cbom-workbench/plan/">The plan</a> — what the CBOM says depends on what, what comes first, and in what order: the migration plan no list of systems can give.</li>
+    
+    <li><a href="/cbom-workbench/imports/">Bring your own scanner</a> — any discovery tool's CBOM, imported and scored against the same answer key.</li>
+    <li><a href="/cbom-workbench/site/notes/16-what-a-cbom-makes-possible/">What a CBOM makes possible</a> — the note behind this page, and the rungs from Opaque to Agile.</li>
+  </ul>
+</section>
+</main>
+<script>
+// Click a box: its detail opens below the figure. Replay: each box lights in turn as the change's
+// ledger events did. Without script every detail is listed below and the boxes are links to them.
+(function () {
+  var frame = document.getElementById("frame"), details = document.querySelectorAll("[data-detail]");
+  var boxes = document.querySelectorAll("#frame [data-box]"), cap = document.getElementById("caption"), timer = null;
+  document.body.classList.add("js");
+  function show(key) {
+    details.forEach(function (d) { d.hidden = d.dataset.detail !== key; });
+    boxes.forEach(function (b) { b.classList.toggle("sel", b.dataset.box === key); });
+  }
+  boxes.forEach(function (b) {
+    b.addEventListener("click", function (ev) {
+      ev.preventDefault(); stop(); show(b.dataset.box);
+      document.getElementById("d-" + b.dataset.box).scrollIntoView({behavior: "smooth", block: "nearest"});
+    });
+  });
+  show(null);
+  var btn = document.getElementById("play"), steps = Array.prototype.slice.call(document.querySelectorAll(".story > li"));
+  var text = cap.querySelector(".cap-text"), pos = cap.querySelector(".cap-pos"), i = -1, playing = false;
+  var speeds = [4500, 2000, 7000, 14000], speed = 0;   // normal, fast, slow, slowest
+  function ctl(act) { return cap.querySelector('[data-act="' + act + '"]'); }
+  function clearLit() {
+    boxes.forEach(function (b) { b.classList.remove("lit"); }); steps.forEach(function (s) { s.classList.remove("now"); });
+  }
+  function stop() {
+    clearTimeout(timer); playing = false; i = -1; frame.classList.remove("playing"); clearLit();
+  }
+  // Replay: one step at a time — the step's card is marked, its box on the figure lit, and the caption
+  // says what happened and what the CBOM gave it. It can be paused, stepped back and forth, or stopped.
+  function render(n) {
+    clearLit(); i = Math.max(0, Math.min(n, steps.length - 1));
+    var s = steps[i]; s.classList.add("now");
+    text.textContent = s.dataset.caption;
+    if (s.dataset.cbom) { var c = document.createElement("span"); c.className = "cap-cbom"; c.textContent = "The CBOM's part: " + s.dataset.cbom; text.appendChild(c); }
+    var b = document.querySelector('#frame [data-box="' + s.dataset.box + '"]'); if (b) b.classList.add("lit");
+    pos.textContent = "step " + (i + 1) + " of " + steps.length + (playing ? "" : " · paused");
+    ctl("prev").disabled = i === 0; ctl("next").disabled = i === steps.length - 1;
+  }
+  function schedule() {
+    clearTimeout(timer);
+    if (!playing) return;
+    timer = setTimeout(function () {
+      if (i >= steps.length - 1) { setPlaying(false); return; }   // the end: hold the last step
+      render(i + 1); schedule();
+    }, speeds[speed]);
+  }
+  function setPlaying(on) {
+    playing = on;
+    var t = ctl("toggle"); t.textContent = on ? "Pause" : "▶ Play"; t.setAttribute("aria-label", on ? "Pause" : "Play");
+    if (i >= 0) render(i);
+    schedule();
+  }
+  function start(n) {
+    show("replay"); frame.classList.add("playing");
+    if (i < 0) frame.scrollIntoView({behavior: "smooth", block: "start"});
+    render(n); setPlaying(true);
+  }
+  if (!btn) return;
+  btn.addEventListener("click", function () { stop(); start(0); });
+  cap.addEventListener("click", function (ev) {
+    var act = ev.target.dataset && ev.target.dataset.act; if (!act) return;
+    if (act === "toggle") { if (!playing && i >= steps.length - 1) { render(0); } setPlaying(!playing); }
+    else if (act === "prev") { render(i - 1); schedule(); }
+    else if (act === "next") { render(i + 1); schedule(); }
+    else if (act === "stop") { stop(); }
+    else if (act === "speed") { speed = (speed + 1) % speeds.length; ev.target.textContent = speeds[speed] / 1000 + " s"; schedule(); }
+  });
+  // A step's card, clicked, becomes the current step and the replay pauses there.
+  steps.forEach(function (s, n) {
+    s.addEventListener("click", function (ev) {
+      if (ev.target.closest("a, summary, details")) return;
+      if (i < 0) { show("replay"); frame.classList.add("playing"); }
+      playing = false; render(n); setPlaying(false);
+      frame.scrollIntoView({behavior: "smooth", block: "start"});
+    });
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (!frame.classList.contains("playing") || /INPUT|TEXTAREA|SELECT/.test(ev.target.tagName) || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    if (ev.key === " ") { ev.preventDefault(); ctl("toggle").click(); }
+    else if (ev.key === "ArrowRight") { ev.preventDefault(); if (i < steps.length - 1) { render(i + 1); schedule(); } }
+    else if (ev.key === "ArrowLeft") { ev.preventDefault(); if (i > 0) { render(i - 1); schedule(); } }
+    else if (ev.key === "Escape") { stop(); }
+  });
+})();
+</script>
+</body>
+</html>

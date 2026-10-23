@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — the test agency</title>
+<link rel="stylesheet" href="/cbom-workbench/static/style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/cbom-workbench/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    
+    <div class="demo-group">
+    <span class="group">Demo<small>snapshot</small></span>
+    <a href="/cbom-workbench/" class="" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    <a href="/cbom-workbench/agency/" class="on" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
+    <a href="/cbom-workbench/walkthrough/" class="" title="The walkthrough, on a test agency built for it">Walkthrough</a>
+    <a href="/cbom-workbench/cbom/" class="" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    <a href="/cbom-workbench/plan/" class="" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
+    
+    </div>
+    <div class="learn-group">
+    <span class="group">Learn<small>notes &amp; docs</small></span>
+    <a href="/cbom-workbench/site/how-it-works/">How it works</a>
+    <a href="/cbom-workbench/site/notes/">Notes</a>
+    <a href="/cbom-workbench/site/lessons/">Lessons</a>
+    <a href="/cbom-workbench/site/sources/">Sources</a>
+    <a href="/cbom-workbench/site/about/">About</a>
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner"><strong>The test agency.</strong> What the workbench is pointed at in this demo: a small, fictional agency built for it, every weakness planted on purpose and written down in an answer key.</div></div>
+
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  function what(url) {
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    var u = new URL(url, location.href);
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
+    return "Loading…";
+  }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", hide);
+})();
+</script>
+<main>
+<p class="orient">A small, fictional federal agency — a benefits portal, a partner API, an inter-agency gateway, a records database and its file drop, a message queue, a case-management application and an administrator&#39;s jump host — built in containers on an internal network with no route out. Every cryptographic weakness in it is planted on purpose and written down in an answer key, so what the workbench finds can be scored exactly: what it found, what it missed, and which decoys it was fooled by.
+  <span class="ai">Everything on this page is read from the estate's own files — what each service is for, the owner's facts, the listeners and the answer key — not from a scan. It is the estate as built: the state the walkthrough starts from.</span></p>
+
+<div class="receipts">
+  <div class="receipt"><div class="k">Services</div><div class="n">8</div><div class="s">in containers on one internal network, 172.16.106.0/24, no route out</div></div>
+  <div class="receipt"><div class="k">Listeners</div><div class="n">9</div><div class="s">4 classical · 4 mixed · 1 post-quantum, as built</div></div>
+  <div class="receipt"><div class="k">The answer key</div><div class="n">74 <small>items</small></div><div class="s">58 to find · 9 decoys · 2 out of reach · 5 supplied by the owner</div></div>
+  <div class="receipt"><div class="k">Internal CA</div><div class="n">1</div><div class="s">issues 3 services' certificates — one signature migration, not three</div></div>
+</div>
+
+<h2>The estate</h2>
+<p class="lede">Three groups of services on one internal network. Each card says who it serves, what runs it, the posture of each listener as built, and how many answer-key items it holds. Select one for the detail below.</p>
+<div class="estate-map" role="figure" aria-label="The mini-agency's services, grouped, on one internal network">
+  <div class="net-label"><code>pqch-agency-net</code> · 172.16.106.0/24 · internal, no route out</div>
+  <div class="groups">
+  
+    <div class="group-col">
+      <div class="group-head">Facing the public and partners</div>
+      
+      
+      <a class="svc classical" href="#svc-portal">
+        <div class="svc-top"><strong>portal</strong><span class="mono small dim">172.16.106.10</span></div>
+        <div class="svc-role">the public benefits enrollment site</div>
+        <div class="svc-for small dim">for the public, in a browser</div>
+        <div class="svc-sw small">nginx on Alpine 3.22</div>
+        <div class="svc-ls"><span class="posture classical" title="tls on port 443, classical as built">443/tls</span></div>
+        <div class="svc-k small dim">5 to find · 3 decoys</div>
+        <div class="svc-flags"><span class="tag link">policy-managed</span></div>
+      </a>
+      
+      
+      <a class="svc mixed" href="#svc-api">
+        <div class="svc-top"><strong>api</strong><span class="mono small dim">172.16.106.11</span></div>
+        <div class="svc-role">the API partner agencies call</div>
+        <div class="svc-for small dim">for partner agencies, each with a client certificate</div>
+        <div class="svc-sw small">nginx on Alpine 3.22</div>
+        <div class="svc-ls"><span class="posture mixed" title="tls on port 443, mixed as built">443/tls</span><span class="posture mixed" title="tls on port 8443, mixed as built">8443/tls</span></div>
+        <div class="svc-k small dim">9 to find · 1 out of reach</div>
+        <div class="svc-flags"><span class="tag link">policy-managed</span></div>
+      </a>
+      
+      
+      <a class="svc pq" href="#svc-pq-gateway">
+        <div class="svc-top"><strong>pq-gateway</strong><span class="mono small dim">172.16.106.12</span></div>
+        <div class="svc-role">the inter-agency exchange, already post-quantum</div>
+        <div class="svc-for small dim">for other agencies</div>
+        <div class="svc-sw small">nginx on Alpine 3.22</div>
+        <div class="svc-ls"><span class="posture pq" title="tls on port 443, pq as built">443/tls</span></div>
+        <div class="svc-k small dim">4 to find · 1 decoy</div>
+        <div class="svc-flags"><span class="tag supplied">high-value asset</span></div>
+      </a>
+      
+    </div>
+  
+    <div class="group-col">
+      <div class="group-head">Records</div>
+      
+      
+      <a class="svc mixed" href="#svc-records-db">
+        <div class="svc-top"><strong>records-db</strong><span class="mono small dim">172.16.106.30</span></div>
+        <div class="svc-role">the benefits records, kept for 75 years</div>
+        <div class="svc-for small dim">for the case-management application and the file drop</div>
+        <div class="svc-sw small">PostgreSQL 18</div>
+        <div class="svc-ls"><span class="posture mixed" title="postgres on port 5432, mixed as built">5432/postgres</span></div>
+        <div class="svc-k small dim">8 to find · 1 decoy</div>
+        <div class="svc-flags"><span class="tag">internal CA</span><span class="tag supplied">high-value asset</span><span class="tag link">policy-managed</span></div>
+      </a>
+      
+      
+      <a class="svc classical" href="#svc-sftp-legacy">
+        <div class="svc-top"><strong>sftp-legacy</strong><span class="mono small dim">172.16.106.20</span></div>
+        <div class="svc-role">the file drop that sends records to the archive</div>
+        <div class="svc-for small dim">for the records office</div>
+        <div class="svc-sw small">OpenSSH 6.6 on Ubuntu 14.04</div>
+        <div class="svc-ls"><span class="posture classical" title="ssh on port 22, classical as built">22/ssh</span></div>
+        <div class="svc-k small dim">15 to find · 1 out of reach</div>
+        <div class="svc-flags"><span class="tag supplied">high-value asset</span></div>
+      </a>
+      
+    </div>
+  
+    <div class="group-col">
+      <div class="group-head">Operations</div>
+      
+      
+      <a class="svc classical" href="#svc-queue">
+        <div class="svc-top"><strong>queue</strong><span class="mono small dim">172.16.106.31</span></div>
+        <div class="svc-role">case-processing messages</div>
+        <div class="svc-for small dim">for the case-management application</div>
+        <div class="svc-sw small">RabbitMQ 4</div>
+        <div class="svc-ls"><span class="posture classical" title="tls on port 5671, classical as built">5671/tls</span></div>
+        <div class="svc-k small dim">6 to find · 2 decoys</div>
+        <div class="svc-flags"><span class="tag">internal CA</span></div>
+      </a>
+      
+      
+      <a class="svc classical" href="#svc-legacy-app">
+        <div class="svc-top"><strong>legacy-app</strong><span class="mono small dim">172.16.106.32</span></div>
+        <div class="svc-role">the case-management application</div>
+        <div class="svc-for small dim">for caseworkers</div>
+        <div class="svc-sw small">Tomcat 8.5 on Java 8</div>
+        <div class="svc-ls"><span class="posture classical" title="tls on port 8443, classical as built">8443/tls</span></div>
+        <div class="svc-k small dim">4 to find · 2 decoys</div>
+        <div class="svc-flags"><span class="tag">internal CA</span></div>
+      </a>
+      
+      
+      <a class="svc mixed" href="#svc-bastion">
+        <div class="svc-top"><strong>bastion</strong><span class="mono small dim">172.16.106.21</span></div>
+        <div class="svc-role">the administrators&#39; jump host</div>
+        <div class="svc-for small dim">for the operations staff</div>
+        <div class="svc-sw small">OpenSSH 10.0 on Alpine 3.22</div>
+        <div class="svc-ls"><span class="posture mixed" title="ssh on port 22, mixed as built">22/ssh</span></div>
+        <div class="svc-k small dim">7 to find</div>
+        <div class="svc-flags"><span class="tag link">policy-managed</span></div>
+      </a>
+      
+    </div>
+  
+  </div>
+  <div class="ca-strip"><strong>The internal certificate authority</strong> — ECDSA P-384, built once and never run; it issues three services&#39; certificates, which ties their signature migration together: records-db, queue, legacy-app.</div>
+  <div class="legend small dim"><span><span class="posture classical">classical</span> no post-quantum key exchange</span> <span><span class="posture mixed">mixed</span> a hybrid offered, classical still accepted</span> <span><span class="posture pq">pq</span> post-quantum required</span> <span><span class="tag link">policy-managed</span> settings from the central crypto policy, so the workbench can propose a change</span></div>
+</div>
+
+<h2>Service by service</h2>
+<table class="agency-table">
+  <thead><tr><th>Service</th><th>What it is</th><th>The owner's facts, supplied</th><th>What was planted</th><th class="num">Key items</th></tr></thead>
+  <tbody>
+  
+  <tr id="svc-portal">
+    <td><strong class="mono">portal</strong><br><span class="mono small dim">172.16.106.10:443 portal.agency.test</span><br></td>
+    <td>The public benefits enrollment site, for the public, in a browser.<br><span class="dim small">nginx on Alpine 3.22</span></td>
+    <td class="small">Benefits enrollment · Web team<br>secret for 10 years · FIPS 199 moderate</td>
+    <td class="small">Classical key exchange only (X25519, P-256) and TLS 1.2 still on; an unserved 2019 certificate left in the image.</td>
+    <td class="num small">5<br><span class="dim">+3 decoy</span></td>
+  </tr>
+  
+  <tr id="svc-api">
+    <td><strong class="mono">api</strong><br><span class="mono small dim">172.16.106.11:443 api.agency.test</span><br><span class="mono small dim">172.16.106.11:8443 api.agency.test</span><br></td>
+    <td>The API partner agencies call, for partner agencies, each with a client certificate.<br><span class="dim small">nginx on Alpine 3.22</span></td>
+    <td class="small">Partner data exchange · Integration<br>secret for 10 years · FIPS 199 moderate</td>
+    <td class="small">The hybrid group offered but classical X25519 still accepted (enabled, not enforced); one key on two listeners; partners must present certificates from a partner CA.</td>
+    <td class="num small">9<br><span class="dim">+1 unreachable</span></td>
+  </tr>
+  
+  <tr id="svc-pq-gateway">
+    <td><strong class="mono">pq-gateway</strong><br><span class="mono small dim">172.16.106.12:443 pq-gateway.agency.test</span><br></td>
+    <td>The inter-agency exchange, already post-quantum, for other agencies.<br><span class="dim small">nginx on Alpine 3.22</span></td>
+    <td class="small">Inter-agency data exchange · Integration<br>secret for 25 years · FIPS 199 high · high-value asset</td>
+    <td class="small">The one listener that requires the hybrid group, with a self-signed ML-DSA-65 certificate — the target state, to show what done looks like.</td>
+    <td class="num small">4<br><span class="dim">+1 decoy</span></td>
+  </tr>
+  
+  <tr id="svc-records-db">
+    <td><strong class="mono">records-db</strong><br><span class="mono small dim">172.16.106.30:5432</span><br></td>
+    <td>The benefits records, kept for 75 years, for the case-management application and the file drop.<br><span class="dim small">PostgreSQL 18</span></td>
+    <td class="small">Benefits records · Records office<br>secret for 75 years · FIPS 199 high · high-value asset</td>
+    <td class="small">Hybrid offered, but X25519, 2048-bit finite-field DH and RSA key transport over TLS 1.2 still accepted; certificate from the internal CA.</td>
+    <td class="num small">8<br><span class="dim">+1 decoy</span></td>
+  </tr>
+  
+  <tr id="svc-sftp-legacy">
+    <td><strong class="mono">sftp-legacy</strong><br><span class="mono small dim">172.16.106.20:22</span><br></td>
+    <td>The file drop that sends records to the archive, for the records office.<br><span class="dim small">OpenSSH 6.6 on Ubuntu 14.04</span></td>
+    <td class="small">Records transfer with the archive · Records office<br>secret for 75 years · FIPS 199 high · high-value asset</td>
+    <td class="small">OpenSSH 6.6 on Ubuntu 14.04: key exchange down to 1024-bit DH, a DSA host key, and as a client it still offers DH-1024 to the archive; no setting can make it post-quantum.</td>
+    <td class="num small">15<br><span class="dim">+1 unreachable</span></td>
+  </tr>
+  
+  <tr id="svc-queue">
+    <td><strong class="mono">queue</strong><br><span class="mono small dim">172.16.106.31:5671</span><br></td>
+    <td>Case-processing messages, for the case-management application.<br><span class="dim small">RabbitMQ 4</span></td>
+    <td class="small">Case processing · Case processing<br>secret for 7 years · FIPS 199 moderate</td>
+    <td class="small">RabbitMQ 4: TLS 1.2, P-256 and P-384 only; a retired certificate left in the image; its runtime lists no post-quantum algorithm.</td>
+    <td class="num small">6<br><span class="dim">+2 decoy</span></td>
+  </tr>
+  
+  <tr id="svc-legacy-app">
+    <td><strong class="mono">legacy-app</strong><br><span class="mono small dim">172.16.106.32:8443 legacy-app.agency.test</span><br></td>
+    <td>The case-management application, for caseworkers.<br><span class="dim small">Tomcat 8.5 on Java 8</span></td>
+    <td class="small">Case management · Case management<br>secret for 10 years · FIPS 199 moderate</td>
+    <td class="small">Tomcat 8.5 on Java 8: TLS 1.2 only, two ECDHE-RSA suites; the keystore&#39;s password in plain text in server.xml; no post-quantum support.</td>
+    <td class="num small">4<br><span class="dim">+2 decoy</span></td>
+  </tr>
+  
+  <tr id="svc-bastion">
+    <td><strong class="mono">bastion</strong><br><span class="mono small dim">172.16.106.21:22</span><br></td>
+    <td>The administrators&#39; jump host, for the operations staff.<br><span class="dim small">OpenSSH 10.0 on Alpine 3.22</span></td>
+    <td class="small">Administrative access · Operations<br>secret for 1 year · FIPS 199 moderate</td>
+    <td class="small">OpenSSH 10.0: the ML-KEM hybrid offered first, but X25519 and sntrup761 still accepted; post-quantum signatures not yet available.</td>
+    <td class="num small">7</td>
+  </tr>
+  
+  </tbody>
+</table>
+
+<h2>Why an answer key</h2>
+<p class="lede">A scan of a real network says what it found; it cannot say what it missed. Here every cryptographic item is written down before any scan runs, so each run is scored against it — found, missed, or fooled.</p>
+<table class="files"><tbody>
+  <tr><td><strong>58</strong> to find</td><td>Present and reachable: a key exchange a listener accepts, a certificate it serves, a key file in an image, a weak setting in a configuration file.</td></tr>
+  <tr><td><strong>9</strong> decoys</td><td>Things that look like findings and are not: a certificate left in an image that nothing serves, a weak setting in a comment or a file the software never loads. Reporting one is a false positive; a scanner that greps does.</td></tr>
+  <tr><td><strong>2</strong> out of reach</td><td>Real, but invisible to any probe from this side: what the file drop offers when it connects out, and which keys partners present. Only passive capture beside them would show it. They stay in the score's denominator and are reported as known misses: the limit of a scan is part of the result.</td></tr>
+  <tr><td><strong>5</strong> supplied</td><td>What no scan can discover — the mission each service carries, how long its data must stay secret, whether it is a high-value asset — typed in by the owner. The CBOM carries them labelled <span class="tag supplied">supplied</span>, and they never count as coverage. They decide what comes first in the plan.</td></tr>
+</tbody></table>
+<p class="note">The roles and clients above are the agency's story; the workbench learns none of it from this page. What it knows comes from the evidence — the wire, the images, the code — and from the owner's facts. Certificates and keys are generated when the images are built, so the key names them by path and algorithm, never by fingerprint. The full list: <a href="https://github.com/kenrollins/cbom-workbench/blob/main/agency/answer-key.yaml"><code>agency/answer-key.yaml</code></a>.</p>
+
+<p class="orient"><a href="/cbom-workbench/walkthrough/">Next: the walkthrough</a> — from the agency's stale spreadsheet to a CBOM of all of this, scored against the key.</p>
+</main>
+</body>
+</html>

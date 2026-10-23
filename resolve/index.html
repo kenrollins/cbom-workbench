@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — resolution</title>
+<link rel="stylesheet" href="/cbom-workbench/static/style.css">
+
+</head>
+<body>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/cbom-workbench/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    
+    <div class="demo-group">
+    <span class="group">Demo<small>snapshot</small></span>
+    <a href="/cbom-workbench/" class="" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    <a href="/cbom-workbench/agency/" class="" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
+    <a href="/cbom-workbench/walkthrough/" class="" title="The walkthrough, on a test agency built for it">Walkthrough</a>
+    <a href="/cbom-workbench/cbom/" class="" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    <a href="/cbom-workbench/plan/" class="" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
+    
+    </div>
+    <div class="learn-group">
+    <span class="group">Learn<small>notes &amp; docs</small></span>
+    <a href="/cbom-workbench/site/how-it-works/">How it works</a>
+    <a href="/cbom-workbench/site/notes/">Notes</a>
+    <a href="/cbom-workbench/site/lessons/">Lessons</a>
+    <a href="/cbom-workbench/site/sources/">Sources</a>
+    <a href="/cbom-workbench/site/about/">About</a>
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner"><strong>Resolution.</strong> Carrying out a step of <a href="/cbom-workbench/plan/">the plan</a>: the change proposed from the policy, rehearsed on a copy, checked against every kind of client, approved by a person and proved on the wire, twice. Nothing here is the plan; it is the proof that a step of it can be done.</div></div>
+
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  function what(url) {
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    var u = new URL(url, location.href);
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
+    return "Loading…";
+  }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", hide);
+})();
+</script>
+<main>
+
+<p class="orient">Each step of the plan that a setting can move is carried out here. The order is always the same: propose, rehearse on a copy of the service, see who the change would shut out, approve — a person, signed into the ledger — and then the runner applies it and probes on the wire decide whether it landed, before and after the service is recreated. No model decides that.
+  <span class="ai">Approve only a step the plan says is ready: <a href="/cbom-workbench/plan/">the plan</a> shows what each waits for.</span></p>
+<section id="change">
+  <h2>The change, step by step</h2>
+  
+  <details class="why"><summary>Enabled is not enforced</summary><p>Adding the hybrid group to a server changes nothing for a client that does not offer it. So the verifier runs a pair: a client offering only the hybrid group must be accepted, and a client offering every classical group — not just the two the server used to have — must be refused. Both hold: <code>enforced</code>. Only the first: <code>enabled-not-enforced</code>, a real state and not a pass. A second tool enumerates what the listener accepts and can only lower the verdict; the check is repeated after the service is recreated; no model takes part. The ledger behind it is hash-chained and checkpointed with ML-DSA-65 by a signer that keeps the key where nothing else can read it. <a href="/cbom-workbench/site/notes/08-what-verified-means/">What "verified" means</a> · <a href="/cbom-workbench/site/notes/12-what-an-auditable-record-contains/">What an auditable record contains</a>.</p></details>
+  <p class="lede">The central crypto policy sets key establishment for the portal and the records database. For the portal a rule renders the change; for the database, whose software has no renderer, a model drafts it from the CBOM's entries and the investigator's trace, and the draft is rehearsed on a copy before anyone sees an approve button. Either way the change is proposed with its diff and the check that will count as verified, approved by a person, applied by the runner, then verified by probes — no model — and verified again after the service is recreated.</p>
+  <p class="runline">Run <code>01M5JG6G83KXTJK0N2Q6TD5DYK</code> · policy crypto-policy.yaml sha256 <code>32314b52900f536c…</code> changed by the owner (the front door's single sign-on) at 2026-10-22T19:07:54.538Z · <span class="bad">run open</span></p>
+  
+  
+  <details class="listener" open>
+    <summary><span class="addr">portal 172.16.106.10:443</span>
+      <span class="sni">intent enable</span>
+      
+      <span class="count">change <code>01M5JG6G9KMPV8GM0FWAT6KESK</code></span></summary>
+    
+    <pre class="mono small diff">--- agency/generated/portal/tls.conf
++++ agency/generated/portal/tls.conf
+@@ -1,4 +1,4 @@
+-# Rendered from policy/crypto-policy.yaml, intent none. Do not edit:
++# Rendered from policy/crypto-policy.yaml, intent enable. Do not edit:
+ # change the policy, and the change is proposed, approved and verified.
+ ssl_protocols TLSv1.2 TLSv1.3;
+-ssl_ecdh_curve X25519:prime256v1;
++ssl_ecdh_curve X25519MLKEM768:X25519:prime256v1;
+</pre>
+    
+    <p class="rule">Rehearsed on a copy at <code>172.16.107.10:443</code> (container <code>c1172a2e8b36</code>, the scope's image <code>sha256:cc0ff8754fa4…</code>): <span class="good">enabled-not-enforced</span> — also accepts X25519, secp256r1 · event <code>01M5JGDGBWZGHNJN3E1FP3BXC3</code></p>
+    
+    
+    <h4>Who it shuts out — kinds of client, today and with this change</h4>
+    <table class="matrix"><thead><tr><th>Client</th><th>Offers</th><th>Today</th><th>With the change <span class="dim">(copy at 172.16.107.10:443)</span></th><th>Effect</th></tr></thead><tbody>
+    <tr><td>post-quantum only</td><td class="small dim">X25519MLKEM768, TLS 1.3</td>
+      <td class="small"><span class="bad">refused</span></td>
+      <td class="small"><span class="good">accepted</span> · X25519MLKEM768</td>
+      <td class="small ">let in</td></tr><tr><td>hybrid first, classical fallback</td><td class="small dim">X25519MLKEM768, X25519, P-256; TLS 1.3 or 1.2</td>
+      <td class="small"><span class="good">accepted</span> · X25519</td>
+      <td class="small"><span class="good">accepted</span> · X25519MLKEM768</td>
+      <td class="small ">unchanged, served</td></tr><tr><td>classical, TLS 1.3</td><td class="small dim">X25519, P-256, P-384; TLS 1.3</td>
+      <td class="small"><span class="good">accepted</span> · X25519</td>
+      <td class="small"><span class="good">accepted</span> · X25519</td>
+      <td class="small ">unchanged, served</td></tr><tr><td>TLS 1.2 only</td><td class="small dim">OpenSSL&#39;s default groups and suites, TLS 1.2</td>
+      <td class="small"><span class="good">accepted</span> · X25519</td>
+      <td class="small"><span class="good">accepted</span> · X25519</td>
+      <td class="small ">unchanged, served</td></tr>
+    </tbody></table>
+    <p class="note">One handshake per kind of client against the listener as deployed and against a copy with the proposed file, by probe — no model. No kind of client is shut out. Event <code>01M5JGDM1W944YFX15NV0G5BMS</code>.</p>
+    
+    <p class="note">Check fixed before the apply: offer only X25519MLKEM768 — must be accepted; offer only X25519, X448, secp256r1, secp384r1, secp521r1, ffdhe2048, ffdhe3072, ffdhe4096, ffdhe6144, ffdhe8192, brainpoolP256r1tls13, brainpoolP384r1tls13, brainpoolP512r1tls13 — must be refused for enforced. Rollback recorded (sha256 <code>b13dd5e74a2e…</code>).</p>
+    
+    
+    
+      <p class="note">Waiting for approval. Approving needs the lab's sign-on; this request carried none.</p>
+    
+    
+    
+    
+  </details>
+  
+  
+  <details class="listener" open>
+    <summary><span class="addr">api 172.16.106.11:443</span>
+      <span class="sni">intent require</span>
+      
+      <span class="count">change <code>01M5JG6G9N7GD0QKVZWJEP2EMS</code></span></summary>
+    
+    <pre class="mono small diff">--- agency/generated/api/tls.conf
++++ agency/generated/api/tls.conf
+@@ -1,4 +1,4 @@
+-# The api as built, before the central crypto policy managed it. Do not edit:
++# Rendered from policy/crypto-policy.yaml, intent require. Do not edit:
+ # change the policy, and the change is proposed, approved and verified.
+ ssl_protocols TLSv1.3;
+-ssl_ecdh_curve X25519MLKEM768:X25519;
++ssl_ecdh_curve X25519MLKEM768;
+</pre>
+    
+    <p class="rule">Rehearsed on a copy at <code>172.16.107.11:443</code> (container <code>a66ae903ed44</code>, the scope's image <code>sha256:961c0b1f2f21…</code>): <span class="good">enforced</span> · event <code>01M5JGEEZHSV2F948YWDWRM3B9</code></p>
+    
+    
+    <h4>Who it shuts out — kinds of client, today and with this change</h4>
+    <table class="matrix"><thead><tr><th>Client</th><th>Offers</th><th>Today</th><th>With the change <span class="dim">(copy at 172.16.107.11:443)</span></th><th>Effect</th></tr></thead><tbody>
+    <tr><td>post-quantum only</td><td class="small dim">X25519MLKEM768, TLS 1.3</td>
+      <td class="small"><span class="good">accepted</span> · X25519MLKEM768</td>
+      <td class="small"><span class="good">accepted</span> · X25519MLKEM768</td>
+      <td class="small ">unchanged, served</td></tr><tr><td>hybrid first, classical fallback</td><td class="small dim">X25519MLKEM768, X25519, P-256; TLS 1.3 or 1.2</td>
+      <td class="small"><span class="good">accepted</span> · X25519MLKEM768</td>
+      <td class="small"><span class="good">accepted</span> · X25519MLKEM768</td>
+      <td class="small ">unchanged, served</td></tr><tr><td>classical, TLS 1.3</td><td class="small dim">X25519, P-256, P-384; TLS 1.3</td>
+      <td class="small"><span class="good">accepted</span> · X25519</td>
+      <td class="small"><span class="bad">refused</span></td>
+      <td class="small bad">shut out</td></tr><tr><td>TLS 1.2 only</td><td class="small dim">OpenSSL&#39;s default groups and suites, TLS 1.2</td>
+      <td class="small"><span class="bad">refused</span></td>
+      <td class="small"><span class="bad">refused</span></td>
+      <td class="small ">unchanged, refused</td></tr>
+    </tbody></table>
+    <p class="note">One handshake per kind of client against the listener as deployed and against a copy with the proposed file, by probe — no model. With this change, <strong>classical, TLS 1.3</strong> would be refused: the evidence an approver weighs for <code>require</code>. Event <code>01M5JGEJQ165WK2FPEQEFGC54F</code>.</p>
+    
+    <p class="note">Check fixed before the apply: offer only X25519MLKEM768 — must be accepted; offer only X25519, X448, secp256r1, secp384r1, secp521r1, ffdhe2048, ffdhe3072, ffdhe4096, ffdhe6144, ffdhe8192, brainpoolP256r1tls13, brainpoolP384r1tls13, brainpoolP512r1tls13 — must be refused for enforced. Rollback recorded (sha256 <code>5feb5a0c5a0c…</code>).</p>
+    
+    
+    
+      <p class="note">Waiting for approval. Approving needs the lab's sign-on; this request carried none.</p>
+    
+    
+    
+    
+  </details>
+  
+  
+  <details class="listener" open>
+    <summary><span class="addr">bastion 172.16.106.21:22</span>
+      <span class="sni">intent require</span>
+      
+      <span class="count">change <code>01M5JG6G9ZXX1K16C0VDQ3G9W8</code></span></summary>
+    
+    <pre class="mono small diff">--- agency/generated/bastion/kex.conf
++++ agency/generated/bastion/kex.conf
+@@ -1,2 +1,3 @@
+-# Rendered from policy/crypto-policy.yaml, intent none. Do not edit:
++# Rendered from policy/crypto-policy.yaml, intent require. Do not edit:
+ # change the policy, and the change is proposed, approved and verified.
++KexAlgorithms mlkem768x25519-sha256
+</pre>
+    
+    <p class="rule">Rehearsed on a copy at <code>172.16.107.21:22</code> (container <code>e1bf393dfd51</code>, the scope's image <code>sha256:87845c004b2f…</code>): <span class="good">enforced</span> · event <code>01M5JGENWF6ADPA1KDER6811RE</code></p>
+    
+    
+    <h4>Who it shuts out — kinds of client, today and with this change</h4>
+    <table class="matrix"><thead><tr><th>Client</th><th>Offers</th><th>Today</th><th>With the change <span class="dim">(copy at 172.16.107.21:22)</span></th><th>Effect</th></tr></thead><tbody>
+    <tr><td>post-quantum only</td><td class="small dim">mlkem768x25519-sha256</td>
+      <td class="small"><span class="good">accepted</span> · mlkem768x25519-sha256</td>
+      <td class="small"><span class="good">accepted</span> · mlkem768x25519-sha256</td>
+      <td class="small ">unchanged, served</td></tr><tr><td>hybrid first, classical fallback</td><td class="small dim">mlkem768x25519-sha256, sntrup761x25519-sha512, curve25519-sha256, ecdh-sha2-nistp256</td>
+      <td class="small"><span class="good">accepted</span> · mlkem768x25519-sha256</td>
+      <td class="small"><span class="good">accepted</span> · mlkem768x25519-sha256</td>
+      <td class="small ">unchanged, served</td></tr><tr><td>classical</td><td class="small dim">curve25519-sha256, ecdh-sha2-nistp256, diffie-hellman-group14-sha256</td>
+      <td class="small"><span class="good">accepted</span> · curve25519-sha256</td>
+      <td class="small"><span class="bad">refused</span></td>
+      <td class="small bad">shut out</td></tr>
+    </tbody></table>
+    <p class="note">One handshake per kind of client against the listener as deployed and against a copy with the proposed file, by probe — no model. With this change, <strong>classical</strong> would be refused: the evidence an approver weighs for <code>require</code>. Event <code>01M5JGESDN7N0KCS6C2R1AEC7R</code>.</p>
+    
+    <p class="note">Check fixed before the apply: offer only mlkem768x25519-sha256 — must be accepted; offer only curve25519-sha256, curve25519-sha256@libssh.org, ecdh-sha2-nistp256, ecdh-sha2-nistp384, ecdh-sha2-nistp521, diffie-hellman-group14-sha256, diffie-hellman-group16-sha512, diffie-hellman-group18-sha512, diffie-hellman-group-exchange-sha256, diffie-hellman-group14-sha1, diffie-hellman-group1-sha1, diffie-hellman-group-exchange-sha1, sntrup761x25519-sha512, sntrup761x25519-sha512@openssh.com — must be refused for enforced. Rollback recorded (sha256 <code>8e182ca4b50f…</code>).</p>
+    
+    
+    
+      <p class="note">Waiting for approval. Approving needs the lab's sign-on; this request carried none.</p>
+    
+    
+    
+    
+  </details>
+  
+  
+  
+  <p class="note">This run's ledger: <span class="good">8 checkpoints verified</span>, signed through event 17, checked against ledger.pub beside the ledger; no outside record.</p>
+  
+  <p class="note">Who wrote what: the harness writes every event; the runner applies only after reading this ledger itself and finding the approval under a signed checkpoint. An approval is only as good as the harness process that wrote it — anyone who controls that process could write one no person gave, and so could anyone able to connect from the front door's own address. The same holds for a verdict: its probes' raw output is the runner's, but the event is the harness's. Approvals signed by the approver's own key would close that; they are not built yet.</p>
+  
+  <h3>Back to the start</h3>
+  <p class="note">Changes here are real, on the mini-agency. A reset puts every service it manages back to its planted state (<code>agency/baseline/</code>), through the runner and on the record, and closes any change run still open. Then scan from the walkthrough: the plan and the score start over.</p>
+  
+  
+</section>
+</main>
+<script src="/cbom-workbench/static/vendor/d3.v7.min.js"></script>
+<script src="/cbom-workbench/static/app.js"></script>
+<script src="/cbom-workbench/static/figures.js"></script>
+</body>
+</html>

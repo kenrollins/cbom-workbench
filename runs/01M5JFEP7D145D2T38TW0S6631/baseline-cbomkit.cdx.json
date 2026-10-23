@@ -1,0 +1,4015 @@
+{
+ "bomFormat": "CycloneDX",
+ "specVersion": "1.6",
+ "serialNumber": "urn:uuid:359778f9-156d-aa12-0b0f-0cd46f3efdfb",
+ "version": 1,
+ "metadata": {
+  "timestamp": "2026-10-22T19:01:49Z",
+  "tools": {
+   "components": [
+    {
+     "type": "application",
+     "name": "cbomkit-theia",
+     "version": "1.1.2"
+    },
+    {
+     "type": "application",
+     "name": "cbom-workbench",
+     "version": "m0"
+    }
+   ]
+  },
+  "properties": [
+   {
+    "name": "pqch:projection",
+    "value": "baseline:cbomkit"
+   },
+   {
+    "name": "pqch:run",
+    "value": "01M5JFE51QG8WM1WRRJ85F3BZC"
+   },
+   {
+    "name": "pqch:ledger-head",
+    "value": "359778f9156daa120b0f0cd46f3efdfb0dcae4a8424c4bbe662656c20fb61a8e"
+   },
+   {
+    "name": "pqch:ledger-seq",
+    "value": "534"
+   },
+   {
+    "name": "pqch:scope-hash",
+    "value": "b740fef4cceba4bb8e752a2277737bee2695a44bb10fde6c133c252260bd8494"
+   }
+  ]
+ },
+ "components": [
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:04ba53eb7f7ebeb5f59a844acaff58076a0b9da71e2dd81dcea00563b5648301",
+   "name": "SHA-384",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-384"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "04ba53eb7f7ebeb5f59a844acaff58076a0b9da71e2dd81dcea00563b5648301"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHKWZ4N34RJ2SY8ZEXPD"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:0abd629224c80202ff234479fb01ca5ff0273a3765258557ca2c405434d9433c",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"public-key\"],\"spki_sha256\":\"4cf978466fa0c056c63b4b677469dcc4f850bbc56714ca2ed229f31eecc34612\",\"ssh_fingerprint_sha256\":\"SyGJAS3leoAe5IHvd/GMZpGONb8cqXrhMdbhh9s75b0\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "0abd629224c80202ff234479fb01ca5ff0273a3765258557ca2c405434d9433c"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JJD89P2DV3W8CKE9JW"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:0acf6342e1ed946c986ebf637865b859ee11663355dfeef08c308e7ce63cfc75",
+   "name": "generic-api-key",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/usr/lib/x86_64-linux-gnu/perl/5.40/CORE/cop.h"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/usr/lib/x86_64-linux-gnu/perl/5.40/CORE/cop.h\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "generic-api-key"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "0acf6342e1ed946c986ebf637865b859ee11663355dfeef08c308e7ce63cfc75"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1K0DSKAA9ZF8F3H8TSY"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:0adebba6b09ff5f0ce7b29cb418ceb4cb9ab50f423786f6766a82c5c9ca0c124",
+   "name": "SHA-384",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-384"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "0adebba6b09ff5f0ce7b29cb418ceb4cb9ab50f423786f6766a82c5c9ca0c124"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JFGKF098B585F27QBP"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:0dac0a4052801bc406eec998bc736100709c98f00d4d5a31e41359082b7184aa",
+   "name": "generic-api-key",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/plugins/rabbitmq_management-4.3.6/priv/www/api/index.html"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/plugins/rabbitmq_management-4.3.6/priv/www/api/index.html\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "generic-api-key"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "0dac0a4052801bc406eec998bc736100709c98f00d4d5a31e41359082b7184aa"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMN0RCMWRVPZHYC28F2"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:0ed0e136f48277aa5f26b0b8964c356c82c8fe8a761b71703b1dddb7cc30d161",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/partner-ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/partner-ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"public-key\"],\"spki_sha256\":\"63dae1163aec8fdc702c31eb8120abacbf43411a6694d8fb2659dd73f7457f5b\",\"ssh_fingerprint_sha256\":\"WHg639Hhicr2X4QtMARBE38cBt2kymSJKFwCLznXEl8\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "0ed0e136f48277aa5f26b0b8964c356c82c8fe8a761b71703b1dddb7cc30d161"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVARZFRT6MS69Y91M2T1T"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:1d3540827c53d4c1cb5fc5b5ce5dbd8dafdf326dd9b0ca8c7976caa7fbf6cc52",
+   "name": "SHA-384",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/server.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/server.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-384"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "1d3540827c53d4c1cb5fc5b5ce5dbd8dafdf326dd9b0ca8c7976caa7fbf6cc52"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JP9VGHRRFA8FNQJZA8"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:21fd24e8696261055277e95a57cca79d830ea010aedf65b80347ddd469cbc62a",
+   "name": "SHA256-RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/nginx/tls/portal.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/portal.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA256-RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "21fd24e8696261055277e95a57cca79d830ea010aedf65b80347ddd469cbc62a"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG3SHHNPWAEHF17PFYV"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:25b4b8d357737d09283d6e5dc1b85324dadf289637a39e66e32290f033a3ac05",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "api.agency.test",
+     "issuerName": "api.agency.test",
+     "notValidBefore": "2026-10-19T18:44:45Z",
+     "notValidAfter": "2029-01-21T18:44:45Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/api.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/api.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"api.agency.test\",\"not_after\":\"2029-01-21T18:44:45Z\",\"not_before\":\"2026-10-19T18:44:45Z\",\"signature\":\"ECDSA-SHA256\",\"spki_sha256\":\"a6a277ecbf60b4b988d3bc684ef0f3470323bb1592c58b782ee07970fa72e934\",\"subject\":\"api.agency.test\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "25b4b8d357737d09283d6e5dc1b85324dadf289637a39e66e32290f033a3ac05"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVARNZGFZP5J1B7HJ6HV9"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:26631c80b9b1aa657bc81cf703d28be61cbcdccd232171de0cd73cb8e18e712c",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key",
+     "size": 2048
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/server.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/server.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":2048,\"kind\":[\"public-key\"],\"spki_sha256\":\"74092eaaef3fef369b28c3347880c4d2c3e1f8960d95bd2422b1a117fdacc2a1\",\"ssh_fingerprint_sha256\":\"mr0UHx8zzyiWeRDSbyD8WaOyJOt20qHuAkt0K/qX3LI\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "26631c80b9b1aa657bc81cf703d28be61cbcdccd232171de0cd73cb8e18e712c"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JR64X81WT9KAXR2FPV"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:267ea27757b148994b0c795ba95d5b235f5bb890938022d9b4f35a9256cbd4c5",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "pke"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/nginx/tls/portal.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/portal.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "encryption"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"pke\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "267ea27757b148994b0c795ba95d5b235f5bb890938022d9b4f35a9256cbd4c5"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG4AACV14MTZD9TAW8X"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:2d52262994aa99a1d17af56c33a5eda2e90bdf70d6925461e019ac2944e5bd9a",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key",
+     "size": 1024
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/ssl/legacy/portal-2019.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/ssl/legacy/portal-2019.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":1024,\"kind\":[\"public-key\"],\"spki_sha256\":\"f07d2f54ca7e34b74e227c5c64b4b4148351235a0a31a3cf98478c0ee438c540\",\"ssh_fingerprint_sha256\":\"nsiujj6vBiOsxV0drzmCGkRv+b39mol36EAkQjk/x2g\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "2d52262994aa99a1d17af56c33a5eda2e90bdf70d6925461e019ac2944e5bd9a"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHGBFRF31KVP24XZE1W5"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:3ec820d539f2d3a433e857cf3cea36ea613cf957d4e0df1521172b39330eaae6",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key",
+     "size": 2048
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/ssl/private/ssl-cert-snakeoil.key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/ssl/private/ssl-cert-snakeoil.key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":2048,\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "3ec820d539f2d3a433e857cf3cea36ea613cf957d4e0df1521172b39330eaae6"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JWSQH72WEWTP91GW6Z"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:422583092cf69c83ccbd413a82ce07244bc3dce28f36bbf5d40063014652bca7",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/api.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/api.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"public-key\"],\"spki_sha256\":\"a6a277ecbf60b4b988d3bc684ef0f3470323bb1592c58b782ee07970fa72e934\",\"ssh_fingerprint_sha256\":\"iCnLl2ad4nooOYVVb3xaNk3tNpSREv+CIntamW+NJSY\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "422583092cf69c83ccbd413a82ce07244bc3dce28f36bbf5d40063014652bca7"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVARJPA3ZKR0ZK339Q4Y2"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:422b37bcf52013d31837ba7689ab14abb5a8092b088557e6bc609a2beb1c87bf",
+   "name": "curl-auth-user",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "unknown"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/opt/rabbitmq/plugins/rabbitmq_management-4.3.6/priv/www/api/index.html"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/opt/rabbitmq/plugins/rabbitmq_management-4.3.6/priv/www/api/index.html\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "curl-auth-user"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"unknown\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "422b37bcf52013d31837ba7689ab14abb5a8092b088557e6bc609a2beb1c87bf"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMKDR513E89X7SD5EAZ"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:4aaef3ad645468899c97c9593612d3a6cf65b5b23a50559b56b10c1c09c49d83",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "Mini Agency Partner CA",
+     "issuerName": "Mini Agency Partner CA",
+     "notValidBefore": "2026-10-19T18:44:45Z",
+     "notValidAfter": "2031-10-18T18:44:45Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/partner-ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/partner-ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"Mini Agency Partner CA\",\"not_after\":\"2031-10-18T18:44:45Z\",\"not_before\":\"2026-10-19T18:44:45Z\",\"signature\":\"ECDSA-SHA256\",\"spki_sha256\":\"63dae1163aec8fdc702c31eb8120abacbf43411a6694d8fb2659dd73f7457f5b\",\"subject\":\"Mini Agency Partner CA\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "4aaef3ad645468899c97c9593612d3a6cf65b5b23a50559b56b10c1c09c49d83"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVAS1JYJPVCG5N3CES91P"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:54fa21ba5f07dbfe5639590bb02bf7961978f80c1c38577d54f33fe7e04e2e92",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/queue.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/queue.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "54fa21ba5f07dbfe5639590bb02bf7961978f80c1c38577d54f33fe7e04e2e92"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHM26B69Z1Y3147121KV"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:5cec283a5fcc17ad5dcf2feee6ca1fb50b167ddb26359c463287b0c74c113b86",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "pke"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/ssl/legacy/portal-2019.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/ssl/legacy/portal-2019.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "encryption"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"pke\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "5cec283a5fcc17ad5dcf2feee6ca1fb50b167ddb26359c463287b0c74c113b86"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHGAJ5F1HZEBKQA5PTEE"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:5f8d7e7cdab85508070f464b6d3d81326311b739a7988c64e7559741ff4bba7b",
+   "name": "ECDSA-SHA384",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA-SHA384"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "5f8d7e7cdab85508070f464b6d3d81326311b739a7988c64e7559741ff4bba7b"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHKYFSG6M2CMHE00QJNM"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:608842fc7fa95b227a8a2063f29f39dc07f716376f373c456f3eb614b66bf875",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "pke"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/server.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/server.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "encryption"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"pke\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "608842fc7fa95b227a8a2063f29f39dc07f716376f373c456f3eb614b66bf875"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JQ7E0YC1K1PFM2YDR7"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:6241826e55d8b44cc86895603a00feff03e56c43e2110d33d4c781afdceaa9ce",
+   "name": "generic-api-key",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/opt/rabbitmq/plugins/rabbitmq_management-4.3.6/priv/www/api/index.html"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/opt/rabbitmq/plugins/rabbitmq_management-4.3.6/priv/www/api/index.html\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "generic-api-key"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "6241826e55d8b44cc86895603a00feff03e56c43e2110d33d4c781afdceaa9ce"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMJP95852Y8W1E1KE61"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:6270dfaa82bd600b84019f75fc2dc4390233bbc0765e126f5a1047b8ee098317",
+   "name": "pkcs12-file",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "unknown"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/legacy-app:/usr/local/tomcat/conf/keystore.p12"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/legacy-app\",\"kind\":\"file\",\"path\":\"/usr/local/tomcat/conf/keystore.p12\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "pkcs12-file"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"unknown\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "6270dfaa82bd600b84019f75fc2dc4390233bbc0765e126f5a1047b8ee098317"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFN1JS4HA92DCAZH8XB7CH"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:66a0c2f93148a36d29666f79590aba7c0d15f8148426d52d1b8e04a13778a378",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "portal.agency.test",
+     "issuerName": "portal.agency.test",
+     "notValidBefore": "2026-10-03T12:29:57Z",
+     "notValidAfter": "2029-01-05T12:29:57Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/nginx/tls/portal.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/portal.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"portal.agency.test\",\"key_bits\":2048,\"not_after\":\"2029-01-05T12:29:57Z\",\"not_before\":\"2026-10-03T12:29:57Z\",\"signature\":\"SHA256-RSA\",\"spki_sha256\":\"e028e2eac9bdef7a7b5799d804ce17f3f4691cecce40cf8d365218736e2934e2\",\"subject\":\"portal.agency.test\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "66a0c2f93148a36d29666f79590aba7c0d15f8148426d52d1b8e04a13778a378"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG61DYBJJ7KHS7Z6EPS"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:6a112c1799eba02a4c5fc0beed12d94f9c17f170178ca248cf1ebad6ef4c0a4c",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/retired/queue-2020.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/retired/queue-2020.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "6a112c1799eba02a4c5fc0beed12d94f9c17f170178ca248cf1ebad6ef4c0a4c"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHM9CH77G3Q47EQ0RD43"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:6f2e8699c3488135aeab4dc0cff69b6d3f4a6ae418ef00dda95896354075bcca",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/queue.key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/queue.key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "6f2e8699c3488135aeab4dc0cff69b6d3f4a6ae418ef00dda95896354075bcca"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMH1604DFREEHRDFYKG"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:6f53601eabc8b41efbbf16b890a642e3e5e43487344c841b4e9c51142740e8fc",
+   "name": "ECDSA-SHA256",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/partner-ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/partner-ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA-SHA256"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "6f53601eabc8b41efbbf16b890a642e3e5e43487344c841b4e9c51142740e8fc"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVARWKTTWYNDPW0PY7Y57"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:74025a67f51a54fdd05c36249885f154cd499964e6d976ed64d73474a6e2f71e",
+   "name": "SHA-1",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/retired/queue-2020.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/retired/queue-2020.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-1"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "74025a67f51a54fdd05c36249885f154cd499964e6d976ed64d73474a6e2f71e"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMBHA8XWGTFY2EB8M1D"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:75b405ab6a2f80f6cd8f790dee13cb5c9a87f897792e155c5c556a3b75c4206a",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "queue.agency.test",
+     "issuerName": "Mini Agency Internal CA",
+     "notValidBefore": "2026-10-19T18:44:39Z",
+     "notValidAfter": "2029-01-21T18:44:39Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/queue.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/queue.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"Mini Agency Internal CA\",\"not_after\":\"2029-01-21T18:44:39Z\",\"not_before\":\"2026-10-19T18:44:39Z\",\"signature\":\"ECDSA-SHA384\",\"spki_sha256\":\"dcc696ef386cd869a0995a83c37a045709a17cd9d75ebdafb53987f038f2d983\",\"subject\":\"queue.agency.test\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "75b405ab6a2f80f6cd8f790dee13cb5c9a87f897792e155c5c556a3b75c4206a"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHM7PVDYHP6B5KN8P2N1"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:75d009311745649ea228852c35ce7dd222ad61195be17acb54cbf2ab1033a8ab",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key",
+     "size": 2048
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/nginx/tls/portal.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/portal.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":2048,\"kind\":[\"public-key\"],\"spki_sha256\":\"e028e2eac9bdef7a7b5799d804ce17f3f4691cecce40cf8d365218736e2934e2\",\"ssh_fingerprint_sha256\":\"yhE57IAAorrW/q4QlWKVNhrGt+OMNBnYFTlivQ0v7KY\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "75d009311745649ea228852c35ce7dd222ad61195be17acb54cbf2ab1033a8ab"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG5823R8GJK1KJXMKDM"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:7901433d99219cccb36693ad9620ff49793fa30f58a53bd81df462ce71cb7004",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "7901433d99219cccb36693ad9620ff49793fa30f58a53bd81df462ce71cb7004"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JEXFAW5RA4S7QYJXXR"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:875a54aa65bdefd225352ef4585a760b3d1493ee646ca7e803a260726c5d4d2e",
+   "name": "SHA1-RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/ssl/legacy/portal-2019.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/ssl/legacy/portal-2019.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA1-RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "875a54aa65bdefd225352ef4585a760b3d1493ee646ca7e803a260726c5d4d2e"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG9DZAR8S0QGVCR9ST9"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:891e98ad2bb786e0e4e053e253fbc51495d0a6549fdb22ed9d147e5d1bf5953c",
+   "name": "ECDSA-SHA384",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA-SHA384"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "891e98ad2bb786e0e4e053e253fbc51495d0a6549fdb22ed9d147e5d1bf5953c"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JHWA5QR5K26G5P9Y4F"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:96895f399b50abde19a8800b96af7093f361e230c1b54306ccecaf107c3cccde",
+   "name": "SHA-1",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/ssl/legacy/portal-2019.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/ssl/legacy/portal-2019.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-1"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "96895f399b50abde19a8800b96af7093f361e230c1b54306ccecaf107c3cccde"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG81D9MM32H7MACDMXR"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:9bc97ce8e8c4e3f0b1dc2ab22597c9b9d9759ee94014f31f6af842f9f7f370f2",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"public-key\"],\"spki_sha256\":\"4cf978466fa0c056c63b4b677469dcc4f850bbc56714ca2ed229f31eecc34612\",\"ssh_fingerprint_sha256\":\"SyGJAS3leoAe5IHvd/GMZpGONb8cqXrhMdbhh9s75b0\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "9bc97ce8e8c4e3f0b1dc2ab22597c9b9d9759ee94014f31f6af842f9f7f370f2"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHKZZ0YBHCBAYQ334PAV"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:9ca405bb6cc842f08be3091cbca98c6c4b94ebbb946ea5235f1e597e3ada525a",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key",
+     "size": 2048
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/nginx/tls/portal.key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/portal.key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":2048,\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "9ca405bb6cc842f08be3091cbca98c6c4b94ebbb946ea5235f1e597e3ada525a"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG0VC7EE2MW68KMJZSY"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:a82ba9f8f894618b0adc8079238a7220382ae7e931b5ba7b5677854dbeb2eeaf",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key",
+     "size": 2048
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/usr/lib/ssl/private/ssl-cert-snakeoil.key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/usr/lib/ssl/private/ssl-cert-snakeoil.key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":2048,\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "a82ba9f8f894618b0adc8079238a7220382ae7e931b5ba7b5677854dbeb2eeaf"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1K0DT420T1AE7F873SA"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:adb1868ca9fa4c319a2e1727de3ba46a2da20d9dca1eab1164a778472ec1cc00",
+   "name": "generic-api-key",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/lib/x86_64-linux-gnu/perl/5.40/CORE/cop.h"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/lib/x86_64-linux-gnu/perl/5.40/CORE/cop.h\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "generic-api-key"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "adb1868ca9fa4c319a2e1727de3ba46a2da20d9dca1eab1164a778472ec1cc00"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JYKZ80RPPD5CP0DK1C"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:ae2a9317f421a456274061d428a84ab5110c508d814c3faff4ee0c3ad8116563",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/ssl/legacy/portal-2019.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/ssl/legacy/portal-2019.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "ae2a9317f421a456274061d428a84ab5110c508d814c3faff4ee0c3ad8116563"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG76XGZZEB2BWJP39E8"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:af476bfc876f02753bf092a13faad55f51317cce070f8bb6dbd671854951b8fd",
+   "name": "SHA-256",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/api.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/api.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-256"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "af476bfc876f02753bf092a13faad55f51317cce070f8bb6dbd671854951b8fd"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVARC69564HJ87MS0VEWS"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:b051d1ebb7c2f58a3fa89c57cc8ee5d95cda0be128587ea56789b8f8972eef50",
+   "name": "generic-api-key",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/lib/x86_64-linux-gnu/perl/5.40.1/CORE/cop.h"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/lib/x86_64-linux-gnu/perl/5.40.1/CORE/cop.h\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "generic-api-key"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "b051d1ebb7c2f58a3fa89c57cc8ee5d95cda0be128587ea56789b8f8972eef50"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JZFEHEXJK0P3QMME2J"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:b219686aec91a03399bf0cc6e20e311eb0b2794186efd1f088ae50c67e03062e",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key",
+     "size": 3072
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/bastion:/etc/ssh/ssh_host_rsa_key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/bastion\",\"kind\":\"file\",\"path\":\"/etc/ssh/ssh_host_rsa_key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":3072,\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "b219686aec91a03399bf0cc6e20e311eb0b2794186efd1f088ae50c67e03062e"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFMHHR1JKG51M0KVX06HDB"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:b37562a6f4382e39bf98f045bbfb12128205e622d6a4d724e943e6de43d9eba9",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "pke"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/retired/queue-2020.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/retired/queue-2020.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "encryption"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"pke\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "b37562a6f4382e39bf98f045bbfb12128205e622d6a4d724e943e6de43d9eba9"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMEDQB7P9SP6T2CE97B"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:b702c4b25aa5c5f33886b703b3d0b3145c2c178023b76f1e0e5270864b4b9f12",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "Mini Agency Internal CA",
+     "issuerName": "Mini Agency Internal CA",
+     "notValidBefore": "2026-10-19T18:44:39Z",
+     "notValidAfter": "2036-10-16T18:44:39Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"Mini Agency Internal CA\",\"not_after\":\"2036-10-16T18:44:39Z\",\"not_before\":\"2026-10-19T18:44:39Z\",\"signature\":\"ECDSA-SHA384\",\"spki_sha256\":\"4cf978466fa0c056c63b4b677469dcc4f850bbc56714ca2ed229f31eecc34612\",\"subject\":\"Mini Agency Internal CA\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "b702c4b25aa5c5f33886b703b3d0b3145c2c178023b76f1e0e5270864b4b9f12"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JK7QGQW1XQXPWS6FZE"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:b7a33df553a4c659f2bd47f61bdc8c175b7989ad4aac544c56027fbc1a882c75",
+   "name": "curl-auth-user",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "unknown"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/plugins/rabbitmq_management-4.3.6/priv/www/api/index.html"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/plugins/rabbitmq_management-4.3.6/priv/www/api/index.html\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "curl-auth-user"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"unknown\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "b7a33df553a4c659f2bd47f61bdc8c175b7989ad4aac544c56027fbc1a882c75"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMP98EYF88JZZWN86C1"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:b8e57ac2e4cebec992166f98cd7569f4e26fa0b78a8d3e8e411e99264ff31ef3",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key",
+     "size": 2048
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/lib/ssl/private/ssl-cert-snakeoil.key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/lib/ssl/private/ssl-cert-snakeoil.key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":2048,\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "b8e57ac2e4cebec992166f98cd7569f4e26fa0b78a8d3e8e411e99264ff31ef3"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JX008XKGBWMB5RK8FY"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:bd1fec91b4832819601d522421c9872a024acaa24e256615674074bed2dc35bc",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/server.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/server.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "bd1fec91b4832819601d522421c9872a024acaa24e256615674074bed2dc35bc"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JMBYCBRT8D40RSNKDD"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:bdbb139dce016a339427c800a1a890781a38458636f64c6a1b744bbaca23ad14",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key",
+     "size": 2048
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/sftp-legacy:/etc/ssh/ssh_host_rsa_key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/sftp-legacy\",\"kind\":\"file\",\"path\":\"/etc/ssh/ssh_host_rsa_key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":2048,\"kind\":[\"private-key\",\"public-key\"],\"spki_sha256\":\"e9ad6bcc6fc364d50e55442e3ad008e77165822feabc1e9ee6c2c53bb5d4e166\",\"ssh_fingerprint_sha256\":\"9M1bFHsMdS2zgpIct3TMsRqXaJhN0obT0ZMHhY+vD6I\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "bdbb139dce016a339427c800a1a890781a38458636f64c6a1b744bbaca23ad14"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQHQD4NNA2F4YC77NX7TY"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:c859e7cbcf186dc7c37a8478afd2bac34eb05d66202431751f33d73ea9fb2b47",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "c859e7cbcf186dc7c37a8478afd2bac34eb05d66202431751f33d73ea9fb2b47"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHKV4R7Y3J9KQHV7N67Z"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:cbfb55215db670a6c15289f7184f4fee4f67239f358fcf5e36ee923c1609dfa1",
+   "name": "SHA-384",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/queue.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/queue.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-384"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "cbfb55215db670a6c15289f7184f4fee4f67239f358fcf5e36ee923c1609dfa1"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHM3VD2YH1QAF4PXP52N"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:cc52f38cf407860ba5847226c6f1fef41dcecf6fe905d7d371a5f3d09b56ec08",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/sftp-legacy:/etc/ssh/ssh_host_ecdsa_key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/sftp-legacy\",\"kind\":\"file\",\"path\":\"/etc/ssh/ssh_host_ecdsa_key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"private-key\",\"public-key\"],\"spki_sha256\":\"9383cf8744932566e77feaa2eae585f8ab60e664ca07903c6a7c8a204929e006\",\"ssh_fingerprint_sha256\":\"yuewx92jRCyhZLoQA81PdvLd712/u3tsx4ZOE7EEctE\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "cc52f38cf407860ba5847226c6f1fef41dcecf6fe905d7d371a5f3d09b56ec08"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQHQB3BZ8C1WVQKZ8J0MB"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:cdfb29cfd8fef8d15dea8dd269f2e0867eac3db736081e7952afd93684bf2068",
+   "name": "SHA1-RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/retired/queue-2020.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/retired/queue-2020.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA1-RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "cdfb29cfd8fef8d15dea8dd269f2e0867eac3db736081e7952afd93684bf2068"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMCJ8Q2G916MYEE3J35"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:ceb86866a142fd975d9a144e56eb4528247074c6f123033667a74aa8c4035355",
+   "name": "SHA-256",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/nginx/tls/portal.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/portal.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-256"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "ceb86866a142fd975d9a144e56eb4528247074c6f123033667a74aa8c4035355"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG3XZE4GNV4BVJW1D24"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:d0509bcb80e4b1fe705649f288413ade49b8de4c66cd3d39bf8e995f6ebdb986",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/api.key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/api.key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "d0509bcb80e4b1fe705649f288413ade49b8de4c66cd3d39bf8e995f6ebdb986"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVAS57MHD0TVZZK0CT217"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:d0656a644060acafd5c2b5d00a6bd753abee902680b675a672efb3951281be76",
+   "name": "generic-api-key",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/usr/lib/x86_64-linux-gnu/perl/5.40.1/CORE/cop.h"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/usr/lib/x86_64-linux-gnu/perl/5.40.1/CORE/cop.h\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "generic-api-key"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "d0656a644060acafd5c2b5d00a6bd753abee902680b675a672efb3951281be76"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1K2AX853FV65XR61K0J"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:d080eca199dec680f1737e3a3fe1be4e406560e0e673faf3f831f9f22997ea17",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "queue.agency.test",
+     "issuerName": "queue.agency.test",
+     "notValidBefore": "2026-10-19T18:44:39Z",
+     "notValidAfter": "2027-10-19T18:44:39Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/retired/queue-2020.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/retired/queue-2020.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"queue.agency.test\",\"key_bits\":1024,\"not_after\":\"2027-10-19T18:44:39Z\",\"not_before\":\"2026-10-19T18:44:39Z\",\"signature\":\"SHA1-RSA\",\"spki_sha256\":\"692bb916d3e35fc2d49c480e07fbbbcac74120f21de2ff2a081801aebbd0f74f\",\"subject\":\"queue.agency.test\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "d080eca199dec680f1737e3a3fe1be4e406560e0e673faf3f831f9f22997ea17"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMGN29X6QWN2ATY4W67"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:d0f80d7e4cf802648a49b675651ef5ebf68de4d28b0765ae7e04fc5104bf1370",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "records-db.agency.test",
+     "issuerName": "Mini Agency Internal CA",
+     "notValidBefore": "2026-10-19T18:44:39Z",
+     "notValidAfter": "2029-01-21T18:44:39Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/server.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/server.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"Mini Agency Internal CA\",\"key_bits\":2048,\"not_after\":\"2029-01-21T18:44:39Z\",\"not_before\":\"2026-10-19T18:44:39Z\",\"signature\":\"ECDSA-SHA384\",\"spki_sha256\":\"74092eaaef3fef369b28c3347880c4d2c3e1f8960d95bd2422b1a117fdacc2a1\",\"subject\":\"records-db.agency.test\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "d0f80d7e4cf802648a49b675651ef5ebf68de4d28b0765ae7e04fc5104bf1370"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JSBT6NY22GNFQ7C0BD"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:d0faf3da92e80c2dbd0cbee69ecd503cc4b74f3383867c227d718dcb201590a9",
+   "name": "SHA-256",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "hash"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/partner-ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/partner-ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "hash"
+    },
+    {
+     "name": "pqch:name",
+     "value": "SHA-256"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"hash\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "d0faf3da92e80c2dbd0cbee69ecd503cc4b74f3383867c227d718dcb201590a9"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVART1RBWG1ZQNA1N1Z4Y"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:d2fba5693e34b12958c53c49b228c73fdb244e07166ede3f71e25a9544aa2d3d",
+   "name": "ECDSA-SHA256",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/api.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/api.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA-SHA256"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "d2fba5693e34b12958c53c49b228c73fdb244e07166ede3f71e25a9544aa2d3d"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVARFSE8PY349A4EHBB93"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:d9dc06b6ce3597d8437846c4a9ca06a092a0d1d75fb6f822c6bbaba138f542c5",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/api.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/api.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "d9dc06b6ce3597d8437846c4a9ca06a092a0d1d75fb6f822c6bbaba138f542c5"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVAR819KR2R7N3MD84EZJ"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:daf236c9788c5e9e8bd0d2cd0976c8640637a48c1a940f978de6dd77caf5234a",
+   "name": "ECDSA-SHA384",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/server.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/server.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA-SHA384"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "daf236c9788c5e9e8bd0d2cd0976c8640637a48c1a940f978de6dd77caf5234a"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JQAJ0C4T6BBGAMPWVW"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:dbeb012a129a3b89f82c469dd24ade338a1e74b5679242d700c7532baa119633",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/nginx/tls/portal.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/portal.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "dbeb012a129a3b89f82c469dd24ade338a1e74b5679242d700c7532baa119633"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHG2KPRQND7FVTMHF7W0"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:e27fe8218e7901cc8367f70dc8f9c485e3731589f6e093d8dc54f010a9c0243d",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key",
+     "size": 2048
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/records-db:/etc/pg-tls/server.key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/records-db\",\"kind\":\"file\",\"path\":\"/etc/pg-tls/server.key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":2048,\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "e27fe8218e7901cc8367f70dc8f9c485e3731589f6e093d8dc54f010a9c0243d"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQ1JTM2QG21DN7YCSPTN5"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:e93ccee925c31efcea6ceacbc4b906a6471e3c8b9c2b31596805b2c29067bf0c",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/api:/etc/nginx/tls/partner-ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/api\",\"kind\":\"file\",\"path\":\"/etc/nginx/tls/partner-ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "e93ccee925c31efcea6ceacbc4b906a6471e3c8b9c2b31596805b2c29067bf0c"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFVARRFFREBDF8ZPTZ5J5M"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:ee0f815b0a910e5e06d1264e99f7b29e9614ac0553d18243328e35f9661713f3",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "Mini Agency Internal CA",
+     "issuerName": "Mini Agency Internal CA",
+     "notValidBefore": "2026-10-19T18:44:39Z",
+     "notValidAfter": "2036-10-16T18:44:39Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/ca.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/ca.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"Mini Agency Internal CA\",\"not_after\":\"2036-10-16T18:44:39Z\",\"not_before\":\"2026-10-19T18:44:39Z\",\"signature\":\"ECDSA-SHA384\",\"spki_sha256\":\"4cf978466fa0c056c63b4b677469dcc4f850bbc56714ca2ed229f31eecc34612\",\"subject\":\"Mini Agency Internal CA\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "ee0f815b0a910e5e06d1264e99f7b29e9614ac0553d18243328e35f9661713f3"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHM022YCTP7QSDSHSA4D"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:f5e5ef60fe8acf9ee4006953251c5b7a7f797e7a12345d327eb645d24ec3e00f",
+   "name": "ECDSA-SHA384",
+   "cryptoProperties": {
+    "assetType": "algorithm",
+    "algorithmProperties": {
+     "primitive": "signature"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/queue.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/queue.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "algorithm"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA-SHA384"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"primitive\":\"signature\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "f5e5ef60fe8acf9ee4006953251c5b7a7f797e7a12345d327eb645d24ec3e00f"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHM4BWPJDJTV80AFRSWV"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:f704cfcd61404abd03d0ce600e9c689493a6ca9844640e9713be3936c8a2e362",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key",
+     "size": 1024
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/retired/queue-2020.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/retired/queue-2020.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"key_bits\":1024,\"kind\":[\"public-key\"],\"spki_sha256\":\"692bb916d3e35fc2d49c480e07fbbbcac74120f21de2ff2a081801aebbd0f74f\",\"ssh_fingerprint_sha256\":\"2nphW1m1YJyLEcKvnL/NVe+bHyu2g34h0hHPd5ZcV7k\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "f704cfcd61404abd03d0ce600e9c689493a6ca9844640e9713be3936c8a2e362"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHMF7HKA35MHYC8VT0DX"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:f73a5363299f59e5ea3252a41b551255bfae5a62ec26793bf4e4bf08853a5832",
+   "name": "RSA",
+   "cryptoProperties": {
+    "assetType": "certificate",
+    "certificateProperties": {
+     "certificateFormat": "X.509",
+     "subjectName": "portal.agency.test",
+     "issuerName": "portal.agency.test",
+     "notValidBefore": "2026-10-03T12:29:57Z",
+     "notValidAfter": "2027-10-03T12:29:57Z"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/portal:/etc/ssl/legacy/portal-2019.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/portal\",\"kind\":\"file\",\"path\":\"/etc/ssl/legacy/portal-2019.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "certificate"
+    },
+    {
+     "name": "pqch:role",
+     "value": "signature"
+    },
+    {
+     "name": "pqch:name",
+     "value": "RSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"issuer\":\"portal.agency.test\",\"key_bits\":1024,\"not_after\":\"2027-10-03T12:29:57Z\",\"not_before\":\"2026-10-03T12:29:57Z\",\"signature\":\"SHA1-RSA\",\"spki_sha256\":\"f07d2f54ca7e34b74e227c5c64b4b4148351235a0a31a3cf98478c0ee438c540\",\"subject\":\"portal.agency.test\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "f73a5363299f59e5ea3252a41b551255bfae5a62ec26793bf4e4bf08853a5832"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFNHGCC3D82AWG1E6TPV45"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:f8313d5d5b548a670bc931168384a12746156f9fe57dc8ed81d58fa450131f53",
+   "name": "ECDSA",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "public-key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/queue:/etc/rmq-tls/queue.crt"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/queue\",\"kind\":\"file\",\"path\":\"/etc/rmq-tls/queue.crt\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "ECDSA"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"public-key\"],\"spki_sha256\":\"dcc696ef386cd869a0995a83c37a045709a17cd9d75ebdafb53987f038f2d983\",\"ssh_fingerprint_sha256\":\"nkMT9M1MVhZXpsCPxYPRfHGLzerERkUyMJcg5nrwAv0\"}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "f8313d5d5b548a670bc931168384a12746156f9fe57dc8ed81d58fa450131f53"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFPHM5VM45F4JZW0RZEMSR"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:f848895bb0e2aa125135b2844feab9f3d3485ce866f3b07c1a402ac8da6c4319",
+   "name": "unknown",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "private-key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/sftp-legacy:/etc/ssh/ssh_host_dsa_key"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/sftp-legacy\",\"kind\":\"file\",\"path\":\"/etc/ssh/ssh_host_dsa_key\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "unknown"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"private-key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "f848895bb0e2aa125135b2844feab9f3d3485ce866f3b07c1a402ac8da6c4319"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFQHQA22K7BS5YDQHZZ366"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  },
+  {
+   "type": "cryptographic-asset",
+   "bom-ref": "fp:fed5333d93a9045616173c0a3ff6bdd62d5a8bbaaa5163e702ebe610a2b8e786",
+   "name": "generic-api-key",
+   "cryptoProperties": {
+    "assetType": "related-crypto-material",
+    "relatedCryptoMaterialProperties": {
+     "type": "key"
+    }
+   },
+   "evidence": {
+    "occurrences": [
+     {
+      "location": "pqch-agency/legacy-app:/opt/java/openjdk/lib/security/java.security"
+     }
+    ]
+   },
+   "properties": [
+    {
+     "name": "pqch:layer",
+     "value": "host"
+    },
+    {
+     "name": "pqch:subject",
+     "value": "{\"image\":\"pqch-agency/legacy-app\",\"kind\":\"file\",\"path\":\"/opt/java/openjdk/lib/security/java.security\"}"
+    },
+    {
+     "name": "pqch:asset-type",
+     "value": "related-crypto-material"
+    },
+    {
+     "name": "pqch:role",
+     "value": "other"
+    },
+    {
+     "name": "pqch:name",
+     "value": "generic-api-key"
+    },
+    {
+     "name": "pqch:parameters",
+     "value": "{\"kind\":[\"key\"]}"
+    },
+    {
+     "name": "pqch:fingerprint",
+     "value": "fed5333d93a9045616173c0a3ff6bdd62d5a8bbaaa5163e702ebe610a2b8e786"
+    },
+    {
+     "name": "pqch:evidence",
+     "value": "01M5JFN1JRW4AGRJDV7CJFR8RE"
+    },
+    {
+     "name": "pqch:tools",
+     "value": "cbomkit-theia"
+    }
+   ]
+  }
+ ],
+ "dependencies": []
+}

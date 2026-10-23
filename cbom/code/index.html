@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — the CBOM</title>
+<link rel="stylesheet" href="/cbom-workbench/static/style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/cbom-workbench/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    
+    <div class="demo-group">
+    <span class="group">Demo<small>snapshot</small></span>
+    <a href="/cbom-workbench/" class="" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    <a href="/cbom-workbench/agency/" class="" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
+    <a href="/cbom-workbench/walkthrough/" class="" title="The walkthrough, on a test agency built for it">Walkthrough</a>
+    <a href="/cbom-workbench/cbom/" class="on" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    <a href="/cbom-workbench/plan/" class="" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
+    
+    </div>
+    <div class="learn-group">
+    <span class="group">Learn<small>notes &amp; docs</small></span>
+    <a href="/cbom-workbench/site/how-it-works/">How it works</a>
+    <a href="/cbom-workbench/site/notes/">Notes</a>
+    <a href="/cbom-workbench/site/lessons/">Lessons</a>
+    <a href="/cbom-workbench/site/sources/">Sources</a>
+    <a href="/cbom-workbench/site/about/">About</a>
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner"><strong>Inside the CBOM.</strong> The inventory itself — the mini-agency's or the lab's — opened up: drawn along its chain, what the document holds, one entry field by field with the evidence behind each field, the same record projected another way, and what changed since the last scan.</div></div>
+
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  function what(url) {
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    var u = new URL(url, location.href);
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
+    return "Loading…";
+  }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", hide);
+})();
+</script>
+<main>
+
+
+<p class="orient">A Cryptography Bill of Materials is a CycloneDX document whose components are cryptographic assets — algorithms, certificates, keys, protocols — each with where it was found and what depends on it. This page opens the one this run produced: the whole document, then one entry, field by field, each traced to the ledger event it came from.
+  <span class="ai">It is also what a model is given. When the investigator traces a weakness to the line that causes it, or a change is drafted, the entry below is the context: the service, the listener, the file, the evidence. The model's answer is checked against it, and the change is proved on the wire.</span></p>
+
+
+
+<p class="note">This is the code layer's CBOM: candidate call sites in one pinned repository, found by a rule pack and judged by the <code>call-site-read</code> role, whose judgement is the entry's <code>pqch:in-use</code>. <a href="/cbom-workbench/cbom/">The mini-agency's CBOM</a>.</p>
+
+
+<section id="document">
+  <h2><span class="step">2</span> The document</h2>
+  <p class="lede">CycloneDX 1.6, serial <code>urn:uuid:d0ef5e70-6131-164e-a0c4-18adcdab40ef</code>, built 2026-10-21T16:11:50Z from run <a href="#" title="in the live workbench only" data-offline="1"><code>01M5FJH69143N17Q6PCF782P8R</code></a>. It is rebuilt from the ledger every time and never edited: the same ledger gives the same document, byte for byte.</p>
+  <div class="receipts">
+    <div class="receipt"><div class="k">Components</div><div class="n">85</div>
+      <div class="s">85 code assets</div></div>
+    <div class="receipt"><div class="k">Cryptographic assets by type</div><div class="n">85</div>
+      <div class="s">algorithm 85 — the four CycloneDX asset types</div></div>
+    <div class="receipt"><div class="k">Dependency chain</div><div class="n">0<small>edges</small></div>
+      <div class="s">0 components list what they depend on: service → listener → asset → file</div></div>
+    <div class="receipt"><div class="k">Made by</div><div class="n">2<small>tools</small></div>
+      <div class="s">pqch-code-rules 1d9301fc2704, cbom-workbench m0</div></div>
+  </div>
+  <details class="why"><summary>What the standard settles, and what it leaves open</summary><p>CycloneDX 1.6 (ECMA-424) defines the asset types and their fields: an algorithm's primitive and parameter set, a certificate's subject, issuer and validity, a key's type and size, a protocol's type; where each was found; and what depends on what. It does not say who owns an asset, which policy queue it is in, whether a file in an image is actually served, or what observation an entry rests on. Those go in properties under a namespace the producer chooses — here <code>pqch:</code>. What a federal CBOM must contain is not yet settled either: CISA and NIST publish the minimum elements by 2027-03-19. <a href="/cbom-workbench/site/notes/01-what-is-a-cbom/">What is a CBOM, and what is in one?</a></p></details>
+  <table class="files"><thead><tr><th>Document property</th><th>Value</th><th>What it is</th></tr></thead><tbody>
+  <tr><td><code>pqch:projection</code></td><td class="mono small">workbench</td><td class="dim small">Which projection of the ledger this document is: the workbench, or a baseline of scanners alone.</td></tr><tr><td><code>pqch:run</code></td><td class="mono small">0B68D3076F9D085F2FD3EFD866</td><td class="dim small">The run whose ledger it was built from.</td></tr><tr><td><code>pqch:ledger-head</code></td><td class="mono small">d0ef5e706131164ea0c418adcdab40eff9947d9c…</td><td class="dim small">The hash of the ledger&#39;s last event. Rebuild from the same ledger and the document is the same, byte for byte.</td></tr><tr><td><code>pqch:ledger-seq</code></td><td class="mono small">173</td><td class="dim small">How many events the ledger held.</td></tr><tr><td><code>pqch:scope-hash</code></td><td class="mono small">e487ce95f3a929d8abdb6b6713185b03baa316f0…</td><td class="dim small">The hash of the scope the run was allowed to touch.</td></tr>
+  </tbody></table>
+</section>
+
+<section id="entry">
+  <h2><span class="step">3</span> One entry, field by field</h2>
+  <p class="note">One entry is opened here; in the live workbench any entry can be picked. The chain above opens any entry's evidence by a click.</p>
+  <p class="lede"><strong>scrypt algorithm · app/services/encryption/password_verifier.rb</strong> <span class="dim">(code asset)</span>: 6 fields CycloneDX defines, 11 this project adds, resting on 1 ledger event.</p>
+  <div class="anatomy">
+    <figure class="json"><figcaption>As the document carries it</figcaption><pre class="mono small">{
+ &#34;type&#34;: &#34;cryptographic-asset&#34;,
+ &#34;bom-ref&#34;: &#34;fp:010ac55e5c205a1b6b05e46af1877a46b3291c86082c8771d00899c5790b955c&#34;,
+ &#34;name&#34;: &#34;scrypt&#34;,
+ &#34;cryptoProperties&#34;: {
+  &#34;assetType&#34;: &#34;algorithm&#34;,
+  &#34;algorithmProperties&#34;: {
+   &#34;primitive&#34;: &#34;other&#34;
+  }
+ },
+ &#34;evidence&#34;: {
+  &#34;occurrences&#34;: [
+   {
+    &#34;location&#34;: &#34;18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/services/encryption/password_verifier.rb#L117&#34;
+   }
+  ]
+ },
+ &#34;properties&#34;: [
+  {
+   &#34;name&#34;: &#34;pqch:layer&#34;,
+   &#34;value&#34;: &#34;code&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:subject&#34;,
+   &#34;value&#34;: &#34;{\&#34;commit\&#34;:\&#34;62cf38755d0d6fbdd5e8d972f184944a830ba8d9\&#34;,\&#34;kind\&#34;:\&#34;call-site\&#34;,\&#34;line\&#34;:117,\&#34;path\&#34;:\&#34;app/services/encryption/password_verifier.rb\&#34;,\&#34;repo\&#34;:\&#34;18F/identity-idp\&#34;}&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:asset-type&#34;,
+   &#34;value&#34;: &#34;algorithm&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:role&#34;,
+   &#34;value&#34;: &#34;other&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:name&#34;,
+   &#34;value&#34;: &#34;scrypt&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:parameters&#34;,
+   &#34;value&#34;: &#34;{\&#34;line_text\&#34;:\&#34;scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32\&#34;,\&#34;rule\&#34;:\&#34;ruby/scrypt\&#34;}&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:fingerprint&#34;,
+   &#34;value&#34;: &#34;010ac55e5c205a1b6b05e46af1877a46b3291c86082c8771d00899c5790b955c&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:evidence&#34;,
+   &#34;value&#34;: &#34;01M5FJH6TB5QES2P03KV23K2J0&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:tools&#34;,
+   &#34;value&#34;: &#34;pqch-code-rules&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:in-use&#34;,
+   &#34;value&#34;: &#34;true&#34;
+  },
+  {
+   &#34;name&#34;: &#34;pqch:verifiable-by&#34;,
+   &#34;value&#34;: &#34;unstated&#34;
+  }
+ ]
+}</pre></figure>
+    <div class="fields">
+      <table class="files"><thead><tr><th>Field</th><th>Value</th><th>What it means · where it came from</th></tr></thead><tbody>
+      
+        <tr class="std">
+          <td><code>type</code><br><span class="tag link">CycloneDX 1.6</span></td>
+          <td class="mono small">cryptographic-asset</td>
+          <td class="small">What kind of component this is. A cryptographic asset is `cryptographic-asset`; a service is an `application`; an image is a `container`.
+            
+            </td>
+        </tr>
+      
+        <tr class="std">
+          <td><code>bom-ref</code><br><span class="tag link">CycloneDX 1.6</span></td>
+          <td class="mono small">fp:010ac55e5c205a1b6b05e46af1877a46b3291c86082c8771d00899c5790b955c</td>
+          <td class="small">The component&#39;s identifier inside this document, used by `dependencies`. Here `fp:` and the finding&#39;s fingerprint, so the same observation keeps its reference across scans.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="std">
+          <td><code>name</code><br><span class="tag link">CycloneDX 1.6</span></td>
+          <td class="mono small">scrypt</td>
+          <td class="small">The asset&#39;s standard name: the algorithm, the key&#39;s family, the protocol.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="std">
+          <td><code>cryptoProperties.assetType</code><br><span class="tag link">CycloneDX 1.6</span></td>
+          <td class="mono small">algorithm</td>
+          <td class="small">One of the four CycloneDX asset types: algorithm, certificate, protocol, related-crypto-material.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="std">
+          <td><code>cryptoProperties.algorithmProperties.primitive</code><br><span class="tag link">CycloneDX 1.6</span></td>
+          <td class="mono small">other</td>
+          <td class="small">What the algorithm does: key-agree, kem, signature, pke, hash, mac and others. ML-KEM and its hybrids are `kem`.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="std">
+          <td><code>evidence.occurrences</code><br><span class="tag link">CycloneDX 1.6</span></td>
+          <td class="mono small">[{"location": "18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/services/encryption/password_verifier.rb#L117"}]</td>
+          <td class="small">Where the asset was seen: an address and port, or an image and a path.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:layer</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">code</td>
+          <td class="small">Which evidence layer saw it: wire (a listener), host (a file in an image) or code.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:subject</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">{"commit": "62cf38755d0d6fbdd5e8d972f184944a830ba8d9", "kind": "call-site", "line": 117, "path": "app/services/encryption/password_verifier.rb", "repo": "18F/identity-idp"}</td>
+          <td class="small">Exactly where: the endpoint, or the image and path.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:asset-type</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">algorithm</td>
+          <td class="small">The CycloneDX asset type, repeated so a reader of properties alone has it.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:role</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">other</td>
+          <td class="small">What it is for: key-establishment, signature, encryption, hash, mac, other. M-26-15 puts key establishment and signatures on different clocks.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:name</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">scrypt</td>
+          <td class="small">The normalized name the rules and the answer key use.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:parameters</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">{"line_text": "scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32", "rule": "ruby/scrypt"}</td>
+          <td class="small">Everything else the tool reported: key size, the tool&#39;s own spelling, a certificate&#39;s fingerprints.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:fingerprint</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">010ac55e5c205a1b6b05e46af1877a46b3291c86082c8771d00899c5790b955c</td>
+          <td class="small">The SHA-256 of the observation&#39;s identity — layer, subject, type, role, name, key. Two scans that see the same thing give the same fingerprint; that is how change is detected.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:evidence</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">01M5FJH6TB5QES2P03KV23K2J0</td>
+          <td class="small">The ledger events of every observation folded into this entry. Each names its tool, the raw output by path and SHA-256, and an excerpt a person can read.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:tools</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">pqch-code-rules</td>
+          <td class="small">Which tools saw it. An entry two tools agree on is one entry.
+            <br><span class="dim">seen by pqch-code-rules 1d9301fc2704: “scrypted = SCrypt::Engine.hash_secret password, scrypt_salt, 32” · raw <code>code-candidates.json</code> sha256 <code>405a30cec2e0…</code> · event <code>01M5FJH6TB5QES2P03KV23K2J0</code></span>
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:in-use</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">true</td>
+          <td class="small">Whether a rule judged it in use: a certificate in an image that no listener serves is not. On the wire, true by definition.
+            
+            </td>
+        </tr>
+      
+        <tr class="ext">
+          <td><code>pqch:verifiable-by</code><br><span class="tag ">pqch: extension</span></td>
+          <td class="mono small">unstated</td>
+          <td class="small">Which verifier could confirm a change to this entry: paired probes on the wire, a certificate parse, or none.
+            
+            </td>
+        </tr>
+      
+      </tbody></table>
+    </div>
+  </div>
+  <h3>What a model did with this entry</h3>
+  
+  <p class="note">No model has worked on this entry. The investigator traces one key-establishment entry per listener; pick one of those (a <code>key-establishment</code> algorithm on a listener) to see what it was given and what it said.</p>
+  
+  <h3>Where it sits in the chain</h3>
+  <p class="lede">CycloneDX carries the chain in the document's <code>dependencies</code> list. Follow it up to the service and its owner's facts, or down to the file that holds the key.</p>
+  <table class="files"><thead><tr><th></th><th>Component</th><th>Joined by</th></tr></thead><tbody>
+  
+  
+  <tr><td colspan="3" class="dim">Nothing depends on this entry and it depends on nothing: no rule joined it to a listener, a file or a service.</td></tr>
+  </tbody></table>
+</section>
+
+<section id="projection">
+  <h2><span class="step">4</span> The same record, projected again</h2>
+  <p class="lede">The CBOM is one projection of the ledger. Here is another, rebuilt now from the same events — no scanner ran: <strong>Agency cryptographic inventory (illustrative field list)</strong>, 12 rows, built in 3 ms (2 ms to rebuild the CBOM from 174 events, 1 ms to project it), from ledger head <code>d0ef5e706131164e…</code>. When the minimum elements of a federal CBOM are published, meeting them is another definition file like <code>policy/projections/agency-inventory.yaml</code> and a rebuild like this one.</p>
+  <p class="note">Illustrative: the field list is one plausible agency inventory, not the minimum elements, which are not published until 2027-03-19. Empty cells, where the record has nothing for a column: system 12, owner 12, mission_function 12, data_lifetime_years 12, high_value_asset 12, prioritized 12, quantum_vulnerable 12, family 12, migration_state 12, queue 12, deadline 12, blocked_on_supplier 12, validated_module 12 — met items have no queue. <a href="#" title="in the live workbench only" data-offline="1">Download as CSV</a>.</p>
+  <div class="scroll"><table class="files"><thead><tr><th>system</th><th>owner</th><th>mission_function</th><th>data_lifetime_years</th><th>high_value_asset</th><th>prioritized</th><th>algorithm</th><th>function</th><th>asset_type</th><th>layer</th><th>location</th><th>quantum_vulnerable</th><th>family</th><th>migration_state</th><th>queue</th><th>deadline</th><th>blocked_on_supplier</th><th>validated_module</th><th>verifiable_by</th><th>evidence_events</th><th>fingerprint</th></tr></thead><tbody>
+  <tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">X.509</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/jobs/threat_metrix_js_verification_job.rb#L18">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6R2Z2YQ8189NKQ5NE8Q</td><td class="small"><span title="134f9810f27d0b76e20bcb1fbafd839b29855a41171547752d18bc2a2bcec065">134f9810f27d0b76e20bcb1fba…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">X.509</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/services/proofing/aamva/request/security_token_request.rb#L110">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6W0N95VFJP6EADHZGMZ</td><td class="small"><span title="5f02464eb72d96d1fa56c4a32294caef06d13faf7e8a5624ebd11216bb9e2368">5f02464eb72d96d1fa56c4a322…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">X.509</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/services/saml_endpoint.rb#L52">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6W90EW5RXGAWZBW6WPC</td><td class="small"><span title="83d516375be4d779ac207d3c22311d72aa9c0ec85750f1bada67e3ae251ae9a7">83d516375be4d779ac207d3c22…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">X.509</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/models/service_provider.rb#L57">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6RF145SB16Q5AWQPKD4</td><td class="small"><span title="8483cf26441887c8759a22a87bb9a4aea765d8fb344e2d2bd5b01c6495123ee0">8483cf26441887c8759a22a87b…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unspecified</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/forms/security_event_form.rb#L79">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6QQ36EJ1D748HHGZEHV</td><td class="small"><span title="1ecb05671525ac099b498aafd85c829e7a3306f365847efad98c29ef65f290e6">1ecb05671525ac099b498aafd8…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unspecified</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/services/attempts_api/attempt_event.rb#L90">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6S6PEBR8XTW1X9YD9AN</td><td class="small"><span title="32481c4c121f92e7a4a43bff3ee1046f6066da3579f81c12241849facbe52de5">32481c4c121f92e7a4a43bff3e…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unspecified</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/services/id_token_builder.rb#L17">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6V17DKEK887PV7TWX02</td><td class="small"><span title="55538b63626e8673c0db0d9c573faf3da86168784fc6a780802ae6706faa3994">55538b63626e8673c0db0d9c57…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unspecified</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/forms/openid_connect_logout_form.rb#L98">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6Q9W79G49D2PJAMQC4W</td><td class="small"><span title="6ecb53969be9419c9533865300bb6d4121f5c42182f0974328bfa4f99c86890d">6ecb53969be9419c9533865300…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unspecified</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/forms/openid_connect_token_form.rb#L164">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6QEJXY98HAYSSV8NVAH</td><td class="small"><span title="75cbe55e589a5d0c2bfc0a21961abe218fc194d26c46d970e0ead8a43ff4d46e">75cbe55e589a5d0c2bfc0a2196…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unspecified</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/forms/security_event_form.rb#L114">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6QX4GB265DD175XP3FB</td><td class="small"><span title="7aa7681fde7de4051380622caaf1c36e0c2b9b34cb6171f5f15d6a462cdc48e2">7aa7681fde7de4051380622caa…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unspecified</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/services/attempts_api/attempt_event.rb#L41">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6S4FH732CCTVGREVPVR</td><td class="small"><span title="890a560a3cb7f43eda9a4888d9b2c170abe2e24e5a8756a6324945b967f641b2">890a560a3cb7f43eda9a4888d9…</span></td></tr><tr><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unspecified</td><td class="small">signature</td><td class="small">algorithm</td><td class="small">code</td><td class="small"><span title="18F/identity-idp@62cf38755d0d6fbdd5e8d972f184944a830ba8d9:app/services/push_notification/http_push.rb#L63">18F/identity-idp@62cf38755…</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small"><span class="dim">—</span></td><td class="small">unstated</td><td class="small">01M5FJH6W5WHCX088M9PCEWNBS</td><td class="small"><span title="c78c52da3a198adaac375f3efd9d3d54d28b383937580ef32a60418c43389324">c78c52da3a198adaac375f3efd…</span></td></tr>
+  </tbody></table></div>
+  
+</section>
+
+<section id="changes">
+  <h2><span class="step">5</span> What changed since the last scan</h2>
+  <p class="note">No earlier scan of this scope to compare with.</p>
+</section>
+
+</main>
+<script src="/cbom-workbench/static/vendor/d3.v7.min.js"></script>
+<script src="/cbom-workbench/static/figures.js"></script>
+</body>
+</html>
