@@ -16,8 +16,8 @@ claims:
     provenance: "measured 2026-10-21; note 01"
   - text: "Laid over NIST CSWP 39-upd1 Fig. 3, the mini-agency reaches every region of the plan — governance, assets, management tools, the information repository, the risk engine, the measures, mitigation and migration — with 17 of the figure's 22 labelled boxes fully reached, 2 in part and 3 not (partner ecosystem, data discovery, zero trust); the lab estate reaches assets, tools and the repository in part and has no migration, because the workbench changes nothing it did not build."
     provenance: "computed 2026-10-21 from the deployment's ledgers by src/pqch/ui/agility.py; the per-label states are data in that module"
-  - text: "One change replayed around the loop — the portal set to offer the hybrid group — took 65.2 s from the policy event to the last verdict, through twelve ledger events from five of the plan's boxes."
-    provenance: "measured 2026-10-05 on the xr7620 (x86_64), change run 01M46RM79ASE4V8039GC1HXQB0 on the deployment"
+  - text: "One weakness followed from finding to fixed — records-db's classical key exchange, removed by a change that requires the hybrid group — takes thirteen steps through five of the plan's regions: two by a model (tracing the finding to its cause, drafting the edit), three recording a person's decision (the owner's facts, the policy, the approval), the rest by scanners, rules, the runner and probes; every step reads from or writes to the CBOM, and the scan after the change shows X25519, 2048-bit DH and RSA key transport gone from the listener."
+    provenance: "read 2026-10-23 from the deployment's ledgers by src/pqch/ui/agility.py: scan 01M5FHJHNTJVRPMZ09KQ7YN9TM, trace in investigate run 01M5D11HXJZ4GDAV7KJBYD1CVX, change run 01M5FHSAWHMY78JV1EJX1YQA87, scan 01M5JFEP7D145D2T38TW0S6631"
 reuse: [whitepaper, talk, customer-question]
 ---
 
@@ -166,10 +166,22 @@ what the workbench does there, read from the ledgers at render time:
 
 Each of the figure's
 labels is lit, half-lit or dim for the estate shown, with the reason, so the
-frame doubles as a gap analysis. A replay walks one landed change through the
-boxes in the order its ledger events were written: the portal set to offer
-X25519MLKEM768 went from the policy event to its last verdict in 65.2 s,
-touching governance, migration, the repository and the tools.
+frame doubles as a gap analysis.
+
+The figure also carries one weakness through the loop, step by step, as the
+ledgers recorded it. A scan finds records-db accepting X25519, 2048-bit
+finite-field Diffie-Hellman and RSA key transport. Rules link the listener to
+the service, and the owner's facts (a 75-year data lifetime, a high-value
+asset) attach to it. The OMB M-26-15 rules then put it in the 2030
+key-establishment queue as a prioritized system. A model traces one finding
+to its cause, and a second model drafts the edit from the CBOM's findings and
+the files the CBOM links to the service. The edit is rehearsed on a copy, the
+copy is tried against each kind of client, a person approves, the runner
+applies it, and probes prove it on the wire twice. The next scan's CBOM shows
+the classical groups gone, with the signature queue still open, which is the
+plan's next step for the service. At each step the page says what the CBOM
+contributes. The models act in two steps of thirteen and never decide whether
+the change worked.
 
 ## What follows
 

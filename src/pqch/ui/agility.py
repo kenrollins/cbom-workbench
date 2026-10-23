@@ -48,15 +48,75 @@ def _rules(events: list[dict]) -> Counter:
 INTENT = {"enable": "offer a hybrid post-quantum key exchange", "require": "require a hybrid post-quantum key exchange"}
 
 
-def _span_words(ms: int) -> str:
-    s = ms / 1000
-    return f"{s:.1f} s" if s < 120 else (f"{s / 60:.0f} min" if s < 7200 else f"{s / 3600:.1f} h")
+# What the CBOM contributes at each step of the loop. The same sentence for every change: it is what the
+# record is for, not what one change did.
+CBOM_ROLE = {
+    "discover": "Each finding becomes a CBOM entry, tied to the listener it was seen on, with the scanner's raw output and its hash as evidence.",
+    "structure": "The links turn an algorithm on a port into part of a service with a mission and a data lifetime — the facts every later step reasons from. Typed-in facts stay labelled supplied.",
+    "prioritize": "The queue is computed from the CBOM's entries and the owner's facts, so when either changes it is recomputed, not re-typed.",
+    "trace": "The model is handed one CBOM finding and the files the CBOM links to its service, not the estate. What it says is recorded as a claim beside the evidence, never as a fact.",
+    "policy": "The policy is written against the services the CBOM names; the distance between the policy and the CBOM is the work.",
+    "draft": "Everything the draft was shown is on the proposal, by CBOM entry and file hash, so a reviewer can see what it was given and the rollback is recorded before anything changes.",
+    "rehearse": "The copy runs the image digest the CBOM recorded for the service, so the rehearsal tests what is actually deployed.",
+    "matrix": "The approver sees, before deciding, which kinds of client the change would refuse; on a real network the CBOM's client entries from passive capture say who those clients are.",
+    "approve": "Nothing is applied without an approval event on the ledger, and the approval names the proposal it approves.",
+    "apply": "The CBOM's links from service to container and image are how the runner knows which container is the service's own and touches no other.",
+    "prove": "No model takes part. The verdict is bound to the container, the image digest and the certificate it probed, and re-derives from the probes' raw output.",
+    "update": "The CBOM is rebuilt from the new scan; both scans stay on the ledger, and the difference between them is the evidence the change landed.",
+    "next": "The loop starts again from the CBOM: what is still open for this service, and the plan's place for it.",
+}
+
+
+def _runs_of(var: Path, kind: str) -> list[Run]:
+    """Every run of one kind, oldest first, by its first event."""
+    out = []
+    d = Path(var) / "runs"
+    for p in sorted(x for x in d.iterdir() if x.is_dir()) if d.is_dir() else []:
+        r = Run(var, p.name)
+        if r.ledger.exists():
+            first = next(iter(r.ledger.events()), None)
+            if first and first["payload"].get("kind") == kind:
+                out.append(r)
+    return out
+
+
+def _at(subject: dict | None, target: dict) -> bool:
+    s = subject or {}
+    return s.get("host") == target["address"] and s.get("port") == target["port"]
+
+
+def _for_service(e: dict, service: str, target: dict) -> bool:
+    p, s = e["payload"], e["payload"].get("subject") or {}
+    return _at(s, target) or s.get("service") == service or (s.get("kind") == "service" and s.get("name") == service) \
+        or (p.get("classification") or {}).get("service") == service
+
+
+def _name(x) -> str | None:
+    return x.get("name") if isinstance(x, dict) else None
+
+
+def _kind_of(asset: dict) -> str:
+    if asset.get("type") == "certificate":
+        return "certificate"
+    if asset.get("type") == "protocol":
+        return "protocol"
+    return {"key-establishment": "key exchange", "signature": "signature"}.get(asset.get("role"), asset.get("role") or "")
+
+
+def _asset_words(asset: dict) -> str:
+    n, prm = asset["name"], asset.get("parameters") or {}
+    if asset.get("type") == "certificate":
+        return f"{n}-{prm['key_bits']} certificate" if prm.get("key_bits") else f"{n} certificate"
+    if prm.get("mode") == "key-transport":
+        return f"{n} key transport"
+    return n
 
 
 def _change_story(var: Path) -> dict | None:
-    """The most recent change that landed — verified, and verified again after a recreate — as a sequence
-    of steps through the frame, each with its ledger timestamp."""
-    from pqch.common import ms_between
+    """One weakness from finding to fixed: the last change that landed toward post-quantum, every verdict
+    re-deriving from its raw output, told as the steps the loop takes — who acts at each, what happened,
+    and what the CBOM contributes — from the scan that found it to the scan that shows it gone. Read from
+    the ledgers alone."""
     from pqch.migrator import intervals
     from pqch.ui.view import _rederives, change_runs
 
@@ -68,41 +128,185 @@ def _change_story(var: Path) -> dict | None:
         landed = [t for t in intervals(events) if t.get("landed") and t.get("intent") in INTENT and all(
             _rederives(var, e["payload"], props[t["change_id"]]) for e in events
             if e["type"] == "verdict.issued" and e["payload"].get("change_id") == t["change_id"])]
-        if not landed:
-            continue
-        cid = landed[-1]["change_id"]
-        box = {"policy.changed": "governance", "change.proposed": "migration", "rehearsal.completed": "tools",
-               "approval.granted": "governance", "change.applied": "migration", "verdict.issued": "tools",
-               "service.recreated": "migration", "checkpoint.signed": "repository"}
-        words = {"policy.changed": "a person changes the crypto policy", "change.proposed": "the change is proposed, with its diff and the check that will count",
-                 "rehearsal.completed": "rehearsed on a copy", "approval.granted": "a person approves",
-                 "change.applied": "the runner applies it", "verdict.issued": "the verifier probes the listener — no model",
-                 "service.recreated": "the service is recreated, to repeat the check", "checkpoint.signed": "the ledger is signed (ML-DSA-65)"}
-        steps, t0 = [], None
-        for e in events:
-            t = e["type"]
-            if t not in box or (e["payload"].get("change_id") not in (None, cid) and t != "policy.changed"):
-                continue
-            if t == "checkpoint.signed" and (not steps or steps[-1]["type"] == "checkpoint.signed"):
-                continue
-            t0 = t0 or e["ts"]
-            label = words[t]
-            if t == "verdict.issued":
-                label += f": {e['payload']['status']}" + (", durable" if e["payload"].get("durable") is True else "")
-            if t in ("approval.granted",):
-                label += f" ({e['payload'].get('by')})"
-            steps.append({"box": box[t], "type": t, "ts": e["ts"], "ms": ms_between(t0, e["ts"]), "label": label})
-        # The machine's part is approval to proof; policy to proof also counts the time it waited for a person.
-        lv = landed[-1]
-        steps.append({"box": "kpi", "type": "kpi", "ts": steps[-1]["ts"], "ms": steps[-1]["ms"],
-                      "label": f"approval to proof {lv['approval_to_verdict_ms'] / 1000:.1f} s; policy to proof "
-                               f"{_span_words(lv['policy_to_verdict_ms'])}, the rest waiting for a person"})
-        prop = next(e for e in events if e["type"] == "change.proposed" and e["payload"]["change_id"] == cid)
-        return {"run": run.id, "change_id": cid, "hardware": landed[-1].get("hardware"),
-                "approval_s": round(lv["approval_to_verdict_ms"] / 1000, 1), "policy_words": _span_words(lv["policy_to_verdict_ms"]), "service": prop["payload"]["target"]["service"],
-                "intent": prop["payload"]["intent"], "intent_words": INTENT[prop["payload"]["intent"]], "steps": steps,
-                "drafted": prop["actor"]["kind"] == "model"}
-    return None
+        if landed:
+            break
+    else:
+        return None
+    cid = landed[-1]["change_id"]
+    prop = props[cid]
+    target, intent, service = prop["payload"]["target"], prop["payload"]["intent"], prop["payload"]["target"]["service"]
+    mine = [e for e in events if e["payload"].get("change_id") == cid]
+    one = lambda t: next((e for e in mine if e["type"] == t), None)  # noqa: E731
+    verdicts = [e for e in mine if e["type"] == "verdict.issued"]
+    drafted = prop["payload"].get("drafted") or {}
+    listener = f"{target['address']}:{target['port']}"
+
+    # The scan the change was drafted from, else the last before the policy changed; and the first after it landed.
+    scans = _runs_of(var, "scan")
+    pol = next((e for e in events if e["type"] == "policy.changed"), None)
+    before = next((r for r in scans if r.id == (drafted.get("context") or {}).get("scan_run")), None) or \
+        next((r for r in reversed(scans) if pol and r.id < run.id), None)
+    after = next((r for r in scans if r.id > run.id and verdicts and next(iter(r.ledger.events()))["ts"] > verdicts[-1]["ts"]), None)
+    bev, aev = _events(before), _events(after)
+    found = [e for e in bev if e["type"] == "finding.observed" and _at(e["payload"].get("subject"), target)]
+    now = [e for e in aev if e["type"] == "finding.observed" and _at(e["payload"].get("subject"), target)]
+
+    steps = []
+
+    def step(key, box, title, who, did, details=(), link=None, model=None, ev=None):
+        steps.append({"key": key, "box": box, "title": title, "who": who, "did": did, "cbom": CBOM_ROLE[key],
+                      "details": [d for d in details if d], "link": link, "model": model,
+                      "when": (ev or {}).get("ts", "")[:10]})
+
+    if found:
+        kex = [_asset_words(e["payload"]["asset"]) for e in found if _kind_of(e["payload"]["asset"]) == "key exchange"]
+        certs = [_asset_words(e["payload"]["asset"]) for e in found if _kind_of(e["payload"]["asset"]) == "certificate"]
+        protos = [e["payload"]["asset"]["name"] for e in found if _kind_of(e["payload"]["asset"]) == "protocol"]
+        tools = sorted({e["actor"].get("id", "") for e in found})
+        step("discover", "tools", "Found", ["scanner"],
+             f"A scan of {service}'s listener ({listener}) records what it accepts: key exchange by {', '.join(kex)}"
+             + (f"; {', '.join(protos)}" if protos else "") + (f"; it serves an {', '.join(certs)}" if certs else "") + ".",
+             [f"{_asset_words(e['payload']['asset'])} — {_kind_of(e['payload']['asset'])}, seen by {e['actor'].get('id')}" for e in found]
+             + [f"{len(found)} findings from {', '.join(tools)}, scan {before.id}"],
+             link=f"/cbom?run={before.id}", ev=found[0])
+    facts = {e["payload"]["kind"]: (e["payload"]["to"] or {}).get("value") for e in bev
+             if e["type"] == "link.asserted" and e["payload"].get("status") == "supplied"
+             and _name(e["payload"].get("from")) == service}
+    links = [e for e in bev if e["type"] == "link.asserted" and e["payload"].get("status") == "discovered"
+             and _name(e["payload"].get("to")) == service]
+    if links or facts:
+        fw = []
+        if facts.get("mission-function"):
+            fw.append(f"mission: {facts['mission-function']}")
+        if facts.get("data-lifetime") is not None:
+            fw.append(f"data secret for {facts['data-lifetime']} years")
+        if facts.get("high-value-asset"):
+            fw.append("a high-value asset")
+        if facts.get("fips199-impact"):
+            fw.append(f"FIPS 199 {facts['fips199-impact']} impact")
+        if facts.get("owner"):
+            fw.append(f"owner: {facts['owner']}")
+        step("structure", "repository", "Connected", ["rule", "person"],
+             f"Rules link the listener to the {service} service and the image it runs, from what the runner saw at the address; "
+             f"the owner's facts attach to the service: {'; '.join(fw)}.",
+             [f"{e['payload']['kind']}: {e['payload'].get('basis')}" for e in links[:2]]
+             + [f"supplied by the owner: {k} = {v}" for k, v in facts.items()],
+             link=f"/cbom?run={before.id}" if before else None, ev=(links or [None])[0])
+    assess = [e for e in bev if e["type"] == "assessment.made" and _for_service(e, service, target)]
+    prio = next((e["payload"]["classification"] for e in assess if e["payload"].get("rule_id") == "priority/m-26-15/1"), None)
+    queues = [e["payload"]["classification"] for e in assess if e["payload"].get("rule_id") == "queue/m-26-15/1"]
+    kq = next((q for q in queues if (q.get("queue") or "").startswith("kex")), None)
+    blocked = next((e["payload"]["classification"] for e in assess if e["payload"].get("rule_id") == "blocker/supplier/1"), None)
+    if kq:
+        why = f"prioritized ({', '.join(prio['criteria'])}; the data must stay secret through {prio['sensitive_through']})" if prio and prio.get("prioritized") else "not prioritized"
+        step("prioritize", "engine", "Ranked", ["rule"],
+             f"The OMB M-26-15 rules mark the service {why} and open a key-establishment item in queue {kq['queue']}, due {kq['deadline']}: "
+             f"{', '.join(kq['vulnerable'])} {'is' if len(kq['vulnerable']) == 1 else 'are'} quantum-vulnerable"
+             + (f"; {', '.join(kq['post_quantum'])} is offered but not enforced" if kq.get("post_quantum") and not kq.get("enforced") else "") + "."
+             + (" Its software can take post-quantum cryptography, so no supplier blocks it." if blocked and blocked.get("state") == "not-blocked" else ""),
+             [f"queue {q['queue']}, due {q['deadline']} ({q.get('deadline_basis')}): {', '.join(q['vulnerable'])}" for q in queues if q.get("queue")],
+             link="/plan", ev=next(e for e in assess if e["payload"].get("rule_id") == "queue/m-26-15/1"))
+    tid = (drafted.get("context") or {}).get("trace")
+    trace = next((e for r in _runs_of(var, "investigate") for e in _events(r) if e["id"] == tid), None) if tid else None
+    if trace:
+        tp = trace["payload"]
+        answer = tp.get("answer") or {}
+        note = next((s.get("note") for s in reversed(tp.get("steps", [])) if s.get("action") == "answer"), "")
+        read = [s.get("path") for s in tp.get("steps", []) if s.get("action") == "read"]
+        agrees = (tp.get("key_check") or {}).get("agrees")
+        step("trace", "tools", "Traced to its cause", ["model"],
+             f"A model, given the {tp['finding']['asset']['name']} finding and the service's {len(tp.get('files', []))} configuration files, "
+             f"reads {', '.join(read) or 'them'} and answers: {note}",
+             [f"answer: cause {answer.get('cause')}" + (f", {answer['file']} lines {answer['line_start']}–{answer['line_end']}" if answer.get("file") else ""),
+              f"{tp['used']['steps']} of {tp['budget']['steps']} steps of its budget used" if tp.get("used") else None,
+              ("the answer key agrees" if agrees else "the answer key disagrees") if agrees is not None else None,
+              f"recorded as: {tp.get('claim')}" if tp.get("claim") else None],
+             model=MODELS["trace"], ev=trace)
+    if pol:
+        step("policy", "governance", "Policy set", ["person"],
+             f"The central crypto policy sets {service}'s intent to {intent}: {INTENT[intent]}.",
+             [f"policy file sha256 {pol['payload']['sha256'][:16]}…", f"recorded by: {pol['payload'].get('by')}"], ev=pol)
+    plus = [ln[1:] for ln in prop["payload"].get("diff", "").splitlines() if ln.startswith("+") and not ln.startswith("+++")]
+    if drafted:
+        ctx = drafted.get("context") or {}
+        calls = drafted.get("calls") or []
+        same = len({json.dumps(c.get("reply"), sort_keys=True) for c in calls}) == 1
+        step("draft", "migration", "Change drafted", ["model"],
+             f"A model drafts the edit from what the CBOM holds: {len(ctx.get('findings', []))} findings on the listener"
+             + (", the trace" if ctx.get("trace") else "") + f" and {len(ctx.get('files', []))} files, each by hash. "
+             + (f"Asked {len(calls)} times, it gave the same edit each time." if same and len(calls) > 1 else f"Asked {len(calls)} times."),
+             [f"+ {ln}" for ln in plus] + [f"files shown: {', '.join(f['path'] for f in ctx.get('files', []))}",
+                                          "the rollback is recorded with the proposal"],
+             link=f"/resolve?change={run.id}", model=MODELS["draft"], ev=prop)
+    else:
+        step("draft", "migration", "Change rendered", ["rule"],
+             f"The rule {prop['payload'].get('rule_id')} renders the policy into {service}'s configuration.",
+             [f"+ {ln}" for ln in plus] + ["the rollback is recorded with the proposal"], link=f"/resolve?change={run.id}", ev=prop)
+
+    def probes(v):
+        out = []
+        for p in v.get("probes", []):
+            what = {"positive": "a client offering only the post-quantum group", "negative": "a client offering only classical groups",
+                    "legacy": "a TLS 1.2 client", "witness": "testssl.sh, as a witness"}.get(p["name"], p["name"])
+            out.append(f"{what}: {p['result']}" + (f" ({p['negotiated']})" if p.get("negotiated") else ""))
+        return out
+    reh = one("rehearsal.completed")
+    if reh:
+        v = reh["payload"]["verdict"]
+        step("rehearse", "tools", "Rehearsed on a copy", ["verifier"],
+             f"A copy of {service} with the edit is started beside the estate, and the verifier probes it: {v['status']}"
+             + (", as the policy intends." if v.get("meets_intent") else ", which is not what the policy intends."),
+             [*probes(v), f"copy at {reh['payload']['twin']}, same image digest {reh['payload']['image_digest'][7:19]}…"], ev=reh)
+    mx = one("matrix.completed")
+    if mx:
+        rows = mx["payload"]["rows"]
+        out = [r["label"] for r in rows if r["effect"] == "shut out"]
+        step("matrix", "tools", "Who it would shut out", ["verifier"],
+             f"Each kind of client is tried against the copy, before and after: {len(rows) - len(out)} still served"
+             + (f"; shut out: {'; '.join(out)}." if out else "; none shut out."),
+             [f"{r['label']} (offers {r['offers']}): {r['today']['result']} → {r['proposed']['result']}" for r in rows], ev=mx)
+    ap = one("approval.granted")
+    if ap:
+        step("approve", "governance", "Approved", ["person"],
+             f"A person reviews the diff, the rehearsal and the matrix, and approves: {ap['payload'].get('by')}.",
+             [f"approval event {ap['id']}"], link=f"/resolve?change={run.id}", ev=ap)
+    apl = one("change.applied")
+    if apl:
+        c = apl["payload"].get("config") or {}
+        step("apply", "migration", "Applied", ["runner"],
+             f"The runner writes the approved file and replaces {service}'s container; the service is listening again.",
+             [f"{c.get('path')}: sha256 {c.get('sha256_before', '')[:12]}… → {c.get('sha256_after', '')[:12]}…" if c else None,
+              f"applies only with approval event {apl['payload'].get('approval_event')}"], ev=apl)
+    if verdicts:
+        last = verdicts[-1]["payload"]
+        step("prove", "tools", "Proved on the wire", ["verifier"],
+             f"The verifier probes the live listener: {verdicts[0]['payload']['status']}. Then the service is recreated from scratch "
+             f"and the probes repeated: {last['status']}{', durable' if last.get('durable') is True else ''}.",
+             [*probes(verdicts[0]["payload"]), f"bound to container {(last.get('binding') or {}).get('container_id', '')[:12]}, " f"certificate {(last.get('binding') or {}).get('cert_fingerprint', '')[:12]}…"],
+             link=f"/resolve?change={run.id}", ev=verdicts[-1])
+    if after and now:
+        was = {_asset_words(e["payload"]["asset"]) for e in found}
+        is_ = {_asset_words(e["payload"]["asset"]) for e in now}
+        gone, kept = sorted(was - is_), [_asset_words(e["payload"]["asset"]) for e in now]
+        aq = [e["payload"]["classification"] for e in aev if e["type"] == "assessment.made"
+              and e["payload"].get("rule_id") == "queue/m-26-15/1" and _for_service(e, service, target)]
+        met = any(q.get("state") == "met" and q.get("enforced") for q in aq)
+        step("update", "repository", "The CBOM shows it", ["scanner", "rule"],
+             f"The next scan's CBOM for the listener holds {', '.join(kept)}"
+             + (f"; gone: {', '.join(gone)}" if gone else "") + "."
+             + (" The key-establishment item is met." if met else ""),
+             [f"no longer accepted: {g}" for g in gone] + [f"scan {after.id}"], link=f"/cbom?run={after.id}", ev=now[0])
+        nxt = [q for q in aq if q.get("state") == "open"]
+        if nxt:
+            step("next", "engine", "What is next", ["rule"],
+                 "Still open for " + service + ": " + "; ".join(f"queue {q['queue']} ({', '.join(q['vulnerable'])}), due {q['deadline']}" for q in nxt)
+                 + ". The plan says where that comes in the order.",
+                 [], link="/plan", ev=aev[-1] if aev else None)
+    who = Counter(w for s in steps for w in s["who"])
+    return {"run": run.id, "change_id": cid, "service": service, "intent": intent, "intent_words": INTENT[intent],
+            "listener": listener, "steps": steps, "who": who, "before": before.id if before else None,
+            "after": after.id if after else None, "drafted": bool(drafted),
+            "signed": sum(1 for e in events if e["type"] == "checkpoint.signed")}
 
 
 def mini_agency(var: Path) -> dict:
@@ -194,7 +398,7 @@ def mini_agency(var: Path) -> dict:
                 "lines": [f"coverage against the answer key: wire {L.get('wire', {}).get('covered', '?')} of {L.get('wire', {}).get('denominator', '?')}, "
                           f"images {L.get('host', {}).get('covered', '?')} of {L.get('host', {}).get('denominator', '?')}; {flagged} of {decoys} decoys flagged",
                           f"{ch['landed']} changes verified landed; {ch['not_borne_out']} verdicts that do not re-derive, counted apart",
-                          (f"approval to proof: {story['approval_s']} s for the last change that landed" if story else "no change landed yet")],
+                          (f"the last change that landed: {story['service']}, {story['intent_words']}, proved on the wire and again after a restart" if story else "no change landed yet")],
                 "who": ["verifier"], "link": "/walkthrough#score", "state": "on"},
             "mitigation": {
                 "here": "where no change can be made",

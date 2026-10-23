@@ -391,3 +391,25 @@ header.site .tabs .demo-group a { font-size: 14px; }
 header.site .tabs .learn-group { gap: 2px 13px; }
 @media (max-width: 1100px) { header.site .tabs .demo-group, header.site .tabs .learn-group { flex-shrink: 1; flex-wrap: wrap; } }
 @media (prefers-color-scheme: light) { header.site .tabs .demo-group .group { color: var(--dim); } }
+
+/* One weakness, from finding to fixed: a card a step — who acts, what happened, what the CBOM gives it,
+   and the record behind it. A model's step is marked; while the replay plays, the current card is lit. */
+i.dot.runner { background: var(--classical); border: 2px solid var(--fg2); width: 10px; height: 10px; }
+.loopstory ol.story { list-style: none; padding: 0; margin: 12px 0 0; counter-reset: none; font-size: 14px; }
+.loopstory ol.story > li { border: 1px solid var(--line); border-left: 3px solid var(--line2); background: var(--bg); padding: 10px 14px; margin: 0 0 8px; }
+.loopstory ol.story > li.ai { border-left-color: var(--accent); }
+.loopstory ol.story > li.now { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); font-weight: inherit; }
+.st-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.st-head strong { color: var(--fg); font-size: 15px; }
+.st-n { font: 600 11px/1 var(--mono); color: var(--accent); border: 1px solid var(--accent); padding: 4px 6px 3px; min-width: 24px; text-align: center; }
+.st-who { display: inline-flex; gap: 10px; font: 11px var(--mono); color: var(--dim); }
+.st-who i.dot { margin-right: 4px; vertical-align: -1px; }
+.tag.ai { border-color: var(--accent); color: var(--accent); }
+.st-did { margin: 6px 0 4px; color: var(--fg2); }
+.st-cbom { margin: 0 0 4px; font-size: 13.5px; color: var(--fg2); border-left: 2px solid var(--line2); padding-left: 10px; }
+.st-cbom span { font: 600 10.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-right: 6px; }
+.st-model { margin: 0 0 4px; }
+.loopstory details { margin-top: 4px; font-size: 12.5px; }
+.loopstory details summary { cursor: pointer; color: var(--dim); font: 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+.loopstory details ul { margin: 6px 0; padding-left: 18px; color: var(--dim); } .loopstory details li { margin: 2px 0; word-break: break-word; }
+figure.agility .caption .cap-cbom { display: block; margin-top: 4px; font-size: 13px; color: var(--accent); }

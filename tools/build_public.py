@@ -73,6 +73,13 @@ def runs_to_publish(var: Path) -> list[str]:
     prev = previous(latest)
     if prev:
         keep.append(prev.id)
+    # The overview's story of one change reads the scan that found the weakness and the one that shows
+    # it gone; both go out with it.
+    from pqch.ui.agility import _change_story
+    story = _change_story(var)
+    for rid in (story or {}).get("before"), (story or {}).get("after"):
+        if rid and rid not in keep:
+            keep.append(rid)
     return keep
 
 
@@ -113,6 +120,10 @@ def render(work: Path, out: Path, base: str) -> dict[str, str]:
              "/resolve": "resolve/index.html"}
     if code:
         pages[f"/cbom?run={code}"] = "cbom/code/index.html"
+    from pqch.ui.agility import _change_story
+    story = _change_story(work)
+    for rid in {(story or {}).get("before"), (story or {}).get("after")} - {None, scan}:
+        pages[f"/cbom?run={rid}"] = f"cbom/{rid.lower()}/index.html"
     html = {}
     for url, path in pages.items():
         r = c.get(url)

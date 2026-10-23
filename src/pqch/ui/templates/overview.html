@@ -40,8 +40,8 @@
 </div>
 {% if a.story %}
 <div class="playbar">
-  <button type="button" id="play">▶ Watch one change go around the loop</button>
-  <span>{{ a.story.service }} made to {{ a.story.intent_words }}: {{ a.story.steps|length }} ledger events; approved, applied and proved in {{ a.story.approval_s }} s.</span>
+  <button type="button" id="play">▶ Follow one weakness from finding to fixed</button>
+  <span>{{ a.story.service }}: {{ a.story.steps|length }} steps around NIST's loop, from the scan that found it to the scan that shows it gone — {{ a.story.who.model or 0 }} by a model, {{ a.story.who.person or 0 }} by a person, the rest by scanners, rules, the runner and probes, every one reading from or writing to the CBOM.</span>
 </div>
 {% else %}
 <p class="note">{{ a.about }}</p>
@@ -73,7 +73,7 @@
   <div class="loop bottom"><span>Crypto</span><i>◀</i><span>Agility</span></div>
 </figure>
 <p class="credit">Layout after NIST CSWP 39-upd1, <cite>Considerations for Achieving Crypto Agility: Strategies and Practices</cite> (Barker, Chen, Cooper, Moody, Regenscheid, Souppaya, Newhouse, Housley, Turner, Barker and Kent; December 19, 2025, updated June 29, 2026), Fig. 3, “Crypto agility strategic plan for managing an organization’s cryptographic risks” — <a href="https://doi.org/10.6028/NIST.CSWP.39-upd1">doi:10.6028/NIST.CSWP.39-upd1</a>. Redrawn; NIST’s labels kept, its “…” boxes left out. NIST has not reviewed this page. Contents are this deployment’s live state: a label is bright where this estate reaches it, dashed in part, dim where it does not.</p>
-<div class="legend">Who acts: {% for w in ['scanner', 'rule', 'model', 'person', 'verifier'] %}<span><i class="dot {{ w }}"></i>{{ 'verifier — probes, no model' if w == 'verifier' else w }}</span>{% endfor %}</div>
+<div class="legend">Who acts: {% for w in ['scanner', 'rule', 'model', 'person', 'runner', 'verifier'] %}<span><i class="dot {{ w }}"></i>{{ 'verifier — probes, no model' if w == 'verifier' else w }}</span>{% endfor %}</div>
 
 <div id="details">
   <p class="note">{% if a.story %}{{ a.about }} {% endif %}{% if a.run %}Latest run <code>{{ a.run }}</code>.{% endif %}</p>
@@ -85,10 +85,20 @@
   </section>
   {% endfor %}
   {% if a.story %}
-  <section class="detail" id="d-replay" data-detail="replay">
-    <h3>One change, around the loop</h3>
-    <p class="lede">The last change that landed toward post-quantum and whose every verdict re-derives from its raw output: <strong>{{ a.story.service }}</strong> made to {{ a.story.intent_words }} (policy intent <code>{{ a.story.intent }}</code>), run <a href="/resolve?change={{ a.story.run }}"><code>{{ a.story.run }}</code></a>{% if a.story.hardware %}, on {{ a.story.hardware }}{% endif %}. Each step is a ledger event; the time is from the first.</p>
-    <ol class="story">{% for s in a.story.steps %}<li data-box="{{ s.box }}"><span class="t">{{ '%.1f'|format(s.ms / 1000) }} s</span> {{ s.label }}</li>{% endfor %}</ol>
+  <section class="detail loopstory" id="d-replay" data-detail="replay">
+    <h3>One weakness, from finding to fixed</h3>
+    <p class="lede">The last change that landed toward post-quantum, with every verdict re-deriving from its raw output: <strong>{{ a.story.service }}</strong> made to {{ a.story.intent_words }}. Each step says who acts, what happened, and what the CBOM gives it; every step is an event on a signed ledger ({{ a.story.signed }} ML-DSA-65 checkpoints on the change run alone). A model acts in {{ a.story.who.model or 0 }} of the {{ a.story.steps|length }}, each in a role it earned by measurement, and never where the question is whether the change worked.</p>
+    <ol class="story">{% for s in a.story.steps %}
+      <li data-box="{{ s.box }}" data-caption="{{ loop.index }}. {{ s.title }}{{ ' · AI, ' ~ s.model.role if s.model }} — {{ s.did }}" data-cbom="{{ s.cbom }}" class="{{ 'ai' if s.model }}">
+        <div class="st-head"><span class="st-n">{{ loop.index }}</span><strong>{{ s.title }}</strong>
+          <span class="st-who">{% for w in s.who %}<span><i class="dot {{ w }}"></i>{{ w }}</span>{% endfor %}</span>
+          {% if s.model %}<span class="tag ai" title="measured {{ s.model.score }}">AI · {{ s.model.role }}</span>{% endif %}</div>
+        <p class="st-did">{{ s.did }}</p>
+        <p class="st-cbom"><span>The CBOM's part</span> {{ s.cbom }}</p>
+        {% if s.model %}<p class="st-model small dim">{{ s.model.model }}, in the {{ s.model.role }} role: {{ s.model.score }} on the role's test set, against a floor written before the run.</p>{% endif %}
+        {% if s.details or s.link %}<details><summary>The record</summary><ul>{% for d in s.details %}<li class="{{ 'mono' if d.startswith('+ ') }}">{{ d }}</li>{% endfor %}</ul>{% if s.link %}<a href="{{ s.link }}">open it →</a>{% endif %}</details>{% endif %}
+      </li>{% endfor %}
+    </ol>
   </section>
   {% endif %}
 </div>
@@ -129,7 +139,7 @@
     boxes.forEach(function (b) { b.classList.remove("lit"); });
   }
   var btn = document.getElementById("play"); if (!btn) return;
-  var steps = Array.prototype.slice.call(document.querySelectorAll(".story li"));
+  var steps = Array.prototype.slice.call(document.querySelectorAll(".story > li"));
   btn.addEventListener("click", function () {
     stop(); show("replay"); var i = 0;
     frame.scrollIntoView({behavior: "smooth", block: "start"});
@@ -137,9 +147,10 @@
     timer = setInterval(function () {
       boxes.forEach(function (b) { b.classList.remove("lit"); }); steps.forEach(function (s) { s.classList.remove("now"); });
       if (i >= steps.length) { stop(); return; }
-      var s = steps[i++]; s.classList.add("now"); cap.textContent = s.textContent;
+      var s = steps[i++]; s.classList.add("now"); cap.textContent = s.dataset.caption;
+      if (s.dataset.cbom) { var c = document.createElement("span"); c.className = "cap-cbom"; c.textContent = "The CBOM's part: " + s.dataset.cbom; cap.appendChild(c); }
       var b = document.querySelector('#frame [data-box="' + s.dataset.box + '"]'); if (b) b.classList.add("lit");
-    }, 1500);
+    }, 4500);
   });
 })();
 </script>
