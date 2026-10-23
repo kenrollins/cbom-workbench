@@ -50,7 +50,18 @@
 <figure class="agility" id="frame">
   <div class="loop top"><span>Crypto</span><i>▶</i><span>Agility</span></div>
   <div class="loop left" aria-hidden="true">▲</div><div class="loop right" aria-hidden="true">▼</div>
-  <div class="caption" id="caption" aria-live="polite"></div>
+  <div class="caption" id="caption">
+    <div class="cap-controls" role="toolbar" aria-label="Replay controls">
+      <button type="button" data-act="prev" title="Previous step (←)" aria-label="Previous step">◀ Back</button>
+      <button type="button" data-act="toggle" title="Pause or play (space)" aria-label="Pause">Pause</button>
+      <button type="button" data-act="next" title="Next step (→)" aria-label="Next step">Next ▶</button>
+      <button type="button" data-act="stop" title="Stop (Esc)" aria-label="Stop">■ Stop</button>
+      <button type="button" data-act="speed" title="Seconds a step" aria-label="Speed">4.5 s</button>
+      <span class="cap-pos" aria-live="polite"></span>
+      <span class="cap-keys">space pauses · ← → step · Esc stops · click any step below to jump to it</span>
+    </div>
+    <div class="cap-text" aria-live="polite"></div>
+  </div>
   <div class="frame">
     {% call tile('governance', 'Governance', 'gov') %}{{ items('governance') }}{% endcall %}
     {% call tile('assets', 'Assets', 'assets') %}{{ items('assets') }}{% endcall %}
@@ -134,23 +145,71 @@
     });
   });
   show(null);
-  function stop() {
-    clearInterval(timer); frame.classList.remove("playing"); cap.textContent = "";
-    boxes.forEach(function (b) { b.classList.remove("lit"); });
+  var btn = document.getElementById("play"), steps = Array.prototype.slice.call(document.querySelectorAll(".story > li"));
+  var text = cap.querySelector(".cap-text"), pos = cap.querySelector(".cap-pos"), i = -1, playing = false;
+  var speeds = [4500, 2000, 7000], speed = 0;   // normal, fast, slow
+  function ctl(act) { return cap.querySelector('[data-act="' + act + '"]'); }
+  function clearLit() {
+    boxes.forEach(function (b) { b.classList.remove("lit"); }); steps.forEach(function (s) { s.classList.remove("now"); });
   }
-  var btn = document.getElementById("play"); if (!btn) return;
-  var steps = Array.prototype.slice.call(document.querySelectorAll(".story > li"));
-  btn.addEventListener("click", function () {
-    stop(); show("replay"); var i = 0;
-    frame.scrollIntoView({behavior: "smooth", block: "start"});
-    frame.classList.add("playing");
-    timer = setInterval(function () {
-      boxes.forEach(function (b) { b.classList.remove("lit"); }); steps.forEach(function (s) { s.classList.remove("now"); });
-      if (i >= steps.length) { stop(); return; }
-      var s = steps[i++]; s.classList.add("now"); cap.textContent = s.dataset.caption;
-      if (s.dataset.cbom) { var c = document.createElement("span"); c.className = "cap-cbom"; c.textContent = "The CBOM's part: " + s.dataset.cbom; cap.appendChild(c); }
-      var b = document.querySelector('#frame [data-box="' + s.dataset.box + '"]'); if (b) b.classList.add("lit");
-    }, 4500);
+  function stop() {
+    clearTimeout(timer); playing = false; i = -1; frame.classList.remove("playing"); clearLit();
+  }
+  // Replay: one step at a time — the step's card is marked, its box on the figure lit, and the caption
+  // says what happened and what the CBOM gave it. It can be paused, stepped back and forth, or stopped.
+  function render(n) {
+    clearLit(); i = Math.max(0, Math.min(n, steps.length - 1));
+    var s = steps[i]; s.classList.add("now");
+    text.textContent = s.dataset.caption;
+    if (s.dataset.cbom) { var c = document.createElement("span"); c.className = "cap-cbom"; c.textContent = "The CBOM's part: " + s.dataset.cbom; text.appendChild(c); }
+    var b = document.querySelector('#frame [data-box="' + s.dataset.box + '"]'); if (b) b.classList.add("lit");
+    pos.textContent = "step " + (i + 1) + " of " + steps.length + (playing ? "" : " · paused");
+    ctl("prev").disabled = i === 0; ctl("next").disabled = i === steps.length - 1;
+  }
+  function schedule() {
+    clearTimeout(timer);
+    if (!playing) return;
+    timer = setTimeout(function () {
+      if (i >= steps.length - 1) { setPlaying(false); return; }   // the end: hold the last step
+      render(i + 1); schedule();
+    }, speeds[speed]);
+  }
+  function setPlaying(on) {
+    playing = on;
+    var t = ctl("toggle"); t.textContent = on ? "Pause" : "▶ Play"; t.setAttribute("aria-label", on ? "Pause" : "Play");
+    if (i >= 0) render(i);
+    schedule();
+  }
+  function start(n) {
+    show("replay"); frame.classList.add("playing");
+    if (i < 0) frame.scrollIntoView({behavior: "smooth", block: "start"});
+    render(n); setPlaying(true);
+  }
+  if (!btn) return;
+  btn.addEventListener("click", function () { stop(); start(0); });
+  cap.addEventListener("click", function (ev) {
+    var act = ev.target.dataset && ev.target.dataset.act; if (!act) return;
+    if (act === "toggle") { if (!playing && i >= steps.length - 1) { render(0); } setPlaying(!playing); }
+    else if (act === "prev") { render(i - 1); schedule(); }
+    else if (act === "next") { render(i + 1); schedule(); }
+    else if (act === "stop") { stop(); }
+    else if (act === "speed") { speed = (speed + 1) % speeds.length; ev.target.textContent = speeds[speed] / 1000 + " s"; schedule(); }
+  });
+  // A step's card, clicked, becomes the current step and the replay pauses there.
+  steps.forEach(function (s, n) {
+    s.addEventListener("click", function (ev) {
+      if (ev.target.closest("a, summary, details")) return;
+      if (i < 0) { show("replay"); frame.classList.add("playing"); }
+      playing = false; render(n); setPlaying(false);
+      frame.scrollIntoView({behavior: "smooth", block: "start"});
+    });
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (!frame.classList.contains("playing") || /INPUT|TEXTAREA|SELECT/.test(ev.target.tagName) || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+    if (ev.key === " ") { ev.preventDefault(); ctl("toggle").click(); }
+    else if (ev.key === "ArrowRight") { ev.preventDefault(); if (i < steps.length - 1) { render(i + 1); schedule(); } }
+    else if (ev.key === "ArrowLeft") { ev.preventDefault(); if (i > 0) { render(i - 1); schedule(); } }
+    else if (ev.key === "Escape") { stop(); }
   });
 })();
 </script>

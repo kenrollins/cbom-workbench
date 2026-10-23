@@ -413,3 +413,15 @@ i.dot.runner { background: var(--classical); border: 2px solid var(--fg2); width
 .loopstory details summary { cursor: pointer; color: var(--dim); font: 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; }
 .loopstory details ul { margin: 6px 0; padding-left: 18px; color: var(--dim); } .loopstory details li { margin: 2px 0; word-break: break-word; }
 figure.agility .caption .cap-cbom { display: block; margin-top: 4px; font-size: 13px; color: var(--accent); }
+/* Replay controls, in the sticky caption: previous, pause or play, next, stop, speed, and where it is. */
+figure.agility:not(.playing) .caption { display: none; }
+figure.agility .caption .cap-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+figure.agility .caption .cap-controls button { font: 600 13px/1 var(--sans); min-width: 34px; padding: 6px 9px; background: transparent; color: var(--accent); border: 1px solid var(--accent); cursor: pointer; }
+figure.agility .caption .cap-controls button:hover:not([disabled]) { background: var(--accent); color: #06111a; box-shadow: none; }
+figure.agility .caption .cap-controls button[disabled] { opacity: .35; cursor: default; }
+figure.agility .caption .cap-controls button[data-act="speed"] { font: 500 11.5px var(--mono); }
+figure.agility .caption .cap-pos { font: 11.5px var(--mono); color: var(--dim); margin-left: 6px; }
+.loopstory ol.story > li { cursor: pointer; }
+.loopstory ol.story > li:hover { border-color: var(--line2); }
+figure.agility .caption .cap-keys { font: 11px var(--sans); color: var(--faint); margin-left: auto; }
+@media (max-width: 700px) { figure.agility .caption .cap-keys { display: none; } }
