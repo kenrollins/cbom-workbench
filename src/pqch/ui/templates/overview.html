@@ -117,12 +117,12 @@
 <section id="next">
   <h2><span class="step">→</span> Where to go from here</h2>
   <ul class="next">
-    <li><a href="/plan">The plan</a> — what the CBOM says depends on what, what comes first, and in what order: the migration plan no list of systems can give.</li>
     <li><a href="/agency">The test agency</a> — the mini-agency at a glance: eight services, what each is for, and what was planted where.</li>
     <li><a href="/walkthrough">The walkthrough</a> — the mini-agency from a stale spreadsheet to a CBOM and the plan it makes possible, step by step.</li>
     <li><a href="/cbom">Inside the CBOM</a> — the repository box opened: the document, one entry field by field, projections, and what changed between scans.</li>
-    <li><a href="/imports">Bring your own scanner</a> — any discovery tool's CBOM, imported and scored against the same answer key.</li>
+    <li><a href="/plan">The plan</a> — what the CBOM says depends on what, what comes first, and in what order: the migration plan no list of systems can give.</li>
     {% if not public %}<li><a href="/lab">A real network</a> — the lab estate as passive capture and targeted checks see it.</li>{% endif %}
+    <li><a href="/imports">Bring your own scanner</a> — any discovery tool's CBOM, imported and scored against the same answer key.</li>
     <li><a href="/site/notes/16-what-a-cbom-makes-possible/">What a CBOM makes possible</a> — the note behind this page, and the rungs from Opaque to Agile.</li>
   </ul>
 </section>
@@ -147,7 +147,7 @@
   show(null);
   var btn = document.getElementById("play"), steps = Array.prototype.slice.call(document.querySelectorAll(".story > li"));
   var text = cap.querySelector(".cap-text"), pos = cap.querySelector(".cap-pos"), i = -1, playing = false;
-  var speeds = [4500, 2000, 7000], speed = 0;   // normal, fast, slow
+  var speeds = [4500, 2000, 7000, 14000], speed = 0;   // normal, fast, slow, slowest
   function ctl(act) { return cap.querySelector('[data-act="' + act + '"]'); }
   function clearLit() {
     boxes.forEach(function (b) { b.classList.remove("lit"); }); steps.forEach(function (s) { s.classList.remove("now"); });
