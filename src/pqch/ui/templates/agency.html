@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>cbom-workbench — the test agency</title>
 <link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 {% set active = "agency" %}{% set lede = "<strong>The test agency.</strong> What the workbench is pointed at in this demo: a small, fictional agency built for it, every weakness planted on purpose and written down in an answer key." %}{% include "_header.html" %}
@@ -16,7 +17,7 @@
   <div class="receipt"><div class="k">Services</div><div class="n">{{ e.services|length }}</div><div class="s">in containers on one internal network, {{ e.network.subnet }}{% if e.network.internal %}, no route out{% endif %}</div></div>
   <div class="receipt"><div class="k">Listeners</div><div class="n">{{ e.listeners }}</div><div class="s">{{ e.postures.classical }} classical · {{ e.postures.mixed }} mixed · {{ e.postures.pq }} post-quantum, as built</div></div>
   <div class="receipt"><div class="k">The answer key</div><div class="n">{{ e.keyed }} <small>items</small></div><div class="s">{{ e.totals.present }} to find · {{ e.totals.decoy }} decoys · {{ e.totals['out-of-reach'] }} out of reach · {{ e.totals.supplied }} supplied by the owner</div></div>
-  <div class="receipt"><div class="k">Internal CA</div><div class="n">1</div><div class="s">issues {{ e.ca.issues|length }} services' certificates — one signature migration, not three</div></div>
+  <div class="receipt"><div class="k">Internal CA</div><div class="n">1</div><div class="s">issues {{ e.ca.issues|length }} services' certificates — one signature migration, not {{ e.ca.issues|length|words }}</div></div>
 </div>
 
 <h2>The estate</h2>

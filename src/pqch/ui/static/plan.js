@@ -1,3 +1,10 @@
+// The page's base path (/ when served live, /cbom-workbench/ on the published copy), read from the stylesheet's
+// address, so a link built from the plan's data lands where the page is served.
+var withBase = (function () {
+  var css = document.querySelector('link[rel="stylesheet"][href$="style.css"]');
+  var base = css ? new URL(css.getAttribute("href"), location.href).pathname.replace(/static\/style\.css$/, "") : "/";
+  return function (href) { return href && href.charAt(0) === "/" && href.indexOf(base) !== 0 ? base + href.slice(1) : href; };
+})();
 // The plan, drawn: one lane per service in priority order, plus the certificate authority and the
 // estate-wide work; columns are the waves (now, by 2030, by 2031), and within a wave a step sits right
 // of what it waits for. Lines are dependencies. The shared dependencies sit above the lanes; hovering
@@ -192,7 +199,8 @@
     }
     function apply(scroll) {
       var res = settle(); restyle(res); renderPanel(res);
-      history.replaceState(null, "", location.pathname + location.search + (assumed.length ? "#assume=" + encodeURIComponent(assumed.join(",")) : ""));
+      var q = new URLSearchParams(location.search); q.delete("assume"); var qs = q.toString();
+      history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + (assumed.length ? "#assume=" + encodeURIComponent(assumed.join(",")) : ""));
       if (scroll && assumed.length) document.getElementById("whatif-live").scrollIntoView({ behavior: "smooth", block: "start" });
     }
     document.addEventListener("click", function (ev) {
@@ -212,7 +220,7 @@
         + row("unblocks", s.unblocks.map(function (x) { return byId[x] ? esc(byId[x].title) : esc(x); }).join("<br>") || "—")
         + row("CBOM entries it moves", s.entries.length ? s.entries.length + " — <a href=\"/cbom\">see them on the chain</a>" : "—")
         + row("computed from", "<ul class=\"fields\">" + s.fields.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + "</ul>")
-        + (s.resolve ? row("resolve", "<a href=\"" + esc(s.resolve) + "\">" + esc(s.resolve_label || "resolve") + " →</a>") : "")
+        + (s.resolve ? row("resolve", "<a href=\"" + esc(withBase(s.resolve)) + "\">" + esc(s.resolve_label || "resolve") + " →</a>") : "")
         + (s.state !== "done" ? row("what if", "<a href=\"#\" data-whatif=\"" + esc(s.id) + "\">What if this were done? →</a> The plan is recomputed with it taken as done; nothing is changed or recorded.") : "")
         + (s.assumed ? row("what if", "<span class=\"warn-text\">taken as done for this what-if</span>") : "");
       panel.html(h);

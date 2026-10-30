@@ -58,3 +58,4 @@ day it was learned.
 | 44 | Publish a curated export, checked for leaks, not the working repository | all |
 | 45 | Score an inventory against a key that knows about changes: an item a verified change removed is remediated, not missed | agile |
 | 46 | After publishing a repository, read its own checks | all |
+| 47 | Before a demonstration, open the published page in a browser at each width it will be seen at, and read its network log | all |

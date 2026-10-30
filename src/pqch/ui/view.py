@@ -610,7 +610,7 @@ def capture_view(run: Run) -> dict:
                 sv["versions"].append({"name": a["name"], "n": p.get("negotiated", 0)})
         elif s["kind"] == "endpoint" and s["protocol"] == "ssh":
             k = (s["host"], s["port"])
-            sh = ssh.setdefault(k, {"host": s["host"], "port": s["port"], "vlan": s.get("vlan"), "sessions": p.get("sessions", 0),
+            sh = ssh.setdefault(k, {"host": s["host"], "port": s["port"], "vlan": s.get("vlan"), "inside": p.get("inside", True), "sessions": p.get("sessions", 0),
                                     "kex": [], "hostkeys": [], "server_software": p.get("server_software"),
                                     "client_software": p.get("client_software"), "event": fe["id"]})
             (sh["kex"] if a["role"] == "key-establishment" else sh["hostkeys"]).append(

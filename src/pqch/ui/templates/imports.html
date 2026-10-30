@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>cbom-workbench — bring your own scanner</title>
 <link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 {% set active = "imports" %}{% set lede = "<strong>Bring your own scanner.</strong> Any discovery tool's CycloneDX CBOM, imported as evidence and scored against the mini-agency's answer key on the same terms as the workbench's own." %}{% include "_header.html" %}
 <main>
-<p class="orient">Federal agencies inventory their cryptography with commercial discovery tools; this workbench uses open-source ones. Neither has to be taken on trust. A tool that exports a CBOM can be run against the mini-agency — eight services with every weakness planted and two decoys per layer — and its CBOM imported here: each entry is placed on a listener, a file in an image or a line of code, its names read the way the workbench reads its own, and the result scored against the answer key. Nothing about the tool is integrated, and nothing is taken from its vendor but its output.
+<p class="orient">Federal agencies inventory their cryptography with commercial discovery tools; this workbench uses open-source ones. Neither has to be taken on trust. A tool that exports a CBOM can be run against the mini-agency — {{ estate_services|words }} services with every weakness planted and decoys in every layer — and its CBOM imported here: each entry is placed on a listener, a file in an image or a line of code, its names read the way the workbench reads its own, and the result scored against the answer key. Nothing about the tool is integrated, and nothing is taken from its vendor but its output.
   <span class="ai">No model takes part in placing or scoring. Entries a tool reports with no location the workbench can find again are kept in the import's record by name and not counted.</span></p>
 <p class="note">How: <code>pqch import FILE[=IMAGE] … --tool NAME --key agency/answer-key.yaml</code>. A tool that writes one CBOM per image names the image after <code>=</code>.</p>
 

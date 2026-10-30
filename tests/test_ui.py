@@ -40,13 +40,14 @@ def test_overview_draws_nists_frame_for_both_estates(slice_run, monkeypatch):
     write_cboms(slice_run)
     write_score(slice_run, __import__("pathlib").Path("eval/answer-keys/mini-agency-m0.yaml"))
     monkeypatch.setenv("PQCH_VAR", str(slice_run.var))
+    monkeypatch.setenv("PQCH_TRUSTED_PROXIES", "testclient")      # the lab estate answers a signed-on viewer only
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         from fastapi.testclient import TestClient
 
         import pqch.ui.app as ui
         importlib.reload(ui)
-        c = TestClient(ui.app)
+        c = TestClient(ui.app, headers={"X-Forwarded-User": "ken"})
     html = c.get("/").text
     # NIST's figure, credited, with its own labels; the estate's live counts inside it.
     for text in ("NIST CSWP 39-upd1", "doi.org/10.6028/NIST.CSWP.39-upd1", "NIST has not reviewed this page",
@@ -89,13 +90,14 @@ def test_house_cbom_merges_both_layers_by_fingerprint():
 def test_the_plan_pages_render(slice_run, monkeypatch):
     # Every page template must compile and render, with or without a plan to show.
     monkeypatch.setenv("PQCH_VAR", str(slice_run.var))
+    monkeypatch.setenv("PQCH_TRUSTED_PROXIES", "testclient")      # the lab estate answers a signed-on viewer only
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         from fastapi.testclient import TestClient
 
         import pqch.ui.app as ui
         importlib.reload(ui)
-        c = TestClient(ui.app)
+        c = TestClient(ui.app, headers={"X-Forwarded-User": "ken"})
     for url in ("/agency", "/plan", "/plan?estate=lab", "/plan?assume=replace:queue", "/resolve", "/imports", "/packages"):
         assert c.get(url).status_code == 200, url
 

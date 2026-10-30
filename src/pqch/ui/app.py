@@ -70,11 +70,72 @@ if PREVIEW.is_dir():
 templates = Jinja2Templates(directory=HERE / "templates")
 # Under "Demo" in the header: "live" when this app serves the pages; a static copy sets another word.
 templates.env.filters["first_up"] = lambda s: s[:1].upper() + s[1:] if s else s
+# The estate's service count, from its own description, and the ledger's signature algorithm, from the signer:
+# the pages name both in prose and never carry the number or the name typed by hand.
+from pqch.signer import ALG as _SIG_ALG  # noqa: E402
+
+templates.env.globals["sig_alg"] = _SIG_ALG
+
+
+def _estate_services() -> int | None:
+    try:
+        import yaml
+
+        return len(yaml.safe_load((AGENCY / "about.yaml").read_text())["services"])
+    except Exception:
+        return None
+
+
+templates.env.globals["estate_services"] = _estate_services()
+templates.env.filters["words"] = lambda n: ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"][n] if isinstance(n, int) and 0 <= n <= 12 else str(n if n is not None else "?")
 templates.env.globals["demo_mode"] = os.environ.get("PQCH_DEMO_MODE", "live")
 # Public: the mini-agency only, read-only. No lab page, link or data; no scan, propose or approve.
 # Set for the static build published on GitHub Pages (tools/build_public.py).
 PUBLIC = os.environ.get("PQCH_PUBLIC") == "1"
 templates.env.globals["public"] = PUBLIC
+# The lab portal's address(es), allowed to read the VLAN-level summary (/lab/estate.json) and
+# nothing else of the lab. Empty means only a signed-on viewer through the front door may.
+ESTATE_READERS = {a.strip() for a in os.environ.get("PQCH_ESTATE_READERS", "").split(",") if a.strip()}
+LAB_KINDS = ("capture", "scan-external")
+
+
+def lab_viewer(request: Request) -> bool:
+    """The lab's pages and files answer only to a signed-on viewer arriving through the front door:
+    not public, a trusted-proxy peer, and the sign-on header set. Anything else is 404, the same as
+    public mode — the lab is not acknowledged to a peer on the DMZ network that typed the address."""
+    return not PUBLIC and identity(request) is not None
+
+
+def _lab_or_404(request: Request) -> None:
+    if not lab_viewer(request):
+        raise HTTPException(404)
+
+
+def _lab_run(run_id: str) -> bool:
+    """True for a run that is the lab's — or one whose kind cannot be read, which is not shown either:
+    a run directory with a damaged or missing ledger fails closed, not open."""
+    if not run_id.isalnum() or not (VAR / "runs" / run_id).is_dir():
+        return False
+    return _run_kind(run_id) in (*LAB_KINDS, None)
+
+
+def _refuse_lab_run(request: Request, run_id: str | None) -> None:
+    if run_id is not None and _lab_run(run_id) and not lab_viewer(request):
+        raise HTTPException(404)
+
+
+def _run_kind(run_id: str) -> str | None:
+    """A run's kind from its first event alone, or None when there is no such run."""
+    led = VAR / "runs" / run_id / "ledger.jsonl"
+    if not run_id.isalnum() or not led.is_file():
+        return None
+    try:
+        import json as _json
+
+        with led.open(encoding="utf-8") as f:
+            return (_json.loads(f.readline() or "{}").get("payload") or {}).get("kind", "scan")
+    except (OSError, ValueError):
+        return None
 
 
 @app.on_event("startup")
@@ -138,7 +199,7 @@ def overview(request: Request, estate: str = "mini-agency"):
     this workbench does there for one estate, read from the ledgers."""
     from pqch.ui import agility
 
-    if estate not in ("mini-agency", "lab") or (PUBLIC and estate == "lab"):
+    if estate not in ("mini-agency", "lab") or (estate == "lab" and not lab_viewer(request)):
         raise HTTPException(404)
     if estate == "lab":
         cr, sr = Run.latest(VAR, "capture"), Run.latest(VAR, "scan-external")
@@ -163,7 +224,7 @@ def plan_page(request: Request, estate: str = "mini-agency", assume: str = ""):
     """The plan the CBOM makes possible: what depends on what, what comes first, in what order."""
     from pqch import planning
 
-    if estate not in ("mini-agency", "lab") or (PUBLIC and estate == "lab"):
+    if estate not in ("mini-agency", "lab") or (estate == "lab" and not lab_viewer(request)):
         raise HTTPException(404)
     # What-if: steps taken as done, named in the address; nothing is written anywhere.
     assumed = frozenset(a for a in assume.split(",") if a)
@@ -197,6 +258,7 @@ def packages(request: Request, run: str | None = None):
 
     if run is not None and not run.isalnum():
         raise HTTPException(404)
+    _refuse_lab_run(request, run)
     r = Run(VAR, run) if run else Run.latest(VAR, "package")
     return templates.TemplateResponse(request, "packages.html", {"p": packages_view(r)})
 
@@ -206,6 +268,7 @@ def resolve(request: Request, change: str | None = None):
     """Resolution: carrying out a step of the plan — propose, rehearse, matrix, approve, apply, verify."""
     if change is not None and not change.isalnum():
         raise HTTPException(404)
+    _refuse_lab_run(request, change)
     from pqch.pipeline import signer_from_env
 
     cr = Run(VAR, change) if change else Run.latest(VAR, "change")
@@ -218,11 +281,15 @@ def resolve(request: Request, change: str | None = None):
 def index(request: Request, run: str | None = None, change: str | None = None):
     if (run is not None and not run.isalnum()) or (change is not None and not change.isalnum()):
         raise HTTPException(404)
+    _refuse_lab_run(request, run)
+    _refuse_lab_run(request, change)
     from pqch.pipeline import signer_from_env
 
     signer = signer_from_env()
     r = Run(VAR, run) if run else (Run.latest(VAR, "scan") or Run.latest(VAR))
-    if r and r.ledger.exists() and next(r.ledger.events())["payload"].get("kind") == "change":
+    # The walkthrough reads a scan of the mini-agency; asked for a run of any other kind (a change, a code
+    # scan, a capture), it shows the latest scan instead of failing on the other kind's events.
+    if r and r.ledger.exists() and next(r.ledger.events())["payload"].get("kind", "scan") != "scan":
         r = Run.latest(VAR, "scan")
     view = run_view(r, signer) if r and r.ledger.exists() else {}
     from pqch import planning
@@ -251,10 +318,10 @@ def cbom_page(request: Request, run: str | None = None, ref: str | None = None):
     if run is not None and not run.isalnum():
         raise HTTPException(404)
     r = _scan_run(run)
-    if PUBLIC and r and next(r.ledger.events())["payload"].get("kind") in ("scan-external", "capture"):
+    if r and next(r.ledger.events())["payload"].get("kind") in LAB_KINDS and not lab_viewer(request):
         raise HTTPException(404)
     code = Run.latest(VAR, "scan-code")
-    lab = Run.latest(VAR, "scan-external")
+    lab = Run.latest(VAR, "scan-external") if lab_viewer(request) else None
     estate = Run.latest(VAR, "scan")
     ctx = {"d": None}
     if r:
@@ -302,13 +369,14 @@ def _chain(r: Run, kind: str) -> dict | None:
 
 
 @app.get("/runs/{run_id}/projection/{name}.csv")
-def projection_csv(run_id: str, name: str):
+def projection_csv(request: Request, run_id: str, name: str):
     from fastapi.responses import PlainTextResponse
 
     from pqch.cbom import tables
 
     if not run_id.isalnum() or not name.replace("-", "").isalnum():
         raise HTTPException(404)
+    _refuse_lab_run(request, run_id)
     path = PROJECTIONS / f"{name}.yaml"
     r = Run(VAR, run_id)
     if not path.is_file() or not r.ledger.exists():
@@ -321,9 +389,8 @@ def projection_csv(run_id: str, name: str):
 @app.get("/lab")
 def lab(request: Request, run: str | None = None):
     """The owner's lab as passive capture shows it: the latest capture run, drawn."""
-    if PUBLIC:
-        raise HTTPException(404)
-    if run is not None and not run.isalnum():
+    _lab_or_404(request)
+    if run is not None and (not run.isalnum() or _run_kind(run) != "capture"):
         raise HTTPException(404)
     r = Run(VAR, run) if run else Run.latest(VAR, "capture")
     view = _capture_cached(r) if r and r.ledger.exists() else {}
@@ -339,15 +406,30 @@ def lab(request: Request, run: str | None = None):
 
 
 @app.get("/lab/house.cdx.json")
-def lab_house_cbom():
+def lab_house_cbom(request: Request):
     """The house as one CycloneDX document: the capture's inside entries and the targeted scan's, merged."""
-    if PUBLIC:
-        raise HTTPException(404)
+    _lab_or_404(request)
     cr, sr = Run.latest(VAR, "capture"), Run.latest(VAR, "scan-external")
     h = _house_cached(cr if cr and cr.ledger.exists() else None, sr if sr and sr.ledger.exists() else None)
     if not h:
         raise HTTPException(404)
     return JSONResponse(h["doc"], headers={"Content-Disposition": "attachment; filename=house.cdx.json"})
+
+
+@app.get("/lab/estate.json")
+def lab_estate(request: Request):
+    """The lab at VLAN level for the lab portal's front page: shares, postures and counts by VLAN name,
+    never an address. Read by the portal's address (PQCH_ESTATE_READERS) or a signed-on viewer."""
+    peer = request.client.host if request.client else None
+    if PUBLIC or not (peer in ESTATE_READERS or lab_viewer(request)):
+        raise HTTPException(404)
+    from pqch.ui import lab_summary
+
+    cr, sr = Run.latest(VAR, "capture"), Run.latest(VAR, "scan-external")
+    out = lab_summary.build(VAR, cr if cr and cr.ledger.exists() else None, sr if sr and sr.ledger.exists() else None)
+    if not out:
+        raise HTTPException(404)
+    return JSONResponse(out, headers={"Cache-Control": "max-age=300"})
 
 
 _house_cache: dict[tuple, dict | None] = {}
@@ -536,7 +618,14 @@ def estate_reset(request: Request):
 
 
 @app.post("/scan")
-def scan(host: str = "replay"):
+def scan(request: Request, host: str = "replay"):
+    # Started from the page itself, never from another site; where there is a front door, by a viewer signed on
+    # through it; never in the public snapshot.
+    if PUBLIC:
+        raise HTTPException(404)
+    same_origin(request)
+    if TRUSTED_PROXIES and not identity(request):
+        raise HTTPException(403, "a scan needs the front door's sign-on, on a connection from the front door")
     if host not in ("replay", "live"):
         raise HTTPException(400, "host must be replay or live")
     with state.lock:
@@ -553,9 +642,10 @@ def scan_status():
 
 
 @app.get("/runs/{run_id}/{name}")
-def download(run_id: str, name: str):
+def download(request: Request, run_id: str, name: str):
     if name not in DOWNLOADS or not run_id.isalnum():
         raise HTTPException(404)
+    _refuse_lab_run(request, run_id)
     path = VAR / "runs" / run_id / name
     if not path.is_file():
         raise HTTPException(404)

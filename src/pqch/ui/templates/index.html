@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>cbom-workbench — the mini-agency</title>
 <link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 {% set active = "demo" %}{% set lede = "<strong>Walkthrough.</strong> Everything here runs against the <em>mini-agency</em>: eight small services — a benefits portal, a records database, a message queue, two SSH hosts and others — built in this lab for the purpose, with every cryptographic weakness planted, so there is an answer key to score against. Read top to bottom: the spreadsheet, the scan, the CBOM, what comes first, a change proved on the wire, the receipts." %}{% include "_header.html" %}
@@ -19,7 +20,7 @@
 
 <section id="opaque">
   <h2><span class="step">1</span> The spreadsheet <span class="tag static">static</span></h2>
-  <p class="lede">This is most inventories today: kept by hand, already out of date. Here it is the sheet of <a href="/agency">the test agency</a>, a fictional estate of eight services built for this demo, with every weakness planted and keyed.</p>
+  <p class="lede">This is most inventories today: kept by hand, already out of date. Here it is the sheet of <a href="/agency">the test agency</a>, a fictional estate of {{ estate_services|words }} services built for this demo, with every weakness planted and keyed.</p>
   <table class="sheet">
     <thead><tr><th>System</th><th>What the sheet says</th><th>Owner</th></tr></thead>
     <tbody>
@@ -226,7 +227,7 @@
   {% set sg = v.signed %}
   <p>Signatures:
     {% if not sg.ok %}<span class="bad">{{ sg.error }}</span>
-    {% elif sg.checkpoints %}<span class="good">{{ sg.checkpoints }} checkpoint{{ 's' if sg.checkpoints != 1 }} verified</span>, ML-DSA-65, signed through event {{ sg.signed_through }}{% if sg.unsigned_after %}; <span class="bad">{{ sg.unsigned_after }} event{{ 's' if sg.unsigned_after != 1 }} after it unsigned</span>{% endif %}
+    {% elif sg.checkpoints %}<span class="good">{{ sg.checkpoints }} checkpoint{{ 's' if sg.checkpoints != 1 }} verified</span>, {{ sig_alg }}, signed through event {{ sg.signed_through }}{% if sg.unsigned_after %}; <span class="bad">{{ sg.unsigned_after }} event{{ 's' if sg.unsigned_after != 1 }} after it unsigned</span>{% endif %}
     {% else %}<span class="dim">no checkpoint yet</span>{% endif %}
     · checked against {{ sg.source }}{% if sg.pub_mismatch %} · <span class="bad">the ledger.pub beside this run is not the signer's key</span>{% endif %}</p>
   {% if sg.key_id %}<p class="note">Public key id (SHA-256 of the key): <code>{{ sg.key_id }}</code>{% if sg.last %} · latest checkpoint head <code>{{ sg.last.head_hash }}</code> through event {{ sg.last.through_seq }}, signed in {{ sg.last.signing_ms }} ms on {{ sg.last.hardware }}{% endif %}.
@@ -307,7 +308,7 @@
   <p class="lede">Planted weaknesses this scan no longer finds because a verified change removed them — out of the denominator, not counted as misses. A reset of the mini-agency puts them back.</p>
   <ul class="misses">{% for r in rem %}<li><code>{{ r.item }}</code> <span class="dim">— removed by change <code>{{ r.change_id }}</code> (run <a href="/resolve?change={{ r.run }}"><code>{{ r.run }}</code></a>)</span></li>{% endfor %}</ul>
   {% endif %}
-  <p class="note">Unkeyed: components outside the key's scope (hashes, symmetric algorithms, public halves of certificates) or not planted; neither credited nor penalized. Supplied: the owner's facts the key lists, carried on the service and labelled supplied; never coverage. Code layer: no source scanner runs in M0.
+  <p class="note">Unkeyed: components outside the key's scope (hashes, symmetric algorithms, public halves of certificates) or not planted; neither credited nor penalized. Supplied: the owner's facts the key lists, carried on the service and labelled supplied; never coverage. Code layer: scored from its own run, when one has been made, on the page that lists it.
   Score computed from this run's CBOMs on {{ v.score.labels.hardware if v.score.labels else hardware }}; key <code>{{ v.score.key.path.split('/')[-1] }}</code> sha256 <code>{{ v.score.key.sha256[:16] }}…</code>, the hash this run recorded.</p>
   {% else %}
   <p class="note">No score for this run.</p>

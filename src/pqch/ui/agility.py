@@ -18,6 +18,15 @@ from pathlib import Path
 from pqch.ledger import verify
 from pqch.run import Run
 
+from pqch.signer import ALG as SIG_ALG
+
+
+def _words(n) -> str:
+    """A small count in words, as the prose around it reads; larger counts and unknowns stay as digits."""
+    small = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"]
+    return small[n] if isinstance(n, int) and 0 <= n < len(small) else str(n if n is not None else "?")
+
+
 # Where a model acts, with the measurement that put it there (spike S3; note 13). Each is a claim the
 # BRIEF's facts table carries with its run.
 MODELS = {
@@ -275,14 +284,16 @@ def _change_story(var: Path) -> dict | None:
         c = apl["payload"].get("config") or {}
         step("apply", "migration", "Applied", ["runner"],
              f"The runner writes the approved file and replaces {service}'s container; the service is listening again.",
-             [f"{c.get('path')}: sha256 {c.get('sha256_before', '')[:12]}… → {c.get('sha256_after', '')[:12]}…" if c else None,
+             [f"{c.get('path')}: sha256 {(c.get('sha256_before') or '')[:12]}… → {(c.get('sha256_after') or '')[:12]}…" if c else None,
               f"applies only with approval event {apl['payload'].get('approval_event')}"], ev=apl)
     if verdicts:
         last = verdicts[-1]["payload"]
         step("prove", "tools", "Proved on the wire", ["verifier"],
              f"The verifier probes the live listener: {verdicts[0]['payload']['status']}. Then the service is recreated from scratch "
              f"and the probes repeated: {last['status']}{', durable' if last.get('durable') is True else ''}.",
-             [*probes(verdicts[0]["payload"]), f"bound to container {(last.get('binding') or {}).get('container_id', '')[:12]}, " f"certificate {(last.get('binding') or {}).get('cert_fingerprint', '')[:12]}…"],
+             [*probes(verdicts[0]["payload"]),
+              f"bound to container {((last.get('binding') or {}).get('container_id') or '')[:12]}"
+              + (f", certificate {((last.get('binding') or {}).get('cert_fingerprint') or '')[:12]}…" if (last.get('binding') or {}).get('cert_fingerprint') else "")],
              link=f"/resolve?change={run.id}", ev=verdicts[-1])
     if after and now:
         was = {_asset_words(e["payload"]["asset"]) for e in found}
@@ -353,14 +364,15 @@ def mini_agency(var: Path) -> dict:
     decoys = sum(L.get(k, {}).get("decoys", 0) for k in L if L.get(k, {}).get("scanned"))
     d = {
         "estate": "mini-agency", "title": "The mini-agency",
-        "about": "Eight small services built in this lab with every weakness planted, so every answer can be checked against a key.",
+        "about": f"{_words(services).capitalize()} small services built in this lab with every weakness planted, so every answer can be checked against a key.",
+        "services": services,
         "run": scan and scan.id, "scan_run": scan and scan.id, "span": None,
         "boxes": {
             "governance": {
                 "here": "policy packs and the owner's facts",
                 "lines": ["OMB M-26-15 as data: every rule in the memo's own words, checked against its text",
                           "CNSA 2.0 carried unverified (the primary was not readable)",
-                          f"the crypto policy: {', '.join(t for t in ('portal', 'records-db', 'bastion'))} under policy",
+                          f"the crypto policy: {', '.join(t for t in ('portal', 'api', 'records-db', 'bastion'))} under policy",
                           f"owner's facts for {services} services — mission, data lifetime, impact, owner — labelled supplied"],
                 "who": ["person", "rule"], "link": "/walkthrough#queues", "state": "on"},
             "assets": {
@@ -382,7 +394,7 @@ def mini_agency(var: Path) -> dict:
                 "link": "/walkthrough#cbom", "state": "on"},
             "repository": {
                 "here": "the signed ledger and the CBOM built from it",
-                "lines": [f"{len(ev)} events in the latest scan, hash-chained, checkpointed with ML-DSA-65",
+                "lines": [f"{len(ev)} events in the latest scan, hash-chained, checkpointed with {SIG_ALG}",
                           f"a CycloneDX 1.6 CBOM of {len(bom['components'])} components, rebuilt from the ledger, never edited",
                           "projected again on demand: an agency inventory in milliseconds, no scan"],
                 "who": ["rule"], "link": "/cbom", "state": "on"},
@@ -483,7 +495,7 @@ def lab(var: Path, capture: dict | None, scan_view: dict | None, house: dict | N
                 "here": "the same ledger, and the house's CBOM built from it",
                 "lines": ([f"a CycloneDX 1.6 CBOM of the house: {house['entries']:,} entries, {house['both']} of them seen by both layers and merged into one"]
                           if house else []) + [f"{cv.get('ledger', {}).get('events', 0):,} events in the latest capture run, hash-chained; still open for the daily ingest, so not yet signed",
-                          f"{sv.get('ledger', {}).get('events', 0):,} in the latest targeted scan, closed and signed (ML-DSA-65)",
+                          f"{sv.get('ledger', {}).get('events', 0):,} in the latest targeted scan, closed and signed ({SIG_ALG})",
                           "kept with the deployment; nothing from it is published"],
                 "who": ["rule"], "link": "/lab#house-cbom", "state": "on"},
             "engine": {
@@ -544,7 +556,7 @@ ITEMS = {
         "Crypto Architecture": ("partial", "one policy-file shape per software (nginx, PostgreSQL, OpenSSH)"),
         "Code": ("on", "one pinned federal repository: rule pack, then a model judges each call site"),
         "Libraries": ("partial", "each runtime's TLS library and version, read for its capability list; not yet a CBOM entry"),
-        "Applications": ("on", "eight services, each tied to its listeners and image"),
+        "Applications": ("on", "{services} services, each tied to its listeners and image"),
         "Files": ("on", "keys, certificates and configuration in each image"),
         "Protocols": ("on", "TLS and SSH, every group and version each listener accepts"),
         "Systems": ("on", "the containers and the network they sit on"),
@@ -585,6 +597,7 @@ ITEMS = {
 def build(estate: str, var: Path, capture: dict | None = None, scan_view: dict | None = None, house: dict | None = None) -> dict:
     d = lab(var, capture, scan_view, house) if estate == "lab" else mini_agency(var)
     items = ITEMS[d["estate"]]
-    d["nist"] = {region: [{"label": n, "state": items[n][0], "what": items[n][1]} for n in names]
+    # An item's text may name a count the estate's record gives (its services), never a number typed here.
+    d["nist"] = {region: [{"label": n, "state": items[n][0], "what": items[n][1].format(services=_words(d.get("services")))} for n in names]
                  for region, names in NIST.items()}
     return d

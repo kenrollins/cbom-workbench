@@ -32,7 +32,7 @@
     D.clients.forEach(function (c) { (byVlan[c.vlan == null ? "?" : c.vlan] = byVlan[c.vlan == null ? "?" : c.vlan] || []).push({ id: "c:" + c.host, kind: "client", label: c.host, d: c, n: c.handshakes }); });
     D.servers.forEach(function (s) { (byVlan[s.vlan == null ? "?" : s.vlan] = byVlan[s.vlan == null ? "?" : s.vlan] || []).push({ id: "l:" + s.host + ":" + s.port, kind: "listener", label: s.host + ":" + s.port, d: s, n: s.handshakes }); });
     var inside = Object.keys(byVlan).sort(function (a, b) { return (+a || 9999) - (+b || 9999); }).map(function (v) {
-      return { id: "vlan:" + v, label: "VLAN " + v, children: byVlan[v].sort(function (a, b) { return a.kind === b.kind ? b.n - a.n : (a.kind === "listener" ? -1 : 1); }) };
+      return { id: "vlan:" + v, label: v === "?" ? "untagged" : "VLAN " + v, children: byVlan[v].sort(function (a, b) { return a.kind === b.kind ? b.n - a.n : (a.kind === "listener" ? -1 : 1); }) };
     });
     var named = {}; D.outside.forEach(function (o) { named[o.domain] = true; });
     var other = { domain: "other names", handshakes: 0, hybrid: 0, classical: 0, servers: 0 };
@@ -60,13 +60,19 @@
       var ls = half.leaves(), a0 = d3.min(ls, function (l) { return l.x; }), a1 = d3.max(ls, function (l) { return l.x; });
       g.append("path").attr("d", arc({ innerRadius: R0 + 86, outerRadius: R0 + 88, startAngle: (a0 - 1) * Math.PI / 180, endAngle: (a1 + 1) * Math.PI / 180 })).attr("fill", C.line2);
     });
-    inside.forEach(function (v) {
+    inside.forEach(function (v, vi) {
       var node = root.children[0].children.find(function (n) { return n.data.id === v.id; });
       var ls = node.leaves(), a0 = d3.min(ls, function (l) { return l.x; }), a1 = d3.max(ls, function (l) { return l.x; });
       g.append("path").attr("d", arc({ innerRadius: R0 + 6, outerRadius: R0 + 9, startAngle: (a0 - .6) * Math.PI / 180, endAngle: (a1 + .6) * Math.PI / 180 })).attr("fill", C.accent).attr("fill-opacity", .7);
-      var mid = (a0 + a1) / 2, rr = R0 + 100;
-      g.append("text").attr("transform", "rotate(" + (mid - 90) + ") translate(" + rr + ",0) rotate(" + (mid < 180 ? 0 : 180) + ")")
-        .attr("text-anchor", mid < 180 ? "start" : "end").attr("fill", C.accent).attr("font-family", MONO).attr("font-size", 10.5).attr("letter-spacing", ".08em").text(v.label);
+      // The VLAN's name runs along its arc (a radial label at the top or bottom of the ring left the
+      // drawing); the arc is padded so a short VLAN still holds its name, read left to right on both halves.
+      var mid = (a0 + a1) / 2, rr = R0 + 100 + (vi % 2) * 13, flip = mid > 90 && mid < 270, pad = 24;  // neighbours alternate radius so two short arcs' names never overlap
+      var pt = function (a) { var t = (a - 90) * Math.PI / 180; return [rr * Math.cos(t), rr * Math.sin(t)]; };
+      var s = pt(flip ? a1 + pad : a0 - pad), e = pt(flip ? a0 - pad : a1 + pad), lid = "vlarc-" + v.id.replace(/\W/g, "");
+      g.append("path").attr("id", lid).attr("fill", "none")
+        .attr("d", "M" + s + "A" + rr + "," + rr + " 0 " + ((a1 - a0 + 2 * pad) > 180 ? 1 : 0) + "," + (flip ? 0 : 1) + " " + e);
+      g.append("text").attr("fill", C.accent).attr("font-family", MONO).attr("font-size", 10.5).attr("letter-spacing", ".08em")
+        .append("textPath").attr("href", "#" + lid).attr("startOffset", "50%").attr("text-anchor", "middle").attr("dominant-baseline", "middle").text(v.label);
     });
     var links = g.append("g").attr("fill", "none").selectAll("path").data(edges).join("path")
       .attr("d", function (d) { return line(d.path); }).attr("stroke", function (d) { return EC[d.cls]; })
@@ -82,10 +88,11 @@
       .attr("font-size", function (d) { return d.data.kind === "listener" ? 10.5 : 9.5; }).attr("font-family", MONO).attr("font-weight", function (d) { return d.data.kind === "listener" ? 600 : 400; })
       .text(function (d) { return d.data.label; }).each(function (d) { if (d.data.kind !== "listener") fit(d3.select(this), 82); });
     svg.append("text").attr("x", -W / 2 + 10).attr("y", -H / 2 + 22).attr("fill", C.fg).attr("font-size", 13).attr("font-weight", 600).text(fmt(edges.length) + " client–server pairs, " + fmt(d3.sum(edges, function (d) { return d.e.n; })) + " handshakes");
-    var leg = svg.append("g").attr("transform", "translate(" + (-W / 2 + 10) + "," + (H / 2 - 54) + ")");
+    // The line legend sits in the top-right corner, clear of the ring's labels (the bottom-left corner holds the outside names).
+    var leg = svg.append("g").attr("transform", "translate(" + (W / 2 - 10) + "," + (-H / 2 + 22) + ")");
     [["hybrid negotiated", C.good], ["hybrid offered, server chose classical", C.bad], ["classical only", C.classical]].forEach(function (l, i) {
-      leg.append("line").attr("x1", 0).attr("x2", 22).attr("y1", i * 16).attr("y2", i * 16).attr("stroke", l[1]).attr("stroke-width", 2.5);
-      leg.append("text").attr("x", 28).attr("y", i * 16 + 4).attr("fill", C.dim).attr("font-size", 10.5).text(l[0]);
+      leg.append("line").attr("x1", -22).attr("x2", 0).attr("y1", i * 16).attr("y2", i * 16).attr("stroke", l[1]).attr("stroke-width", 2.5);
+      leg.append("text").attr("x", -28).attr("y", i * 16 + 4).attr("text-anchor", "end").attr("fill", C.dim).attr("font-size", 10.5).text(l[0]);
     });
 
     var held = null;
@@ -190,20 +197,22 @@
   function matrix(fig) {
     var CL = JSON.parse(fig.dataset.clients), G = JSON.parse(fig.dataset.groups);
     var hybridOf = {}; CL.forEach(function (c) { c.offers.forEach(function (o) { hybridOf[o.name] = o.hybrid; }); });
-    var W = 920, RH = 15, L = 150, colw = 26, GAP = 14, VERS = ["TLS 1.3", "TLS 1.2", "TLS 1.1", "TLS 1.0"];
+    var RH = 15, L = 150, colw = 26, GAP = 14, VERS = ["TLS 1.3", "TLS 1.2", "TLS 1.1", "TLS 1.0"];
     var groups = d3.groups(CL, function (c) { return c.vlan == null ? "untagged" : "VLAN " + c.vlan; });
-    var H = 70 + d3.sum(groups, function (g) { return g[1].length * RH + 26; });
-    var svg = d3.select(fig).append("svg").attr("viewBox", [0, 0, W, H]).attr("role", "img").attr("aria-label", "who can offer what");
     var xg = function (i) { return L + i * colw; }, xv = function (i) { return L + G.length * colw + GAP + i * colw; }, xc = L + G.length * colw + GAP + VERS.length * colw + GAP, xn = xc + 110;
+    // The drawing is as wide as its columns and as tall as its longest rotated head: nothing is cut off.
+    var longest = d3.max(G.concat(VERS), function (g) { return g.length; }) || 8, HEAD = Math.ceil(longest * 6.1 * Math.sin(55 * Math.PI / 180)) + 14;
+    var W = Math.max(920, xn + 90), H = HEAD + 14 + d3.sum(groups, function (g) { return g[1].length * RH + 26; });
+    var svg = d3.select(fig).append("svg").attr("viewBox", [0, 0, W, H]).attr("role", "img").attr("aria-label", "who can offer what");
     // column heads, rotated
-    var head = svg.append("g").attr("transform", "translate(0,58)");
+    var head = svg.append("g").attr("transform", "translate(0," + HEAD + ")");
     G.forEach(function (g, i) {
       head.append("text").attr("transform", "translate(" + (xg(i) + 4) + ",0) rotate(-55)").attr("fill", hybridOf[g] ? C.good : C.fg2).attr("font-size", 10).attr("font-family", MONO).attr("font-weight", hybridOf[g] ? 600 : 400).text(g);
     });
     VERS.forEach(function (v, i) { head.append("text").attr("transform", "translate(" + (xv(i) + 4) + ",0) rotate(-55)").attr("fill", C.fg2).attr("font-size", 10).attr("font-family", MONO).text(v); });
     head.append("text").attr("x", xc).attr("y", 0).attr("fill", C.dim).attr("font-size", 10).attr("font-family", MONO).attr("letter-spacing", ".08em").text("RULE");
     head.append("text").attr("x", xn).attr("y", 0).attr("fill", C.dim).attr("font-size", 10).attr("font-family", MONO).attr("letter-spacing", ".08em").text("HANDSHAKES");
-    var y = 72;
+    var y = HEAD + 14;
     groups.forEach(function (grp) {
       svg.append("text").attr("x", 0).attr("y", y + 4).attr("fill", C.accent).attr("font-family", MONO).attr("font-size", 10.5).attr("letter-spacing", ".08em").text(grp[0].toUpperCase());
       svg.append("line").attr("x1", 0).attr("x2", W).attr("y1", y + 10).attr("y2", y + 10).attr("stroke", C.line);

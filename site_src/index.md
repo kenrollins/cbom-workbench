@@ -42,7 +42,7 @@ nobody can plan against yet.
 
 | Date | What | Source |
 |---|---|---|
-| 2026-10-22 | Each agency's PQC migration plan due | OMB M-26-15 |
+| 2026-10-22 | Each agency's PQC migration plan was due (passed) | OMB M-26-15 |
 | 2026–2027 | Discovery phase: inventory, assessment, governance | OMB M-26-15 |
 | **2027-03-19** | **CISA and NIST publish the minimum elements of a CBOM** | EO 14412 |
 | 2030-01-02 | TLS 1.3 everywhere | OMB M-26-15 |
@@ -57,12 +57,15 @@ arrive, meeting them is a new projection, not a new scan
 
 ## What the demonstration does
 
-A four-service test estate — a classical TLS portal, a hybrid ML-KEM API, an
-old OpenSSH and a current one — is scanned, scored against an answer key with
-decoys in it, and then changed: the central crypto policy moves the portal to
-hybrid key establishment, the change is approved by a person, applied, and
-verified on the wire by a pair of probes that no model takes part in. The
-elapsed time is on screen, from two clocks.
+An eight-service test estate — a benefits portal, a partner API, an inter-agency
+gateway already post-quantum, a records database and its SFTP drop, a message
+queue, a case-management application and an administrators' jump host — is
+scanned, scored against an answer key with decoys in it, and planned from: the
+CBOM says what depends on what and what comes first. Then it is changed: the
+central crypto policy moves a listener to hybrid key establishment, the change
+is rehearsed on a copy, approved by a person, applied, and verified on the wire
+by a pair of probes that no model takes part in. The machine's time and the
+wait for a person are reported apart.
 
 ## Where the models earned their place
 

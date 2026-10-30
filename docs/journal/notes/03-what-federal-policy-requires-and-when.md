@@ -66,7 +66,7 @@ dates apply to; everything else is Phase 5.
 | Date | What | Source | What it asks of an inventory |
 |---|---|---|---|
 | 2026-06-22 | EO 14412 signed | EO 14412 | — |
-| 2026-10-22 | Each agency's PQC Migration Plan due to OMB and ONCD | M-26-15 §1 | The plan names an inventory approach before the inventory exists |
+| 2026-10-22 | Each agency's PQC Migration Plan due to OMB and ONCD (passed) | M-26-15 §1 | The plan names an inventory approach before the inventory exists |
 | 2026–2027 | Phase 1: strategy, planning and discovery — inventory, assessment, governance, accountable officials | M-26-15 §3.D | The inventory is built in this window |
 | 2027-01-01 | New national security system acquisitions CNSA 2.0 compliant | NSA CNSA 2.0 FAQ, through secondary summaries; the primary refused the download on 2026-10-05 and 2026-10-20 and was not read | A separate clock for a separate community |
 | **2027-03-19** | **CISA and NIST publish the minimum elements of a CBOM** | EO 14412 (270 days) | Until then, "a CBOM" means CycloneDX 1.6 plus whatever an agency or vendor adds; after it, an inventory is measured against a published list |

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>cbom-workbench — crypto agility</title>
 <link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
 {% set active = "overview" %}{% set lede = "<strong>Overview.</strong> Where the CBOM sits in NIST's plan for crypto agility, and what this workbench does in each part — " ~ ("read from its ledgers when this snapshot was built." if public else "read live from its ledgers.") %}{% include "_header.html" %}
@@ -83,7 +84,7 @@
   </div>
   <div class="loop bottom"><span>Crypto</span><i>◀</i><span>Agility</span></div>
 </figure>
-<p class="credit">Layout after NIST CSWP 39-upd1, <cite>Considerations for Achieving Crypto Agility: Strategies and Practices</cite> (Barker, Chen, Cooper, Moody, Regenscheid, Souppaya, Newhouse, Housley, Turner, Barker and Kent; December 19, 2025, updated June 29, 2026), Fig. 3, “Crypto agility strategic plan for managing an organization’s cryptographic risks” — <a href="https://doi.org/10.6028/NIST.CSWP.39-upd1">doi:10.6028/NIST.CSWP.39-upd1</a>. Redrawn; NIST’s labels kept, its “…” boxes left out. NIST has not reviewed this page. Contents are this deployment’s live state: a label is bright where this estate reaches it, dashed in part, dim where it does not.</p>
+<p class="credit">Layout after NIST CSWP 39-upd1, <cite>Considerations for Achieving Crypto Agility: Strategies and Practices</cite> (Barker, Chen, Cooper, Moody, Regenscheid, Souppaya, Newhouse, Housley, Turner, Barker and Kent; December 19, 2025, updated June 29, 2026), Fig. 3, “Crypto agility strategic plan for managing an organization’s cryptographic risks” — <a href="https://doi.org/10.6028/NIST.CSWP.39-upd1">doi:10.6028/NIST.CSWP.39-upd1</a>. Redrawn; NIST’s labels kept, its “…” boxes left out. NIST has not reviewed this page. Contents are {% if public %}the state of this snapshot when it was read{% else %}this deployment’s live state{% endif %}: a label is bright where this estate reaches it, dashed in part, dim where it does not.</p>
 <div class="legend">Who acts: {% for w in ['scanner', 'rule', 'model', 'person', 'runner', 'verifier'] %}<span><i class="dot {{ w }}"></i>{{ 'verifier — probes, no model' if w == 'verifier' else w }}</span>{% endfor %}</div>
 
 <div id="details">
@@ -98,7 +99,7 @@
   {% if a.story %}
   <section class="detail loopstory" id="d-replay" data-detail="replay">
     <h3>One weakness, from finding to fixed</h3>
-    <p class="lede">The last change that landed toward post-quantum, with every verdict re-deriving from its raw output: <strong>{{ a.story.service }}</strong> made to {{ a.story.intent_words }}. Each step says who acts, what happened, and what the CBOM gives it; every step is an event on a signed ledger ({{ a.story.signed }} ML-DSA-65 checkpoints on the change run alone). A model acts in {{ a.story.who.model or 0 }} of the {{ a.story.steps|length }}, each in a role it earned by measurement, and never where the question is whether the change worked.</p>
+    <p class="lede">The last change that landed toward post-quantum, with every verdict re-deriving from its raw output: <strong>{{ a.story.service }}</strong> made to {{ a.story.intent_words }}. Each step says who acts, what happened, and what the CBOM gives it; every step is an event on a signed ledger ({{ a.story.signed }} {{ sig_alg }} checkpoints on the change run alone). A model acts in {{ a.story.who.model or 0 }} of the {{ a.story.steps|length }}, each in a role it earned by measurement, and never where the question is whether the change worked.</p>
     <ol class="story">{% for s in a.story.steps %}
       <li data-box="{{ s.box }}" data-caption="{{ loop.index }}. {{ s.title }}{{ ' · AI, ' ~ s.model.role if s.model }} — {{ s.did }}" data-cbom="{{ s.cbom }}" class="{{ 'ai' if s.model }}">
         <div class="st-head"><span class="st-n">{{ loop.index }}</span><strong>{{ s.title }}</strong>
@@ -117,7 +118,7 @@
 <section id="next">
   <h2><span class="step">→</span> Where to go from here</h2>
   <ul class="next">
-    <li><a href="/agency">The test agency</a> — the mini-agency at a glance: eight services, what each is for, and what was planted where.</li>
+    <li><a href="/agency">The test agency</a> — the mini-agency at a glance: {{ estate_services|words }} services, what each is for, and what was planted where.</li>
     <li><a href="/walkthrough">The walkthrough</a> — the mini-agency from a stale spreadsheet to a CBOM and the plan it makes possible, step by step.</li>
     <li><a href="/cbom">Inside the CBOM</a> — the repository box opened: the document, one entry field by field, projections, and what changed between scans.</li>
     <li><a href="/plan">The plan</a> — what the CBOM says depends on what, what comes first, and in what order: the migration plan no list of systems can give.</li>
@@ -206,7 +207,7 @@
   });
   document.addEventListener("keydown", function (ev) {
     if (!frame.classList.contains("playing") || /INPUT|TEXTAREA|SELECT/.test(ev.target.tagName) || ev.metaKey || ev.ctrlKey || ev.altKey) return;
-    if (ev.key === " ") { ev.preventDefault(); ctl("toggle").click(); }
+    if (ev.key === " ") { if (ev.target.closest && ev.target.closest("summary, a, button")) return; ev.preventDefault(); ctl("toggle").click(); }
     else if (ev.key === "ArrowRight") { ev.preventDefault(); if (i < steps.length - 1) { render(i + 1); schedule(); } }
     else if (ev.key === "ArrowLeft") { ev.preventDefault(); if (i > 0) { render(i - 1); schedule(); } }
     else if (ev.key === "Escape") { stop(); }
