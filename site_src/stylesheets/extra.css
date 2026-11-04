@@ -9,7 +9,10 @@
 .fn-cover .tabs .demo-group .group small { font: 500 9px/1 var(--fn-mono); letter-spacing: .1em; text-transform: lowercase; color: var(--fn-accent); margin-top: 2px; }
 .fn-cover .tabs .learn-group { margin-left: auto; }
 /* Two groups that do not always fit on one line: the field notes drop to a second line when they must. */
-.fn-cover .tabs { flex-wrap: wrap; height: auto; min-height: 42px; row-gap: 4px; padding-top: 4px; padding-bottom: 6px; }
+.fn-cover .tabs { flex-wrap: wrap; height: auto; min-height: 42px; row-gap: 4px; padding-top: 4px; padding-bottom: 6px; gap: 2px 14px; }
+.fn-cover .bar, .fn-cover .tabs { max-width: 1560px; }
+.fn-cover .tabs a { font-size: 13.5px; }
+.fn-cover .tabs .learn-group { gap: 14px; }
 @media (max-width: 1000px) { .fn-cover .tabs .demo-group { height: auto; flex-wrap: wrap; padding: 6px 10px; } }
 
 /* Figures the notes carry (the plan maps, the chain views) are drawn for the app's dark page;
