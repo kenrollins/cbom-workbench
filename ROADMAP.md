@@ -18,6 +18,10 @@ is its public summary.
   the traps a plan from a spreadsheet falls into, and what-ifs.
 - **Resolution:** changes rendered by rule or drafted by a model, rehearsed on a copy, checked against
   every kind of client, approved by a person and proved on the wire twice.
+- **A server as an estate:** its listeners, its own files, its firmware's Secure Boot databases and its
+  management controller (Redfish, read only) in one signed ledger; a CBOM with the server as a device and
+  its firmware as components; a plan that separates settings, updates and what waits for the vendor; and
+  recordings, identifiers replaced, that replay the scan on another host.
 - **Models by measurement:** six roles, each with a floor written before the run; a role goes to a model
   only when one reached it.
 

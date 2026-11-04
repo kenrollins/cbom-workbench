@@ -87,6 +87,11 @@ class Runner:
         # served from; only the place changes.
         self.registry = os.environ.get("PQCH_REGISTRY") or None
         self.hardware = os.environ.get("PQCH_HARDWARE", "unlabelled")
+        # A system's files are read under this root: the host's own paths, mounted read-only into the
+        # runner, for a system in the scope's `systems` (pqch.scope/1). Credentials for a controller
+        # (`controllers`) are files named <host>.env in this directory, copied into the job's container.
+        self.system_root = os.environ.get("PQCH_SYSTEM_ROOT", "/host")
+        self.controller_secrets = os.environ.get("PQCH_CONTROLLER_SECRETS") or None
 
     def resolve(self, ref: str) -> str:
         """Where to fetch a digest-pinned image: from the bundle's registry when there is one."""
@@ -121,6 +126,18 @@ class Runner:
         scope, held = self.scope()
         if scope_hash != held:
             raise Refused(409, f"scope hash {scope_hash[:12]} is not the scope the runner holds ({held[:12]})")
+        if prof.get("target") == "system":
+            name = target.get("system")
+            sysdef = next((x for x in scope.get("systems", []) if x["name"] == name), None)
+            if sysdef is None:
+                raise Refused(403, f"system {name!r} is not in the scope")
+            return prof, scope, {"system": name}
+        if prof.get("target") == "controller":
+            host = target.get("controller")
+            ctl = next((x for x in scope.get("controllers", []) if x["host"] == host), None)
+            if ctl is None:
+                raise Refused(403, f"controller {host!r} is not in the scope")
+            return prof, scope, {"controller": host, "port": ctl["port"], "of": ctl["of"]}
         if prof["layer"] == "wire":
             host, port = target.get("host"), target.get("port")
             if not isinstance(host, str) or not isinstance(port, int) or isinstance(port, bool):
@@ -160,6 +177,12 @@ class Runner:
             )
             if prof.get("input") == "image-archive":
                 self._put_image(client, container, resolved["image"])
+            elif prof.get("input") == "system-archive":
+                from pqch.scout import system as system_mod
+                sysdef = next(x for x in _scope.get("systems", []) if x["name"] == resolved["system"])
+                container.put_archive("/", system_mod.pack(self.system_root, sysdef, prefix="scan/root/"))
+            elif prof.get("input") == "controller-credentials":
+                self._put_credentials(container, resolved["controller"])
             container.start()
             try:
                 res = container.wait(timeout=prof["budget_s"] * self.budget_scale)
@@ -272,8 +295,29 @@ class Runner:
         me = client.containers.get(socket.gethostname())
         return me.attrs["Config"]["Image"], me.attrs["Image"]
 
+    def _put_credentials(self, container, host: str) -> None:
+        """The controller's credentials, if the deployment holds them, at /scan/controller.env (mode
+        0400). Without them the reader records the controller's TLS and service root only."""
+        if not self.controller_secrets:
+            return
+        src = Path(self.controller_secrets) / f"{host}.env"
+        if not src.is_file():
+            return
+        data = src.read_bytes()
+        buf = io.BytesIO()
+        with tarfile.open(fileobj=buf, mode="w") as t:
+            d = tarfile.TarInfo("scan")
+            d.type, d.mode = tarfile.DIRTYPE, 0o755
+            t.addfile(d)
+            info = tarfile.TarInfo("scan/controller.env")
+            info.size, info.mode = len(data), 0o400
+            t.addfile(info, io.BytesIO(data))
+        container.put_archive("/", buf.getvalue())
+
     @staticmethod
     def _args(prof: dict, resolved: dict, params: dict | None = None) -> list[str]:
+        if prof.get("target") == "controller":
+            return [a.format(controller=resolved["controller"], port=str(resolved["port"])) for a in prof["args"]]
         if prof["layer"] != "wire":
             return list(prof["args"])
         sni = resolved.get("sni")

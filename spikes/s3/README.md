@@ -592,3 +592,23 @@ temperature 0. Scores on development items decide nothing and are in
   both intents, as in the product; `enable` is met by `enabled-not-enforced`.
 
 None of these touches the metric or the threshold.
+
+## A NIM on one DGX Spark (2026-11-04)
+
+Arm `gb10-nim-nano9b`: the Nemotron Nano 9B v2 NIM built for DGX Spark (`nvidia/nemotron-nano-9b-v2`,
+40k window, 0.20 of the lab GB10's unified memory), reached through the seam with no gateway, three
+repeats on the scored set. `gb10-nim-nano9b-think` asked for thinking through the seam's reasoning block
+and got none under the reply schema (the NIM runs no reasoning parser; lesson 49), so it is the same
+arm measured twice and is kept for R1 to R3 only.
+
+| Role (floor, harmful) | Nano 9B NIM | Nano 9B NIM, "thinking" | median s a call |
+|---|---|---|---|
+| R1 (27, 1) | 16, 8 harmful | 16, 6 harmful | 1.9 |
+| R2 (28, 0) | 23, 1 harmful | 23, 1 harmful | 1.5 |
+| R3 (28, 0) | 27 | 26 | 1.8 |
+| R5 (24, 3) | 9 | — | 1.3 |
+| R6 (24, 2) | 7, 16 harmful | — | 3.6 |
+
+No role clears. On this hardware class the bound engines stay round 1's Lightning 30B-A3B under vLLM
+with thinking (R1 28, R3 30) and round 3's Super VL 120B-A12B at medium effort (R2 28, R5 27); the
+kit's tier map (`kit/inference.yaml`) carries those bindings. Results: `results/scored/gb10-nim-nano9b*`.

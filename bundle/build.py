@@ -22,6 +22,7 @@ image saved by tag loads back under a new digest (journal lesson 03).
 from __future__ import annotations
 
 import hashlib
+import os
 import json
 import subprocess
 import sys
@@ -39,10 +40,20 @@ NAME = "pqch-bundle-registry"
 REGISTRY_IMAGE = "ghcr.io/distribution/distribution:3.0.0"
 REGISTRY_DIGEST = "sha256:4ba3adf47f5c866e9a29288c758c5328ef03396cb8f5f6454463655fa8bc83e2"
 SKOPEO = "quay.io/skopeo/stable:v1.20@sha256:47853bb9fb24202af9110531ebd6e43c5f97701254ca290596640290d17942f4"
-PLATFORMS = "linux/amd64,linux/arm64"
-SLICE = ["portal", "api", "sftp-legacy", "bastion"]
+# Both platforms by default, so one bundle starts on either. PQCH_BUNDLE_PLATFORMS=linux/arm64 builds
+# for one only: what a box building its own bundle needs, with no emulator for the other.
+PLATFORMS = os.environ.get("PQCH_BUNDLE_PLATFORMS", "linux/amd64,linux/arm64")
+SLICE = ["portal", "api", "pq-gateway", "records-db", "queue", "legacy-app", "sftp-legacy", "bastion"]
+# Services whose build copies certificates out of the internal CA image (agency/compose.yaml, x-pki).
+PKI_SERVICES = {"records-db", "queue", "legacy-app"}
 # Rebuild images already in the bundle: each build of the slice makes new keys and certificates.
 REBUILD = "--rebuild" in sys.argv
+# What the last build recorded per image repository: the build context's hash, read before the
+# manifest is rewritten. An image with no recorded hash (an older bundle) is rebuilt once.
+try:
+    PREVIOUS = {i["repo"]: i.get("source_hash") for i in json.loads((OUT / "manifest.json").read_text())["images"]}
+except (OSError, KeyError, ValueError):
+    PREVIOUS = {}
 INDEX_TYPES = ", ".join([
     "application/vnd.oci.image.index.v1+json",
     "application/vnd.docker.distribution.manifest.list.v2+json",
@@ -91,22 +102,37 @@ def start_registry() -> str:
     return sh("docker", "inspect", "-f", "{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}", NAME)
 
 
-def build_push(repo: str, context: Path, tag: str = "m0", *, keep: bool = True) -> dict:
-    """Build and push one image. `keep` reuses an image already in the bundle: right for the
-    slice, whose every build makes new keys; wrong for the harness, which must be the source
-    as it stands, so the harness is always built (the build cache makes that cheap)."""
+def source_hash(context: Path) -> str:
+    """The build context as it stands: every file's path and content. A kept image is kept only
+    while this matches what the manifest recorded for it."""
+    h = hashlib.sha256()
+    for p in sorted(x for x in context.rglob("*") if x.is_file() and "__pycache__" not in x.parts):
+        h.update(str(p.relative_to(context)).encode()); h.update(b"\0"); h.update(p.read_bytes()); h.update(b"\0")
+    return h.hexdigest()
+
+
+def build_push(repo: str, context: Path, tag: str = "m0", *, keep: bool = True, build_args: tuple = ()) -> dict:
+    """Build and push one image. `keep` reuses an image already in the bundle when its build
+    context is unchanged since the manifest recorded it: right for the slice, whose every build
+    makes new keys; wrong for the harness, which must be the source as it stands, so the harness
+    is always built (the build cache makes that cheap). A context that changed is rebuilt, so the
+    bundle never carries a service older than its source (an api image without its partner
+    listener went undetected from 2026-10-05 to 2026-11-04 when the check was by name alone)."""
     ref = f"{REG}/{repo}:{tag}"
+    src = source_hash(context)
     if keep and not REBUILD:
         try:
             d = digest_of(repo, tag)
-            return {"repo": repo, "source": f"build of {context.relative_to(ROOT)}", "bundle_ref": f"{REG}/{repo}@{d}",
-                    "digest": d, "platforms": platforms_of(repo, d)}
+            if PREVIOUS.get(repo) == src:
+                return {"repo": repo, "source": f"build of {context.relative_to(ROOT)}", "source_hash": src,
+                        "bundle_ref": f"{REG}/{repo}@{d}", "digest": d, "platforms": platforms_of(repo, d)}
+            print(f"  {repo}: source changed since the bundle's image; rebuilding", flush=True)
         except OSError:
             pass
-    sh("docker", "buildx", "build", "--platform", PLATFORMS, "-t", ref, "--push", str(context))
+    sh("docker", "buildx", "build", "--platform", PLATFORMS, *build_args, "-t", ref, "--push", str(context))
     d = digest_of(repo, tag)
-    return {"repo": repo, "source": f"build of {context.relative_to(ROOT)}", "bundle_ref": f"{REG}/{repo}@{d}",
-            "digest": d, "platforms": platforms_of(repo, d)}
+    return {"repo": repo, "source": f"build of {context.relative_to(ROOT)}", "source_hash": src,
+            "bundle_ref": f"{REG}/{repo}@{d}", "digest": d, "platforms": platforms_of(repo, d)}
 
 
 def copy_pinned(src: str, reg_ip: str) -> dict:
@@ -143,8 +169,14 @@ def main() -> None:
     reg_ip = start_registry()
     images = []
     print("slice and harness images, built for", PLATFORMS, flush=True)
+    # The internal CA first, for both platforms, so the services that copy from it build on either.
+    pki = build_push("pqch-agency/pki", ROOT / "agency" / "pki", "m1")
+    images.append({"role": "pki", **pki})
+    print("  ", pki["bundle_ref"], pki["platforms"], flush=True)
     for svc in SLICE:
-        images.append({"role": "target", "service": svc, **build_push(f"pqch-agency/{svc}", ROOT / "agency" / svc)})
+        args = ("--build-context", f"pki=docker-image://{pki['bundle_ref']}") if svc in PKI_SERVICES else ()
+        images.append({"role": "target", "service": svc,
+                       **build_push(f"pqch-agency/{svc}", ROOT / "agency" / svc, build_args=args)})
         print("  ", images[-1]["bundle_ref"], images[-1]["platforms"], flush=True)
     commit = sh("git", "-C", str(ROOT), "rev-parse", "HEAD", check=False) or "unknown"
     if sh("git", "-C", str(ROOT), "status", "--porcelain", "--", "src", "Dockerfile", "pyproject.toml", "uv.lock", check=False):
@@ -156,7 +188,7 @@ def main() -> None:
     for src in sorted({p["image"] for p in profiles.values() if p["image"] != "self"}):
         images.append({"role": "scanner", **copy_pinned(src, reg_ip)})
         print("  ", images[-1]["bundle_ref"], images[-1]["platforms"], flush=True)
-    for plat in ("amd64", "arm64"):
+    for plat in [p.split("/")[1] for p in PLATFORMS.split(",")]:
         sh("docker", "pull", "-q", "--platform", f"linux/{plat}", f"{REGISTRY_IMAGE}@{REGISTRY_DIGEST}")
         sh("docker", "save", "--platform", f"linux/{plat}", "-o", str(OUT / f"registry-image.{plat}.tar"),
            REGISTRY_IMAGE)

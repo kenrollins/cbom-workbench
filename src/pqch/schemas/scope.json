@@ -239,6 +239,76 @@
      }
     }
    }
+  },
+  "systems": {
+   "description": "Optional, for an external estate: servers whose own files and firmware are read, beside their listeners. Each names the system, the addresses its listeners use, the paths read (never written) and whether its firmware's trust databases and identity are read. The runner packs only these paths into an archive for the readers; it reaches them under its system root (PQCH_SYSTEM_ROOT).",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "name",
+     "addresses",
+     "paths"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,62}$"
+     },
+     "addresses": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "paths": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "pattern": "^/[^\\s]*$"
+      }
+     },
+     "firmware": {
+      "type": "boolean"
+     },
+     "trust_store": {
+      "type": "string",
+      "pattern": "^/[^\\s]*$",
+      "description": "A directory of CA certificates the system trusts, reported as a count, not as components"
+     }
+    }
+   }
+  },
+  "controllers": {
+   "description": "Optional, for an external estate: a system's management controller (a BMC), read through its Redfish API with GET requests only. `of` names the system in `systems`; the host and port are also listed in `endpoints` for the wire scans.",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "host",
+     "port",
+     "kind",
+     "of"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "host": {
+      "type": "string"
+     },
+     "port": {
+      "type": "integer"
+     },
+     "kind": {
+      "enum": [
+       "redfish"
+      ]
+     },
+     "of": {
+      "type": "string"
+     }
+    }
+   }
   }
  },
  "allOf": [

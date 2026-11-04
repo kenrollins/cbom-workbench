@@ -10,10 +10,11 @@
 <body>
 {% set active = "cbom" %}{% set lede = "<strong>Inside the CBOM.</strong> The inventory itself — the mini-agency's or the lab's — opened up: drawn along its chain, what the document holds, one entry field by field with the evidence behind each field, the same record projected another way, and what changed since the last scan." %}{% include "_header.html" %}
 <main>
-{% if switch and switch.lab and not public %}
+{% if switch and (switch.lab or switch.system) and not public %}
 <nav class="estates" aria-label="estate">
   <a href="/cbom" class="{{ 'on' if switch.on == switch.estate }}"><strong>The mini-agency's CBOM</strong><span>built for the demo, every answer known</span></a>
-  <a href="/cbom?run={{ switch.lab }}" class="{{ 'on' if switch.on == switch.lab }}"><strong>The lab's CBOM</strong><span>a real network: the targeted scan, with the capture beside it</span></a>
+  {% if switch.lab %}<a href="/cbom?run={{ switch.lab }}" class="{{ 'on' if switch.on == switch.lab }}"><strong>The lab's CBOM</strong><span>a real network: the targeted scan, with the capture beside it</span></a>{% endif %}
+  {% if switch.system %}<a href="/hosts" class="{{ 'on' if switch.on_host }}"><strong>Hosts</strong><span>servers read whole: listeners, files, firmware, controller</span></a>{% endif %}
 </nav>
 {% endif %}
 {% if not d %}
@@ -22,6 +23,7 @@
 <p class="orient">A Cryptography Bill of Materials is a CycloneDX document whose components are cryptographic assets — algorithms, certificates, keys, protocols — each with where it was found and what depends on it. This page opens the one this run produced: the whole document, then one entry, field by field, each traced to the ledger event it came from.
   <span class="ai">It is also what a model is given. When the investigator traces a weakness to the line that causes it, or a change is drafted, the entry below is the context: the service, the listener, the file, the evidence. The model's answer is checked against it, and the change is proved on the wire.</span></p>
 
+{% if switch and switch.on_host %}<p class="note">This is a host's CBOM: the server as a device, its firmware as components. <a href="/plan?estate=system&amp;run={{ run }}">Its plan</a> · <a href="/hosts">all hosts</a>.</p>{% endif %}
 {% if code_run and kind == 'scan' %}<p class="note">This is the mini-agency's CBOM. <a href="/cbom?run={{ code_run }}">The code layer's CBOM</a>: one pinned federal repository read for cryptographic call sites, each judged by a model.</p>{% endif %}
 {% if kind == 'scan-external' %}<p class="note">This is the lab's CBOM: the targeted scan's entries, opened field by field below. The chain also carries the capture's entries for the same listeners, merged by fingerprint; <a href="/lab#house-cbom">the house as a CBOM</a> on the lab page reads the two layers side by side.</p>{% endif %}
 {% if kind == 'scan-code' %}<p class="note">This is the code layer's CBOM: candidate call sites in one pinned repository, found by a rule pack and judged by the <code>call-site-read</code> role, whose judgement is the entry's <code>pqch:in-use</code>.{% if estate_run %} <a href="/cbom?run={{ estate_run }}">The mini-agency's CBOM</a>.{% endif %}</p>{% endif %}

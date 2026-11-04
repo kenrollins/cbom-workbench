@@ -1,0 +1,12 @@
+{"id": "ask-01", "q": "Which SSH listener still offers the 1024-bit Diffie-Hellman group?", "refs": ["listener:172.16.106.20:22"], "phrase": "172.16.106.20:22"}
+{"id": "ask-02", "q": "Which listeners already negotiate a hybrid post-quantum key exchange?", "refs": ["listener:172.16.106.11:443", "listener:172.16.106.12:443", "listener:172.16.106.21:22", "listener:172.16.106.30:5432"], "phrase": "X25519MLKEM768"}
+{"id": "ask-03", "q": "Does any service present an ML-DSA certificate, and which?", "refs": ["listener:172.16.106.12:443", "svc:pq-gateway"], "phrase": "pq-gateway"}
+{"id": "ask-04", "q": "Which host still carries a DSA host key file?", "refs": ["svc:bastion"], "phrase": "ssh_host_dsa_key"}
+{"id": "ask-05", "q": "Which listener is the PostgreSQL database and does it speak TLS 1.3?", "refs": ["listener:172.16.106.30:5432"], "phrase": "5432"}
+{"id": "ask-06", "q": "Which listeners are still limited to TLS 1.2?", "refs": ["listener:172.16.106.31:5671", "listener:172.16.106.32:8443"], "phrase": "5671"}
+{"id": "ask-07", "q": "What signs the certificate on the message queue's TLS listener?", "refs": ["listener:172.16.106.31:5671"], "phrase": "ECDSA"}
+{"id": "ask-08", "q": "Which SSH listener offers sntrup761x25519?", "refs": ["listener:172.16.106.21:22"], "phrase": "172.16.106.21:22"}
+{"id": "ask-09", "q": "Which services does the API service's certificate chain depend on?", "refs": ["svc:api", "listener:172.16.106.11:443"], "phrase": "api"}
+{"id": "ask-10", "q": "Which listener still uses an RSA certificate on port 443?", "refs": ["listener:172.16.106.10:443"], "phrase": "172.16.106.10:443"}
+{"id": "ask-11", "q": "Which SSH listener offers DSA for host authentication?", "refs": ["listener:172.16.106.20:22"], "phrase": "172.16.106.20:22"}
+{"id": "ask-12", "q": "Is there a listener on port 8443 that presents an RSA certificate, and which service is it?", "refs": ["listener:172.16.106.32:8443", "svc:legacy-app"], "phrase": "legacy-app"}

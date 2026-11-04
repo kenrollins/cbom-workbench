@@ -1,0 +1,27 @@
+# The kit's deployment overlay: one host, nothing shared, inference served on the same box.
+#   docker compose -f compose.yaml -f kit/compose.kit.yaml [-f bundle/out/compose.harness.yaml] up -d
+# The UI service joins one bridge with an explicit subnet, `pqch-kit-inference`, created by
+# kit/engines.sh, where the inference engines sit by name (kit/inference.yaml names them). The page is
+# published on the host's loopback only: the operator's browser is on the box.
+services:
+  app:
+    network_mode: !reset null
+    networks: [kit_inference]
+    ports: ["127.0.0.1:8080:8080"]
+    environment:
+      PQCH_INFERENCE_CONFIG: /app/kit/inference.yaml
+      PQCH_HARDWARE: ${PQCH_HARDWARE:?label the machine, e.g. "DGX Spark GB10 (aarch64)"}
+      # No front door on one box: the page is on the loopback, the peer the service sees is the bridge
+      # gateway (the box itself), and the person at the console is the operator named here. Every
+      # approval event records that the console vouched for the name.
+      PQCH_TRUSTED_PROXIES: 172.16.108.1
+      PQCH_OPERATOR: ${PQCH_OPERATOR:?the operator's name, recorded on every approval}
+      PQCH_SIGN_ON: "the box's console (the page is published on its loopback only)"
+    volumes:
+      - ./kit/inference.yaml:/app/kit/inference.yaml:ro
+      - ./site:/app/site:ro
+
+networks:
+  kit_inference:
+    external: true
+    name: pqch-kit-inference

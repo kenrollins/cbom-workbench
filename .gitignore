@@ -47,3 +47,9 @@ public-build/
 public-build.work/
 public-preview/
 public-preview.work/
+
+# The kit: each box keeps its own engines.env (images, shares, paths); only the example is shared.
+kit/engines.env
+
+# Written by tools/build_site.py from the journal, with the generated indexes.
+site_src/journal-span.txt

@@ -21,7 +21,7 @@ from pathlib import Path
 from pqch.common import sha256_hex
 from pqch.ledger import verify
 from pqch.run import Run
-from pqch.scout.normalize import normalize
+from pqch.scout.normalize import normalize, platform_facts
 
 WIRE_PROFILES = {"tls": "tls-targeted", "ssh": "ssh-targeted", "postgres": "tls-starttls-postgres"}
 # Listener protocols that carry TLS, from the first byte or after an upgrade: what the
@@ -89,6 +89,11 @@ def record(run: Run, job: dict, *, replayed_from: dict | None = None) -> dict:
         run.ledger.append("finding.observed", {"kind": "scanner", "id": job["tool"]}, f,
                           inputs=[scan_ev["id"]],
                           evidence=[{"ref": f["evidence"]["raw"], "sha256": f["evidence"]["sha256"]}])
+    if job["status"] == "ok" and job.get("raw") and not error:
+        facts = platform_facts(read_raw(run.var, job), job)
+        if facts:
+            run.ledger.append("platform.observed", {"kind": "scanner", "id": job["tool"]}, facts, inputs=[scan_ev["id"]],
+                              evidence=[{"ref": job["raw"], "sha256": job["raw_sha256"]}])
     return {"profile": job["profile"], "target": job["target"], "status": job["status"],
             "duration_ms": job["duration_ms"], "findings": len(findings),
             "replayed": bool(replayed_from), "error": error}

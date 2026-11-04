@@ -19,7 +19,9 @@ var withBase = (function () {
             gov: T("--gov"), ast: T("--ast"), risk: T("--risk"), outc: T("--outc") };
   var MONO = T("--mono");
   var KIND = { replace: "replace", tls13: "TLS 1.3", enable: "offer hybrid", require: "require hybrid", ca: "new ML-DSA root",
-               reissue: "reissue (ML-DSA)", retire: "retire unserved", clients: "upgrade clients", scope: "add to scope", cert: "replace cert" };
+               reissue: "reissue (ML-DSA)", retire: "retire unserved", clients: "upgrade clients", scope: "add to scope", cert: "replace cert",
+               "tls-on": "turn on TLS", "ca-issue": "CA cert", setting: "setting", inventory: "full read",
+               firmware: "firmware", supplier: "vendor" };
   var DEPC = { "certificate-authority": C.gov, "library-build": C.ast, "shared-key": C.outc, "client-trust-anchor": C.risk, "client-vlan": C.gov };
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); }
 
@@ -36,16 +38,47 @@ var withBase = (function () {
     });
     if (!P.lanes && steps.some(function (s) { return s.kind === "retire"; })) lanes.push({ id: "@estate", label: "whole estate", sub: "files nothing serves" });
     var laneOf = function (s) { return s.kind === "ca" ? "@ca" : (s.service || "@estate"); };
-    // Slot within a wave: right of every step it waits for in the same wave.
-    var depth = {};
-    function slot(s) {
-      if (depth[s.id] != null) return depth[s.id];
-      depth[s.id] = 0;
+    // Slot within a wave: right of every step it waits for in the same wave, and in the first slot of
+    // its lane that no other step holds, so that steps independent of each other never overlap.
+    // Steps arrive in plan order, which puts every step after what it waits for.
+    // Rows within a lane: each chain of steps linked inside the lane has a row of its own, so that no
+    // line runs across a step it does not connect; a step linked to nothing in its lane shares a row
+    // only outside every chain's span on that row. Within a row, a step sits right of what it waits
+    // for in the same column, and in the first free slot.
+    var col = {}; P.waves.forEach(function (w, i) { col[w.id] = i; });
+    var depth = {}, rowOf = {}, held = {};
+    var parent = {};
+    var find = function (x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; };
+    steps.forEach(function (s) { parent[s.id] = s.id; });
+    steps.forEach(function (s) { s.depends_on.forEach(function (x) { var p = byId[x]; if (p && laneOf(p) === laneOf(s)) parent[find(s.id)] = find(p.id); }); });
+    var groups = {};
+    steps.forEach(function (s) { var r = find(s.id); (groups[r] = groups[r] || []).push(s); });
+    var byPlan = function (a, b) { return (col[a.wave] - col[b.wave]) || (steps.indexOf(a) - steps.indexOf(b)); };
+    var place = function (s, row) {
       var d = 0;
-      s.depends_on.forEach(function (x) { var p = byId[x]; if (p && p.wave === s.wave) d = Math.max(d, slot(p) + 1); });
-      return (depth[s.id] = d);
-    }
-    steps.forEach(slot);
+      s.depends_on.forEach(function (x) { var p = byId[x]; if (p && p.wave === s.wave && rowOf[p.id] === row && depth[p.id] != null) d = Math.max(d, depth[p.id] + 1); });
+      while (held[laneOf(s) + "|" + row + "|" + s.wave + "|" + d]) d++;
+      return d;
+    };
+    var take = function (s, row, d) { held[laneOf(s) + "|" + row + "|" + s.wave + "|" + d] = true; rowOf[s.id] = row; depth[s.id] = d; };
+    var rows = {}, spans = {};          // lane -> rows used; lane|row -> chain spans [[from, to], ...]
+    var key = function (s) { return col[s.wave] * 100 + depth[s.id]; };
+    Object.keys(groups).map(function (r) { return groups[r].sort(byPlan); })
+      .filter(function (g) { return g.length > 1; }).sort(function (a, b) { return byPlan(a[0], b[0]); })
+      .forEach(function (g) {
+        var lane = laneOf(g[0]), row = rows[lane] || 0;
+        rows[lane] = row + 1;
+        g.forEach(function (s) { take(s, row, place(s, row)); });
+        (spans[lane + "|" + row] = spans[lane + "|" + row] || []).push([d3.min(g, key), d3.max(g, key)]);
+      });
+    steps.filter(function (s) { return rowOf[s.id] == null; }).sort(byPlan).forEach(function (s) {
+      var lane = laneOf(s), n = rows[lane] || 0;
+      for (var row = 0; row <= n; row++) {
+        var d = place(s, row), k = col[s.wave] * 100 + d;
+        var clear = (spans[lane + "|" + row] || []).every(function (sp) { return k < sp[0] || k > sp[1]; });
+        if (clear || row === n) { take(s, row, d); rows[lane] = Math.max(n, row + 1); return; }
+      }
+    });
     var WAVES = P.waves.map(function (w) { return w.id; });
     var slots = {}; WAVES.forEach(function (w) { slots[w] = 1 + d3.max(steps.filter(function (s) { return s.wave === w; }), function (s) { return depth[s.id]; }); });
 
@@ -62,7 +95,7 @@ var withBase = (function () {
     var cx = LABEL, cy = 8;
     P.dependencies.forEach(function (d) {
       var g = chips.append("g").style("cursor", "pointer");
-      var label = ({ "certificate-authority": "CA: ", "library-build": "one build: ", "shared-key": "one key: ", "client-trust-anchor": "clients' CA: ", "client-vlan": "" })[d.kind]
+      var label = (({ "certificate-authority": "CA: ", "library-build": "one build: ", "shared-key": "one key: ", "client-trust-anchor": "clients' CA: ", "client-vlan": "" })[d.kind] || "")
         + d.name.split(",")[0].replace("CN=", "");
       var t = g.append("text").attr("x", 10).attr("y", 20).attr("font-size", 11.5).attr("fill", DEPC[d.kind] || C.fg2).text(label);
       var w = t.node().getComputedTextLength() + 28;
@@ -77,11 +110,14 @@ var withBase = (function () {
 
     // The lanes start below the chips as drawn.
     var TOP = cy + 52 + 46;
-    var H = TOP + lanes.length * LH + 16;
+    var laneRows = function (l) { return Math.max(1, rows[l.id] || 0); };
+    var H = TOP + d3.sum(lanes, laneRows) * LH + 16;
     svg.attr("viewBox", [0, 0, W, H]);
     var panel = wrap.append("div").attr("class", "estate-panel");
-    var laneY = {}; lanes.forEach(function (l, i) { laneY[l.id] = TOP + i * LH + LH / 2; });
-    steps.forEach(function (s) { s.x = waveX[s.wave] + depth[s.id] * slotW + (slotW - NW) / 2; s.y = laneY[laneOf(s)] - NH / 2; });
+    // laneY: the middle of a lane's first row; laneEnd: its bottom edge.
+    var laneY = {}, laneEnd = {}, yacc = TOP;
+    lanes.forEach(function (l) { laneY[l.id] = yacc + LH / 2; yacc += laneRows(l) * LH; laneEnd[l.id] = yacc; });
+    steps.forEach(function (s) { s.x = waveX[s.wave] + depth[s.id] * slotW + (slotW - NW) / 2; s.y = laneY[laneOf(s)] + rowOf[s.id] * LH - NH / 2; });
 
     // Wave bands and headings.
     var labels = P.wave_labels || { now: "now", "2030": "by 2030", "2031": "by 2031" };
@@ -93,7 +129,7 @@ var withBase = (function () {
     });
     // Lanes.
     lanes.forEach(function (l) {
-      svg.append("line").attr("x1", 0).attr("x2", W).attr("y1", laneY[l.id] + LH / 2).attr("y2", laneY[l.id] + LH / 2).attr("stroke", C.line);
+      svg.append("line").attr("x1", 0).attr("x2", W).attr("y1", laneEnd[l.id]).attr("y2", laneEnd[l.id]).attr("stroke", C.line);
       svg.append("text").attr("x", 4).attr("y", laneY[l.id] - 2).attr("fill", l.id.charAt(0) === "@" ? C.dim : C.fg).attr("font-size", 12.5)
         .attr("font-weight", 600).text(l.label);
       svg.append("text").attr("x", 4).attr("y", laneY[l.id] + 12).attr("fill", C.dim).attr("font-size", 10).text(l.sub);

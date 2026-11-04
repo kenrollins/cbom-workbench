@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — hosts</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body>
+{% set active = "hosts" %}{% set lede = "<strong>Hosts.</strong> Servers read whole, each as an estate of its own: its listeners on the wire, its own files, its firmware's trust databases and, where it has one, its management controller. Each has its own signed ledger, CBOM and plan." %}{% include "_header.html" %}
+<main>
+<nav class="estates" aria-label="estate">
+  <a href="/cbom"><strong>The mini-agency's CBOM</strong><span>built for the demo, every answer known</span></a>
+  {% if lab_run %}<a href="/cbom?run={{ lab_run }}"><strong>The lab's CBOM</strong><span>a real network: the targeted scan, with the capture beside it</span></a>{% endif %}
+  <a href="/hosts" class="on"><strong>Hosts</strong><span>servers read whole: listeners, files, firmware, controller</span></a>
+</nav>
+<p class="orient">A network scan sees a server as the listeners it exposes. Much of what decides its future sits below that: the keys its firmware trusts to boot, a management controller on the same board with its own TLS, SSH and certificates, and key files on its disk. Each moves on its own clock — a setting, an operating-system update, a firmware update, or the vendor. A host's plan says which is which.
+  <span class="ai">Every row is the host's latest system scan. A recording is a scan made elsewhere, its identifiers replaced, replayed here into a new signed ledger; the times shown are when the host was read.</span></p>
+{% if not hosts %}
+<section><p class="note">No host has been scanned yet: <code>pqch scan-system</code> reads one through its runner, and <code>pqch system replay</code> brings in a recording.</p></section>
+{% else %}
+<section>
+<table class="files">
+<thead><tr><th>Host</th><th>Read</th><th>Parts read</th><th class="num">Findings</th><th>When</th><th></th></tr></thead>
+<tbody>
+{% for h in hosts %}<tr>
+  <td><strong>{{ h.vendor or '' }} {{ h.model or h.name }}</strong>{% if h.this_machine %} <span class="tag">this machine</span>{% endif %}<br>
+      <span class="small dim">{{ h.name }}{% if h.addresses %} · {{ h.addresses|join(', ') }}{% endif %}{% if h.controller %} · controller {{ h.controller.model or '' }} {{ h.controller.firmware or '' }} at {{ h.controller.host }}{% endif %}</span></td>
+  <td class="small">{% if h.replayed %}recording, replayed {{ h.replayed_at[:16].replace('T', ' ') }} UTC{% else %}live scan{% endif %}</td>
+  <td class="small">{{ h.parts|join(' · ') }}</td>
+  <td class="num">{{ h.findings }}</td>
+  <td class="small">{{ h.read_from[:16].replace('T', ' ') }}{% if h.read_to[:16] != h.read_from[:16] %} – {{ h.read_to[11:16] }}{% endif %} UTC</td>
+  <td class="small"><a href="/cbom?run={{ h.run }}">CBOM</a> · <a href="/plan?estate=system&amp;run={{ h.run }}">plan</a></td>
+</tr>{% endfor %}
+</tbody>
+</table>
+</section>
+{% endif %}
+</main>
+</body>
+</html>

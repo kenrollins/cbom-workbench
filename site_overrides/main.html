@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{#- The index toggle (header button .fn-navtoggle): hides the left sidebar so the page stands alone.
+    Remembered per browser in localStorage; nothing else on the page depends on it. -#}
+{% block scripts %}
+  {{ super() }}
+  <script>
+  (function () {
+    var KEY = "fn-nav-hidden", root = document.documentElement;
+    try { if (localStorage.getItem(KEY) === "1") root.classList.add("fn-nav-hidden"); } catch (e) {}
+    document.addEventListener("click", function (ev) {
+      var b = ev.target.closest(".fn-navtoggle"); if (!b) return;
+      root.classList.toggle("fn-nav-hidden");
+      try { localStorage.setItem(KEY, root.classList.contains("fn-nav-hidden") ? "1" : "0"); } catch (e) {}
+    });
+  })();
+  </script>
+{% endblock %}

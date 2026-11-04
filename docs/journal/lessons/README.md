@@ -59,3 +59,8 @@ day it was learned.
 | 45 | Score an inventory against a key that knows about changes: an item a verified change removed is remediated, not missed | agile |
 | 46 | After publishing a repository, read its own checks | all |
 | 47 | Before a demonstration, open the published page in a browser at each width it will be seen at, and read its network log | all |
+| 48 | Write each CBOM fact in CycloneDX's own field; where the standard has none, name the property as the tools you feed read it | structured |
+| 49 | Before binding a role to an engine on a new machine, check the four things the engine decides for itself: its GPU profile, its window, its memory share, its model id | all |
+| 50 | When a bundle keeps an image from one build to the next, key it to a hash of its build context, never to its name | all |
+| 51 | Where a protocol upgrade can be refused, ask for it once and record the answer before scanning what it would carry | enumerated |
+| 52 | An inventory read as an ordinary user must list every path it could not open, and the plan must carry the privileged read | enumerated |

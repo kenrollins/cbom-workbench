@@ -197,3 +197,80 @@ tls-witness:
   args_no_sni: [--quiet, --color, "0", --warnings, "off", --nodns, none,
                 -f, --jsonfile, /tmp/out.json, "{url}"]
   output: {file: /tmp/out.json, ext: json}
+
+# ---- A server's own files, firmware and management controller (external estates; pqch.scope/1
+# `systems` and `controllers`). The runner packs the system's scoped paths, read-only and as the
+# user it runs as, into /scan/root of a container with no network; nothing is written to the system.
+
+system-theia:
+  layer: host
+  target: system
+  tool: cbomkit-theia
+  version: "1.1.2"
+  image: ghcr.io/cbomkit/cbomkit-theia@sha256:46a72eadc9849b919fc4c72e1c851f9783e03c35db8fad49ba99341ac97f8dea
+  network: none
+  budget_s: 300
+  mem_limit: 1g
+  input: system-archive
+  args: [dir, /scan/root]
+  output: {stdout: true, ext: json}
+
+system-files:
+  layer: host
+  target: system
+  tool: pqch-system-files
+  version: "1"
+  image: self
+  network: none
+  budget_s: 120
+  mem_limit: 512m
+  input: system-archive
+  args: [pqch, system-files, /scan/root]
+  output: {stdout: true, ext: json}
+
+# The firmware's identity (DMI), the TPM, and UEFI Secure Boot: its state and its four trust
+# databases (platform key, key-exchange keys, allowed signers, revoked), parsed as EFI signature lists.
+system-firmware:
+  layer: platform
+  target: system
+  tool: pqch-system-firmware
+  version: "1"
+  image: self
+  network: none
+  budget_s: 60
+  mem_limit: 256m
+  input: system-archive
+  args: [pqch, system-firmware, /scan/root]
+  output: {stdout: true, ext: json}
+
+# The management controller through DMTF Redfish, GET requests only: its TLS and certificate
+# without credentials, then, with the deployment's credentials for it, its firmware inventory,
+# security settings, certificates, Secure Boot and TPM. Its listeners are scanned by the wire
+# profiles like any other endpoint.
+controller-redfish:
+  layer: platform
+  target: controller
+  tool: pqch-controller-redfish
+  version: "1"
+  image: self
+  network: target
+  budget_s: 240
+  mem_limit: 256m
+  input: controller-credentials
+  args: [pqch, controller-redfish, "{controller}", "{port}"]
+  output: {stdout: true, ext: json}
+
+# PostgreSQL's SSLRequest alone, and the one-byte answer: S, TLS offered; N, refused and the
+# connection continues in the clear. A system scan sends it first and runs the full TLS scan only
+# where TLS is offered (testssl.sh waits out its budget on an N).
+postgres-tls-offer:
+  layer: wire
+  protocols: [postgres]
+  tool: pqch-postgres-tls-offer
+  version: "1"
+  image: self
+  network: target
+  budget_s: 20
+  mem_limit: 128m
+  args: [pqch, postgres-tls-offer, "{host}", "{port}"]
+  output: {stdout: true, ext: json}

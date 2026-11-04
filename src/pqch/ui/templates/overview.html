@@ -33,6 +33,7 @@
 {% if not public %}<nav class="estates" aria-label="estate">
   <a href="/?estate=mini-agency" class="{{ 'on' if a.estate == 'mini-agency' }}"><strong>The mini-agency</strong><span>built for the demo, every answer known</span></a>
   <a href="/?estate=lab" class="{{ 'on' if a.estate == 'lab' }}"><strong>A real network</strong><span>the owner's lab, observed, nothing planted</span></a>
+  <a href="/hosts"><strong>Hosts</strong><span>servers read whole: listeners, files, firmware, controller</span></a>
 </nav>{% endif %}
 
 <div class="playbar">
@@ -122,7 +123,8 @@
     <li><a href="/walkthrough">The walkthrough</a> — the mini-agency from a stale spreadsheet to a CBOM and the plan it makes possible, step by step.</li>
     <li><a href="/cbom">Inside the CBOM</a> — the repository box opened: the document, one entry field by field, projections, and what changed between scans.</li>
     <li><a href="/plan">The plan</a> — what the CBOM says depends on what, what comes first, and in what order: the migration plan no list of systems can give.</li>
-    {% if not public %}<li><a href="/lab">A real network</a> — the lab estate as passive capture and targeted checks see it.</li>{% endif %}
+    {% if not public %}<li><a href="/lab">A real network</a> — the lab estate as passive capture and targeted checks see it.</li>
+    <li><a href="/hosts">Hosts</a> — servers read whole, each with its own CBOM and plan: listeners, files, firmware's trust databases and management controller.</li>{% endif %}
     <li><a href="/imports">Bring your own scanner</a> — any discovery tool's CBOM, imported and scored against the same answer key.</li>
     <li><a href="/site/notes/16-what-a-cbom-makes-possible/">What a CBOM makes possible</a> — the note behind this page, and the rungs from Opaque to Agile.</li>
   </ul>

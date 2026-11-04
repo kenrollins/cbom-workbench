@@ -36,7 +36,7 @@ def _field(front: str, key: str) -> str:
     return m.group(1).strip().strip('"')
 
 
-def copy_section(name: str) -> list[tuple[str, str, str]]:
+def copy_section(name: str) -> list[tuple[str, str, str, str]]:
     src, dst = JOURNAL / name, SRC / name
     if dst.exists():
         shutil.rmtree(dst)
@@ -48,22 +48,40 @@ def copy_section(name: str) -> list[tuple[str, str, str]]:
         front = m.group(1) if m else ""
         title = _field(front, "title") or path.stem
         one_line = _field(front, "one_line")
+        date = _field(front, "date")
         shutil.copy2(path, dst / path.name)
-        rows.append((path.name, title, one_line))
+        rows.append((path.name, title, one_line, date))
     return rows
 
 
-def write_index(name: str, rows: list[tuple[str, str, str]]) -> None:
+def write_index(name: str, rows: list[tuple[str, str, str, str]]) -> None:
     heading, blurb = SECTIONS[name]
     lines = [f"---\ntitle: {heading}\n---\n", f"# {heading}\n", f"{blurb}\n"]
     if not rows:
         lines.append("\nNo entries published yet.\n")
-    for fname, title, one_line in rows:
-        lines.append(f"\n- [{title}]({fname})" + (f" — {one_line}" if one_line else ""))
+    else:
+        # Numbered as the sidebar is ("04 — …"), the number written in ballpoint (.fn-entries, fieldnotes.css).
+        lines.append('\n<ol class="fn-entries" markdown="1">')
+        for fname, title, one_line, _ in rows:
+            entry = f"[{title}]({fname})" + (f" — {one_line}" if one_line else "")
+            lines.append(f'<li markdown="span"><span class="fn-num">{fname[:2]}</span> {entry}</li>')
+        lines.append("</ol>")
     (SRC / name / "index.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def write_nav(all_rows: dict[str, list[tuple[str, str, str]]]) -> None:
+def write_span(all_rows: dict) -> None:
+    """The handwritten line under FIELD NOTES on the cover: the first entry's date and the latest's.
+    Written into mkdocs.yml for the site's header and into site_src/journal-span.txt, which the
+    build copies into site/ for the app's header to read."""
+    dates = sorted(d for rows in all_rows.values() for _, _, _, d in rows if d)
+    span = "" if not dates else (dates[0] if dates[0] == dates[-1] else f"{dates[0]} \u2192 {dates[-1]}")
+    yml = ROOT / "mkdocs.yml"
+    yml.write_text(re.sub(r'^  journal_span: .*# >>> generated$', f'  journal_span: "{span}"   # >>> generated',
+                          yml.read_text(encoding="utf-8"), flags=re.M), encoding="utf-8")
+    (SRC / "journal-span.txt").write_text(span + "\n", encoding="utf-8")
+
+
+def write_nav(all_rows: dict[str, list[tuple[str, str, str, str]]]) -> None:
     """The Technical Notes and Lessons entries of mkdocs.yml's nav, generated: a hand-kept
     list falls behind the moment an entry is added without a row."""
     yml = ROOT / "mkdocs.yml"
@@ -75,7 +93,7 @@ def write_nav(all_rows: dict[str, list[tuple[str, str, str]]]) -> None:
         heading = SECTIONS[name][0]
         lines.append(f"  - {heading}:")
         lines.append(f"      - Overview: {name}/index.md")
-        for fname, title, _ in rows:
+        for fname, title, _, _ in rows:
             label = json.dumps(f"{fname[:2]} — {title.replace(chr(92) + chr(34), chr(34))}")   # a YAML key, quoted
             lines.append(f"      - {label}: {name}/{fname}")
     head = text[:a].rstrip("\n") + "\n" + start + " from docs/journal — do not edit by hand\n"
@@ -99,6 +117,7 @@ def main() -> None:
         all_rows[name] = rows
         print(f"{name}: {len(rows)} entries")
     write_nav(all_rows)
+    write_span(all_rows)
     # The sources list is kept once, in docs/; the site shows the same file.
     shutil.copy2(ROOT / "docs" / "SOURCES.md", SRC / "sources.md")
 

@@ -20,19 +20,11 @@ theme:
   name: material
   # The header is the demo's own, so the demonstration and the site read as one place.
   custom_dir: site_overrides
+  # One scheme, no toggle: the field notes are the book, open on a desk (stylesheets/fieldnotes.css).
   palette:
-    - scheme: slate
-      primary: custom
-      accent: custom
-      toggle:
-        icon: material/weather-sunny
-        name: Switch to light mode
-    - scheme: default
-      primary: custom
-      accent: custom
-      toggle:
-        icon: material/weather-night
-        name: Switch to dark mode
+    scheme: default
+    primary: custom
+    accent: custom
   features:
     - navigation.tracking
     - navigation.sections
@@ -49,9 +41,7 @@ theme:
     - content.tooltips
   icon:
     repo: fontawesome/brands/github
-  font:
-    text: Inter
-    code: JetBrains Mono
+  font: false   # vendored in stylesheets/fonts/: Jost (display), Inter (body), JetBrains Mono, Caveat (hand)
 
 markdown_extensions:
   - admonition
@@ -75,7 +65,9 @@ plugins:
   - search
 
 extra_css:
-  - stylesheets/extra.css
+  - stylesheets/fieldnotes.css   # the little brown book — shared with the lab's other field-notes sites
+  - stylesheets/extra.css        # this site's own
+  - stylesheets/drawings.css     # sketches (tools/draw.py, when a note carries one)
 
 extra:
   # The title and logo lead back to the demonstration, not to the site's own front page. In the lab
@@ -85,6 +77,8 @@ extra:
   demo_base: !ENV [PQCH_DEMO_BASE, "/"]
   demo_mode: !ENV [PQCH_DEMO_MODE, "live"]
   lab: !ENV [PQCH_SITE_LAB, "true"]
+  # First entry → latest entry, written by tools/build_site.py from the journal's frontmatter dates.
+  journal_span: "2026-10-04 → 2026-11-04"   # >>> generated
 
 nav:
   # The demo's pages are in the header, which every page shares; this is the reading beside them.
@@ -109,6 +103,9 @@ nav:
       - "15 \u2014 What do the open-source scanners cover, and what is built on top?": notes/15-what-the-open-source-scanners-cover.md
       - "16 \u2014 What does a CBOM make possible once it exists?": notes/16-what-a-cbom-makes-possible.md
       - "17 \u2014 How does a CBOM become a migration plan, and why can't a list of systems?": notes/17-how-a-cbom-becomes-a-migration-plan.md
+      - "18 \u2014 What is the workbench built from, why each part, and what would an enterprise run in its place?": notes/18-what-the-workbench-is-built-from-and-what-an-enterprise-would-use.md
+      - "19 \u2014 How is a question to the CBOM answered, and how is the answer checked without asking a model?": notes/19-how-a-question-to-the-cbom-is-answered-and-checked.md
+      - "20 \u2014 How is one server inventoried as an estate, below its operating system as well as on the wire, and planned from its CBOM?": notes/20-how-a-server-is-inventoried-and-planned-as-an-estate.md
   - Lessons:
       - Overview: lessons/index.md
       - "01 \u2014 When verifying that a post-quantum key exchange is required, offer every classical group, not the ones the server was configured with": lessons/01-refuse-every-classical-group.md
@@ -156,6 +153,11 @@ nav:
       - "45 \u2014 Score an inventory against a key that knows about changes: an item a verified change removed is remediated, not missed": lessons/45-count-what-a-verified-change-removed-as-remediated.md
       - "46 \u2014 After publishing a repository, read its own checks: they run in an environment the export was never tested in": lessons/46-read-the-public-repositorys-own-checks-after-the-first-push.md
       - "47 \u2014 Before a demonstration, open the published page in a browser at each width it will be seen at, and read its network log": lessons/47-look-at-the-published-page-as-a-visitor-sees-it.md
+      - "48 \u2014 Write each CBOM fact in CycloneDX's own field; where the standard has none, name the property as the tools you feed read it": lessons/48-write-cbom-facts-where-the-reader-looks.md
+      - "49 \u2014 Before binding a role to an inference engine on a new machine, check four things the engine decides for itself: that it has a profile for the GPU, the context window it will serve, the share of memory it will take, and the model id it answers to": lessons/49-measure-an-engine-on-the-box-before-binding-a-role-to-it.md
+      - "50 \u2014 When a bundle keeps an image from one build to the next, key it to a hash of its build context, never to its name": lessons/50-key-a-kept-image-to-its-source-not-its-name.md
+      - "51 \u2014 Where a protocol upgrade can be refused, ask for it once and record the answer before scanning what it would carry: a scanner that cannot represent a refusal records a timeout": lessons/51-probe-a-refusal-before-scanning-what-it-refuses.md
+      - "52 \u2014 An inventory read as an ordinary user must list every path it could not open, and the plan must carry the privileged read as a step": lessons/52-a-read-without-privileges-must-list-what-it-could-not-open.md
   # <<< end generated
   - Sources: sources.md
   - About: about.md

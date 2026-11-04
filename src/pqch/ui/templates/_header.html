@@ -15,15 +15,19 @@
     <a href="/walkthrough" class="{{ 'on' if active == 'demo' }}" title="The walkthrough, on a test agency built for it">Walkthrough</a>
     <a href="/cbom" class="{{ 'on' if active == 'cbom' }}" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
     <a href="/plan" class="{{ 'on' if active == 'plan' }}" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
+    <a href="/ask" class="{{ 'on' if active == 'ask' }}" title="A question answered from the CBOM, citing ledger events, each citation checked">Ask the CBOM</a>
     {% if not public %}<a href="/lab" class="{{ 'on' if active == 'lab' }}" title="The owner's own network, observed passively">A real network</a>{% endif %}
+    {% if not public %}<a href="/hosts" class="{{ 'on' if active == 'hosts' }}" title="Servers read whole: listeners, files, firmware, controller">Hosts</a>{% endif %}
+    <a href="/site/about/" title="What this is, who made it, and the disclaimer in full">About</a>
     </div>
-    <div class="learn-group">
-    <span class="group">Learn<small>notes &amp; docs</small></span>
+    {# The field notes: the little brown book (the site's own theme), with the first and latest entry's
+       dates written under the label in ballpoint — read from the built site at start. #}
+    <div class="learn-group fn-box">
+    <span class="group">Field notes<small class="hand">{{ journal_span }}</small></span>
     <a href="/site/how-it-works/">How it works</a>
     <a href="/site/notes/">Notes</a>
     <a href="/site/lessons/">Lessons</a>
     <a href="/site/sources/">Sources</a>
-    <a href="/site/about/">About</a>
     </div>
   </nav>
 </header>

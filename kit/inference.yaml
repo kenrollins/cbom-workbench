@@ -1,0 +1,48 @@
+# pqch.inference/1 — the kit's tier map: every engine on the same box, reached by container name on
+# the bridge kit/engines.sh creates. A NIM takes no key; api_key_env names a variable left unset.
+# Role bindings are the ones measured on this deployment (spike S3 re-run on the GB10, 2026-11-04);
+# a role moves only on a new measurement.
+schema: pqch.inference/1
+profile: kit
+tiers:
+  fast:
+    base_url: http://pqch-engine-fast:8000/v1
+    api_key_env: PQCH_ENGINE_KEY
+    model: fast
+    hardware: "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Lightning 30B-A3B NVFP4, 0.20 share, 40k window)"
+    max_context: 40960
+    timeout_s: 300
+    residency: resident
+    reasoning:
+      model: fast
+      timeout_s: 900
+      request: {chat_template_kwargs: {enable_thinking: true}}
+  deliberate:
+    base_url: http://pqch-engine-deliberate:8000/v1
+    api_key_env: PQCH_ENGINE_KEY
+    model: deliberate
+    hardware: "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)"
+    max_context: 131072
+    timeout_s: 1800
+    residency: resident
+    reasoning:
+      model: deliberate
+      timeout_s: 1800
+      request: {chat_template_kwargs: {enable_thinking: true, medium_effort: true}}
+  embed:
+    base_url: http://pqch-engine-embed:11434/v1
+    api_key_env: PQCH_ENGINE_KEY
+    model: mxbai-embed-large
+    hardware: "DGX Spark GB10 (aarch64; ollama, mxbai-embed-large)"
+    residency: resident
+    # For a retrieval NIM instead: purpose_field: input_type and request: {truncate: END}
+# Bindings by measurement on this hardware class (a GB10 under vLLM), spike S3: round 1 (2026-10-08,
+# Lightning and the 120B on the lab GB10) and round 3 (2026-10-20, Super VL on the live lane). The
+# Nano 9B NIM measured 2026-11-04 reached no floor (R1 16, R2 23, R3 27, R5 9, R6 7 of 30).
+roles:
+  call-site-read:      {tier: fast, reasoning: true}        # S3 R1: Lightning thinking 28 of 30 (floor 27)
+  classify-algorithm:  {tier: fast, reasoning: true}        # S3 R3: Lightning thinking 30 of 30 (floor 28)
+  normalize-name:      {tier: deliberate, reasoning: true}  # S3 R2: Super VL medium 28 of 30 (floor 28), 0 harmful
+  trace-to-cause:      {tier: deliberate, reasoning: true}  # S3 R5: Super VL medium 27 of 30, 2 harmful (floor 24, 3)
+  change-plan:         {tier: fast, reasoning: true}        # S3 R6: no engine on this box clears 24 (Lightning thinking 23, 3 harmful); stays on fast, flagged; every plan is rehearsed and verified before approval
+  ask-cbom:            {tier: deliberate, reasoning: true}  # eval/ask 2026-11-04 on the box: Super VL medium 11 of 12 answers, 9 of 12 clean citations (floors 10, 12), median 34 s a question beside other jobs; the Nano 9B NIM 7 and 10; below the citation floor, so the page shows every verdict

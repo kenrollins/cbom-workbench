@@ -524,3 +524,310 @@ def lab_build(capture: dict | None, house: dict | None, assume: frozenset = froz
             "traps": traps, "entries": house["entries"], "done": 0,
             "assumed": sorted(a for a in assume if a in steps), "freed": freed, "whatif": _whatif(steps, assume, freed),
             "waiting": sum(1 for s in steps.values() if s["state"] == "waiting")}
+
+
+# ---------------------------------------------------------------- one server
+SYSTEM_LANES = [("services", "Services on the host", "what its applications listen with"),
+                ("os", "Operating system", "its SSH server and its own files"),
+                ("controller", "Management controller", "the BMC: its settings and its firmware"),
+                ("firmware", "Firmware and boot chain", "the BIOS, Secure Boot, the TPM")]
+
+
+def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Path = "policy/packs/m-26-15.yaml",
+                 cnsa_path: str | Path = "policy/packs/cnsa-2.0.yaml") -> dict | None:
+    """A server's plan, from its system scan (`kind: scan-system`): what to fix on it, in what order,
+    and what waits for its supplier. Rules only, over the run's findings and `platform.observed`
+    facts. No owner's facts are supplied for a single server, so nothing is prioritized: its key
+    establishment and signatures fall in the memo's remaining queue, by 2035, and the plan says what
+    the dates would be if the owner named it a high-value or high-impact system."""
+    import datetime as dt
+
+    import yaml
+
+    events = list(run.ledger.events())
+    if not events or events[0]["payload"].get("kind") != "scan-system":
+        return None
+    scope = events[0]["payload"]["scope"]
+    system = (scope.get("systems") or [{}])[0].get("name", "system")
+    ctl = (scope.get("controllers") or [None])[0]
+    addresses = set((scope.get("systems") or [{}])[0].get("addresses") or [])
+    pack = yaml.safe_load(Path(pack_path).read_text())
+    q = {x["id"]: x for x in pack["queues"]}
+    cnsa = yaml.safe_load(Path(cnsa_path).read_text()) if Path(cnsa_path).is_file() else {}
+    fw_sign = next((x for x in (cnsa.get("timeline") or cnsa.get("dates") or []) if "firmware" in str(x.get("category", ""))), None)
+    remaining = str(q["remaining-2035"]["deadline"])
+    kex_pri, sig_pri, tls13 = str(q["kex-2030"]["deadline"]), str(q["sig-2031"]["deadline"]), str(q["tls13-2030"]["deadline"])
+    when = events[0]["ts"][:10]
+    today = dt.date.fromisoformat(when)
+
+    finds = {e["id"]: e for e in events if e["type"] == "finding.observed"}
+    facts = [e["payload"] for e in events if e["type"] == "platform.observed"]
+    # When the server was read: the jobs' own times, which a replay keeps; the run's own time is the replay's.
+    scans = [e["payload"] for e in events if e["type"] == "scan.completed"]
+    reads = sorted(x["started_at"] for x in scans if x.get("started_at"))
+    replayed = next((x["replayed_from"].get("recording") for x in scans
+                     if (x.get("replayed_from") or {}).get("source_run")), None)
+    fact = {f["source"]: f for f in facts}
+    post = {(e["payload"]["subject"]["host"], e["payload"]["subject"]["port"]): e["payload"]["classification"]
+            for e in events if e["type"] == "assessment.made" and e["payload"].get("rule_id") == "posture/kex-auth/1"}
+
+    def ref(fid):
+        return {"fingerprint": finds[fid]["payload"]["fingerprint"], "event": fid}
+
+    def where(f):
+        s = f["subject"]
+        return f"{s['host']}:{s['port']}" if s["kind"] == "endpoint" else s.get("path") or s.get("component")
+
+    def pick(pred):
+        return [fid for fid, e in finds.items() if pred(e["payload"])]
+
+    steps: dict[str, dict] = {}
+    deps: list[dict] = []
+
+    def step(sid, **kw):
+        kw.setdefault("depends_on", [])
+        kw.setdefault("entries", [])
+        kw.setdefault("touch", [])
+        return steps.setdefault(sid, {"id": sid, "state": "ready", "fields": [], **kw})
+
+    def lane_of(host, port=None):
+        if ctl and host == ctl["host"]:
+            return "controller"
+        return "os" if host in addresses and port == 22 else "services"
+
+    # --- Before any quantum question: what crosses in the clear.
+    clear: dict[str, list[str]] = {}
+    for fid in pick(lambda p: p["asset"]["name"] == "PostgreSQL" and p["asset"]["parameters"].get("tls_offered") is False):
+        clear.setdefault(finds[fid]["payload"]["subject"]["host"], []).append(fid)
+    for host, fids in sorted(clear.items()):
+        ports = sorted(finds[x]["payload"]["subject"]["port"] for x in fids)
+        step(f"tls-on:{host}", kind="tls-on", service="services", wave="now", due=None,
+             title=f"Turn on TLS at the database listener{'s' if len(ports) > 1 else ''} on {host} ({', '.join(f':{p}' for p in ports)})",
+             why="each answers PostgreSQL's request for TLS with a refusal, so every connection, its password included, crosses "
+                 "the network in the clear: a gap today, before any quantum question, and nothing to migrate until TLS is there",
+             fields=["the listener's answer to an SSLRequest (probe)"], entries=[ref(x) for x in fids])
+        on = f"tls-on:{host}"
+        en = step(f"enable:{host}:db", kind="enable", service="services", wave="next", due=remaining, depends_on=[on],
+                  title=f"Then offer an ML-KEM hybrid group on the database listener{'s' if len(ports) > 1 else ''} on {host}",
+                  why="once TLS is on, it starts with whatever groups the TLS library offers; the hybrid has to be offered beside them",
+                  fields=["the listener's answer to an SSLRequest (probe)"])
+        step(f"require:{host}:db", kind="require", service="services", wave="then", due=remaining, depends_on=[en["id"]],
+             title=f"Then require the hybrid on the database listener{'s' if len(ports) > 1 else ''} on {host}",
+             why="required once its clients, the applications that connect to the pooler, are seen to offer it",
+             fields=["posture on the wire, after TLS is on"])
+
+    # --- Self-signed defaults on TLS listeners.
+    for fid in pick(lambda p: p["layer"] == "wire" and p["asset"]["type"] == "certificate"
+                    and p["asset"]["parameters"].get("subject") and p["asset"]["parameters"].get("subject") == p["asset"]["parameters"].get("issuer")):
+        f = finds[fid]["payload"]
+        a, prm = where(f), f["asset"]["parameters"]
+        host, port = f["subject"]["host"], f["subject"]["port"]
+        sid = f"cert:{a}"
+        if sid in steps:
+            steps[sid]["entries"].append(ref(fid))
+            continue
+        default = "CN=localhost" in prm["subject"]
+        step(sid, kind="ca-issue", service=lane_of(host, port), wave="next", due=None,
+             title=f"Replace the self-signed certificate on {a} with one the organization's CA issues",
+             why=(f"it serves {'a product default' if default else 'a certificate it signed itself'} ({f['asset']['name']}"
+                  f"{'-' + str(prm['key_bits']) if prm.get('key_bits') else ''}): no client can tell it from an impostor's, and a "
+                  "certificate outside the CA cannot be moved to a post-quantum signature with the rest; issue it from the CA "
+                  "now, and it re-roots with the CA later"),
+             fields=["the certificate the listener presents: subject equals issuer"], entries=[ref(fid)])
+
+    # --- Key establishment on the wire: the hybrid offered or not.
+    for (host, port), c in sorted(post.items()):
+        a = f"{host}:{port}"
+        on_wire = pick(lambda p, h=host, pt=port: p["layer"] == "wire" and p["subject"].get("host") == h and p["subject"].get("port") == pt
+                       and p["asset"]["role"] == "key-establishment")
+        if not on_wire:
+            continue
+        pq = c.get("kex_pq") or []
+        lane = lane_of(host, port)
+        nist = [k for k in pq if "MLKEM" in k.upper()]
+        if lane == "controller":
+            continue   # the controller's offers move with its firmware: the supplier step below
+        if nist:
+            step(f"require:{a}", kind="require", service=lane, wave="then", due=remaining,
+                 title=f"Require the ML-KEM hybrid on {a}", why=f"it already accepts {', '.join(nist)} beside classical groups",
+                 fields=["posture on the wire"], entries=[ref(x) for x in on_wire])
+            continue
+        if pq:
+            up = step(f"upgrade:{a}", kind="enable", service=lane, wave="next", due=remaining,
+                      title=f"Upgrade the server on {a} to one that offers ML-KEM key exchange",
+                      why=(f"it negotiates {', '.join(pq)}, a post-quantum hybrid that is not in FIPS 203 and not on the memo's list; "
+                           "the federal hybrid is ML-KEM (for OpenSSH, mlkem768x25519-sha256, from release 9.9). Due by "
+                           f"{remaining} as a remaining system; by {kex_pri} if the owner names this server high-value"),
+                      fields=["what the listener accepts (targeted scan)", "the quantum-vulnerable table (M-26-15, Appendix A)"],
+                      entries=[ref(x) for x in on_wire])
+        else:
+            up = step(f"enable:{a}", kind="enable", service=lane, wave="next", due=remaining,
+                      title=f"Offer an ML-KEM hybrid group on {a}",
+                      why=f"it accepts only classical key exchange ({', '.join((c.get('kex_classical') or [])[:5])}); a recording made today "
+                          "can be decrypted once a quantum computer exists. Due by "
+                          f"{remaining} as a remaining system; by {kex_pri} if named high-value",
+                      fields=["what the listener accepts (targeted scan)"], entries=[ref(x) for x in on_wire])
+        step(f"require:{a}", kind="require", service=lane, wave="then", due=remaining,
+             title=f"Then require the hybrid on {a}", depends_on=[up["id"]],
+             why="offered first, so clients that can follow are seen to; required once the clients that cannot are known",
+             fields=["posture on the wire"])
+        for fid in pick(lambda p, h=host, pt=port: p["subject"].get("host") == h and p["subject"].get("port") == pt
+                        and p["asset"]["name"] in ("TLS 1.2",) and p["asset"]["type"] == "protocol"):
+            steps[up["id"]]["entries"].append(ref(fid))
+
+    # --- The controller: settings the owner can change, and what moves only with its firmware.
+    ctl_fact = fact.get("controller") or {}
+    settings = ctl_fact.get("settings") or {}
+    if ctl:
+        cname = f"{ctl['host']}"
+        snmp = pick(lambda p: p["subject"].get("component") == "bmc:snmp" and p["asset"]["parameters"].get("community_strings_accepted"))
+        if snmp:
+            step("bmc:snmp", kind="setting", service="controller", wave="now", due=None,
+                 title=f"Restrict the controller's SNMP to version 3 ({cname})",
+                 why="it accepts SNMP v1 and v2c, which authenticate with a community string sent in the clear; v3 authenticates "
+                     "and encrypts. A setting, today",
+                 fields=["the controller's SNMP settings (Redfish)"], entries=[ref(x) for x in snmp])
+        if settings.get("fips_mode") == "Disabled":
+            step("bmc:fips", kind="setting", service="controller", wave="now", due=None,
+                 title=f"Decide on the controller's FIPS mode ({cname})",
+                 why=f"it is off; the module it would use is {settings.get('fips_module', 'not named')}. Where the estate must use "
+                     "validated modules, this is a setting; the module's validation has its own clock (note 10)",
+                 fields=["the controller's security settings (Redfish)"])
+        ssh_cfg = pick(lambda p: p["subject"].get("component") == "bmc:ssh-config" and p["asset"]["role"] == "key-establishment")
+        wire_ctl = pick(lambda p: p["layer"] == "wire" and p["subject"].get("host") == ctl["host"] and p["asset"]["role"] == "key-establishment")
+        ident = pick(lambda p: p["subject"].get("component", "").startswith("bmc:certificate:"))
+        fwv = ctl_fact.get("controller", {}).get("firmware_version")
+        sup = step("supplier:controller", kind="supplier", service="controller", wave="supplier", due=remaining,
+                   title=f"Controller firmware with ML-KEM key exchange, from the vendor (now {fwv or 'unknown'})",
+                   why="its HTTPS and SSH accept only classical key exchange, on the wire and as configured; its SSH list is the "
+                       "vendor's to extend, and its web server's groups are fixed in the firmware. Ask the vendor for the release "
+                       f"and the date; it falls in the memo's remaining queue, by {remaining}",
+                   fields=["what its listeners accept (targeted scan)", "its configured key exchange (Redfish)", "its firmware version (Redfish)"],
+                   entries=[ref(x) for x in wire_ctl + ssh_cfg])
+        step("require:controller", kind="require", service="controller", wave="then", due=remaining,
+             title="Then require the hybrid on the controller's HTTPS and SSH", depends_on=[sup["id"]],
+             why="once the firmware offers it; the controller's clients are a handful of administrators' tools",
+             fields=["posture on the wire"])
+        if ident:
+            step("supplier:identity", kind="supplier", service="controller", wave="supplier", due=sig_pri,
+                 title="Ask the vendor which algorithms sign the controller's identity certificates",
+                 why=f"the controller holds {len(ident)} certificates from the vendor's own CAs (factory identity, TPM attestation, "
+                     "component verification) and reports their issuers and dates but not their keys: the CBOM lists them as "
+                     "algorithm unknown until the vendor attests to them",
+                 fields=["the controller's certificate list (Redfish)"], entries=[ref(x) for x in ident])
+        deps.append({"kind": "supplier", "id": "dep:controller", "name": "The controller's firmware",
+                     "what": f"its TLS, its SSH and its identity certificates are set by the vendor's firmware ({fwv or 'version unknown'})",
+                     "services": ["controller"], "entries": [ref(x) for x in wire_ctl + ident],
+                     "consequence": "none of them moves with an operating-system update; each waits for a firmware release"})
+
+    # --- Firmware and the boot chain.
+    fwf = fact.get("firmware") or {}
+    sb_on = (fwf.get("settings") or {}).get("secure_boot")
+    sbc = {fid: finds[fid]["payload"] for fid in pick(lambda p: p["subject"].get("component", "").startswith("secure-boot:"))}
+
+    def expired(p):
+        na = p["asset"]["parameters"].get("not_after")
+        return bool(na) and dt.date.fromisoformat(na[:10]) < today
+    ms2011 = [fid for fid, p in sbc.items() if "Microsoft" in p["asset"]["parameters"].get("subject", "") and "2011" in p["asset"]["parameters"].get("subject", "")]
+    ms2023 = [fid for fid, p in sbc.items() if "Microsoft" in p["asset"]["parameters"].get("subject", "") and "2023" in p["asset"]["parameters"].get("subject", "")]
+    bios = next((x for x in fwf.get("firmware") or [] if x["name"] == "BIOS"), {})
+    if ms2011 and not ms2023:
+        upd = step("fw:ca2023", kind="firmware", service="firmware", wave="next", due=None,
+                   title=f"Install the 2023 Microsoft UEFI CAs: a BIOS release that carries them, or a signed db and KEK update (BIOS now {bios.get('version', '?')})",
+                   why=f"the boot chain trusts only Microsoft's 2011 CAs, which expired in 2026 ({sum(1 for x in ms2011 if expired(sbc[x]))} of "
+                       f"{len(ms2011)} past their dates on {when}); bootloaders and option ROMs signed under the 2023 CAs will not verify",
+                   fields=["the Secure Boot databases, read from the firmware's variables"], entries=[ref(x) for x in ms2011])
+        if sb_on is False:
+            step("fw:secureboot", kind="firmware", service="firmware", wave="then", due=None, depends_on=[upd["id"]],
+                 title="Then turn Secure Boot on",
+                 why="it is off, so nothing the firmware loads is checked against these databases at all; turning it on before the "
+                     "2023 CAs are in risks a server that will not boot a newly signed loader",
+                 fields=["the Secure Boot state, from the firmware's variables and the controller"])
+    elif sb_on is False:
+        step("fw:secureboot", kind="firmware", service="firmware", wave="now", due=None, title="Turn Secure Boot on",
+             why="it is off, so nothing the firmware loads is checked", fields=["the Secure Boot state"])
+    roots = [fid for fid, p in sbc.items() if p["subject"]["component"] in ("secure-boot:PK", "secure-boot:KEK", "secure-boot:db")
+             and p["asset"]["name"] in ("RSA", "ECDSA") and not p["asset"]["parameters"].get("revoked")]
+    if roots:
+        longest = max((sbc[x]["asset"]["parameters"].get("not_after", "")[:10] for x in roots), default="")
+        fw_due = f"{fw_sign.get('exclusive_by')}" if fw_sign else None
+        step("supplier:signing", kind="supplier", service="firmware", wave="supplier", due=fw_due or sig_pri,
+             depends_on=["fw:ca2023"] if "fw:ca2023" in steps else [],
+             title="A post-quantum firmware-signing root, and a way to rotate the platform key, KEK and db, from the vendor",
+             why=f"every key the boot chain trusts is RSA or ECDSA ({len(roots)} certificates, valid to {longest}); a firmware "
+                 "signature is checked for the life of the hardware, so the root has to change before the hardware retires"
+                 + (f"; CNSA 2.0 sets {fw_sign['exclusive_by']} for software and firmware signing in national security systems"
+                    f"{' (the pack marks that date unverified)' if fw_sign.get('verified') is False else ''}" if fw_sign else ""),
+             fields=["the Secure Boot databases' certificates and keys", "the quantum-vulnerable table"], entries=[ref(x) for x in roots])
+        deps.append({"kind": "firmware-trust", "id": "dep:bootchain", "name": f"The BIOS ({bios.get('version', '?')}) and its trust databases",
+                     "what": f"the BIOS enforces {len(sbc)} certificates in the platform key, KEK, db and dbx when Secure Boot is on",
+                     "services": ["firmware"], "entries": [ref(x) for x in sbc],
+                     "consequence": "a new CA or a new signing algorithm arrives as a firmware or key-database update, signed by the key it replaces"})
+
+    # --- The host's own files.
+    ff = fact.get("files") or {}
+    unread = [u for u in ff.get("unreadable") or [] if "(absent)" not in u]
+    if unread:
+        step("os:privileged-read", kind="inventory", service="os", wave="now", due=None,
+             title=f"Read the {len(unread)} paths an unprivileged read could not open",
+             why=f"the scan read the host's files as an ordinary user (uid {ff.get('read_as_uid')}); {', '.join(unread[:4])}"
+                 f"{' and more' if len(unread) > 4 else ''} hold private keys the inventory cannot see. One privileged, read-only pass "
+                 "fills the gap; until then the CBOM lists their public halves only",
+             fields=["the reader's list of unreadable paths"])
+    files = pick(lambda p: p["layer"] == "host" and p["asset"]["role"] in ("signature", "other")
+                 and p["asset"]["name"] in ("RSA", "ECDSA", "Ed25519", "DSA"))
+    if files:
+        waits = [x for x in ("os:privileged-read",) if x in steps] + [k for k in steps if k.startswith("upgrade:") and steps[k]["service"] == "os"]
+        step("os:keys", kind="replace", service="os", wave="then", due=remaining, depends_on=waits,
+             title=f"Reissue the host's own certificates and keys under post-quantum signatures as their software allows ({len(files)} files)",
+             why="SSH host keys, the cluster CA and service certificates on the host are RSA, ECDSA or Ed25519: each moves when the "
+                 "software that uses it accepts ML-DSA, and a CA before the certificates it issued",
+             fields=["files read on the host: certificates, public keys, the CA flag"], entries=[ref(x) for x in files])
+    for s in steps.values():
+        s.setdefault("touch", [])
+        s["touch"] = [d["id"] for d in deps if s["service"] in d["services"]]
+    freed = _settle(steps, assume)
+    # A server's list runs by wave: today's settings, then updates, then requiring, then the supplier;
+    # dependencies first within that, then the earlier deadline, then the lane.
+    rank = {lane: i for i, (lane, _, _) in enumerate(SYSTEM_LANES)}
+    wave_rank = {"now": 0, "next": 1, "supplier": 2, "then": 3}
+    done_ids, order = set(), []
+    while len(order) < len(steps):
+        ready = [x for x in steps.values() if x["id"] not in done_ids and all(d in done_ids or d not in steps for d in x["depends_on"])] \
+            or [x for x in steps.values() if x["id"] not in done_ids]
+        nxt = min(ready, key=lambda x: (wave_rank.get(x["wave"], 9), x["due"] or "9999", rank.get(x["service"], 9), x["id"]))
+        done_ids.add(nxt["id"])
+        order.append(nxt["id"])
+    lanes = [{"id": lid, "label": label, "sub": sub} for lid, label, sub in SYSTEM_LANES if any(s["service"] == lid for s in steps.values())]
+    waves = [{"id": w, "label": label, "steps": [steps[i] for i in order if steps[i]["wave"] == w]}
+             for w, label in (("now", "Now: settings"), ("next", "Next: updates"), ("supplier", "From the vendor"), ("then", "Then: require"))]
+    waves = [w for w in waves if w["steps"]]
+    traps = []
+    hybrid_on_host = [(key, c["kex_pq"]) for key, c in post.items()
+                      if c.get("kex_pq") and key[0] in addresses and not any("MLKEM" in k.upper() for k in c["kex_pq"])]
+    if hybrid_on_host:
+        (h, p), kex = hybrid_on_host[0]
+        traps.append({"dependency": None, "sheet": "mark the server post-quantum ready: its SSH negotiates a hybrid",
+                      "cbom": f"{h}:{p} negotiates {', '.join(kex)}, "
+                              "which is not ML-KEM; the controller on the same box offers no hybrid, and "
+                              + ("its database pooler offers no TLS at all" if any(k.startswith("tls-on:") for k in steps) else "its other listeners none")})
+    if "fw:ca2023" in steps:
+        traps.append({"dependency": "dep:bootchain", "sheet": "turn Secure Boot on",
+                      "cbom": "the only Microsoft CAs in its databases expired in 2026 and their 2023 replacements are absent: update the databases first"})
+    if ctl:
+        traps.append({"dependency": "dep:controller", "sheet": "patch the operating system and rescan",
+                      "cbom": "the controller's TLS, SSH and identity certificates and the boot chain's keys sit below the operating system; "
+                              "an OS update changes none of them"})
+    if unread:
+        traps.append({"dependency": None, "sheet": "count a scan run as an ordinary user as complete",
+                      "cbom": f"{len(unread)} paths, the private host keys among them, were unreadable to it: the inventory says so instead of omitting them"})
+    return {"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": run.id, "estate": "system", "system": system,
+            "dependencies": deps, "lanes": lanes, "ranking": [],
+            "wave_labels": {"now": "now", "next": "next", "supplier": "vendor", "then": "then"}, "waves": waves,
+            "steps": len(steps), "traps": traps, "entries": len(finds), "done": 0,
+            "assumed": sorted(a for a in assume if a in steps), "freed": freed, "whatif": _whatif(steps, assume, freed),
+            "waiting": sum(1 for s in steps.values() if s["state"] == "waiting"),
+            "read_from": min(reads) if reads else events[0]["ts"], "read_to": max(reads) if reads else events[0]["ts"],
+            "replayed": replayed, "replayed_at": events[0]["ts"] if replayed else None,
+            "device": next((f.get("device") for f in facts if f.get("device", {}).get("model")), {}),
+            "deadlines": {"remaining": remaining, "kex_prioritized": kex_pri, "sig_prioritized": sig_pri, "tls13": tls13}}

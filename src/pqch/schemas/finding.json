@@ -28,7 +28,8 @@
       "enum": [
         "wire",
         "host",
-        "code"
+        "code",
+        "platform"
       ]
     },
     "source": {
@@ -177,6 +178,26 @@
               "maximum": 4094
             }
           }
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "host",
+            "component"
+          ],
+          "properties": {
+            "kind": {
+              "const": "platform"
+            },
+            "host": {
+              "type": "string"
+            },
+            "component": {
+              "type": "string"
+            }
+          },
+          "description": "Below the operating system: a firmware trust database (secure-boot:db), the management controller's configuration (bmc:ssh) or its certificates (bmc:certificates). `host` is the system's name."
         }
       ]
     },

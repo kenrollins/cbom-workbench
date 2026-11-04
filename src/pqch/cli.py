@@ -463,6 +463,66 @@ def _change_status(args: argparse.Namespace) -> int:
     return 0
 
 
+
+def _scan_system(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.runner.client import RunnerClient
+    from pqch.systems import scan_system
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    client = RunnerClient(args.runner_socket or os.environ.get("PQCH_SYSTEM_RUNNER_SOCKET", "/run/pqch-system/runner.sock"))
+    recs = {}
+    for r in args.controller_recording or []:
+        host, _, path = r.partition("=")
+        recs[host] = Path(path)
+
+    def show(line: dict) -> None:
+        tg = line["target"]
+        where = tg.get("system") or tg.get("controller") or f"{tg.get('host')}:{tg.get('port')}"
+        print(f"{line['profile']:<20} {where:<22} {line['status']:<8} {line['duration_ms']:>7} ms {line['findings']:>3} findings"
+              + (" (recorded)" if line.get("replayed") else "") + (f"  {line['error']}" if line.get("error") else ""), flush=True)
+
+    run, summary = scan_system(var, client, controller_recordings=recs,
+                               recorder=Path(args.recorder) if args.recorder else None, progress=show)
+    print(f"run {run.id}: {len(summary['jobs'])} jobs; rules {summary['rules']}")
+    return 0
+
+
+def _system_export(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    import yaml
+
+    from pqch.run import Run
+    from pqch.systems import export_recording
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    mapping = yaml.safe_load(Path(args.map).read_text()) if args.map else {}
+    leaks = []
+    if args.leaks:
+        doc = yaml.safe_load(Path(args.leaks).read_text())
+        leaks = [p if isinstance(p, str) else p.get("pattern", "") for p in (doc.get("leaks") if isinstance(doc, dict) else doc) or []]
+    m = export_recording(Run(var, args.run), Path(args.out), mapping=mapping.get("replace", mapping) if isinstance(mapping, dict) else {},
+                         leaks=[p for p in leaks if p], scrub_hardware_ids=args.scrub_hardware_ids)
+    print(f"recording {m['id']} of run {m['source_run']}: {len(m['jobs'])} jobs, sanitized={m['sanitized']}, in {args.out}")
+    return 0
+
+
+def _system_replay(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.systems import replay_recording
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run, summary = replay_recording(var, Path(args.recording),
+                                    progress=lambda line: print(f"{line['profile']:<20} {line['findings']:>3} findings", flush=True))
+    print(f"run {run.id}: replayed recording {summary['recording']} (of run {summary['source_run']}); rules {summary['rules']}")
+    return 0
+
 def _scan_external(args: argparse.Namespace) -> int:
     import os
     from pathlib import Path
@@ -536,6 +596,24 @@ def build_parser() -> argparse.ArgumentParser:
     se = sub.add_parser("scan-external", help="targeted scan of the listeners an external scope names, through its own runner")
     se.add_argument("--runner-socket", help="the external estate's runner socket (default PQCH_LAB_RUNNER_SOCKET)")
     se.set_defaults(func=_scan_external)
+
+    ss = sub.add_parser("scan-system", help="a server: its listeners, its own files and firmware, and its management controller, through its runner")
+    ss.add_argument("--runner-socket", help="the system runner's socket (default PQCH_SYSTEM_RUNNER_SOCKET)")
+    ss.add_argument("--controller-recording", action="append", metavar="HOST=FILE",
+                    help="bring an earlier Redfish read of this controller in as its job, instead of reading it now")
+    ss.add_argument("--recorder", help="the program that made the recording, hashed into the job's record")
+    ss.set_defaults(func=_scan_system)
+    sy = sub.add_parser("system", help="recordings of a system scan").add_subparsers(dest="sub", required=True)
+    sx = sy.add_parser("export", help="write a run's scope and raw outputs as a recording, identifiers replaced")
+    sx.add_argument("run")
+    sx.add_argument("--out", required=True)
+    sx.add_argument("--map", help="YAML: replace: {identifier: replacement}")
+    sx.add_argument("--leaks", help="YAML with a `leaks` list of patterns that must not survive; the export stops on a match")
+    sx.add_argument("--scrub-hardware-ids", action="store_true", help="replace every MAC address and UUID with a consistent stand-in")
+    sx.set_defaults(func=_system_export)
+    sr = sy.add_parser("replay", help="a new run from a recording, on any host, with no access to the system")
+    sr.add_argument("recording")
+    sr.set_defaults(func=_system_replay)
 
     cap = sub.add_parser("capture", help="passive capture").add_subparsers(dest="sub", required=True)
     ci = cap.add_parser("ingest", help="read Zeek's rotated handshake logs into a new capture run")
@@ -643,6 +721,20 @@ def build_parser() -> argparse.ArgumentParser:
     imf.add_argument("archive")
     imf.add_argument("image", nargs="?", default="")
     imf.set_defaults(func=lambda a: __import__("pqch.scout.imagefiles", fromlist=["main"]).main([a.archive, a.image]))
+    sf = sub.add_parser("system-files", help="read the key material in a system's packed paths (the runner's own system profile)")
+    sf.add_argument("directory")
+    sf.set_defaults(func=lambda a: __import__("pqch.scout.system", fromlist=["main"]).main(["files", a.directory]))
+    sfw = sub.add_parser("system-firmware", help="read a system's firmware identity, TPM and Secure Boot databases from its packed paths")
+    sfw.add_argument("directory")
+    sfw.set_defaults(func=lambda a: __import__("pqch.scout.system", fromlist=["main"]).main(["firmware", a.directory]))
+    po = sub.add_parser("postgres-tls-offer", help="send PostgreSQL's SSLRequest and record the answer (the runner's probe)")
+    po.add_argument("host")
+    po.add_argument("port")
+    po.set_defaults(func=lambda a: __import__("pqch.scout.system", fromlist=["main"]).main(["postgres-tls-offer", a.host, a.port]))
+    cr = sub.add_parser("controller-redfish", help="read a management controller through Redfish, GET only (the runner's controller profile)")
+    cr.add_argument("host")
+    cr.add_argument("port", nargs="?", default="443")
+    cr.set_defaults(func=lambda a: __import__("pqch.scout.redfish", fromlist=["main"]).main([a.host, a.port]))
 
     sc = sub.add_parser("scan", help="run the slice: scope, key, scans, CBOM, score")
     sc.add_argument("--host", choices=["live", "replay", "skip"], default="replay",

@@ -7,6 +7,11 @@
              src: url(fonts/jetbrains-mono-latin-wght-normal.woff2) format("woff2"); }
 @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 800; font-display: swap;
              src: url(fonts/eb-garamond-latin-wght-normal.woff2) format("woff2"); }
+/* The field notes' own faces, for the kraft box in the header (the site's theme, stylesheets/fieldnotes.css). */
+@font-face { font-family: "Jost"; font-style: normal; font-weight: 300 700; font-display: swap;
+             src: url(fonts/jost-latin-wght-normal.woff2) format("woff2"); }
+@font-face { font-family: "Caveat"; font-style: normal; font-weight: 400 700; font-display: swap;
+             src: url(fonts/caveat-latin-wght-normal.woff2) format("woff2"); }
 :root {
   --bg: #0b0f17; --bg2: #141b26; --card: #10161f; --line: #1f2a3a; --line2: #2a3648;
   --fg: #e4e9f0; --fg2: rgba(196,207,221,.82); --dim: rgba(196,207,221,.56); --faint: rgba(196,207,221,.28);
@@ -328,7 +333,8 @@ header.site .bar .repo svg { width: 20px; height: 20px; fill: currentColor; disp
    nothing: a 58px brand row and a 44px tab row (site_src/stylesheets/extra.css says the same). */
 header.site .bar { height: 58px; padding-top: 0; align-items: center; flex-wrap: nowrap; }
 header.site .disclaimer { max-width: 460px; line-height: 1.4; margin-left: auto; }
-header.site .tabs { height: 44px; padding-top: 0; padding-bottom: 0; flex-wrap: nowrap; }
+header.site .tabs { min-height: 44px; padding-top: 0; padding-bottom: 0; flex-wrap: wrap; row-gap: 6px; }
+header.site .tabs .learn-group { margin-left: auto; }
 @media (max-width: 900px) { header.site .disclaimer { display: none; } header.site .tabs { height: auto; flex-wrap: wrap; padding-bottom: 8px; } }
 
 /* Two groups, told apart three ways: the demo on the left in a tinted box, the reading on the right;
@@ -431,3 +437,24 @@ figure.agility .caption .cap-keys { font: 11px var(--sans); color: var(--faint);
 
 /* Light scheme: the accent is a deeper blue there, and white text on it reads at 4.8:1 where dark text would not. */
 @media (prefers-color-scheme: light) { button:not(.secondary), #play, .playbar a.cta { color: #fff; } .playbar #play { color: var(--accent); } }
+
+
+/* ---- the field notes box: the cover of the little brown book, set into the demo's header ---------
+   The same materials as the site's theme (fieldnotes.css): kraft with its fibre, one ink, ballpoint
+   for what is written by hand, stamp red for the active tab. Flipping from the demo to the notes
+   lands on the same brown, so the reader knows which side of the desk they are on. */
+header.site .tabs .fn-box {
+  --fn-kraft: #d9c39c; --fn-ink: #211a14; --fn-ink-rgb: 33, 26, 20; --fn-ballpoint: #1f3a8a; --fn-accent: #c8401f; --fn-accent-rgb: 200, 64, 31;
+  height: 34px; padding: 0 14px 0 12px; margin: 5px 0 5px auto; border-radius: 2px; gap: 2px 16px;
+  color: var(--fn-ink); border: 1.5px solid var(--fn-ink);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.10) 0, rgba(0,0,0,.03) 10px, transparent 20px),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.30  0 0 0 0 0.22  0 0 0 0 0.12  0.55 0 0 0 -0.08'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>"),
+    var(--fn-kraft);
+  box-shadow: 0 3px 10px -4px rgba(0,0,0,.6);
+}
+header.site .tabs .fn-box .group { font: 500 9.5px/1 "Jost", "Futura", sans-serif; letter-spacing: .16em; text-transform: uppercase; color: rgba(var(--fn-ink-rgb), .6); gap: 0; margin-top: -1px; }
+header.site .tabs .fn-box .group .hand { font: 600 13.5px/1 "Caveat", "Segoe Script", cursive; letter-spacing: 0; text-transform: none; color: var(--fn-ballpoint); margin-top: 2px; white-space: nowrap; }
+header.site .tabs .fn-box a { font: 500 13.5px/1 "Jost", "Futura", sans-serif; letter-spacing: .04em; color: rgba(var(--fn-ink-rgb), .88); padding: 6px 0; border-bottom: 2px solid transparent; }
+header.site .tabs .fn-box a:hover { color: var(--fn-accent); border-bottom-color: rgba(var(--fn-accent-rgb), .5); }
+header.site .tabs .fn-box a.on { color: var(--fn-ink); border-bottom-color: var(--fn-accent); font-weight: 700; }

@@ -55,7 +55,13 @@ repository, between the tools that fill it and the engine that ranks what to
 change ([note 16](16-what-a-cbom-makes-possible.md)). Its centre is the
 plan the CBOM makes possible: what depends on what, what comes first, and in
 what order the changes have to go
-([note 17](17-how-a-cbom-becomes-a-migration-plan.md)).
+([note 17](17-how-a-cbom-becomes-a-migration-plan.md)). The whole of it, with
+its inference engines, runs on one desk-side machine from an offline bundle
+([note 18](18-what-the-workbench-is-built-from-and-what-an-enterprise-would-use.md)),
+and the CBOM can be asked questions whose answers cite ledger events, each
+citation checked by a rule (`/ask`). A single server is read the same way,
+below its operating system as well as on the wire, and planned from its own
+CBOM ([note 20](20-how-a-server-is-inventoried-and-planned-as-an-estate.md)).
 
 It is an exploration shared freely, not a product. Its three arguments are
 that the inventory is the tool the migration is made from and checked against,

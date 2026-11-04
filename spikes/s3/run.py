@@ -3,7 +3,7 @@
     uv run python spikes/s3/run.py --config workshop/inference.s3.yaml --arm fast --role r1 --set dev
     uv run python spikes/s3/run.py --config ... --arm fast --arm fast-thinking --arm deliberate --set scored
 
-An arm is `fast`, `deliberate` or `fast-thinking`. The seam knows only the tiers `fast`, `deliberate` and
+An arm is `fast`, `deliberate`, `fast-thinking`, or `<name>:<config>[:reasoning]`. The seam knows only the tiers `fast`, `deliberate` and
 `embed` and refuses any other name, so the third arm is given as `fast-thinking:<config>`: a second
 configuration file whose `fast` tier is bound to the fast engine with thinking on. The reply records
 the model id either way. (That the seam has no way to say "this role, thinking on" is what the
@@ -58,9 +58,15 @@ def main() -> int:
 
     seams = {}
     for spec in args.arm:
-        arm, _, cfg = spec.partition(":")
-        seams[arm] = (inference.Seam(inference.load_config(cfg or args.config)), "deliberate" if arm == "deliberate" else "fast")
-    for arm, (seam, tier) in seams.items():
+        arm, _, rest = spec.partition(":")
+        cfg, _, flag = rest.partition(":")
+        if flag not in ("", "reasoning"):
+            raise SystemExit(f"arm {spec}: the third field may only be 'reasoning'")
+        # `name:<config>:reasoning` runs the config's tier through its reasoning block (the seam's
+        # own switch, lesson 26), for an engine reached with no gateway lane to turn thinking on.
+        seams[arm] = (inference.Seam(inference.load_config(cfg or args.config)),
+                      "deliberate" if arm == "deliberate" else "fast", flag == "reasoning")
+    for arm, (seam, tier, reasoning) in seams.items():
         for role in args.role or sorted(roles.SCHEMAS):
             items = [json.loads(x) for x in (HERE / "items" / f"{role}.jsonl").read_text().splitlines()]
             out = HERE / "results" / args.set / arm
@@ -81,7 +87,7 @@ def main() -> int:
                         started = time.monotonic()
                         try:
                             c = seam.complete(tier, messages, schema=roles.SCHEMAS[role], max_tokens=roles.MAX_TOKENS[role],
-                                              purpose=f"s3-{role}")
+                                              purpose=f"s3-{role}", reasoning=reasoning)
                             rec.update(reply=c.parsed, model=c.model, hardware=c.hardware, latency_ms=c.latency_ms,
                                        usage={k: v for k, v in c.usage.items() if isinstance(v, int)},
                                        finish_reason=c.raw["choices"][0].get("finish_reason"))

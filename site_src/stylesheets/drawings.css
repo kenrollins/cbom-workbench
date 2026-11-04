@@ -1,0 +1,13 @@
+/* quprotect-fieldnotes — the drawings (tools/draw.py). A sketch sits straight on the graph paper; a
+   marked screenshot is the untouched capture with a transparent overlay of the same size laid over
+   it, ink and slips. Its own file, not extra.css, so a browser holding an older extra.css still
+   loads it: a stale stylesheet once left the marks below their screenshot. */
+.md-typeset figure.sketch, .md-typeset figure.marked { display: block; margin: 1.6em 0; }
+.md-typeset figure.sketch img { display: block; width: 100%; max-width: 1000px; margin: 0 auto; }
+.md-typeset figure.marked > p { position: relative; margin: 0; line-height: 0; }
+.md-typeset figure.marked img { display: block; width: 100%; }
+.md-typeset figure.marked img.ink { position: absolute; top: 0; left: 0; height: 100%; pointer-events: none; }
+.md-typeset figure.sketch figcaption, .md-typeset figure.marked figcaption {
+  max-width: none; margin-top: .5em; font-family: var(--fn-hand); font-size: 1.05rem;
+  font-style: normal; color: var(--fn-ballpoint);
+}

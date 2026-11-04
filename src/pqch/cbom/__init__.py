@@ -70,7 +70,85 @@ def _location(subject: dict) -> str:
         return f"{subject.get('image') or subject.get('host')}:{subject['path']}"
     if subject["kind"] == "client":
         return f"client:{subject['host']}"
+    if subject["kind"] == "platform":
+        return f"{subject['host']}:{subject['component']}"
     return f"{subject['repo']}@{subject['commit']}:{subject['path']}#L{subject['line']}"
+
+
+def _platform_components(events: list[dict], comps: dict, listeners: dict) -> tuple[list[dict], list[dict]]:
+    """A scanned system as CycloneDX sees hardware: a `device`, its `firmware` with versions, and
+    what each depends on. The device holds its listeners, its files and its firmware; the BIOS
+    enforces the Secure Boot databases and measures into the TPM; the management controller's
+    firmware carries its own configuration, certificates and listeners. From `platform.observed`
+    events and the platform layer's findings; nothing here is inferred from a name."""
+    scope = events[0]["payload"].get("scope") or {}
+    systems = {s["name"]: s for s in scope.get("systems", [])}
+    controllers = {c["of"]: c for c in scope.get("controllers", [])}
+    facts: dict[str, list[dict]] = {}
+    for ev in events:
+        if ev["type"] == "platform.observed":
+            facts.setdefault(ev["payload"]["system"], []).append({**ev["payload"], "_event": ev["id"]})
+    components, dependencies = [], []
+    for name in sorted(set(systems) | set(facts)):
+        fs = facts.get(name, [])
+        device, settings, firmware, evidence = {}, {}, {}, []
+        files_fact = next((f for f in fs if f["source"] == "files"), None)
+        for f in fs:
+            evidence.append(f["_event"])
+            for k, v in (f.get("device") or {}).items():
+                if v and not device.get(k):
+                    device[k] = v
+            settings.update({f"{f['source']}:{k}": v for k, v in (f.get("settings") or {}).items() if v is not None})
+            for fw in f.get("firmware") or []:
+                key = fw["name"]
+                cur = firmware.setdefault(key, {"name": key, "version": fw.get("version"), "sources": set(), "enforces": set()})
+                cur["sources"].add(f["source"])
+                cur["enforces"].update(fw.get("enforces") or [])
+                if not cur.get("version"):
+                    cur["version"] = fw.get("version")
+        ctl_fact = next((f for f in fs if f["source"] == "controller"), None)
+        dref = f"device:{name}"
+        props = [_prop("kind", "system"), _prop("system", name), _prop("evidence", ",".join(evidence)),
+                 _prop("settings", settings)]
+        if files_fact:
+            props.append(_prop("files", {k: files_fact.get(k) for k in ("files_read", "unreadable", "trust_store",
+                                                                         "trust_store_certificates", "read_as_uid")}))
+        if ctl_fact:
+            props.append(_prop("controller", ctl_fact.get("controller")))
+        components.append({"type": "device", "bom-ref": dref, "name": device.get("model") or name,
+                           **({"manufacturer": {"name": device["vendor"]}} if device.get("vendor") else {}),
+                           "properties": props})
+        addresses = set((systems.get(name) or {}).get("addresses") or [])
+        ctl = controllers.get(name)
+        on_device = [r for r, ln in listeners.items() if ln["subject"]["host"] in addresses]
+        files = [f"fp:{fp}" for fp, c in comps.items() if c["finding"]["layer"] == "host"
+                 and c["finding"]["subject"].get("host") == name]
+        fw_refs = []
+        for fwname in sorted(firmware):
+            fw = firmware[fwname]
+            ref = f"fw:{name}:{fwname}"
+            fw_refs.append(ref)
+            is_ctl = bool(ctl) and ("Remote Access Controller" in fwname or "iDRAC" in fwname)
+            fprops = [_prop("kind", "firmware"), _prop("system", name), _prop("sources", sorted(fw["sources"]))]
+            if is_ctl:
+                fprops.append(_prop("controller-host", ctl["host"]))
+            components.append({"type": "firmware", "bom-ref": ref, "name": fwname,
+                               **({"version": str(fw["version"])} if fw.get("version") else {}), "properties": fprops})
+            under = []
+            if fwname == "BIOS":
+                under = [f"fp:{fp}" for fp, c in comps.items() if c["finding"]["layer"] == "platform"
+                         and c["finding"]["subject"].get("host") == name
+                         and c["finding"]["subject"]["component"].startswith(("secure-boot:", "tpm"))]
+            elif is_ctl:
+                under = [f"fp:{fp}" for fp, c in comps.items() if c["finding"]["layer"] == "platform"
+                         and c["finding"]["subject"].get("host") == name and c["finding"]["subject"]["component"].startswith("bmc:")]
+                under += [r for r, ln in listeners.items() if ln["subject"]["host"] == ctl["host"]]
+            if under:
+                dependencies.append({"ref": ref, "dependsOn": sorted(set(under))})
+        depends = sorted(set(fw_refs + on_device + files))
+        if depends:
+            dependencies.append({"ref": dref, "dependsOn": depends})
+    return components, dependencies
 
 
 def _listener_ref(subject: dict) -> str:
@@ -324,6 +402,11 @@ def project(events: list[dict], *, tools: set[str] | None = None, rules: bool = 
         files = image_files.get(image, [])
         if files:
             dependencies.append({"ref": f"img:{repo}", "dependsOn": sorted(files)})
+
+    if tools is None:
+        plat, plat_deps = _platform_components(events, comps, listeners)
+        components += plat
+        dependencies += plat_deps
 
     bom = {
         "bomFormat": "CycloneDX",

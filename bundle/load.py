@@ -100,6 +100,28 @@ def main() -> None:
             raise SystemExit(f"{img['bundle_ref']} is not held under its digest after the pull")
     print(f"{len(manifest['images'])} images pulled from the bundle's registry, digests held", flush=True)
 
+    # The policy-managed services mount their policy file from agency/generated/, which is the
+    # deployment's state and is not in the repository. On a host that has none, the starting state
+    # comes from agency/baseline/ (what `pqch estate reset` restores); a file already there is the
+    # estate's current state and is kept. Without this, Docker creates the mount sources empty, as
+    # root, and a proposal for those services finds no file to edit.
+    seeded = []
+    for base in sorted((ROOT / "agency" / "baseline").glob("*/*")):
+        if base.name == "README.md":
+            continue
+        dest = ROOT / "agency" / "generated" / base.parent.name / base.name
+        if not dest.exists():
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            try:
+                dest.write_bytes(base.read_bytes())
+            except PermissionError:
+                raise SystemExit(f"{dest.parent} is not writable (Docker created it as root when the estate started "
+                                 f"without it): remove it, e.g. docker run --rm -v {dest.parent.parent}:/g alpine "
+                                 f"rm -rf /g/{dest.parent.name}, and load again")
+            seeded.append(f"{base.parent.name}/{base.name}")
+    if seeded:
+        print(f"starting state from agency/baseline/ for {', '.join(seeded)}", flush=True)
+
     agency = ["docker", "compose", "-f", str(ROOT / "agency/compose.yaml"), "-f", str(OUT / "compose.agency.yaml")]
     sh(*agency, "up", "-d", "--pull", "never", "--no-build", "--force-recreate")
     sh("uv", "run", "pqch", "scope", "generate", str(ROOT / "agency/compose.yaml"), str(OUT / "compose.agency.yaml"),

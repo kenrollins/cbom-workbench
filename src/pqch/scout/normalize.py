@@ -205,9 +205,19 @@ _PRIMITIVE_ROLE = {
 }
 
 
+def _file_subject(job: dict, path: str) -> dict:
+    """A file in a scoped image, or in a scoped system's packed paths (its own path, without the
+    /scan/root the readers see it under)."""
+    t = job["target"]
+    if "system" in t:
+        p = path.removeprefix("/scan/root") if path.startswith("/scan/root") else path
+        return {"kind": "file", "host": t["system"], "path": "/" + p.lstrip("/")}
+    return {"kind": "file", "image": t["image"].partition("@")[0], "path": path}
+
+
 def theia(raw: bytes, job: dict) -> list[dict]:
     bom = json.loads(raw)
-    image, _, digest = job["target"]["image"].partition("@")
+    digest = job["target"].get("image", "").partition("@")[2]
     comps = {x.get("bom-ref"): x for x in bom.get("components", []) if x.get("bom-ref")}
     c = _Collector(job, "host", subject_digest=digest or None)
     for comp in bom.get("components", []):
@@ -216,7 +226,7 @@ def theia(raw: bytes, job: dict) -> list[dict]:
         cp = comp.get("cryptoProperties", {})
         kind = cp.get("assetType")
         for occ in comp.get("evidence", {}).get("occurrences", []):
-            subject = {"kind": "file", "image": image, "path": occ["location"]}
+            subject = _file_subject(job, occ["location"])
             if kind == "certificate":
                 props = cp.get("certificateProperties", {})
                 pub = comps.get(props.get("subjectPublicKeyRef"), {})
@@ -262,10 +272,10 @@ _FILE_ROLE = {"certificate": "signature", "related-crypto-material": "other"}
 def imagefiles(raw: bytes, job: dict) -> list[dict]:
     """The harness's own reader (`pqch-image-files/1`): one entry per thing read from a file."""
     doc = json.loads(raw)
-    image, _, digest = job["target"]["image"].partition("@")
+    digest = job["target"].get("image", "").partition("@")[2]
     c = _Collector(job, "host", subject_digest=digest or None)
     for e in doc.get("entries", []):
-        subject = {"kind": "file", "image": image, "path": e["path"]}
+        subject = _file_subject(job, e["path"])
         params = dict(e.get("parameters") or {})
         if e["type"] == "related-crypto-material" and "kind" in params and not isinstance(params["kind"], list):
             params["kind"] = [params["kind"]]
@@ -273,12 +283,177 @@ def imagefiles(raw: bytes, job: dict) -> list[dict]:
     return c.findings()
 
 
+# ------------------------------------------------- a system's firmware and controller
+def _platform(job: dict, component: str) -> dict:
+    t = job["target"]
+    return {"kind": "platform", "host": t.get("system") or t.get("of") or t.get("controller"), "component": component}
+
+
+def system_firmware(raw: bytes, job: dict) -> list[dict]:
+    """`pqch-system-firmware/1`: each certificate in the Secure Boot databases, and the TPM's banks."""
+    doc = json.loads(raw)
+    c = _Collector(job, "platform")
+    enabled = (doc.get("secure_boot") or {}).get("enabled")
+    for label, db in (doc.get("databases") or {}).items():
+        for cert in (db or {}).get("certificates", []):
+            params = {k: v for k, v in cert.items() if k not in ("key_algorithm",) and v is not None}
+            params.update({"database": label, "secure_boot_enabled": enabled, "revoked": label == "dbx"})
+            c.add(_platform(job, f"secure-boot:{label}"), "certificate", "signature", cert["key_algorithm"], params,
+                  f"{label}: {cert['subject'][:80]} ({cert['key_algorithm']}-{cert.get('key_bits')}, {cert['signature']}, "
+                  f"to {cert['not_after'][:10]})")
+    for bank in ((doc.get("tpm") or {}).get("pcr_banks") or []):
+        name = {"sha1": "SHA-1", "sha256": "SHA-256", "sha384": "SHA-384", "sha512": "SHA-512", "sm3_256": "SM3"}.get(bank, bank)
+        c.add(_platform(job, "tpm"), "algorithm", "hash", name, {"tpm_version": doc["tpm"].get("version"), "pcr_bank": bank},
+              f"TPM {doc['tpm'].get('version')} PCR bank {bank}")
+    return c.findings()
+
+
+_REDFISH_DATE = "%b %d %H:%M:%S %Y GMT"
+
+
+def _redfish_date(v: str | None) -> str | None:
+    import datetime as _dt
+    try:
+        return _dt.datetime.strptime(" ".join((v or "").split()), _REDFISH_DATE).replace(tzinfo=_dt.UTC).isoformat()
+    except ValueError:
+        return None
+
+
+def controller_attributes(doc: dict) -> dict:
+    """The controller's own attribute list, from either a live read or a recording."""
+    for p, v in (doc.get("resources") or {}).items():
+        if p.endswith("DellAttributes/iDRAC.Embedded.1") and isinstance(v, dict):
+            return v.get("Attributes") or {}
+    return {}
+
+
+def controller_redfish(raw: bytes, job: dict) -> list[dict]:
+    """`pqch-controller-redfish/1`: what the controller is configured to offer (its SSH and TLS
+    settings, SNMP), and the identity certificates it holds. Its listeners' offers on the wire are the
+    wire profiles' to record; this is the configuration behind them."""
+    doc = json.loads(raw)
+    a = controller_attributes(doc)
+    c = _Collector(job, "platform")
+    for attr, role in (("SSHCrypto.1.KexAlgorithms", "key-establishment"), ("SSHCrypto.1.HostKeyAlgorithms", "signature"),
+                       ("SSHCrypto.1.Ciphers", "encryption"), ("SSHCrypto.1.MACs", "mac")):
+        for alg in [x for x in str(a.get(attr) or "").split(",") if x]:
+            if role == "key-establishment":
+                name = names.SSH_KEX.get(alg, alg)
+            elif role == "signature":
+                name = names.SSH_HOSTKEY.get(alg, alg)
+            else:
+                name = alg
+            c.add(_platform(job, "bmc:ssh-config"), "algorithm", role, name, {"ssh_names": [alg], "configured": True},
+                  f"{attr}: {alg}")
+    if a.get("WebServer.1.TLSProtocol"):
+        c.add(_platform(job, "bmc:https-config"), "protocol", "other", "TLS",
+              {"versions_allowed": a.get("WebServer.1.TLSProtocol"),
+               "lower_encryption_bit_length": a.get("WebServer.1.LowerEncryptionBitLength"),
+               "minimum_bits": a.get("WebServer.1.SSLEncryptionBitLength"),
+               "custom_ciphers": a.get("WebServer.1.CustomCipherString") or None, "http_port_open": a.get("WebServer.1.BlockHTTPPort") == "Disabled"},
+              f"web server: {a.get('WebServer.1.TLSProtocol')}")
+    if a.get("SNMP.1.AgentEnable") == "Enabled":
+        proto = a.get("SNMP.1.SNMPProtocol")
+        c.add(_platform(job, "bmc:snmp"), "protocol", "other", "SNMP",
+              {"versions_accepted": proto, "trap_format": a.get("SNMP.1.TrapFormat"),
+               "community_strings_accepted": proto in ("All", "SNMPv1", "SNMPv2c")},
+              f"SNMP agent: {proto}, traps {a.get('SNMP.1.TrapFormat')}")
+    certs: dict[str, dict] = {}
+    for k, v in a.items():
+        if k.startswith("SecurityCertificate."):
+            parts = k.split(".", 2)
+            if len(parts) == 3:
+                certs.setdefault(parts[1], {})[parts[2]] = v
+    for n, ce in sorted(certs.items()):
+        kind = ce.get("CertificateType") or f"certificate-{n}"
+        params = {k: v for k, v in {
+            "certificate_type": kind,
+            "subject": f"CN={ce.get('SubjectCommonName')},OU={ce.get('SubjectOrganizationalUnit')},O={ce.get('SubjectOrganization')}",
+            "issuer": f"CN={ce.get('IssuerCommonName')},O={ce.get('IssuerOrganization')}",
+            "not_before": _redfish_date(ce.get("CertValidFrom")), "not_after": _redfish_date(ce.get("CertValidTo")),
+            "serial": ce.get("SerialNumber"), "expiry_state": ce.get("ExpiryState"),
+            "key_reported": False}.items() if v}
+        c.add(_platform(job, f"bmc:certificate:{kind.lower()}"), "certificate", "signature", "unknown", params,
+              f"{kind}: issued by {ce.get('IssuerCommonName')}, to {str(ce.get('CertValidTo'))[:24]}; the controller does not report the key")
+    return c.findings()
+
+
+def postgres_tls_offer(raw: bytes, job: dict) -> list[dict]:
+    """`pqch-postgres-tls-offer/1`: the server's one-byte answer to PostgreSQL's SSLRequest. `N`
+    is a refusal: the connection continues in the clear, credentials included."""
+    doc = json.loads(raw)
+    c = _Collector(job, "wire")
+    if doc.get("answer") in ("S", "N"):
+        c.add(_endpoint_subject(job, "postgres"), "protocol", "other", "PostgreSQL",
+              {"tls_offered": doc["answer"] == "S", "ssl_request_answer": doc["answer"]},
+              f"SSLRequest answered {doc['answer']!r}: TLS {'offered' if doc['answer'] == 'S' else 'refused; the connection is in the clear'}")
+    return c.findings()
+
+
 NORMALIZERS: dict[str, Callable[[bytes, dict], list[dict]]] = {
+    "pqch-postgres-tls-offer": postgres_tls_offer,
     "testssl.sh": testssl,
     "ssh-audit": ssh_audit,
     "cbomkit-theia": theia,
     "pqch-image-files": imagefiles,
+    "pqch-system-files": imagefiles,
+    "pqch-system-firmware": system_firmware,
+    "pqch-controller-redfish": controller_redfish,
 }
+
+
+def platform_facts(raw: bytes, job: dict) -> dict | None:
+    """What a system's firmware or controller says about the system that is not a cryptographic
+    asset: its identity, its firmware and their versions, and its security settings. Recorded as a
+    `platform.observed` event beside the findings; the CBOM's device and firmware components are
+    projected from it."""
+    tool = job["tool"]
+    if tool not in ("pqch-system-firmware", "pqch-controller-redfish", "pqch-system-files"):
+        return None
+    doc = json.loads(raw)
+    t = job["target"]
+    system = t.get("system") or t.get("of")
+    if tool == "pqch-system-files":
+        return {"system": system, "source": "files", "files_read": doc.get("files_read"),
+                "unreadable": doc.get("unreadable", []), "trust_store": doc.get("trust_store"),
+                "trust_store_certificates": doc.get("trust_store_certificates"), "read_as_uid": doc.get("read_as_uid")}
+    if tool == "pqch-system-firmware":
+        dev = doc.get("device") or {}
+        fw = [{"name": "BIOS", "version": dev.get("bios_version"), "vendor": dev.get("bios_vendor"), "date": dev.get("bios_date"),
+               "enforces": [f"secure-boot:{k}" for k, v in (doc.get("databases") or {}).items() if v]}] if dev.get("bios_version") else []
+        tpm = doc.get("tpm")
+        return {"system": system, "source": "firmware",
+                "device": {"vendor": dev.get("sys_vendor"), "model": dev.get("product_name"), "board": dev.get("board_name")},
+                "firmware": fw, "settings": {"secure_boot": (doc.get("secure_boot") or {}).get("enabled"),
+                                             "secure_boot_setup_mode": (doc.get("secure_boot") or {}).get("setup_mode"),
+                                             "tpm": f"TPM {tpm['version']}" if tpm else None,
+                                             "tpm_pcr_banks": (tpm or {}).get("pcr_banks")},
+                "dbx_sha256_hashes": doc.get("dbx_sha256_hashes")}
+    a = controller_attributes(doc)
+    res = doc.get("resources") or {}
+    mgr = res.get("/redfish/v1/Managers/iDRAC.Embedded.1") or {}
+    inv = []
+    for p, v in res.items():
+        if "/FirmwareInventory/Installed-" in p and isinstance(v, dict) and v.get("Name"):
+            inv.append({"name": v["Name"], "version": v.get("Version"), "id": p.rsplit("/", 1)[-1].split("__")[0]})
+    proto = res.get("/redfish/v1/Managers/iDRAC.Embedded.1/NetworkProtocol") or {}
+    sb = res.get("/redfish/v1/Systems/System.Embedded.1/SecureBoot") or {}
+    bios = (res.get("/redfish/v1/Systems/System.Embedded.1/Bios") or {}).get("Attributes") or {}
+    sysres = res.get("/redfish/v1/Systems/System.Embedded.1") or {}
+    return {"system": system, "source": "controller", "controller": {
+                "host": t.get("controller"), "model": mgr.get("Model"), "firmware_version": mgr.get("FirmwareVersion"),
+                "redfish_version": (doc.get("service_root") or {}).get("RedfishVersion"),
+                "authenticated": doc.get("authenticated", bool(res))},
+            "device": {"model": sysres.get("Model"), "vendor": sysres.get("Manufacturer")},
+            "firmware": sorted(inv, key=lambda x: x["name"]),
+            "settings": {k: v for k, v in {
+                "fips_mode": a.get("Security.1.FIPSMode"), "fips_module": a.get("Security.1.FIPSVersion"),
+                "protocols_enabled": {k: v.get("ProtocolEnabled") for k, v in proto.items() if isinstance(v, dict) and "ProtocolEnabled" in v} or None,
+                "secure_boot": sb.get("SecureBootEnable"), "secure_boot_mode": sb.get("SecureBootMode"),
+                "tpm": [{"interface": m.get("InterfaceType"), "firmware": m.get("FirmwareVersion"), "state": (m.get("Status") or {}).get("State")}
+                        for m in sysres.get("TrustedModules") or []] or None,
+                "tpm_hash": bios.get("Tpm2Algorithm"), "memory_encryption": bios.get("MemoryEncryption"),
+                "scv": a.get("SCV.1.CertificateVersion"), "sekm": a.get("SEKM.1.SupportStatus")}.items() if v is not None}}
 
 
 def normalize(raw: bytes, job: dict) -> list[dict]:

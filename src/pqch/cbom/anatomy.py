@@ -46,8 +46,11 @@ def label_of(c: dict) -> str:
     p = _props(c)
     if p.get("pqch:layer"):
         s = json.loads(p["pqch:subject"])
-        where = f"{s['host']}:{s['port']}" if s["kind"] == "endpoint" else (s.get("path") or s.get("host", ""))
+        where = (f"{s['host']}:{s['port']}" if s["kind"] == "endpoint" else
+                 f"{s['host']} {s['component']}" if s["kind"] == "platform" else (s.get("path") or s.get("host", "")))
         return f"{c['name']} {p.get('pqch:asset-type', '')} · {where}"
+    if c["type"] == "firmware" and c.get("version"):
+        return f"{c['name']} {c['version']}"
     return c["name"]
 
 
@@ -67,7 +70,8 @@ def document(bom: dict) -> dict:
 
 
 def entries(bom: dict) -> list[dict]:
-    order = {"service": 0, "image": 1, "listener": 2, "wire asset": 3, "host asset": 4}
+    order = {"system": 0, "service": 0, "firmware": 1, "image": 1, "listener": 2, "wire asset": 3, "host asset": 4,
+             "platform asset": 5}
     out = [{"ref": c["bom-ref"], "kind": kind_of(c), "label": label_of(c)} for c in bom.get("components", [])]
     return sorted(out, key=lambda e: (order.get(e["kind"], 9), e["label"]))
 

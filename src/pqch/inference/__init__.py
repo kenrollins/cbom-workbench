@@ -174,11 +174,17 @@ class Seam:
                           latency_ms=latency_ms, purpose=purpose, reasoning=reasoning,
                           finish_reason=raw["choices"][0].get("finish_reason"), served_by=served_by, raw=raw)
 
-    def embed(self, tier: str, texts: list[str]) -> list[list[float]]:
+    def embed(self, tier: str, texts: list[str], *, purpose: str = "passage") -> list[list[float]]:
+        """`purpose` is `query` or `passage`. An engine that embeds the two differently names the
+        request field that carries it in the tier's `purpose_field` (NVIDIA's retrieval NIMs:
+        `input_type`); the tier's `request` block adds any other field the endpoint needs."""
         t = self._tier(tier)
         self._require_loaded(t)
+        body = {**(t.get("request") or {}), "model": t["model"], "input": texts}
+        if t.get("purpose_field"):
+            body[t["purpose_field"]] = purpose
         with self._client(t, t.get("timeout_s", 60)) as c:
-            r = c.post("/embeddings", json={"model": t["model"], "input": texts})
+            r = c.post("/embeddings", json=body)
         r.raise_for_status()
         return [d["embedding"] for d in r.json()["data"]]
 

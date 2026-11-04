@@ -34,3 +34,6 @@ the overview and is rewritten as the project advances.
 | 10 | Why is a validated module a separate clock from an algorithm? | managed |
 | 11 | What changes for national security systems under CNSA 2.0? | managed |
 | 14 | What does each step up in models or hardware change, by measurement? | all |
+| 18 | What is the workbench built from, why each part, and what would an enterprise run in its place? | all |
+| 19 | How is a question to the CBOM answered, and how is the answer checked without asking a model? | structured |
+| 20 | How is one server inventoried as an estate, below its operating system as well as on the wire, and planned from its CBOM? | structured |

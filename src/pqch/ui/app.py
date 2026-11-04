@@ -89,6 +89,20 @@ def _estate_services() -> int | None:
 templates.env.globals["estate_services"] = _estate_services()
 templates.env.filters["words"] = lambda n: ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"][n] if isinstance(n, int) and 0 <= n <= 12 else str(n if n is not None else "?")
 templates.env.globals["demo_mode"] = os.environ.get("PQCH_DEMO_MODE", "live")
+
+
+def _journal_span() -> str:
+    """The first and latest journal entry's dates, as tools/build_site.py wrote them into the built
+    site; a static build passes them in PQCH_JOURNAL_SPAN instead; blank where neither is there."""
+    if os.environ.get("PQCH_JOURNAL_SPAN"):
+        return os.environ["PQCH_JOURNAL_SPAN"].strip()
+    try:
+        return (Path(os.environ.get("PQCH_SITE_DIR", "site")) / "journal-span.txt").read_text().strip()
+    except OSError:
+        return ""
+
+
+templates.env.globals["journal_span"] = _journal_span()
 # Public: the mini-agency only, read-only. No lab page, link or data; no scan, propose or approve.
 # Set for the static build published on GitHub Pages (tools/build_public.py).
 PUBLIC = os.environ.get("PQCH_PUBLIC") == "1"
@@ -96,7 +110,7 @@ templates.env.globals["public"] = PUBLIC
 # The lab portal's address(es), allowed to read the VLAN-level summary (/lab/estate.json) and
 # nothing else of the lab. Empty means only a signed-on viewer through the front door may.
 ESTATE_READERS = {a.strip() for a in os.environ.get("PQCH_ESTATE_READERS", "").split(",") if a.strip()}
-LAB_KINDS = ("capture", "scan-external")
+LAB_KINDS = ("capture", "scan-external", "scan-system")
 
 
 def lab_viewer(request: Request) -> bool:
@@ -219,15 +233,36 @@ def agency(request: Request):
     return templates.TemplateResponse(request, "agency.html", {"e": estate.build(AGENCY, KEY)})
 
 
+@app.get("/hosts")
+def hosts_page(request: Request):
+    """Servers scanned as estates: each one's latest system scan, its parts, and links to its CBOM and plan."""
+    from pqch.systems import hosts
+
+    _lab_or_404(request)
+    lab = Run.latest(VAR, "scan-external")
+    return templates.TemplateResponse(request, "hosts.html", {"hosts": hosts(VAR),
+                                                              "lab_run": lab.id if lab and lab.ledger.exists() else None})
+
+
 @app.get("/plan")
-def plan_page(request: Request, estate: str = "mini-agency", assume: str = ""):
+def plan_page(request: Request, estate: str = "mini-agency", assume: str = "", run: str | None = None):
     """The plan the CBOM makes possible: what depends on what, what comes first, in what order."""
     from pqch import planning
 
-    if estate not in ("mini-agency", "lab") or (estate == "lab" and not lab_viewer(request)):
+    if estate not in ("mini-agency", "lab", "system") or (estate in ("lab", "system") and not lab_viewer(request)):
         raise HTTPException(404)
     # What-if: steps taken as done, named in the address; nothing is written anywhere.
     assumed = frozenset(a for a in assume.split(",") if a)
+    if estate == "system":
+        if run is not None and (not run.isalnum() or _run_kind(run) != "scan-system"):
+            raise HTTPException(404)
+        sr = Run(VAR, run) if run else Run.latest(VAR, "scan-system")
+        plan = planning.system_build(sr, assume=assumed,
+                                     pack_path=Path(os.environ.get("PQCH_PACKS", "policy/packs")) / "m-26-15.yaml",
+                                     cnsa_path=Path(os.environ.get("PQCH_PACKS", "policy/packs")) / "cnsa-2.0.yaml") \
+            if sr and sr.ledger.exists() else None
+        return templates.TemplateResponse(request, "plan.html", {"plan": plan, "estate": "system", "sheet": None, "sheet_rows": [],
+                                                                 "system_run": sr.id if plan else None})
     if estate == "lab":
         cr, sr = Run.latest(VAR, "capture"), Run.latest(VAR, "scan-external")
         cr, sr = (cr if cr and cr.ledger.exists() else None), (sr if sr and sr.ledger.exists() else None)
@@ -350,8 +385,11 @@ def cbom_page(request: Request, run: str | None = None, ref: str | None = None):
                    "code_run": code.id if code and code.ledger.exists() and code.id != r.id else None,
                    "estate_run": (Run.latest(VAR, "scan").id if events[0]["payload"].get("kind") == "scan-code"
                                   and Run.latest(VAR, "scan") else None)}
+    system = Run.latest(VAR, "scan-system") if lab_viewer(request) else None
     ctx["switch"] = {"estate": estate.id if estate and estate.ledger.exists() else None,
-                     "lab": lab.id if lab and lab.ledger.exists() else None, "on": r.id if r else None}
+                     "lab": lab.id if lab and lab.ledger.exists() else None,
+                     "system": system.id if system and system.ledger.exists() else None, "on": r.id if r else None,
+                     "on_host": bool(r) and _run_kind(r.id) == "scan-system"}
     return templates.TemplateResponse(request, "cbom.html", ctx)
 
 
@@ -366,6 +404,46 @@ def _chain(r: Run, kind: str) -> dict | None:
         cr = Run.latest(VAR, "capture")
         return house_graph(_house_cached(cr if cr and cr.ledger.exists() else None, r))
     return None
+
+
+@app.get("/ask")
+def ask_page(request: Request, q: str | None = None, run: str | None = None):
+    """Ask the CBOM: a question answered from the CBOM's components, citing ledger events, every
+    citation checked by a rule against the ledger (eval/ask/README.md)."""
+    from pqch import ask as askmod
+    from pqch.cbom import project
+    from pqch.inference import Seam, TierUnavailable, load_config
+    from pqch.ledger import verify
+
+    if run is not None and not run.isalnum():
+        raise HTTPException(404)
+    _refuse_lab_run(request, run)
+    r = _scan_run(run)
+    ctx: dict = {"q": (q or "").strip()[:500], "run": r.id if r else None, "result": None, "unavailable": None,
+                 "examples": askmod.EXAMPLES}
+    if not r:
+        return templates.TemplateResponse(request, "ask.html", ctx)
+    try:
+        seam = Seam(load_config(os.environ["PQCH_INFERENCE_CONFIG"]))
+        tier, reasoning = seam.for_role(askmod.ROLE)
+        ctx["bound"] = {"tier": tier, "reasoning": reasoning, "model": seam.config["tiers"][tier].get("model"),
+                        "embed": seam.config["tiers"].get("embed", {}).get("model")}
+        if "embed" not in seam.config["tiers"]:
+            raise TierUnavailable("no `embed` tier in this profile")
+    except (TierUnavailable, KeyError, OSError) as e:
+        ctx["unavailable"] = str(e)
+        return templates.TemplateResponse(request, "ask.html", ctx)
+    if ctx["q"]:
+        events = list(r.ledger.events())
+        if not verify(events).ok:
+            ctx["unavailable"] = "the run's ledger does not verify"
+            return templates.TemplateResponse(request, "ask.html", ctx)
+        try:
+            index = askmod.Index(seam, r.dir, project(events), events)
+            ctx["result"] = askmod.ask(seam, index, ctx["q"], events)
+        except Exception as e:  # an engine down, a timeout: shown as such, never as an answer
+            ctx["unavailable"] = f"{type(e).__name__}: {e}"[:300]
+    return templates.TemplateResponse(request, "ask.html", ctx)
 
 
 @app.get("/runs/{run_id}/projection/{name}.csv")
@@ -488,6 +566,8 @@ def _capture_cached(r: Run) -> dict:
 # The header the front door sets with the signed-on user, and how an approval says it was signed on.
 IDENTITY_HEADER = os.environ.get("PQCH_IDENTITY_HEADER", "X-Forwarded-User")
 SIGN_ON = os.environ.get("PQCH_SIGN_ON", "the front door's single sign-on")
+# The kit: the operator at the box's console, when no front door signs anyone on (see identity()).
+OPERATOR = os.environ.get("PQCH_OPERATOR", "").strip() or None
 # The addresses the front door connects from. The sign-on header is believed only on a
 # connection from one of them; from anywhere else it is a string anyone can type. Empty,
 # the default, means the page cannot approve at all and approvals come from the command line.
@@ -496,10 +576,15 @@ change_state = ScanState()
 
 
 def identity(request: Request) -> str | None:
+    """Who is acting: the name the front door's header carries, on a connection from the front door.
+    On one box with no front door (the kit), the page is published on the box's loopback only, and
+    the person at its console is the operator named in PQCH_OPERATOR: the connection must still come
+    from the one trusted peer (the bridge gateway, which is the box itself), and the approval event
+    records that it was the console, not a sign-on, that vouched for the name."""
     peer = request.client.host if request.client else None
     if peer not in TRUSTED_PROXIES:
         return None
-    return request.headers.get(IDENTITY_HEADER) or None
+    return request.headers.get(IDENTITY_HEADER) or OPERATOR or None
 
 
 def same_origin(request: Request) -> None:

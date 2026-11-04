@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — ask the CBOM</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body>
+{% set active = "ask" %}{% set lede = "<strong>Ask the CBOM.</strong> A question in plain words, answered from the inventory's own components and the ledger events behind them. The model sees only the passages retrieved for the question; every event it cites is checked against the ledger by a rule, and the verdict is shown beside it." %}{% include "_header.html" %}
+<main>
+<p class="orient">The CBOM is a document a person can read, and a model can read it too. Here the question is embedded, the eight components nearest to it are handed to the model as passages with their evidence event ids, and the typed reply names the components it rests on and the events it cites. <span class="ai">The model never decides whether it cited well: a rule checks each event id against the ledger and against what the model was shown. An id that fails is marked, not hidden. Retrieval and the answer are measured apart (eval/ask), with a floor written before the first run.</span></p>
+
+{% if not run %}
+<section><p class="note">No CBOM yet: run a scan from <a href="/walkthrough">the walkthrough</a>.</p></section>
+{% else %}
+<section>
+<form method="get" action="/ask" class="ask">
+  <input type="hidden" name="run" value="{{ run }}">
+  <label for="q"><strong>Question</strong></label>
+  <input id="q" name="q" value="{{ q }}" maxlength="500" placeholder="Which listener still offers DH-1024?" style="width:100%">
+  <button type="submit">Ask</button>
+</form>
+<p class="note">Try: {% for e in examples %}<a href="/ask?run={{ run }}&q={{ e | urlencode }}">{{ e }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+{% if bound %}<p class="note">Role <code>ask-cbom</code> is bound to the <code>{{ bound.tier }}</code> tier ({{ bound.model }}{% if bound.reasoning %}, reasoning on{% endif %}); retrieval by <code>embed</code> ({{ bound.embed }}).</p>{% endif %}
+</section>
+
+{% if unavailable %}
+<section><p class="note"><strong>Not answered.</strong> {{ unavailable }}</p></section>
+{% elif result %}
+<section>
+<h2>Answer</h2>
+<p class="answer">{{ result.reply.answer }}</p>
+{% if result.reply.not_in_passages %}<p class="note">The model reports the retrieved passages do not answer this; see what it was shown below.</p>{% endif %}
+<p class="note">{{ result.model }} on {{ result.hardware }}, {{ result.latency_ms }} ms{% if result.reasoning %}, reasoning on{% endif %}. Retrieval: {{ result.embed_model }} on {{ result.embed_hardware }}.</p>
+
+<h3>Components the answer rests on</h3>
+{% if result.reply.components %}
+<ul>
+{% for c in result.check.components %}
+  <li><a href="/cbom?run={{ run }}&ref={{ c.ref | urlencode }}">{{ c.ref }}</a> — {% if c.ok %}<span class="ok">shown to the model</span>{% else %}<span class="bad">NOT among the passages shown: not accepted</span>{% endif %}</li>
+{% endfor %}
+</ul>
+{% else %}<p class="note">None named.</p>{% endif %}
+
+<h3>Citations, checked</h3>
+{% if result.check.citations %}
+<table>
+<thead><tr><th>Event</th><th>In the ledger</th><th>Shown to the model</th><th>Verdict</th></tr></thead>
+<tbody>
+{% for c in result.check.citations %}
+<tr><td><code>{{ c.event }}</code>{% if c.type %} <small>{{ c.type }} · {{ c.actor }}</small>{% endif %}</td>
+    <td>{{ 'yes' if c.in_ledger else 'no' }}</td><td>{{ 'yes' if c.shown else 'no' }}</td>
+    <td>{% if c.ok %}<span class="ok">passes</span>{% else %}<span class="bad">fails</span>{% endif %}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+<p class="note">{% if result.check.ok %}Every citation and component passes the rule.{% else %}At least one citation or component fails the rule: treat the answer as unsupported.{% endif %}</p>
+{% else %}<p class="note">No events cited.</p>{% endif %}
+
+<h3>What the model was shown</h3>
+<ol>
+{% for p in result.shown %}
+  <li><a href="/cbom?run={{ run }}&ref={{ p.ref | urlencode }}">{{ p.kind }} {{ p.label }}</a> <small>score {{ p.score }}; events {{ p.events | length }}</small><br><small>{{ p.text[:400] }}{% if p.text | length > 400 %}…{% endif %}</small></li>
+{% endfor %}
+</ol>
+</section>
+{% endif %}
+{% endif %}
+</main>
+</body>
+</html>

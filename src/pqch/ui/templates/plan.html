@@ -13,9 +13,10 @@
 {% if not public %}<nav class="estates" aria-label="estate">
   <a href="/plan" class="{{ 'on' if estate == 'mini-agency' }}"><strong>The mini-agency's plan</strong><span>ranked by the memo, from the owner's facts</span></a>
   <a href="/plan?estate=lab" class="{{ 'on' if estate == 'lab' }}"><strong>The lab's plan</strong><span>a real network: who holds whom back, measured</span></a>
+  <a href="/hosts" class="{{ 'on' if estate == 'system' }}"><strong>Hosts</strong><span>servers read whole: listeners, files, firmware, controller</span></a>
 </nav>{% endif %}
 {% if not plan %}
-<p class="orient">No plan yet: it is computed from a scan of the mini-agency. Run one from <a href="/walkthrough">the walkthrough</a>.</p>
+<p class="orient">{% if estate == 'system' %}No server has been scanned yet: run <code>pqch scan-system</code>, or replay a recording with <code>pqch system replay</code>.{% else %}No plan yet: it is computed from a scan of the mini-agency. Run one from <a href="/walkthrough">the walkthrough</a>.{% endif %}</p>
 {% elif estate == 'lab' %}
 <p class="orient">The same planning on a real network, where nothing was planted and no owner's facts are supplied — so nothing is ranked by mission, and the lanes are hosts in order of how much they are used. What the lab's CBOM gives instead is who holds whom back. A server that refuses a hybrid group its clients keep offering is the blocker; a listener that accepts one no client offers is waiting for its clients; and requiring the hybrid group refuses a measured share of today's handshakes, from clients on known VLANs. That is in the capture and the targeted scan, merged into one CBOM, and nowhere else.
   <span class="ai">Computed by rules from capture run <code>{{ plan.run }}</code> and the latest targeted scan. Shown only to the owner; nothing from it is published.</span></p>
@@ -56,6 +57,54 @@
     <td class="small state">{{ {'done': 'done', 'ready': 'ready', 'waiting': 'waiting'}[st.state] }}</td>
     <td class="small dim">{% for d in st.depends_on %}{{ titles.get(d, d) }}{{ '; ' if not loop.last }}{% else %}—{% endfor %}</td>
     <td class="small">{{ st.why }}{% if st.resolve and st.state != 'done' %} <a href="{{ st.resolve }}">{{ st.resolve_label or 'resolve' }} →</a>{% endif %}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+<section id="traps">
+  <h2><span class="step">2</span> What a plan from a device list gets wrong</h2>
+  <table class="traps"><thead><tr><th>Planned from a list</th><th>What the CBOM shows</th></tr></thead><tbody>
+  {% for t in plan.traps %}<tr><td class="dim">{{ t.sheet }}</td><td>{{ t.cbom }}</td></tr>{% endfor %}
+  </tbody></table>
+</section>
+{% elif estate == 'system' %}
+<p class="orient">One real server, scanned the way an estate is: its listeners on the wire, its own files read without changing them, its firmware's trust databases, and its management controller read through Redfish. Each part has its own owner and its own clock. A setting can change today; a software update next; requiring the new key exchange comes after its clients are known; and what sits in firmware and in the controller waits for the vendor, however soon the owner wants it.
+  <span class="ai">Computed by rules from system scan <code>{{ plan.run }}</code>{% if plan.device %} of a {{ plan.device.vendor or '' }} {{ plan.device.model or '' }}{% endif %}, read between {{ plan.read_from[:16].replace('T', ' ') }} and {{ plan.read_to[:16].replace('T', ' ') }} UTC{% if plan.replayed %} and replayed here on {{ plan.replayed_at[:16].replace('T', ' ') }} UTC from recording <code>{{ plan.replayed }}</code>, its identifiers replaced{% endif %}. No owner's facts are supplied for a single server, so nothing is prioritized: its key establishment and signatures fall in the memo's remaining queue, by {{ plan.deadlines.remaining }}; named high-value, they would be due by {{ plan.deadlines.kex_prioritized }} and {{ plan.deadlines.sig_prioritized }}.</span></p>
+<div class="versus">
+  <div class="side sheet-side">
+    <div class="k">From a device list</div>
+    <div class="n">1</div>
+    <p class="s">One row: the server, its operating system, perhaps "supports post-quantum SSH". Nothing about the controller beside it, the keys its firmware trusts, or the database that speaks in the clear.</p>
+  </div>
+  <div class="arrow-big" aria-hidden="true">→</div>
+  <div class="side cbom-side">
+    <div class="k">Planned from the server's CBOM</div>
+    <div class="row">
+      <div><div class="n">{{ plan.steps }}</div><div class="s">steps, from {{ plan.entries }} CBOM entries</div></div>
+      <div><div class="n">{{ plan.order|selectattr('wave', 'equalto', 'now')|list|length }}</div><div class="s">settings the owner can change today</div></div>
+      <div><div class="n">{{ plan.order|selectattr('wave', 'equalto', 'supplier')|list|length }}</div><div class="s">that wait for the vendor</div></div>
+      <div><div class="n">{{ plan.waiting }}</div><div class="s">steps that wait for another first</div></div>
+    </div>
+  </div>
+</div>
+{% if plan and plan.assumed %}{% include "_whatif.html" %}{% endif %}
+<div class="whatif" id="whatif-live" hidden></div>
+<section id="map">
+  <h2><span class="step">1</span> The plan, drawn</h2>
+  <p class="lede">A lane per part of the server. Left to right: settings today, updates next, what only the vendor can ship (in the lane of the part it changes), and last requiring the hybrid once everything it waits for is there. Hover a dependency above to see every step it touches.</p>
+  <figure class="planmap" data-plan='{{ plan|tojson }}'></figure>
+  <div class="legend">State: <span><i class="dot verifier"></i>done</span><span><i class="dot model"></i>ready to start</span><span><i class="dot scanner"></i>waiting on another step</span></div>
+</section>
+<section id="steps">
+  <h2>Every step, in order</h2>
+  <p class="lede">Settings first, then updates, then what the vendor ships, then requiring; within each, what a step waits for comes first. <a href="/cbom?run={{ plan.run }}">The server's CBOM</a> holds every entry a step names; <a href="/hosts">all hosts</a>.</p>
+  <table class="files steps"><thead><tr><th class="num">#</th><th>Step</th><th>Lane</th><th>Due</th><th>State</th><th>Waits for</th><th>Why</th></tr></thead><tbody>
+  {% set titles = {} %}{% for st in plan.order %}{% set _ = titles.update({st.id: st.title}) %}{% endfor %}
+  {% set lane_names = {} %}{% for l in plan.lanes %}{% set _ = lane_names.update({l.id: l.label}) %}{% endfor %}
+  {% for st in plan.order %}<tr data-step="{{ st.id }}" class="{{ 'assumed' if st.assumed else ('freed' if st.id in (plan.freed or []) else '') }}">
+    <td class="num">{{ st.n }}</td><td><strong>{{ st.title }}</strong>{% if st.assumed %} <span class="tag whatif-tag">assumed done</span>{% elif st.id in (plan.freed or []) %} <span class="tag freed-tag">freed by the what-if</span>{% endif %}</td>
+    <td class="small">{{ lane_names.get(st.service, st.service) }}</td><td class="small">{{ st.due or '—' }}</td>
+    <td class="small state">{{ {'done': 'done', 'ready': 'ready', 'waiting': 'waiting'}[st.state] }}</td>
+    <td class="small dim">{% for d in st.depends_on %}{{ titles.get(d, d) }}{{ '; ' if not loop.last }}{% else %}—{% endfor %}</td>
+    <td class="small">{{ st.why }}</td></tr>{% endfor %}
   </tbody></table>
 </section>
 <section id="traps">

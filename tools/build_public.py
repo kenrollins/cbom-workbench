@@ -103,9 +103,21 @@ def curate(var: Path, dst: Path) -> list[str]:
     return ids
 
 
-def render(work: Path, out: Path, base: str) -> dict[str, str]:
+def journal_span(tree: Path) -> str:
+    """The first and latest entry's dates in the exported journal, for the demo pages' header (the site's
+    own header gets them from tools/build_site.py, which runs after the pages are rendered)."""
+    dates = []
+    for p in sorted((tree / "docs" / "journal").glob("*/[0-9][0-9]-*.md")):
+        m = re.search(r"^date:\s*(\d{4}-\d{2}-\d{2})", p.read_text(encoding="utf-8")[:2000], re.M)
+        if m:
+            dates.append(m.group(1))
+    dates.sort()
+    return "" if not dates else (dates[0] if dates[0] == dates[-1] else f"{dates[0]} \u2192 {dates[-1]}")
+
+
+def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
     os.environ.update(PQCH_VAR=str(work), PQCH_PUBLIC="1", PQCH_DEMO_MODE="snapshot", PQCH_SITE_DIR="/nonexistent",
-                      PQCH_RUNNER_SOCKET="/nonexistent", PQCH_TRUSTED_PROXIES="")
+                      PQCH_RUNNER_SOCKET="/nonexistent", PQCH_TRUSTED_PROXIES="", PQCH_JOURNAL_SPAN=span)
     os.environ.pop("PQCH_SIGNER_SOCKET", None)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -247,7 +259,7 @@ def main() -> int:
         shutil.rmtree(work)
     ids = curate(args.var, work)
     out.mkdir(parents=True, exist_ok=True)
-    pages = render(work, out, args.base)
+    pages = render(work, out, args.base, span=journal_span(args.tree.resolve()))
     build_site(out, args.base, args.tree.resolve())
     (out / ".nojekyll").write_text("")
     shutil.rmtree(work)
