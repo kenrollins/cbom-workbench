@@ -263,7 +263,10 @@ On the same box the kit reads the machine it runs on as a server, with a second 
 and its own signer ([note 20](20-how-a-server-is-inventoried-and-planned-as-an-estate.md)). Ask the
 CBOM answers there on the fast tier with thinking off, every citation passing on 12 of 12 evaluation
 items at a median of 2.8 s a call ([note 19](19-how-a-question-to-the-cbom-is-answered-and-checked.md),
-[lesson 58](../lessons/58-a-thinking-template-must-be-told-not-to-think.md)).
+[lesson 58](../lessons/58-a-thinking-template-must-be-told-not-to-think.md)). In the lab, Nemotron 3.5
+Super VL through the gateway reaches both answer floors, 12 of 12 each at a median of 55 s, and the
+public demo shows its answers to the six examples, recorded and checked again when the site is built
+([lesson 63](../lessons/63-a-static-copy-of-a-model-page-shows-a-recorded-call-and-checks-it-again.md)).
 
 ## What follows
 

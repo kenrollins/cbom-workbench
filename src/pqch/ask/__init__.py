@@ -189,3 +189,42 @@ def ask(seam, index: Index, question: str, events: list[dict]) -> dict:
             "reasoning": c.reasoning, "finish_reason": c.finish_reason,
             "completion_tokens": (c.usage or {}).get("completion_tokens"),
             "embed_model": index.model, "embed_hardware": index.hardware}
+
+
+# Recorded answers. A static copy of the workbench (the public demo) has no model to call, so the page there
+# shows the example questions answered once, by a real call, and says when and by what. The recording lives
+# beside the run it answers (var/ask/<run>.json); the citation check is run again when the page renders, so
+# "checked" on the static page is the rule's verdict against the ledger it is published with.
+def recording_path(var: Path, run_id: str) -> Path:
+    return Path(var) / "ask" / f"{run_id}.json"
+
+
+def load_recording(var: Path, run_id: str) -> dict | None:
+    p = recording_path(var, run_id)
+    try:
+        rec = json.loads(p.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+    return rec if rec.get("run") == run_id else None
+
+
+def record(seam, run, questions: list[str] | None = None) -> dict:
+    """Answer each example question against one scan run and write the answers beside it."""
+    from datetime import datetime, timezone
+
+    from pqch.cbom import project
+
+    events = list(run.ledger.events())
+    index = Index(seam, run.dir, project(events), events)
+    answers = {}
+    for q in questions or EXAMPLES:
+        try:
+            answers[q] = ask(seam, index, q, events)
+        except Exception as e:  # an engine down, a timeout: recorded as not answered, never as an answer
+            answers[q] = {"question": q, "unavailable": f"{type(e).__name__}: {e}"[:300]}
+    rec = {"run": run.id, "recorded_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+           "answers": answers}
+    p = recording_path(run.var, run.id)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(rec, indent=1))
+    return rec

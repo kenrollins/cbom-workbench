@@ -446,6 +446,27 @@ def ask_page(request: Request, q: str | None = None, run: str | None = None):
                  "examples": askmod.EXAMPLES}
     if not r:
         return templates.TemplateResponse(request, "ask.html", ctx)
+    if os.environ.get("PQCH_DEMO_MODE") == "snapshot":
+        # A static copy has no model: the examples answered once by a real call, the check run again here.
+        rec = askmod.load_recording(VAR, r.id)
+        ctx["recorded"] = rec["recorded_at"] if rec else None
+        if not rec:
+            ctx["unavailable"] = "this copy has no model to call; questions are answered in the running workbench"
+            return templates.TemplateResponse(request, "ask.html", ctx)
+        ctx["examples"] = [q for q in askmod.EXAMPLES if q in rec["answers"]]
+        first = next((a for a in rec["answers"].values() if "model" in a), None)
+        if first:
+            ctx["bound"] = {"tier": first["tier"], "reasoning": first["reasoning"], "model": first["model"],
+                            "embed": first["embed_model"]}
+        if ctx["q"]:
+            a = rec["answers"].get(ctx["q"])
+            if not a:
+                ctx["unavailable"] = "only the example questions are answered in this copy; any question is answered in the running workbench"
+            elif "unavailable" in a:
+                ctx["unavailable"] = a["unavailable"]
+            else:
+                ctx["result"] = {**a, "check": askmod.check(a["reply"], a["shown"], list(r.ledger.events()))}
+        return templates.TemplateResponse(request, "ask.html", ctx)
     try:
         seam = Seam(load_config(os.environ["PQCH_INFERENCE_CONFIG"]))
         tier, reasoning = seam.for_role(askmod.ROLE)

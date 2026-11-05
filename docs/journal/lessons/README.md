@@ -74,3 +74,4 @@ day it was learned.
 | 60 | Before a component goes in an architecture picture, find the line of code that calls it | all |
 | 61 | Give an animated presentation a snapshot mode that draws each frame's final state at once, and photograph every frame before presenting it | all |
 | 62 | Before a container changes the user it runs as, change the owner of the files it appends to in a shared, sticky directory; the kernel refuses even root | all |
+| 63 | A static copy of a page whose answer comes from a model shows a call made once and labelled, offers only the questions recorded, and runs the rule's check again where it is built | structured |

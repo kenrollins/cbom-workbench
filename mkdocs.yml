@@ -169,6 +169,7 @@ nav:
       - "60 \u2014 Before a component goes in an architecture picture, find the line of code that calls it; a stack drawn from what the box has installed claims parts the system never uses": lessons/60-before-a-component-goes-in-a-picture-find-its-call-site.md
       - "61 \u2014 Give an animated presentation a snapshot mode that draws each frame's final state at once, and photograph every frame before presenting it": lessons/61-give-an-animated-presentation-a-snapshot-mode.md
       - "62 \u2014 Before a container changes the user it runs as, change the owner of the files it appends to in a shared, sticky directory; the kernel refuses even root": lessons/62-before-a-container-changes-uid-chown-its-files-in-sticky-volumes.md
+      - "63 \u2014 A static copy of a page whose answer comes from a model shows a call made once and labelled, offers only the questions recorded, and runs the rule's check again where it is built": lessons/63-a-static-copy-of-a-model-page-shows-a-recorded-call-and-checks-it-again.md
   # <<< end generated
   - Sources: sources.md
   - About: about.md

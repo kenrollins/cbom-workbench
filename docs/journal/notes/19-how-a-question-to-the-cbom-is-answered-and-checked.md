@@ -18,6 +18,8 @@ claims:
     provenance: "measured 2026-11-04 on the demo GB10, harness at 6c77663, run 01M6KVZ4GYZ3K5MT31M1F59D0A, one call per question"
   - text: "On the same GB10 with thinking off, the twelve-item evaluation set, three repeats each, passed every citation on 12 of 12 items and named the expected phrase on 10 of 12, at a median of 2.8 s a call (36 calls, slowest 6.1 s); retrieval found the expected component on 10 of 12, under its floor of 11, which is the index's shortfall, not the model's. The ask-cbom role is bound there, with the reply's shape described in the prompt and checked by the seam rather than enforced by the engine's grammar."
     provenance: "measured 2026-11-05 on a Dell Pro Max GB10 (aarch64), vLLM 0.27.1, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, thinking off; eval/ask/results/2026-11-05-promax-lightning-vllm-thinking-off-v2.json, run 01M6N9EQDZ6K7RT6GJDV72G58W; kit/inference.promax.yaml"
+  - text: "Through the lab gateway, on the mini-agency scan the public demo shows, the twelve-item set with three repeats: Nemotron 3.5 Super VL 120B-A12B at medium-effort thinking on the lab GB10 named the expected phrase on 12 of 12 and passed every citation on 12 of 12, median 55 s a call, the first arm at both answer floors; Gemma 4 31B FP8 on four L4s with thinking off reached 2 and 3, 26 of 36 calls cut short at the 1,200-token cap. Retrieval was 10 of 12 for both, under its floor of 11."
+    provenance: "measured 2026-11-05, eval/ask/score.py on run 01M5JFEP7D145D2T38TW0S6631; eval/ask/results/2026-11-05-lab-gateway-supervl-thinking.json and 2026-11-05-lab-gateway-gemma31b-thinking-off.json"
 reuse: [whitepaper, talk, customer-question]
 ---
 
@@ -114,6 +116,18 @@ question for no better citations, so the role is bound to the fast tier without 
 answer arrives while the presenter is still speaking. The reply's shape is written into the prompt
 and validated by the seam with one retry, because the engine's structured-output grammar with thinking
 off ran one call in five to its cap ([lesson 58](../lessons/58-a-thinking-template-must-be-told-not-to-think.md)).
+
+**Through the lab gateway, on the published run (2026-11-05).** The same twelve questions, three repeats
+each, against the mini-agency scan the public demo shows. Nemotron 3.5 Super VL at medium-effort
+thinking, served on the lab GB10 and reached through the gateway, named the expected phrase on 12 of 12
+and passed every citation on 12 of 12, at a median of 55 s a call. It is the first arm to reach both
+answer floors. Gemma 4 31B on the lab's four L4s with thinking off reached 2 and 3: 26 of its 36 replies
+ran past the 1,200-token cap the page gives a non-thinking call and were cut short of valid JSON.
+Retrieval put the expected components in the passages on 10 of 12 for both, under its floor of 11, as on
+every engine measured. The lab's role is bound to Super VL. The public demo, which has no model, shows
+the six example questions answered once by that binding, labelled as recorded, with every citation
+checked again when the site is built
+([lesson 63](../lessons/63-a-static-copy-of-a-model-page-shows-a-recorded-call-and-checks-it-again.md)).
 
 ## What follows
 

@@ -134,3 +134,41 @@ def test_the_test_agency_matches_its_files():
     assert sum(s["counts"]["present"] for s in e["services"]) == e["totals"]["present"]
     assert sum(s["counts"]["decoy"] for s in e["services"]) == e["totals"]["decoy"]
     assert sum(s["counts"]["out-of-reach"] for s in e["services"]) == e["totals"]["out-of-reach"]
+
+
+def test_ask_in_a_static_copy_shows_recorded_answers_checked_again(slice_run, monkeypatch):
+    import json
+
+    from pqch import ask
+
+    structure(slice_run, load_policy("policy/pq-algorithms.yaml"))
+    slice_run.close()
+    write_cboms(slice_run)
+    real = next(iter(slice_run.ledger.events()))["id"]
+    q = ask.EXAMPLES[0]
+    shown = [{"ref": "listener/x", "kind": "listener", "label": "x", "score": 0.9, "events": [real], "text": "x"}]
+    # The recording claims every citation passed; the page must decide that again from the ledger.
+    reply = {"answer": "the bastion", "components": ["listener/x"], "citations": [real, "01M00000000000000000000000"],
+             "not_in_passages": False}
+    p = ask.recording_path(slice_run.var, slice_run.id)
+    p.parent.mkdir(parents=True)
+    p.write_text(json.dumps({"run": slice_run.id, "recorded_at": "2026-11-05T19:30:00Z", "answers": {q: {
+        "question": q, "shown": shown, "reply": reply, "check": {"ok": True, "citations": [], "components": []},
+        "model": "m", "tier": "fast", "hardware": "h", "latency_ms": 1, "reasoning": True, "finish_reason": "stop",
+        "completion_tokens": 9, "embed_model": "e", "embed_hardware": "h"}}}))
+    monkeypatch.setenv("PQCH_VAR", str(slice_run.var))
+    monkeypatch.setenv("PQCH_DEMO_MODE", "snapshot")
+    monkeypatch.delenv("PQCH_INFERENCE_CONFIG", raising=False)     # no model to call, and none is looked for
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        from fastapi.testclient import TestClient
+
+        import pqch.ui.app as ui
+        importlib.reload(ui)
+        c = TestClient(ui.app)
+    page = c.get("/ask").text
+    assert "asked once, on 2026-11-05" in page and "disabled" in page and q in page
+    html = c.get("/ask", params={"q": q}).text
+    assert "Recorded 2026-11-05" in html and "the bastion" in html
+    assert html.count('class="ok">passes') == 1 and html.count('class="bad">fails') == 1
+    assert "only the example questions" in c.get("/ask", params={"q": "anything else"}).text

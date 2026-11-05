@@ -1393,6 +1393,44 @@ def sketch_29_an_upgrade_port_is_silent() -> None:
     p.save(SKETCHES / "29-an-upgrade-port-is-silent.svg")
 
 
+def sketch_63_a_static_copy_shows_a_recorded_call() -> None:
+    """Lesson 63: a page whose answer comes from a model, copied to a static site, shows a call made once
+    and kept, labelled with the model, the hardware and the date, and runs the rule's check again when the
+    page is built. Measured 2026-11-05: six example questions, Nemotron 3.5 Super VL through the lab
+    gateway, 37 to 91 s a call, every citation passing."""
+    N, LO, HI = 6, "37", "91"
+    p = Page(1000, 500, seed=63, title="A static copy shows a recorded call and checks it again")
+    p.text(500, 48, "Record the model once. Run the rule every time.", 34, INK, "middle")
+    # Left: the live workbench.
+    p.box(30, 100, 310, 230, INK, 2.2, fill=PAPER)
+    p.text(185, 136, "the running workbench", 21, INK, "middle")
+    p.text(185, 166, "question, retrieve, model call,", 15, PENCIL, "middle")
+    p.text(185, 188, "rule checks each citation", 16, PENCIL, "middle")
+    p.text(185, 238, f"pqch ask record:", 18, BALLPOINT, "middle")
+    p.text(185, 262, f"{N} examples, {LO} to {HI} s each", 16, BALLPOINT, "middle")
+    p.text(185, 300, "answers kept beside the run", 16, PENCIL, "middle")
+    p.arrow([(346, 220), (390, 220), (420, 220)], BALLPOINT, 2.0)
+    # Middle: the recording.
+    p.box(425, 150, 170, 140, INK, 2.0, fill=PAPER)
+    p.text(510, 186, "the recording", 19, INK, "middle")
+    p.text(510, 214, "reply as returned", 15, PENCIL, "middle")
+    p.text(510, 236, "model, hardware,", 15, PENCIL, "middle")
+    p.text(510, 256, "date, tokens", 15, PENCIL, "middle")
+    p.arrow([(601, 220), (630, 220), (652, 220)], BALLPOINT, 2.0)
+    # Right: the static page.
+    p.box(655, 100, 320, 230, INK, 2.2, fill=PAPER)
+    p.text(815, 136, "the static page", 21, INK, "middle")
+    p.text(815, 166, "no model; the box is disabled", 15, PENCIL, "middle")
+    p.text(815, 196, "\"recorded 2026-11-05\"", 17, BALLPOINT, "middle")
+    p.text(815, 238, "the rule runs again at build,", 16, STAMP, "middle")
+    p.text(815, 262, "against the published ledger", 16, STAMP, "middle")
+    p.ring(815, 250, 150, 36)
+    p.text(815, 300, "a stored verdict is never shown", 15, PENCIL, "middle")
+    p.text(60, 400, "so: a copy without the model is still honest. It says the answer is a recording and when it was made,", 14, PENCIL)
+    p.text(60, 422, "it offers only the questions that were recorded, and the verdict a reader sees is computed where they read it", 14, PENCIL)
+    p.save(SKETCHES / "63-a-static-copy-shows-a-recorded-call.svg")
+
+
 def sketch_arch_five_layers() -> None:
     """The architecture page: the kit on one GB10, five layers from the silicon to what leaves the
     ledger, and the ledger standing beside every one of them. The same layers as the stage's beat 2

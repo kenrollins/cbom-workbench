@@ -92,6 +92,11 @@ def curate(var: Path, dst: Path) -> list[str]:
         shutil.copytree(var / "runs" / rid, dst / "runs" / rid)
         text = (var / "runs" / rid / "ledger.jsonl").read_text()
         raws |= set(re.findall(r"var/raw/([A-Za-z0-9._-]+)", text))
+    for rid in ids:  # Ask the CBOM's recorded answers, for the runs that go out
+        rec = var / "ask" / f"{rid}.json"
+        if rec.is_file():
+            (dst / "ask").mkdir(exist_ok=True)
+            shutil.copy2(rec, dst / "ask" / rec.name)
     for name in raws:
         if (var / "raw" / name).is_file():
             shutil.copy2(var / "raw" / name, dst / "raw" / name)
@@ -142,6 +147,15 @@ def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
         if r.status_code != 200:
             raise SystemExit(f"{url}: {r.status_code}")
         html[path] = r.text
+    # Ask the CBOM: the page, and one page per example question whose answer was recorded (pqch ask record).
+    if (work / "ask" / f"{scan}.json").is_file():
+        r = c.get("/ask")
+        html["ask/index.html"], pages["/ask"] = r.text, "ask/index.html"
+        for i, url in enumerate(dict.fromkeys(m.group(1).replace("&amp;", "&")
+                                              for m in re.finditer(r'href="(/ask\?[^"]*q=[^"]+)"', r.text)), 1):
+            r = c.get(url)
+            if r.status_code == 200:
+                html[f"ask/{i}/index.html"], pages[url] = r.text, f"ask/{i}/index.html"
     # The scan's own CBOM, reached from the code layer's page, is the CBOM page itself.
     pages_alias = {f"/cbom?run={scan}": "cbom/index.html", f"/walkthrough?run={scan}": "walkthrough/index.html"}
     # Each CBOM entry another page links to — a change package's entries, a plan step's — gets a page of its own.

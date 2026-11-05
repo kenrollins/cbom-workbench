@@ -132,6 +132,26 @@ def _package(args: argparse.Namespace) -> int:
     return 0
 
 
+def _ask_record(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch import ask
+    from pqch.inference import Seam, load_config
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    rec = ask.record(Seam(load_config(os.environ["PQCH_INFERENCE_CONFIG"])), run)
+    for q, a in rec["answers"].items():
+        if "unavailable" in a:
+            print(f"not answered  {q}: {a['unavailable']}")
+        else:
+            print(f"{'checked' if a['check']['ok'] else 'FAILS  '}  {a['latency_ms']:>7} ms  {a.get('finish_reason')}  {q}")
+    print(f"recorded {len(rec['answers'])} answers for run {run.id}: {ask.recording_path(var, run.id)}")
+    return 0
+
+
 def _import(args: argparse.Namespace) -> int:
     """Any tool's CycloneDX CBOM as evidence, on a run of its own; scored when a key is given."""
     import os
@@ -693,6 +713,11 @@ def build_parser() -> argparse.ArgumentParser:
     er.add_argument("--as", dest="by", required=True, help="who asks for the reset")
     er.add_argument("--via", help="how the request reached the command line, when someone else typed it")
     er.set_defaults(func=_estate_reset)
+
+    ak = sub.add_parser("ask", help="Ask the CBOM").add_subparsers(dest="sub", required=True)
+    ar = ak.add_parser("record", help="answer the example questions once against a scan run and keep the answers beside it, for a static copy of the page")
+    ar.add_argument("--run", help="the scan run (default: the latest scan)")
+    ar.set_defaults(func=_ask_record)
 
     pk = sub.add_parser("package", help="a change package for each item blocked on its supplier: why no configuration change can do it, with the evidence, and what would unblock it")
     pk.add_argument("--run", help="the scan run (default: the latest scan)")

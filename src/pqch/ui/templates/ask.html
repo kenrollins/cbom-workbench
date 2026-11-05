@@ -39,12 +39,21 @@
   <div><b>3 · Answer</b><span>{% if bound %}{{ bound.model }} on the {{ bound.tier }} tier{% else %}the model{% endif %}, from those passages only</span></div>
   <div><b>4 · Check</b><span>every cited event against the ledger: a rule, not a model</span></div>
 </div>
+{% if demo_mode == "snapshot" %}
+<form class="ask big" onsubmit="return false">
+  <input id="q" value="{{ q }}" disabled placeholder="Questions are typed in the running workbench" aria-label="Question">
+  <button type="button" disabled style="opacity:.4;cursor:not-allowed">Ask</button>
+</form>
+<p class="note">This copy has no model to call. {% if recorded %}Each example below was asked once, on {{ recorded[:10] }}, by a real call; the answer is kept as it came back, and every citation is checked again against the ledger published here.{% else %}No answers were recorded for this run.{% endif %}</p>
+<div class="chips">{% for e in examples %}<a href="/ask?run={{ run }}&q={{ e | urlencode }}"{% if e == q %} style="border-color:var(--accent)"{% endif %}>{{ e }}</a>{% endfor %}</div>
+{% else %}
 <form method="get" action="/ask" class="ask big" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Asking…';">
   <input type="hidden" name="run" value="{{ run }}">
   <input id="q" name="q" value="{{ q }}" maxlength="500" placeholder="Which listener still offers DH-1024?" aria-label="Question" autofocus>
   <button type="submit">Ask</button>
 </form>
 <div class="chips">{% for e in examples %}<a href="/ask?run={{ run }}&q={{ e | urlencode }}" onclick="this.style.borderColor='var(--accent)';this.textContent='Asking… '+this.textContent">{{ e }}</a>{% endfor %}</div>
+{% endif %}
 {% if bound %}<p class="note">Role <code>ask-cbom</code> is bound to the <code>{{ bound.tier }}</code> tier ({{ bound.model }}{% if bound.reasoning %}, reasoning on{% endif %}); retrieval by <code>embed</code> ({{ bound.embed }}).</p>{% endif %}
 </section>
 
@@ -55,7 +64,7 @@
 <h2>Answer</h2>
 <p class="answer">{{ result.reply.answer }}</p>
 {% if result.reply.not_in_passages %}<p class="note">The model reports the retrieved passages do not answer this; see what it was shown below.</p>{% endif %}
-<p class="note">{{ result.model }} on {{ result.hardware }}, {{ result.latency_ms }} ms{% if result.reasoning %}, reasoning on{% endif %}{% if result.completion_tokens %}, {{ result.completion_tokens }} completion tokens{% endif %}{% if result.finish_reason and result.finish_reason != "stop" %}, finish reason {{ result.finish_reason }}{% endif %}. Retrieval: {{ result.embed_model }} on {{ result.embed_hardware }}.</p>
+<p class="note">{% if recorded %}Recorded {{ recorded[:10] }}: {% endif %}{{ result.model }} on {{ result.hardware }}, {{ result.latency_ms }} ms{% if result.reasoning %}, reasoning on{% endif %}{% if result.completion_tokens %}, {{ result.completion_tokens }} completion tokens{% endif %}{% if result.finish_reason and result.finish_reason != "stop" %}, finish reason {{ result.finish_reason }}{% endif %}. Retrieval: {{ result.embed_model }} on {{ result.embed_hardware }}.</p>
 
 <h3>Components the answer rests on</h3>
 {% if result.reply.components %}
