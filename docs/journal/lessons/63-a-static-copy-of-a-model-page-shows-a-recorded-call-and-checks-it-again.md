@@ -12,6 +12,8 @@ claims:
     provenance: "measured 2026-11-05, pqch ask record on run 01M5JFEP7D145D2T38TW0S6631, lab profile ask-cbom bound to the deliberate tier (lab GB10, vLLM 0.32)"
   - text: "On the same run, the twelve-question evaluation set with three repeats per question: Super VL named the expected phrase on 12 of 12 and passed every citation on 12 of 12 (floors 10 and 12), median 55 s a call; Gemma 4 31B with thinking off reached 2 and 3, with 26 of 36 calls cut short of valid JSON at the 1,200-token cap the page sets for a non-thinking call. Retrieval was 10 of 12 for both, under its floor of 11."
     provenance: "measured 2026-11-05, eval/ask/score.py; eval/ask/results/2026-11-05-lab-gateway-supervl-thinking.json and 2026-11-05-lab-gateway-gemma31b-thinking-off.json"
+  - text: "The demo stage's eight beats on the public copy: the plan's eight rows narrated once by Gemma 4 31B FP8 with thinking off through the lab gateway, 1.0 to 1.8 s a line; every CBOM entry the stage shows (418 KB of CycloneDX) carried in the page; the hardware named from the scan's own ledger (xr7620, x86_64, on 25 of 25 scan jobs), not from the GB10 the stage was built for."
+    provenance: "measured 2026-11-05, pqch demo record on run 01M5JFEP7D145D2T38TW0S6631; pqch.ui.demo.ledger_hardware"
 reuse: [runbook, talk]
 ---
 
@@ -41,6 +43,10 @@ to run again, and it reads the ledger the copy actually publishes. A stored "pas
 "passes" if the published ledger were later trimmed or rebuilt. A recomputed one shows "fails"
 instead. So the reply is stored and the verdict is computed where the reader reads it.
 
+The hardware is the same kind of claim. A page that says "on this box" is true where it is served
+live. In a copy it must name the hardware the runs themselves recorded, read from their ledger, and
+say that the architecture drawn is the design rather than the machine that produced these numbers.
+
 ## When it applies
 
 Any page that shows a model's output beside a rule's check of it, published where the model cannot
@@ -65,3 +71,12 @@ calls no model, and passes the stored reply through `pqch.ask.check` against the
 with no recording gets a page that says so, and a question that was not recorded is answered with
 "only the example questions are answered in this copy". Record again whenever the published scan run
 changes. A recording is keyed to its run and is ignored for any other.
+
+The demo stage follows the same rule. `pqch demo record` narrates each row of the scan's plan once
+through the call the live stage makes and keeps the lines in `var/demo/<run>.json`. In the public build
+the stage inlines its whole document: the test agency only, never a server read whole; every CBOM
+entry the entry panel shows; the recorded narration; and the Ask beat pointed at the recorded answer
+pages. The scan replays from its ledger, the change from the latest change run in which a change landed (a run left
+waiting for an approval has nothing to prove), the buttons that would start a scan or
+approve a change say they need the running workbench, and the hardware is the label the scan jobs
+wrote on the ledger.

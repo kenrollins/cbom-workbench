@@ -821,10 +821,16 @@ def demo_slow(s: float = 5):
 
 @app.get("/demo")
 def demo_page(request: Request, snap: str | None = None, inline_data: str | None = None, wait: float | None = None):
+    inline, static_hw = None, None
     if PUBLIC:
-        raise HTTPException(404)
-    inline = None
-    if snap or inline_data:  # a still of one beat (snap: the document inlined, animations skipped) or the live stage with the document inlined
+        # the static copy: the document inlined, the test agency only, what the stage would fetch carried inside
+        import json as _json
+        doc = _demo.payload(VAR, SHEET, snapshots_dir=Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots")),
+                            hardware="unlabelled", inference_config=None, this_host=None, static=True)
+        static_hw = doc.get("hardware")
+        inline = _json.dumps(doc).replace("</", "<\\/")
+        snap = inline_data = None
+    elif snap or inline_data:  # a still of one beat (snap: the document inlined, animations skipped) or the live stage with the document inlined
         import json as _json
         inline = _json.dumps(_demo.payload(VAR, SHEET, snapshots_dir=Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots")),
                                            hardware=os.environ.get("PQCH_HARDWARE", "unlabelled"), inference_config=os.environ.get("PQCH_INFERENCE_CONFIG"),
@@ -844,7 +850,8 @@ def demo_page(request: Request, snap: str | None = None, inline_data: str | None
                                   "We need to know what cryptography every system depends on, and what to change first, "
                                   "so that the agency meets the post-quantum deadlines — measured by every planted weakness found, "
                                   "and every change proved on the wire."),
-        "hardware": os.environ.get("PQCH_HARDWARE", "unlabelled"), "operator": os.environ.get("PQCH_OPERATOR", "the operator")})
+        "hardware": static_hw or os.environ.get("PQCH_HARDWARE", "unlabelled"), "operator": os.environ.get("PQCH_OPERATOR", "the operator"),
+        "static": PUBLIC})
 
 
 @app.get("/api/demo")

@@ -267,6 +267,8 @@ items at a median of 2.8 s a call ([note 19](19-how-a-question-to-the-cbom-is-an
 Super VL through the gateway reaches both answer floors, 12 of 12 each at a median of 55 s, and the
 public demo shows its answers to the six examples, recorded and checked again when the site is built
 ([lesson 63](../lessons/63-a-static-copy-of-a-model-page-shows-a-recorded-call-and-checks-it-again.md)).
+The public demo carries the eight-beat stage the same way: the test agency only, replayed from its
+ledgers, the plan's narration recorded once, and the hardware named as the runs recorded it.
 
 ## What follows
 

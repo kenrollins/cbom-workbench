@@ -259,8 +259,9 @@ def _scanners() -> list[dict]:
 
 
 def payload(var: Path, sheet: list[dict], *, snapshots_dir: Path, hardware: str, inference_config: str | None,
-            this_host: str | None) -> dict:
-    """Everything the stage draws, in one document."""
+            this_host: str | None, static: bool = False) -> dict:
+    """Everything the stage draws, in one document. Static: the public copy's document, with the test agency
+    only, the hardware its ledger recorded, and what the stage would have fetched carried inside it."""
     from pqch import planning, systems
     from pqch.cbom import project
 
@@ -293,6 +294,23 @@ def payload(var: Path, sheet: list[dict], *, snapshots_dir: Path, hardware: str,
     change = Run.latest(var, "change")
     if change and change.ledger.exists():
         out["change"] = {"run": change.id, "changes": _changes(change), "record": _ledger(change, last=40)}
+    if static:
+        # the copy replays a change that was carried through: the latest change run in which one landed
+        # (as the overview's story of one change chooses), not a run left waiting for an approval
+        from pqch.ui.view import change_runs
+        for cr in reversed(change_runs(var)):
+            chs = _changes(cr)
+            if any(c.get("landed") for c in chs):
+                out["change"] = {"run": cr.id, "changes": chs, "record": _ledger(cr, last=40)}
+                break
+        out["this_host"] = None
+        out["hosts"] = []          # the test agency only: no server, the lab's or any other, goes into a copy
+        out["static"] = static_block(var, scan) if scan else {}
+        out["hardware"] = out["static"].get("hardware") or "unlabelled"
+        out["engine"] = out["static"].pop("engine", None) or {"tiers": {}, "roles": {}, "live": None}
+        out["scanners"] = _scanners()
+        out["built_ms"] = int((time.perf_counter() - t0) * 1000)
+        return out
     try:
         out["hosts"] = []
         for h in systems.hosts(var):
@@ -326,3 +344,89 @@ def narrate(kind: str, row: dict, *, purpose: str = "demo-narration") -> dict:
                 "tokens": (c.usage or {}).get("completion_tokens"), "finish": c.finish_reason}
     except Exception as e:
         return {"error": str(e)[:200], "ms": int((time.perf_counter() - t0) * 1000)}
+
+
+# ───────── the stage as a static copy: recorded once, nothing called ─────────
+# The public demo has no app behind it: no scan to start, no model to ask, no host but the test agency. The
+# copy carries what the stage would have fetched (every CBOM entry, the Ask answers recorded by `pqch ask
+# record`, a narration line per plan row recorded by `pqch demo record`) and names the hardware the runs'
+# own ledgers recorded, not the box the stage was designed on.
+
+def ledger_hardware(run: Run) -> str | None:
+    """The hardware a run's scan jobs recorded, the most common label on its scan.completed events."""
+    from collections import Counter
+    c = Counter((e.get("payload") or {}).get("hardware") for e in run.ledger.events() if e.get("type") == "scan.completed")
+    c.pop(None, None)
+    return c.most_common(1)[0][0] if c else None
+
+
+def narration_row(r: dict, k: int) -> dict:
+    """The facts the stage sends for plan row k (0-based), as demo.js's narrateNext builds them."""
+    return {"rank": k + 1, "service": r.get("service"), "mission": r.get("mission"), "why": ", ".join(r.get("criteria") or []),
+            "secret_until": r.get("sensitive_through"), "kex": "/".join(r.get("kex_now") or []),
+            "blocked": ", ".join(r.get("blocked") or []) or "nothing", "title": (r.get("step") or {}).get("title")}
+
+
+def recording_path(var: Path, run_id: str) -> Path:
+    return Path(var) / "demo" / f"{run_id}.json"
+
+
+def _engine_labels(cfg_path: str | None) -> dict:
+    """The tier map's models and hardware labels, without addresses: what a recording may say about its engines."""
+    e = _engine_static(cfg_path)
+    for t in e["tiers"].values():
+        t.pop("base_url", None)
+    return e
+
+
+def _engine_static(cfg_path: str | None) -> dict:
+    out = {"tiers": {}, "roles": {}, "live": None}
+    if not cfg_path or not Path(cfg_path).exists():
+        return out
+    from pqch.inference import load_config
+    cfg = load_config(cfg_path)
+    for name, t in (cfg.get("tiers") or {}).items():
+        out["tiers"][name] = {"model": t.get("model"), "hardware": t.get("hardware"), "base_url": t.get("base_url"),
+                              "reasoning_model": (t.get("reasoning") or {}).get("model")}
+    out["roles"] = cfg.get("roles") or {}
+    return out
+
+
+def record(var: Path, scan: Run, *, snapshots_dir: Path, inference_config: str | None) -> dict:
+    """Narrate every row of the scan's plan once, through the same call the stage makes, and keep the lines."""
+    from pqch import planning
+    plan = planning.build(var, scan, snapshots_dir=snapshots_dir)
+    lines = [narrate("plan", narration_row(r, k)) for k, r in enumerate(plan.get("ranking") or [])]
+    rec = {"run": scan.id, "recorded_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+           "narration": lines, "engine": _engine_labels(inference_config)}
+    p = recording_path(var, scan.id)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(json.dumps(rec, indent=1))
+    return rec
+
+
+def static_block(var: Path, scan: Run) -> dict:
+    """What the static stage reads instead of calling the app: the entries, the recorded narration and Ask."""
+    from pqch import ask as askmod
+    out: dict = {"hardware": ledger_hardware(scan), "entries": {}, "narration": [], "ask": {}, "recorded_at": None}
+    path = scan.dir / "workbench.cdx.json"
+    if path.is_file():
+        doc = json.loads(path.read_text())
+        bom = {"format": doc.get("bomFormat"), "spec": doc.get("specVersion"), "serial": doc.get("serialNumber"),
+               "components": len(doc.get("components", []))}
+        deps = {d.get("ref"): d.get("dependsOn", []) for d in doc.get("dependencies", [])}
+        for c in doc.get("components", []):
+            if c.get("bom-ref"):
+                out["entries"][c["bom-ref"]] = {"component": c, "depends_on": deps.get(c["bom-ref"], []), "run": scan.id, "bom": bom}
+    try:
+        rec = json.loads(recording_path(var, scan.id).read_text())
+        if rec.get("run") == scan.id:
+            out["narration"], out["recorded_at"], out["engine"] = rec.get("narration") or [], rec.get("recorded_at"), rec.get("engine")
+    except (OSError, json.JSONDecodeError):
+        pass
+    a = askmod.load_recording(var, scan.id)
+    if a:
+        qs = [q for q in askmod.EXAMPLES if q in a["answers"] and "unavailable" not in a["answers"][q]]
+        out["ask"] = {q: f"ask/{i}/" for i, q in enumerate([q for q in askmod.EXAMPLES if q in a["answers"]], 1) if q in qs}
+        out["ask_recorded_at"] = a.get("recorded_at")
+    return out

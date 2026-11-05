@@ -152,6 +152,23 @@ def _ask_record(args: argparse.Namespace) -> int:
     return 0
 
 
+def _demo_record(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.run import Run
+    from pqch.ui import demo
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    rec = demo.record(var, run, snapshots_dir=Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots")),
+                      inference_config=os.environ.get("PQCH_INFERENCE_CONFIG"))
+    for k, n in enumerate(rec["narration"], 1):
+        print(f"row {k:<2} " + (f"{n['ms']:>6} ms  {n.get('finish')}  {n['text']}" if "text" in n else f"not narrated: {n.get('error')}"))
+    print(f"recorded {len(rec['narration'])} narration lines for run {run.id}: {demo.recording_path(var, run.id)}")
+    return 0
+
+
 def _import(args: argparse.Namespace) -> int:
     """Any tool's CycloneDX CBOM as evidence, on a run of its own; scored when a key is given."""
     import os
@@ -718,6 +735,11 @@ def build_parser() -> argparse.ArgumentParser:
     ar = ak.add_parser("record", help="answer the example questions once against a scan run and keep the answers beside it, for a static copy of the page")
     ar.add_argument("--run", help="the scan run (default: the latest scan)")
     ar.set_defaults(func=_ask_record)
+
+    dm = sub.add_parser("demo", help="the demo stage").add_subparsers(dest="sub", required=True)
+    dr = dm.add_parser("record", help="narrate each plan row once and keep the lines beside the run, for a static copy of the stage")
+    dr.add_argument("--run", help="the scan run (default: the latest scan)")
+    dr.set_defaults(func=_demo_record)
 
     pk = sub.add_parser("package", help="a change package for each item blocked on its supplier: why no configuration change can do it, with the evidence, and what would unblock it")
     pk.add_argument("--run", help="the scan run (default: the latest scan)")

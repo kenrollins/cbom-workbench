@@ -172,3 +172,37 @@ def test_ask_in_a_static_copy_shows_recorded_answers_checked_again(slice_run, mo
     assert "Recorded 2026-11-05" in html and "the bastion" in html
     assert html.count('class="ok">passes') == 1 and html.count('class="bad">fails') == 1
     assert "only the example questions" in c.get("/ask", params={"q": "anything else"}).text
+
+
+def test_the_static_stage_carries_the_test_agency_only_and_calls_nothing(slice_run, monkeypatch):
+    import json
+    import re
+
+    from pqch.ui import demo
+
+    structure(slice_run, load_policy("policy/pq-algorithms.yaml"))
+    slice_run.close()
+    write_cboms(slice_run)
+    monkeypatch.setenv("PQCH_VAR", str(slice_run.var))
+    monkeypatch.setenv("PQCH_PUBLIC", "1")
+    monkeypatch.setenv("PQCH_HARDWARE", "the box the app runs on")    # not what the copy may claim
+    monkeypatch.delenv("PQCH_INFERENCE_CONFIG", raising=False)
+    # a server read whole lives beside the test agency in a deployment; the copy must not carry it
+    monkeypatch.setattr("pqch.systems.hosts", lambda var: [{"name": "a-lab-server", "run": "x", "addresses": ["10.9.9.9"]}])
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        from fastapi.testclient import TestClient
+
+        import pqch.ui.app as ui
+        importlib.reload(ui)
+        c = TestClient(ui.app)
+    html = c.get("/demo").text
+    doc = json.loads(re.search(r"window.__DEMO = (.*?);( window.__STATIC)", html, re.S).group(1).replace("<\\/", "</"))
+    assert doc["hosts"] == [] and doc["this_host"] is None and "a-lab-server" not in html and "10.9.9.9" not in html
+    assert doc["hardware"] == demo.ledger_hardware(slice_run) or doc["hardware"] == "unlabelled"
+    assert "the box the app runs on" not in html
+    assert doc["static"]["entries"] and all(e["run"] == slice_run.id for e in doc["static"]["entries"].values())
+    assert "window.__STATIC = true" in html and "A recorded copy of the stage" in html
+    assert doc["engine"]["live"] is None                                  # no engine was asked anything
+    assert c.get("/api/demo").status_code == 404 and c.post("/api/demo/narrate", json={}).status_code == 404
+    assert 'href="/demo"' in c.get("/about").text                          # the tab is in the public header

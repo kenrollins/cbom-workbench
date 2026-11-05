@@ -19,6 +19,7 @@
   <section class="beat" data-beat="why" data-part="executive" data-secs="60">
     <h1 class="open-title">Crypto agility starts with an inventory you can act on.</h1>
     <p class="open-outcome">{{ outcome }}</p>
+    {% if static %}<p class="static-note">A recorded copy of the stage. Every number comes from the test agency's own runs in the lab, recorded on <b>{{ hardware }}</b>; a model's words were recorded once and say so; nothing here scans or calls a model.</p>{% endif %}
     <div class="open-grid">
       <div class="story">
         <svg id="story-svg"></svg>
@@ -29,14 +30,14 @@
   </section>
 
   <section class="beat" data-beat="arch" data-part="executive" data-secs="60">
-    <div class="kicker">Architecture · everything on one GB10, nothing leaves it</div>
+    <div class="kicker">{% if static %}Architecture · the kit as it runs on one GB10 · this copy's numbers were recorded on {{ hardware }}{% else %}Architecture · everything on one GB10, nothing leaves it{% endif %}</div>
     <div class="arch-head"><h2>Five layers, one box: from the silicon to the signed record.</h2><div class="arch-acts" id="arch-acts"></div></div>
     <div class="arch" id="arch"></div>
   </section>
 
   <section class="beat" data-beat="scan" data-part="practical" data-secs="60">
-    <div class="kicker">The scan · the network from this box, and a host read whole</div>
-    <h2>Scanners in containers, on the wire and in the files; no model decides a finding. <span class="hint">hover a service · click to hold · <kbd>S</kbd> scans live</span></h2>
+    <div class="kicker">{% if static %}The scan · the test agency's network, replayed from its ledger ({{ hardware }}){% else %}The scan · the network from this box, and a host read whole{% endif %}</div>
+    <h2>Scanners in containers, on the wire and in the files; no model decides a finding. <span class="hint">hover a service · click to hold · <kbd>S</kbd> {{ 'replays the scan' if static else 'scans live' }}</span></h2>
     <div class="lan-grid">
       <div class="lan"><svg id="chain-svg"></svg><div class="counters over" id="counters-scan"></div></div>
       <div class="lan-side">
@@ -56,8 +57,8 @@
   </section>
 
   <section class="beat" data-beat="plan" data-part="practical" data-secs="60">
-    <div class="kicker">The plan · computed from the record by rules; narrated, on request, by the box's own model</div>
-    <h2>What comes first, and why: ranked by the memo, from the owner's facts. <span class="hint"><kbd>N</kbd> narrates a row</span></h2>
+    <div class="kicker">The plan · computed from the record by rules; {{ 'narrated by a model, recorded once' if static else "narrated, on request, by the box's own model" }}</div>
+    <h2>What comes first, and why: ranked by the memo, from the owner's facts. <span class="hint"><kbd>N</kbd> {{ 'plays the recorded narration' if static else 'narrates a row' }}</span></h2>
     {% if plan %}<figure class="planmap stage-plan" data-plan='{{ plan|tojson }}'></figure>{% else %}<p class="foot">No plan yet: run the scan.</p>{% endif %}
     <div class="narration" id="narration-first"></div>
   </section>
@@ -76,7 +77,7 @@
   </section>
 
   <section class="beat" data-beat="record" data-part="technical" data-secs="40">
-    <div class="kicker">The record · hash-chained, checkpointed, signed with ML-DSA-65, verified live on this box</div>
+    <div class="kicker">The record · hash-chained, checkpointed, signed with ML-DSA-65, {{ 'verified when this copy was built' if static else 'verified live on this box' }}</div>
     <div class="split stack-record">
       <div class="verify" id="verify-record"></div>
       <div class="chain" id="chain-record"></div>
@@ -89,10 +90,10 @@
   <nav class="beatbar" id="beatbar" aria-label="beats"></nav>
   <div class="advance"><a href="#" id="btn-back" title="back (←)">‹ back</a><a href="#" id="btn-next" class="primary" title="next (→ or space)">next ›</a></div>
   <div class="keys" id="keys" hidden>
-    <b>Keys</b> → next · ← back · 1–8 jump · F full screen · S start the scan · N narrate the next row · A ask the next question · L approve the first open change live · ↑↓ follow one service · ? this list
+    <b>Keys</b> → next · ← back · 1–8 jump · F full screen · {% if static %}S replay the scan · N the next recorded narration · A the next recorded question{% else %}S start the scan · N narrate the next row · A ask the next question · L approve the first open change live{% endif %} · ↑↓ follow one service · ? this list
   </div>
 </main>
-{% if inline %}<script>window.__DEMO = {{ inline | safe }};{% if snap %} window.__SNAP = true;{% endif %}</script>{% endif %}
+{% if inline %}<script>window.__DEMO = {{ inline | safe }};{% if snap %} window.__SNAP = true;{% endif %}{% if static %} window.__STATIC = true; window.__BASE = "/";{% endif %}</script>{% endif %}
 <script src="/static/vendor/d3.v7.min.js"></script>
 <script src="/static/demo.js?v={{ v }}"></script>
 {% if wait %}<img src="/api/demo/slow?s={{ wait }}" alt="" width="1" height="1" style="position:fixed;left:-9px;top:-9px">{% endif %}

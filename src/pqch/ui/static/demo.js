@@ -20,6 +20,9 @@
   const SNAP = !!window.__SNAP;   // a still: no transitions, simulations settled before the first paint
   if (SNAP) { const st = document.createElement("style"); st.textContent = ".beat, .setup div, .bignums div, .layer, .host, .term .ln, .chain .ev, .arch .band, .arch .box, .arch .tape div, .proof .step, .pipeline .pstage, .mv, .ch-dot, .ch-ent, .ch-link { animation: none !important; transition: none !important; } .setup div, .bignums div, .layer, .host, .term .ln, .chain .ev, .arch .band, .arch .tape div { opacity: 1 !important; transform: none !important; } .beat { display: none; }"; document.head.appendChild(st); document.body.classList.add("fullscreen"); }
   const T = ms => (SNAP ? 0 : ms);     // every delay and duration passes through here
+  // a static copy (the public demo): nothing is fetched from an app; what the stage would fetch is in the document
+  const STATIC = !!window.__STATIC, BASE = window.__BASE || "/";
+  const ST = () => (D && D.static) || {};
   window.addEventListener("error", e => { const d = document.createElement("pre"); d.className = "jserr"; d.textContent = `page error: ${e.message} (${(e.filename || "").split("/").pop()}:${e.lineno})`; document.body.appendChild(d); });
   (window.__DEMO ? Promise.resolve(window.__DEMO) : fetch("/api/demo").then(r => r.json())).then(d => {
     D = d;
@@ -138,7 +141,7 @@
     ["scan the network", "Scanners in containers probe every listener on the wire, from this box.", "in"],
     ["read hosts whole", "A server's files, firmware and management controller, read as one estate.", "in"],
     ["build the CBOM", "Every component and dependency, projected from evidence on a signed ledger.", "out"],
-    ["analyze with a local model", "Nemotron on this GPU narrates, drafts and answers; it never decides a finding.", "out"],
+    ["analyze with a local model", STATIC ? "A model the owner runs narrates, drafts and answers; it never decides a finding." : "Nemotron on this GPU narrates, drafts and answers; it never decides a finding.", "out"],
     ["compute the plan", "What comes first, by rules, from the owner's own facts.", "out"],
     ["prove each change", "Approved by a person, applied by the runner, verified by re-scan; the models, the data and the record never leave the box.", "out"],
   ];
@@ -230,7 +233,7 @@
     const say = html => { sel("story-p").innerHTML = html; };
     const sayA = `An inventory of systems is not an inventory of cryptography. Each row stands alone: nothing says what depends on what, or when it last changed, while the estate under it keeps moving. <em>The wire and the files hold ${fmt(c.components)} components, ${fmt(c.quantum_vulnerable)} of them quantum-vulnerable.</em>`;
     const sayB = `The CBOM is the same components with their dependencies: which service runs which listener, what each negotiates, which file each key sits in. <em>Every link from evidence on a signed ledger, so a model can be asked about it and checked against it.</em>`;
-    const sayC = `Organized, they are a plan: each component to its service, each service to a lane, each lane to the steps that move it, in the order the dependencies allow. <em>${(P.order || []).length} steps: rules put them in order from the record, so the order is the same every run; the local model on this box drafts each change and explains the plan in the owner's words.</em>`;
+    const sayC = `Organized, they are a plan: each component to its service, each service to a lane, each lane to the steps that move it, in the order the dependencies allow. <em>${(P.order || []).length} steps: rules put them in order from the record, so the order is the same every run; the local model ${STATIC ? "in the lab" : "on this box"} drafts each change and explains the plan in the owner's words.</em>`;
     if (stopAt) {   // a still: the state after band A, B or C
       dots.attr("opacity", .9); aLab.attr("opacity", 1); bandOn("A"); say(sayA);
       if (stopAt >= 2) { ghostA.attr("opacity", .22); dots.attr("cx", d => d.bx).attr("cy", d => d.by); lk.attr("opacity", 1); sg.attr("opacity", 1); ll.attr("opacity", 1); bLab.attr("opacity", 1); bandOn("B"); say(sayB); }
@@ -335,7 +338,7 @@
         box("CBOM", `${fmt(c.components)} components · ${fmt(c.quantum_vulnerable)} quantum-vulnerable · CycloneDX 1.6`, {k: "cbom"}),
         box("Plan", `${fmt(((D.plan || {}).order || []).length)} steps, ordered by rules from the memo's criteria`, {k: "plan"}),
         box("Changes proved on the wire", `${((D.change || {}).changes || []).filter(x => x.landed).length} landed · approved by a person · verified twice`, {k: "changes"}),
-        box("Ask the CBOM", "answers from retrieved entries, every citation checked", {k: "ask"}), box("This stage", "every number read live", {k: "stage"})]],
+        box("Ask the CBOM", "answers from retrieved entries, every citation checked", {k: "ask"}), box("This stage", STATIC ? `every number from the recorded runs (${esc(D.hardware)})` : "every number read live", {k: "stage"})]],
       ["L4 · Workbench", "three services and two runners, each with one job; scanners as containers", "rgba(0,163,204,.6)", "rgba(0,163,204,.05)", [
         box("app", "FastAPI, server-rendered, the only public leg", {k: "app"}), box("runner", "holds the Docker socket; starts every scanner as a container, by digest", {k: "runner"}),
         box("signer", "ML-DSA-65 checkpoints; the key where nothing else reads it", {k: "signer"}), box("system runner", "reads this box's listeners, files and firmware", {k: "sysrunner"}),
@@ -530,6 +533,7 @@
       .on("click", (ev, d) => { chainHold = chainHold && chainHold.l === d.id ? null : {l: d.id}; chainHold ? iso(null, d.id) : iso(null, null); });
     chainHold = null;
     if (SNAP) { if (D.scan) { D.scan.jobs.forEach((j, k) => { line(j); counters(k + 1, d3.sum(D.scan.jobs.slice(0, k + 1), x => x.findings || 0), D.scan.jobs.length); }); doneLine(D.scan.jobs.length, d3.sum(D.scan.jobs, x => x.findings || 0)); } return; }
+    if (STATIC) { if (D.scan && D.scan.jobs.length) replay(D.scan.jobs); return; }
     fetch("/api/scan").then(r => r.json()).then(s => {
       if (s.running) poll();
       else if (D.scan && D.scan.jobs.length) replay(D.scan.jobs);
@@ -615,6 +619,9 @@
   function startScan() {
     if (names[at] !== "scan") go(names.indexOf("scan"));
     if (scanTimer) { clearTimeout(scanTimer); scanTimer = null; }
+    if (STATIC) { sel("term-scan").innerHTML = `<div class="ln">$ replaying run ${esc(String((D.scan || {}).run || "").slice(0, 10))} from its ledger · recorded on ${esc(D.hardware)}<span class="cursor"></span></div>`;
+      if (CH) { CH.svg.selectAll(".lit").classed("lit", false); CH.gs.select(".ch-img").text("").attr("opacity", 0); CH.svcs.forEach(s => { s.read = null; }); }
+      scanPanel("replay"); if (D.scan) replay(D.scan.jobs); return; }
     fetch("/scan?host=live", {method: "POST", headers: {"Origin": location.origin}}).then(() => {
       sel("term-scan").innerHTML = `<div class="ln">$ pqch scan --live · started ${new Date().toISOString()}<span class="cursor"></span></div>`;
       if (CH) { CH.svg.selectAll(".lit").classed("lit", false); CH.gs.select(".ch-img").text("").attr("opacity", 0); CH.svcs.forEach(s => { s.read = null; }); }
@@ -639,7 +646,8 @@
   function plan() {
     // the plan page's own figure ("The plan, drawn"): lanes per service, left to right in time, a line per
     // dependency; plan.js draws every figure.planmap at load, so it is loaded only once the beat is on screen
-    sel("narration-first").innerHTML = `<span class="who">narration · nemotron-3.5-lightning on this box · <i>press N</i></span>`;
+    sel("narration-first").innerHTML = STATIC ? `<span class="who">narration · recorded ${esc((ST().recorded_at || "").slice(0, 10))} · ${esc(((ST().narration || []).find(n => n.model) || {}).model || "no narration recorded")} · <i>press N</i></span>`
+      : `<span class="who">narration · nemotron-3.5-lightning on this box · <i>press N</i></span>`;
     narrateAt = 0; clearTimeout(walkTimer);
     const fig = document.querySelector("figure.stage-plan"); if (!fig) return;
     if (fig.querySelector("svg")) { walkTimer = setTimeout(walkPlan, 400); return; }   // drawn already
@@ -647,7 +655,7 @@
     // (a request lost while the app restarts) or the figure came up empty
     if (planLoaded) { document.querySelectorAll('script[src*="plan.js"]').forEach(s => s.remove()); }
     planLoaded = true;
-    const s = document.createElement("script"); s.src = "/static/plan.js?v=" + ((document.querySelector('script[src*="demo.js"]') || {src: ""}).src.split("v=")[1] || "") + "&t=" + Date.now();
+    const s = document.createElement("script"); s.src = BASE + "static/plan.js?v=" + ((document.querySelector('script[src*="demo.js"]') || {src: ""}).src.split("v=")[1] || "") + "&t=" + Date.now();
     s.onload = () => { if (!fig.querySelector("svg")) { planLoaded = false; fig.innerHTML = `<p class="foot">The plan's figure did not draw; press 5 to try again.</p>`; return; } animatePlan(); };
     s.onerror = () => { planLoaded = false; fig.innerHTML = `<p class="foot">Could not load the plan's figure; press 5 to try again.</p>`; };
     document.body.appendChild(s);
@@ -703,6 +711,14 @@
     box.innerHTML = `<span class="who">row ${k % rows.length + 1} · ${esc(r.service)} · asking the model…</span>`;
     const row = {rank: k + 1, service: r.service, mission: r.mission, why: (r.criteria || []).join(", "), secret_until: r.sensitive_through,
                  kex: (r.kex_now || []).join("/"), blocked: (r.blocked || []).join(", ") || "nothing", title: r.step && r.step.title};
+    if (STATIC) {   // the line recorded for this row, labelled as recorded
+      const a = (ST().narration || [])[k % rows.length];
+      if (!a || a.error || !a.text) { box.innerHTML = `<span class="who">row ${k % rows.length + 1} · no narration recorded for this row</span>`; return; }
+      box.innerHTML = `<span class="who">row ${k % rows.length + 1} · ${esc(a.model)} · <i>recorded ${esc((ST().recorded_at || "").slice(0, 10))} · ${fmt(a.ms)} ms · ${fmt(a.tokens)} tokens · ${esc(((a.hardware || "").split(";")[0]).replace(/\([^)]*$/, m => m + ")"))}</i></span><span class="said"></span>`;
+      const said = box.querySelector(".said"); let i = 0; const txt = a.text;
+      (function type() { said.textContent = txt.slice(0, ++i); if (i < txt.length) setTimeout(type, 18); })();
+      return;
+    }
     const t = Date.now();
     const ac = new AbortController(), killer = setTimeout(() => ac.abort(), 25000);
     fetch("/api/demo/narrate", {method: "POST", headers: {"Content-Type": "application/json", "Origin": location.origin}, body: JSON.stringify({kind: "plan", row}), signal: ac.signal})
@@ -830,6 +846,7 @@
         `<pre>${tintJson(JSON.stringify(c, null, 2))}</pre>`;
     };
     if (ENTRIES.has(id)) { draw(ENTRIES.get(id)); return; }
+    if (STATIC) { draw((ST().entries || {})[id] || {error: "not in the CBOM"}); return; }
     el.innerHTML = `<div class="ek">the entry<small>reading ${esc(id)}…</small></div>`;
     fetch(`/api/demo/entry?ref=${encodeURIComponent(id)}`).then(r => r.json().then(j => r.ok ? j : {error: j.detail || `the app answered ${r.status}`}))
       .then(e => { ENTRIES.set(id, e); draw(e); }).catch(err => draw({error: String(err)}));
@@ -897,7 +914,8 @@
     const el = sel("proof-change"), ch = ((D.change || {}).changes || []);
     const pick = live || ch.find(x => x.landed && x.drafted) || ch.find(x => x.landed && x.intent === "require") || ch.find(x => x.landed) || ch[0];
     if (!pick) { el.innerHTML = `<p class="foot">No change run yet: propose from the policy on the Changes page.</p>`; return; }
-    const roleModel = (() => { const E = D.engine || {}, r = (E.roles || {})[(pick.drafted || {}).role] || {}; const tr = (E.tiers || {})[r.tier] || {}; return tr.model ? `${tr.model}${r.reasoning ? ", reasoning on" : ""}` : "a model on this box"; })();
+    // in a copy the tier map is today's, not the one the draft was made under; the ledger names the role only
+    const roleModel = STATIC ? `the ${(pick.drafted || {}).role || "drafting"} role's model` : (() => { const E = D.engine || {}, r = (E.roles || {})[(pick.drafted || {}).role] || {}; const tr = (E.tiers || {})[r.tier] || {}; return tr.model ? `${tr.model}${r.reasoning ? ", reasoning on" : ""}` : "a model on this box"; })();
     sel("change-title").textContent = `${pick.service} · ${pick.intent} the hybrid key exchange${pick.landed ? "" : " · in progress"}`;
     const S = pick.steps, t = s => s && s.at ? Date.parse(s.at) : null;
     const approved = S.find(s => s.what === "approved"), applied = S.find(s => s.what === "applied"), verdicts = S.filter(s => s.what === "verdict"), recreated = S.find(s => s.what === "recreated");
@@ -905,7 +923,7 @@
     const probe = (v, name) => v && (v.probes || []).find(p => p.name === name);
     const reh = S.find(s => s.what === "rehearsed");
     const cards = [
-      [pick.drafted ? "the draft" : "proposed", pick.drafted ? `<p><b>a config edit, nothing applied</b></p><p class="m">the step came from the rules; the edit was written from ${pick.drafted.findings} findings on the ledger by ${esc(roleModel.replace(", reasoning on", ""))} on this box · the policy file only</p>` :
+      [pick.drafted ? "the draft" : "proposed", pick.drafted ? `<p><b>a config edit, nothing applied</b></p><p class="m">the step came from the rules; the edit was written from ${pick.drafted.findings} findings on the ledger by ${esc(roleModel.replace(", reasoning on", ""))} ${STATIC ? "in the lab" : "on this box"} · the policy file only</p>` :
         `<p>${esc(pick.service)} <span class="m">${esc(pick.address || "")}</span></p><p>intent <b>${esc(pick.intent)}</b></p><p class="m">rule ${esc(pick.rule || "")}</p>`],
       ...(reh ? [["rehearsed on a copy", `<p class="big">${esc((reh.verdict && reh.verdict.status) || reh.verdict || "")}</p><p class="m">a twin at ${esc(reh.twin || "")}, probed before anyone could approve</p>`]] : []),
       ["approved", approved ? `<p>by <b>${esc(approved.by)}</b></p><p class="m">${esc(approved.how || "")}</p>` : `<p class="m">waiting for a person</p>`],
@@ -1012,6 +1030,7 @@
         res.attr("opacity", 0).transition().delay(800 + i * 450).attr("opacity", 1); }); }};
   }
   function approveLive() {
+    if (STATIC) { if (names[at] !== "change") go(names.indexOf("change")); sel("change-title").textContent = "Approving needs the running workbench; this copy replays the recorded change from its ledger."; return; }
     const ch = ((D.change || {}).changes || []), open = ch.find(x => x.open), run = (D.change || {}).run;
     if (!open || !run) { sel("change-title").textContent = "No open change to approve: propose from the policy first (the Changes page)."; return; }
     if (names[at] !== "change") go(names.indexOf("change"));
@@ -1051,14 +1070,15 @@
     const E = D.engine || {}, Tm = E.tiers || {}, emb = (Tm.embed || {}).model || "the embed NIM", mdl = (Tm[((E.roles || {})["ask-cbom"] || {}).tier || "deliberate"] || {}).model || "the model";
     box.innerHTML = `<div class="pipeline">` +
       `<div class="pstage on" id="st-retrieve"><b>1 · retrieve</b><span>${esc(emb)}: the entries nearest the question, from the CBOM</span></div>` +
-      `<div class="pstage" id="st-reason"><b>2 · reason</b><span>${esc(mdl)} on the Blackwell GPU, thinking ${((E.roles || {})["ask-cbom"] || {}).reasoning ? "on" : "off, by measurement"}</span></div>` +
+      `<div class="pstage" id="st-reason"><b>2 · reason</b><span>${esc(mdl)}${STATIC ? ", recorded" : ` on the Blackwell GPU, thinking ${((E.roles || {})["ask-cbom"] || {}).reasoning ? "on" : "off, by measurement"}`}</span></div>` +
       `<div class="pstage" id="st-check"><b>3 · check</b><span>every cited event looked up on the ledger; an absent one fails the answer</span></div></div>` +
-      `<div class="thinking"><span class="t">0.0 s</span>on this box, nothing leaves it</div>` +
+      `<div class="thinking"><span class="t">0.0 s</span>${STATIC ? `an answer recorded ${esc((ST().ask_recorded_at || "").slice(0, 10))}, its citations checked when this copy was built` : "on this box, nothing leaves it"}</div>` +
       `<div class="qlist">${ASK.map((x, i) => `<span class="${x === q ? "on" : ""}">${esc(x)}</span>`).join("")}</div>`;
     wireChips(box);
     askTimer = setInterval(() => { const s = box.querySelector(".t"); if (!s) return; const e = (Date.now() - t0) / 1000; s.textContent = e.toFixed(1) + " s"; if (e > 2.5) { const r = sel("st-reason"); if (r) r.classList.add("on"); } }, 100);
     const ac = new AbortController(), killer = setTimeout(() => ac.abort(), 12000); askAbort = ac;
-    fetch(`/ask?run=${encodeURIComponent(run || "")}&q=${encodeURIComponent(q)}`, {signal: ac.signal}).then(r => { clearTimeout(killer); if (!r.ok) throw new Error(`the app answered ${r.status}`); return r.text(); }).then(html => {
+    const askUrl = STATIC ? ((ST().ask || {})[q] ? BASE + ST().ask[q] : null) : `/ask?run=${encodeURIComponent(run || "")}&q=${encodeURIComponent(q)}`;
+    (askUrl ? fetch(askUrl, {signal: ac.signal}) : Promise.reject(new Error("no answer was recorded for this question"))).then(r => { clearTimeout(killer); if (!r.ok) throw new Error(`the app answered ${r.status}`); return r.text(); }).then(html => {
       clearInterval(askTimer);
       const doc = new DOMParser().parseFromString(html, "text/html");
       const ans = doc.querySelector("p.answer"), notes = Array.from(doc.querySelectorAll("p.note")).map(n => n.textContent.trim());
@@ -1125,7 +1145,7 @@
       (hist ? `<div class="hist"><span class="k">the history of changes, in order, from the ledger</span><ul>${hist}</ul></div>` : "");
     const tiers = [["one GB10", "this demo: one estate, scanned, planned and changed on a desktop box"], ["two GB10s", "linked over ConnectX-7: the 120B model with long context across both"],
       ["Pro Max GB300", "the larger model resident, more estates in parallel"], ["PowerEdge XE", "many estates and many investigators at once; one queue today"], ["an AI factory", "the agency's whole estate, continuously"]];
-    sel("scale-record").innerHTML = `<div class="k">The same stack scales without changing shape</div><div class="tiers">${tiers.map(([n, d], i) => `<div class="tier${i === 0 ? " here" : ""}"><b>${esc(n)}</b><span>${esc(d)}</span></div>${i < tiers.length - 1 ? '<span class="arr">→</span>' : ""}`).join("")}</div>` +
+    sel("scale-record").innerHTML = (STATIC ? `<p class="m">This copy's runs were recorded on <b>${esc(D.hardware)}</b>; the stack drawn is the kit as it runs on one GB10.</p>` : "") + `<div class="k">The same stack scales without changing shape</div><div class="tiers">${tiers.map(([n, d], i) => `<div class="tier${i === 0 ? " here" : ""}"><b>${esc(n)}</b><span>${esc(d)}</span></div>${i < tiers.length - 1 ? '<span class="arr">→</span>' : ""}`).join("")}</div>` +
       `<p class="m">What does not change: the containers by digest, the one inference seam, the ledger and its signatures. What changes: which model serves each tier, and how many estates run at once. Only the first tier is measured; the rest is the same images on more hardware, to be measured as it is reached.</p>`;
   }
 })();

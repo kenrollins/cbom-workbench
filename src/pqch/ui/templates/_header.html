@@ -12,7 +12,7 @@
     {# The demo's mode: "live" when the app serves it; a static copy (GitHub Pages, eventually) says "snapshot". #}
     <div class="demo-group">
     <span class="group">Demo<small>{{ demo_mode }}</small></span>
-    {% if not public %}<a href="/demo" class="{{ 'on' if active == 'stage' }} stage" title="The eight minutes on stage: the story in beats, every number live">Demo</a>{% endif %}
+    <a href="/demo" class="{{ 'on' if active == 'stage' }} stage" title="{{ 'The eight beats on stage, recorded from the lab' if public else 'The eight minutes on stage: the story in beats, every number live' }}">Demo</a>
     <a href="/" class="{{ 'on' if active == 'overview' }}" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
     <a href="/agency" class="{{ 'on' if active == 'agency' }}" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
     <a href="/walkthrough" class="{{ 'on' if active == 'demo' }}" title="The walkthrough, on a test agency built for it">Walkthrough</a>

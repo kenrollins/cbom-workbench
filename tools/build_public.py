@@ -92,11 +92,12 @@ def curate(var: Path, dst: Path) -> list[str]:
         shutil.copytree(var / "runs" / rid, dst / "runs" / rid)
         text = (var / "runs" / rid / "ledger.jsonl").read_text()
         raws |= set(re.findall(r"var/raw/([A-Za-z0-9._-]+)", text))
-    for rid in ids:  # Ask the CBOM's recorded answers, for the runs that go out
-        rec = var / "ask" / f"{rid}.json"
-        if rec.is_file():
-            (dst / "ask").mkdir(exist_ok=True)
-            shutil.copy2(rec, dst / "ask" / rec.name)
+    for rid in ids:  # recorded model output for the runs that go out: Ask's answers, the stage's narration
+        for kind in ("ask", "demo"):
+            rec = var / kind / f"{rid}.json"
+            if rec.is_file():
+                (dst / kind).mkdir(exist_ok=True)
+                shutil.copy2(rec, dst / kind / rec.name)
     for name in raws:
         if (var / "raw" / name).is_file():
             shutil.copy2(var / "raw" / name, dst / "raw" / name)
@@ -134,7 +135,7 @@ def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
     scan = (work / "runs" / "LATEST_SCAN").read_text().strip()
     pages = {"/": "index.html", "/walkthrough": "walkthrough/index.html", "/cbom": "cbom/index.html",
              "/plan": "plan/index.html", "/agency": "agency/index.html", "/packages": "packages/index.html", "/imports": "imports/index.html",
-             "/resolve": "resolve/index.html", "/about": "about/index.html"}
+             "/resolve": "resolve/index.html", "/about": "about/index.html", "/demo": "demo/index.html"}
     if code:
         pages[f"/cbom?run={code}"] = "cbom/code/index.html"
     from pqch.ui.agility import _change_story
@@ -204,6 +205,7 @@ def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
 
     for path, text in html.items():
         text = re.sub(r'(href|src|action)="([^"]*)"', link, text)
+        text = text.replace('window.__BASE = "/";', f'window.__BASE = "{base}";')
         for rx, word in SCRUB:
             text = rx.sub(word, text)
         dest = out / path
