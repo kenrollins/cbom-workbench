@@ -135,6 +135,11 @@ on 2026-10-20 (run `01M5CTXE9PH6Y2BKPHZPZ9KFK6`):
 | data lifetime: 10 years | supplied | the same |
 | high-value asset: no | supplied | the same |
 
+<figure class="sketch" markdown>
+![The portal's X25519 key-exchange finding and the six links above it, drawn as a chain: listener TLS 172.16.106.10:443, certificate RSA (2048) and service portal are discovered, each asserted by a rule naming its ledger events; mission function benefits enrollment, data lifetime 10 years and high-value asset no are supplied, typed in by the owner, labelled supplied, and never counted as coverage.](../img/sketches/06-the-chain.svg)
+<figcaption>The portal's chain: three links the rules found from ledger events, three the owner typed in and the record labels.</figcaption>
+</figure>
+
 The same image holds a second certificate, `/etc/ssl/legacy/portal-2019.crt`,
 that no listener serves. Its chain stops at the image: the file is linked to
 the service through the image, marked not in use by `in-use/not-served/1`, and

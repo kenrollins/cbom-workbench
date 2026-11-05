@@ -13,6 +13,11 @@ tiers:
     max_context: 40960
     timeout_s: 300
     residency: resident
+    # Plain answers on this tier: a Nemotron chat template thinks unless told not to, and a plain call
+    # that thinks spends its whole budget before answering. Roles that reason say so (reasoning: true,
+    # the block below). With this, spike S3's plain `fast` arm on this box means thinking off, as the
+    # lab's `fast` arm always has, so the arms stay comparable.
+    request: {chat_template_kwargs: {enable_thinking: false}}
     reasoning:
       model: fast
       timeout_s: 900
@@ -45,4 +50,5 @@ roles:
   normalize-name:      {tier: deliberate, reasoning: true}  # S3 R2: Super VL medium 28 of 30 (floor 28), 0 harmful
   trace-to-cause:      {tier: deliberate, reasoning: true}  # S3 R5: Super VL medium 27 of 30, 2 harmful (floor 24, 3)
   change-plan:         {tier: fast, reasoning: true}        # S3 R6: no engine on this box clears 24 (Lightning thinking 23, 3 harmful); stays on fast, flagged; every plan is rehearsed and verified before approval
+  ask-notes:           {tier: deliberate, reasoning: true}  # the field notes' question box, as it ran before it was a role; unmeasured
   ask-cbom:            {tier: deliberate, reasoning: true}  # eval/ask 2026-11-04 on the box: Super VL medium 11 of 12 answers, 9 of 12 clean citations (floors 10, 12), median 34 s a question beside other jobs; the Nano 9B NIM 7 and 10; below the citation floor, so the page shows every verdict

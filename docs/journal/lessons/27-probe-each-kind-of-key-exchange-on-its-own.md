@@ -37,6 +37,11 @@ configuration names at most one of them explicitly:
 | Ephemeral finite-field DHE (TLS 1.2) | parameters the server supplies itself, built in or from a file | `ssl_dh_params_file`, `ssl_dhparam`, or nothing | nothing: the group has no name on the wire |
 | RSA key transport | its RSA certificate's key; the client encrypts the secret to it | the cipher list, by its default | nothing: no group is involved |
 
+<figure class="sketch" markdown>
+![Three ways a TLS 1.2 listener establishes a key: a named group, where the server contributes a key share both sides name and a list of groups shows the group; finite-field DHE, where the server supplies parameters itself and a list of groups shows nothing; and RSA key transport, where the client encrypts to the server's RSA key and a list of groups shows nothing; so a probe per kind, -groups X25519MLKEM768, -tls1_2 -cipher kDHE and -tls1_2 -cipher kRSA, or one full cipher-suite enumeration. PostgreSQL 18 with ssl_groups X25519MLKEM768:X25519 and no ssl_dh_params_file refused secp256r1 and still completed a handshake on a 2048-bit finite-field group it supplied itself and another on RSA key transport.](../img/sketches/27-three-kinds-of-key-exchange.svg)
+<figcaption>Three kinds of key exchange, and the two a probe that offers groups cannot see.</figcaption>
+</figure>
+
 A probe offering only named groups exercises the first row. PostgreSQL 18
 with `ssl_groups = 'X25519MLKEM768:X25519'` refused `secp256r1`, which reads
 as a listener that does exactly what its configuration says; the same

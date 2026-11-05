@@ -92,6 +92,11 @@ another:
 The records database's `require` change, applied and verified twice after the
 scan, shows as done.
 
+<figure class="sketch" markdown>
+![The plan drawn as one lane per service over three waves: now, key establishment, signatures. The message queue's and the case-management application's software replacements come before the internal CA's ML-DSA root, which comes before the three certificates it issues; the records database's require change is done; the portal's hybrid group is a setting because the API and the gateway already negotiate it on the same OpenSSL build; the API's one key on 443 and 8443 is one step; the SFTP drop upgrades to the OpenSSH the jump host runs. 26 steps over 34 CBOM entries, 15 waiting on another, 4 shared dependencies; the spreadsheet has 6 rows, 2 empty, and none for 4 of the 8 services.](../img/sketches/17-lanes-and-waves.svg)
+<figcaption>Lanes and waves: the steps the four shared dependencies order, and the certificate authority that no row of the spreadsheet holds.</figcaption>
+</figure>
+
 ## What if
 
 Any step can be taken as done and the plan recomputed: the steps it frees are

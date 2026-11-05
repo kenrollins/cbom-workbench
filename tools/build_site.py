@@ -33,7 +33,8 @@ def _field(front: str, key: str) -> str:
     m = re.search(rf"^{key}:\s*(.+)$", front, re.M)
     if not m:
         return ""
-    return m.group(1).strip().strip('"')
+    # A quoted YAML scalar: the outer quotes go, and an escaped quote inside is a quote.
+    return m.group(1).strip().strip('"').replace('\\"', '"')
 
 
 def copy_section(name: str) -> list[tuple[str, str, str, str]]:
@@ -69,12 +70,28 @@ def write_index(name: str, rows: list[tuple[str, str, str, str]]) -> None:
     (SRC / name / "index.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def journal_span(first: str, last: str) -> str:
+    """Two ISO dates as the handwritten line: short enough to sit under the label without widening
+    the box. "Oct 4 → Nov 4, 2026" within a year; "Oct 4, 2026 → Jan 2, 2027" across one; one date alone."""
+    from datetime import date
+
+    def md(d: date) -> str:
+        return f"{d.strftime('%b')} {d.day}"
+
+    a, b = date.fromisoformat(first), date.fromisoformat(last)
+    if a == b:
+        return f"{md(a)}, {a.year}"
+    if a.year == b.year:
+        return f"{md(a)} \u2192 {md(b)}, {a.year}"
+    return f"{md(a)}, {a.year} \u2192 {md(b)}, {b.year}"
+
+
 def write_span(all_rows: dict) -> None:
     """The handwritten line under FIELD NOTES on the cover: the first entry's date and the latest's.
     Written into mkdocs.yml for the site's header and into site_src/journal-span.txt, which the
     build copies into site/ for the app's header to read."""
     dates = sorted(d for rows in all_rows.values() for _, _, _, d in rows if d)
-    span = "" if not dates else (dates[0] if dates[0] == dates[-1] else f"{dates[0]} \u2192 {dates[-1]}")
+    span = journal_span(dates[0], dates[-1]) if dates else ""
     yml = ROOT / "mkdocs.yml"
     yml.write_text(re.sub(r'^  journal_span: .*# >>> generated$', f'  journal_span: "{span}"   # >>> generated',
                           yml.read_text(encoding="utf-8"), flags=re.M), encoding="utf-8")
@@ -100,16 +117,19 @@ def write_nav(all_rows: dict[str, list[tuple[str, str, str, str]]]) -> None:
     yml.write_text(head + "\n".join(lines) + "\n" + text[b:], encoding="utf-8")
 
 
-def copy_fonts() -> None:
-    """The demo's vendored fonts, so the shared header sets in the same face on the site."""
+def copy_header() -> None:
+    """The demo's header stylesheet and vendored fonts, so the site's header is the demo's own
+    (site_overrides/partials/header.html emits the same markup as the app's _header.html)."""
+    static = ROOT / "src" / "pqch" / "ui" / "static"
     dst = SRC / "stylesheets" / "fonts"
     dst.mkdir(parents=True, exist_ok=True)
-    for f in (ROOT / "src" / "pqch" / "ui" / "static" / "fonts").glob("*.woff2"):
+    for f in (static / "fonts").glob("*.woff2"):
         shutil.copy2(f, dst / f.name)
+    shutil.copy2(static / "header.css", SRC / "stylesheets" / "header.css")
 
 
 def main() -> None:
-    copy_fonts()
+    copy_header()
     all_rows = {}
     for name in SECTIONS:
         rows = copy_section(name)
@@ -120,6 +140,16 @@ def main() -> None:
     write_span(all_rows)
     # The sources list is kept once, in docs/; the site shows the same file.
     shutil.copy2(ROOT / "docs" / "SOURCES.md", SRC / "sources.md")
+    # The journal's sketches travel with it (tools/draw.py writes them); `../img/sketches/` from an
+    # entry resolves the same in the repository and on the site.
+    sketches = SRC / "img" / "sketches"
+    if sketches.exists():
+        shutil.rmtree(sketches)
+    if (JOURNAL / "img" / "sketches").exists():
+        # The drawings only: the survey and progress files a drawing session keeps beside them
+        # (PLAN.md, PROGRESS.md) are working notes, not entries, and stay off the site.
+        shutil.copytree(JOURNAL / "img" / "sketches", sketches,
+                        ignore=lambda d, names: [n for n in names if not n.endswith(".svg") and not (Path(d) / n).is_dir()])
 
 
 if __name__ == "__main__":

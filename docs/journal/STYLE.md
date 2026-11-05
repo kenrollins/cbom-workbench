@@ -79,6 +79,33 @@ These files will be searched and quoted by tools as well as read by people.
 - Code and configuration in fenced blocks, with the file path.
 - At most one pull-quote per note, using `!!! quote ""`.
 
+## Drawings
+
+A drawing is a claim, held to the same standard as a sentence: every label and count in it comes
+from the entry it illustrates, and its caption says what it shows. Two kinds, both drawn by
+`tools/draw.py` (`uv run --with fonttools --with brotli python tools/draw.py`) and never by hand in
+an editor, so they can be redrawn when the entry changes:
+
+- **Sketches** explain a mechanism in the book's inks: ballpoint for what is written, stamp red for
+  the point, graphite pencil for what is there but does not count. They live in `img/sketches/`,
+  named for the entry (`20-four-clocks.svg`), and go in as `<figure class="sketch" markdown>` with
+  the image, a full `alt` text that states the picture's claim, and a one-line `<figcaption>`.
+- **Marks** annotate a screenshot: red rings on the screen, notes on paper slips. The screenshot is
+  never edited; the marks are a transparent overlay of the same size in `site_src/img/marks/`, laid
+  over it with `<figure class="marked">`.
+
+Look before committing: `tools/render_sketch.py <svg> [png] [width]` rasterises a sketch with
+cairosvg (`uv pip install cairosvg`; the book's faces as TTF in `~/.fonts`, since cairo finds fonts
+through fontconfig), and a reader of the PNG checks the lettering is Caveat, nothing is clipped and
+the one red mark is the point.
+
+No generated imagery: an illustration that cannot be checked against the ledger, the answer key or
+the entry's own numbers does not go in. A lab-derived drawing is marked like a lab passage.
+
+Look before committing: render each sketch (`python tools/render_sketch.py <svg> <png> 1200`, cairosvg
+with the book's faces installed) and check that the lettering is Caveat, nothing is clipped at any
+edge, no labels overlap, and exactly one red mark carries the point.
+
 ## Frontmatter
 
 ```yaml

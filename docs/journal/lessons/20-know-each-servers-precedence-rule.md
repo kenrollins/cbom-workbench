@@ -38,6 +38,11 @@ not a convention shared across software.
 | PostgreSQL (`postgresql.conf`) | The **last** value read is used | Read at the point of the `include`: after the main file's line it wins, before it loses |
 | nginx | The **innermost** block that sets it wins: `server` over `http` | Inlined where the `include` stands; a file the pattern does not match is not read at all |
 
+<figure class="sketch" markdown>
+![The same setting written twice in three configuration files: in OpenSSH's sshd_config the first KexAlgorithms line wins, in PostgreSQL's postgresql.conf the last ssl_groups line wins, and in nginx.conf the ssl_ecdh_curve in the inner server block wins over the one at http level; one rule carried to all three names the wrong line with confidence, and a change to that line applies cleanly and alters nothing.](../img/sketches/20-three-precedence-rules.svg)
+<figcaption>The same two lines, three winners: first value, last value, innermost block.</figcaption>
+</figure>
+
 A reader — or a tool, or a language model — that carries one rule to all
 three will name the wrong line with confidence, and a change made to that
 line will apply cleanly and alter nothing. The verifier then reports that the

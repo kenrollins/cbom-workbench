@@ -14,6 +14,10 @@ claims:
     provenance: "measured 2026-11-04 on the lab GB10; eval/ask results ask-fast-v2, ask-deliberate (v1) and ask-deliberate-v2; three repeats per question"
   - text: "Of the citation failures seen, none was a passing invented id: the rule caught event ids that were not in the ledger, a component hash or bom-ref cited as an event, component refs written with a prefix, and three replies cut short of valid JSON by a 4,000-token budget the model's thinking shared; the spellings became normalization rules and the budget was raised, and an invented id stays a failure the page shows."
     provenance: "computed 2026-11-04 from the eval records (ask-fast, ask-fast-v2, ask-deliberate, ask-deliberate-v2)"
+  - text: "On a Dell Pro Max GB10 with Nemotron 3.5 Lightning 30B-A3B NVFP4 (thinking on) as the only engine and the Llama Nemotron embed NIM for retrieval, the six example questions through the page: 3 of 6 replies cut short at an 8,000-token budget, 2 at 16,000, none at 20,000; then 5 of 6 passed every citation at 22 to 73 s a question (2,790 to 9,065 completion tokens), and one declined with no citations."
+    provenance: "measured 2026-11-04 on the demo GB10, harness at 6c77663, run 01M6KVZ4GYZ3K5MT31M1F59D0A, one call per question"
+  - text: "On the same GB10 with thinking off, the twelve-item evaluation set, three repeats each, passed every citation on 12 of 12 items and named the expected phrase on 10 of 12, at a median of 2.8 s a call (36 calls, slowest 6.1 s); retrieval found the expected component on 10 of 12, under its floor of 11, which is the index's shortfall, not the model's. The ask-cbom role is bound there, with the reply's shape described in the prompt and checked by the seam rather than enforced by the engine's grammar."
+    provenance: "measured 2026-11-05 on a Dell Pro Max GB10 (aarch64), vLLM 0.27.1, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, thinking off; eval/ask/results/2026-11-05-promax-lightning-vllm-thinking-off-v2.json, run 01M6N9EQDZ6K7RT6GJDV72G58W; kit/inference.promax.yaml"
 reuse: [whitepaper, talk, customer-question]
 ---
 
@@ -61,6 +65,11 @@ behind it, so a citation is a thing that can be looked up.
 
 The ledger is not written: a question is not an event of the estate.
 
+<figure class="sketch" markdown>
+![A question in plain words is embedded; the 8 nearest passages by cosine, one per component, plus 2 hops up the chain to its listener and service, go to the model in one call of the ask-cbom role; the typed reply carries an answer, components, citations as event ids and what was not in the passages; a rule then checks each cited event against the ledger and the shown passages and each named component against the shown, and anything else fails. Floors of 12, written first: retrieval 11, the expected phrase 10, every citation passes 12; the Nano 9B NIM scored 11, 7 and 10 at a median 22 s, Super VL 120B at medium effort with the chain rule 10, 11 and 9 at 34 s; neither clears all three on 2026-11-04.](../img/sketches/19-ask-and-check.svg)
+<figcaption>From question to checked answer: the model answers from passages, and code checks every citation against the ledger.</figcaption>
+</figure>
+
 ## Worked example
 
 Question: *Which SSH listener still offers the 1024-bit Diffie-Hellman group?* The nearest passages are
@@ -85,6 +94,26 @@ cut short of valid JSON by a 4,000-token budget shared with the model's thinking
 8,000). Retrieval reached its floor on one run and missed by one on the next: the embedding of a
 question is not bit-stable across runs on this engine, and the eighth nearest passage can change. The role is bound to the deliberate tier as the best measured arm, below floor, and
 the page shows every verdict (`kit/inference.yaml`).
+
+**On a second GB10 with Lightning alone (2026-11-04).** The six example questions, one call each,
+through the page on a Dell Pro Max GB10 whose only engine is Nemotron 3.5 Lightning 30B-A3B NVFP4
+with thinking on, with the Llama Nemotron embed NIM for retrieval: at a reply budget of 8,000 tokens
+three of six replies were cut short; at 16,000 two; at 20,000 none, with 2,790 to 9,065 completion
+tokens a reply and 22 to 73 s a question. Five of six then passed every citation and named the
+expected component; the sixth (what signs the message queue's certificate) declined, correctly
+noting the issuer the passages show but no stated signing relation. The same question used 2,790
+tokens on one run and over 16,000 on another, so the budget is set for the role's worst call, not
+its typical one ([lesson 55](../lessons/55-a-reply-cap-on-a-thinking-tier-is-a-thinking-budget.md)).
+
+**With thinking off, the binding on that GB10 (2026-11-05).** The full evaluation set, twelve
+questions with three repeats each, on the same engine with thinking off: every citation passed on 12
+of 12 items, the expected phrase on 10 of 12 (the floor), at a median of 2.8 s a call and 6.1 s at
+the slowest of 36. Retrieval put the expected component in the passages on 10 of 12, one under its
+floor, and no engine changes that: the shortfall is in the index. Thinking on took 22 to 73 s a
+question for no better citations, so the role is bound to the fast tier without thinking, and the
+answer arrives while the presenter is still speaking. The reply's shape is written into the prompt
+and validated by the seam with one retry, because the engine's structured-output grammar with thinking
+off ran one call in five to its cap ([lesson 58](../lessons/58-a-thinking-template-must-be-told-not-to-think.md)).
 
 ## What follows
 

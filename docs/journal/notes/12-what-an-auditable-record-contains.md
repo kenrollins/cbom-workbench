@@ -59,6 +59,11 @@ So the system of record here is a ledger: an append-only file of events. The
 CBOM is a projection of it, a pure function with no clock and no randomness:
 the same events give the same bytes.
 
+<figure class="sketch" markdown>
+![A change run's ledger is one chain of 15 events, each carrying the hash of the one before, with 5 checkpoints signed ML-DSA-65 by a separate signer; the CBOM is projected from the chain, the same events giving the same bytes, and is never edited.](../img/sketches/12-ledger-chain.svg)
+<figcaption>One change run as the ledger holds it: 15 events, 5 signed checkpoints, and the CBOM rebuilt from them.</figcaption>
+</figure>
+
 ## The mechanism
 
 **One event.**
@@ -132,6 +137,11 @@ signature before the policy event to the first signature over the verdict.
 On a live change the two readings were 55.6 s and "no more than 55.6 s". When
 they differ by more than twice the tolerance, neither is shown.
 
+<figure class="sketch" markdown>
+![The chain in order: a signed checkpoint, the policy change, a signed checkpoint, the proposal, approval, apply and verdict, a signed checkpoint. A signature over an event is an upper bound on its end; an event hashed onto the signature before it was written after it, a lower bound; so the two events a person causes get a checkpoint on each side. One change read 55.6 s on the writer's clock and no more than 55.6 s on the signer's, from the last signature before the policy event to the first over the verdict, within a tolerance of two seconds.](../img/sketches/12-bracketed-event.svg)
+<figcaption>Why the policy change and the approval are each bracketed by two signatures, and the two readings of one interval.</figcaption>
+</figure>
+
 **Who writes.** One process appends to a ledger. Other parties return results
 to it. The tool that applies changes — the only one with control of the
 container runtime — reads the ledger itself before acting, and proceeds only
@@ -162,6 +172,11 @@ Tampering with a copy, checked two ways:
 | Change a verdict, recompute every hash | **passes** | fails: the checkpoint's hash no longer matches |
 | The same, then re-sign every checkpoint with a new key | **passes** | fails: signed with another key |
 | The same, and replace the public-key file beside the ledger; verify from the files alone | — | **passes** |
+
+<figure class="sketch" markdown>
+![Six tamperings of a copy of the ledger: editing one event and removing one from the middle fail both checks; removing the last events, changing a verdict with every hash recomputed, and re-signing every checkpoint with a new key pass the hash chain alone and fail against the signer's key and record; replacing the public-key file beside the ledger and verifying from the files alone passes, because a public key stored next to what it verifies is not a check. Signing costs 0.88 ms, verifying 0.16 ms, a checkpoint 5 to 11 ms.](../img/sketches/12-what-the-signer-catches.svg)
+<figcaption>What the hashes alone let through, what the signer's record catches, and the one case the files alone cannot settle.</figcaption>
+</figure>
 
 The last row is the important one. A public key stored next to the thing it
 verifies is not an independent check.

@@ -44,7 +44,9 @@ def classify_one(run: Run, policy: dict, *, seam: inference.Seam | None = None) 
     s = seam or inference.default()
     # The role's tier and reasoning setting come from the config's `roles` section (spike S3:
     # classification needs the small engine with reasoning on), never from here.
-    c = s.complete_role(ROLE, messages, schema=SCHEMA, max_tokens=4000, purpose=PURPOSE)
+    # A reply cap on a thinking tier is a thinking budget (lesson 55): 16000 covers the role's measured
+    # budget on Lightning with thinking (spike S3 dev set on a GB10, 2026-11-04): classification p90 4,136 tokens, max 4,179.
+    c = s.complete_role(ROLE, messages, schema=SCHEMA, max_tokens=16000, purpose=PURPOSE)
     policy_pq = f["asset"]["name"] in policy.get("key_establishment", [])
     model_pq = c.parsed["family"] in ("hybrid-post-quantum", "post-quantum")
     return run.ledger.append("assessment.made", c.actor(), {

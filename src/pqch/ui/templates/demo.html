@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — on stage</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/demo.css?v={{ v }}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230c1117'/%3E%3Crect x='3' y='3' width='10' height='10' fill='none' stroke='%2300a3cc' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body class="stage-body">
+{% set active = "stage" %}{% set lede = "" %}
+{% include "_header.html" %}
+<main id="stage" class="stage" data-hardware="{{ hardware }}" data-operator="{{ operator }}"
+      data-spec="Grace: 20 Arm cores · Blackwell GPU · 128 GB unified memory · CUDA 13 · Ubuntu 24.04 aarch64"
+      data-scale="one GB10 → two GB10s linked over ConnectX-7 → Pro Max GB300 → PowerEdge XE → an AI factory">
+  <div id="stage-loading" class="stage-loading">Reading the run store, the CBOM, the plan and the ledgers…</div>
+
+  <section class="beat" data-beat="why" data-part="executive" data-secs="60">
+    <h1 class="open-title">Crypto agility starts with an inventory you can act on.</h1>
+    <p class="open-outcome">{{ outcome }}</p>
+    <div class="open-grid">
+      <div class="story">
+        <svg id="story-svg"></svg>
+        <p id="story-p"></p>
+      </div>
+      <div class="hero"><canvas id="hero-canvas"></canvas><div class="hero-caption" id="hero-caption"></div></div>
+    </div>
+  </section>
+
+  <section class="beat" data-beat="arch" data-part="executive" data-secs="60">
+    <div class="kicker">Architecture · everything on one GB10, nothing leaves it</div>
+    <div class="arch-head"><h2>Five layers, one box: from the silicon to the signed record.</h2><div class="arch-acts" id="arch-acts"></div></div>
+    <div class="arch" id="arch"></div>
+  </section>
+
+  <section class="beat" data-beat="scan" data-part="practical" data-secs="60">
+    <div class="kicker">The scan · the network from this box, and a host read whole</div>
+    <h2>Scanners in containers, on the wire and in the files; no model decides a finding. <span class="hint">hover a service · click to hold · <kbd>S</kbd> scans live</span></h2>
+    <div class="lan-grid">
+      <div class="lan"><svg id="chain-svg"></svg><div class="counters over" id="counters-scan"></div></div>
+      <div class="lan-side">
+        <div class="term" id="term-scan"></div>
+        <div class="scan-side" id="hosts-scan"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="beat" data-beat="cbom" data-part="practical" data-secs="50">
+    <div class="kicker">Inside the CBOM · what the record holds</div>
+    <h2>What each service negotiates on the wire, and what the rules made of it. <span class="hint"><kbd>↑</kbd><kbd>↓</kbd> follow one service</span></h2>
+    <div class="cbom-grid">
+      <div class="graph-wrap"><svg class="graph" id="graph-cbom"></svg><canvas class="graph-dots" id="dots-cbom"></canvas><div class="legend" id="legend-cbom"></div></div>
+      <aside class="entry" id="entry-cbom"></aside>
+    </div>
+  </section>
+
+  <section class="beat" data-beat="plan" data-part="practical" data-secs="60">
+    <div class="kicker">The plan · computed from the record by rules; narrated, on request, by the box's own model</div>
+    <h2>What comes first, and why: ranked by the memo, from the owner's facts. <span class="hint"><kbd>N</kbd> narrates a row</span></h2>
+    {% if plan %}<figure class="planmap stage-plan" data-plan='{{ plan|tojson }}'></figure>{% else %}<p class="foot">No plan yet: run the scan.</p>{% endif %}
+    <div class="narration" id="narration-first"></div>
+  </section>
+
+  <section class="beat" data-beat="change" data-part="technical" data-secs="70">
+    <div class="kicker">Rules choose the step · a draft is written · a person approves · probes prove · the ledger records</div>
+    <h2 id="change-title">A change, replayed from the ledger with its own timings.</h2>
+    <div class="proof" id="proof-change"></div>
+  </section>
+
+  <section class="beat" data-beat="ask" data-part="technical" data-secs="60">
+    <div class="kicker">Ask the CBOM · a question answered from the record, every citation checked against the ledger</div>
+    <h2 id="ask-q">Asking…</h2>
+    <div class="ask" id="ask-box"></div>
+    <p class="foot">The model answers from the entries retrieved for the question; the page then checks every event it cites against the ledger. <span class="hint"><kbd>A</kbd> asks the next question</span></p>
+  </section>
+
+  <section class="beat" data-beat="record" data-part="technical" data-secs="40">
+    <div class="kicker">The record · hash-chained, checkpointed, signed with ML-DSA-65, verified live on this box</div>
+    <div class="split stack-record">
+      <div class="verify" id="verify-record"></div>
+      <div class="chain" id="chain-record"></div>
+    </div>
+    <div class="layers compact" id="layers-stack" hidden></div>
+    <div class="scale" id="scale-record"></div>
+  </section>
+
+  <div class="stage-errors" id="stage-errors" hidden></div>
+  <nav class="beatbar" id="beatbar" aria-label="beats"></nav>
+  <div class="advance"><a href="#" id="btn-back" title="back (←)">‹ back</a><a href="#" id="btn-next" class="primary" title="next (→ or space)">next ›</a></div>
+  <div class="keys" id="keys" hidden>
+    <b>Keys</b> → next · ← back · 1–8 jump · F full screen · S start the scan · N narrate the next row · A ask the next question · L approve the first open change live · ↑↓ follow one service · ? this list
+  </div>
+</main>
+{% if inline %}<script>window.__DEMO = {{ inline | safe }};{% if snap %} window.__SNAP = true;{% endif %}</script>{% endif %}
+<script src="/static/vendor/d3.v7.min.js"></script>
+<script src="/static/demo.js?v={{ v }}"></script>
+{% if wait %}<img src="/api/demo/slow?s={{ wait }}" alt="" width="1" height="1" style="position:fixed;left:-9px;top:-9px">{% endif %}
+</body>
+</html>

@@ -183,6 +183,11 @@ plan's next step for the service. At each step the page says what the CBOM
 contributes. The models act in two steps of thirteen and never decide whether
 the change worked.
 
+<figure class="sketch" markdown>
+![Thirteen steps in a loop around the CBOM, from a scan finding X25519, DH-2048 and RSA key transport on the records database, through the rules' links, the owner's facts, the 2030 queue, the policy set to require, a model's trace, a second model's draft, the rehearsal on a copy, the client matrix, a person's approval, the runner's apply and the probes proving it twice, to the next scan showing the classical groups gone; two steps are a model's, three record a person's decision, and every step reads from or writes to the CBOM.](../img/sketches/16-thirteen-steps.svg)
+<figcaption>One weakness from finding to fixed: thirteen steps round one record, two of them a model's.</figcaption>
+</figure>
+
 ## What follows
 
 - **Build the record before the model.** The model's work here is a few

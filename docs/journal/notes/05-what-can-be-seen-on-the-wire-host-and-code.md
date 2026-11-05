@@ -46,6 +46,11 @@ decided twice: the client has to offer a hybrid group, and the server has to
 choose it. An inventory that sees only one side cannot say which side is the
 obstacle.
 
+<figure class="sketch" markdown>
+![A client offers its groups in order of preference and a server chooses one of them, so a post-quantum session is decided twice; the certificate is encrypted in TLS 1.3 (RFC 8446 §4.4.2) and never shows on the wire. Passive capture at a mirror sees both sides of every real handshake across the estate, including clients and servers nobody listed, but not what a server would accept unoffered, any TLS 1.3 certificate or dropped frames; a targeted scan of one listener sees every group, suite and version it accepts and its certificate, but no client and not which options are used.](../img/sketches/05-two-sides.svg)
+<figcaption>The two sides of a handshake, and which side each way of looking can see.</figcaption>
+</figure>
+
 Passive capture is the only way to see the client side without touching the
 client: a switch mirror copies every frame crossing a trunk to a port where a
 sensor (Zeek here) parses the handshakes and records what each side said.
@@ -72,6 +77,11 @@ a library class and call nothing. Its three calls agreed on 75 of the 85 and
 split two to one on the other 10. On the two candidates that are among spike
 S3's labelled call sites, its judgement matched the label. The judgement is
 the CBOM's `pqch:in-use` for each code entry, labelled as the model's.
+
+<figure class="sketch" markdown>
+![85 lines a twelve-pattern Ruby rule pack matched in 18F/identity-idp, drawn as 85 squares: 79 judged live cryptographic uses by the call-site-read role, reasoning on, three calls each with the majority taken, and 6 not, a documentation comment and five exception handlers that name a class and call nothing; the three calls agreed on 75 of the 85.](../img/sketches/05-code-candidates.svg)
+<figcaption>What a rule pack matched and what a reading made of it: 79 uses, 6 candidates that were not.</figcaption>
+</figure>
 
 Two details of the capture layer matter in practice:
 

@@ -1,0 +1,22 @@
+{
+  "schema": "pqch.scope/1",
+  "id": "<ULID: python -c \"from pqch.common import ulid; print(ulid())\">",
+  "estate": "external",
+  "owned": false,
+  "authorized_by": "<the owner, in words: who, the date, what is authorised>",
+  "endpoints": [
+    {"host": "172.17.0.1", "port": 22, "transport": "tcp", "protocol": "ssh", "service": "sshd"}
+  ],
+  "images": [],
+  "sources": [{"repo": "kenrollins/cbom-workbench-lab", "commit": "a4f4a8e"}],
+  "reach": {"kind": "local"},
+  "systems": [
+    {
+      "name": "<hostname>",
+      "addresses": ["172.17.0.1", "<the box's address>"],
+      "paths": ["/etc/ssh", "/etc/ssl/private", "/etc/docker", "/usr/local/share/ca-certificates"],
+      "trust_store": "/etc/ssl/certs",
+      "firmware": true
+    }
+  ]
+}

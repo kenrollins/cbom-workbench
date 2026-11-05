@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
 </head>
 <body>
-{% set active = "plan" %}{% set lede = "<strong>The plan.</strong> What the CBOM says depends on what, what comes first, and in what order — the migration plan an inventory of systems cannot give, computed from the mini-agency's CBOM." %}{% include "_header.html" %}
+{% set active = "plan" %}{% set lede = "<strong>The plan.</strong> What the CBOM says depends on what, what comes first, and in what order — the migration plan an inventory of systems cannot give, computed from the mini-agency's CBOM." %}{% include "_header.html" %}{% set sub = "plan" %}{% include "_subnav.html" %}
 <main>
 {% if not public %}<nav class="estates" aria-label="estate">
   <a href="/plan" class="{{ 'on' if estate == 'mini-agency' }}"><strong>The mini-agency's plan</strong><span>ranked by the memo, from the owner's facts</span></a>
@@ -170,18 +170,26 @@
 <section id="first">
   <h2><span class="step">3</span> What comes first, and why</h2>
   <p class="lede">The order of the lanes above. OMB M-26-15 prioritizes a high-impact system, a High Value Asset, or data still sensitive in 2030; among those, the longer the data must stay secret, the sooner its key exchange matters — traffic recorded today is decrypted when the key exchange falls. The owner's facts are supplied; the rest is the CBOM's.</p>
-  <table class="files"><thead><tr><th>#</th><th>Service</th><th>Why</th><th>Data secret until</th><th>Key exchange today</th><th>Blocked on its supplier</th></tr></thead><tbody>
+  <table class="files"><thead><tr><th>#</th><th>Service</th><th>Why</th><th>Data secret until</th><th>Key exchange today</th><th>Blocked on its supplier</th><th>Step</th></tr></thead><tbody>
   {% for r in plan.ranking %}<tr><td class="num">{{ loop.index }}</td><td><strong>{{ r.service }}</strong> <span class="dim small">{{ r.mission }}</span></td>
     <td class="small">{% if r.prioritized %}{{ r.criteria|join(', ') }}{% else %}<span class="dim">not prioritized</span>{% endif %}</td>
     <td class="num">{{ r.sensitive_through or '—' }}</td>
     <td class="small">{% for k in r.kex_now %}<span class="posture {{ k }}">{{ k }}</span> {% endfor %}</td>
-    <td class="small">{{ r.blocked|join(', ') or '—' }}</td></tr>{% endfor %}
+    <td class="small">{{ r.blocked|join(', ') or '—' }}</td>
+    <td class="small">{% set s = r.step %}{% if s %}<span class="pill {{ s.status }}">{{ s.status }}</span>{% if s.kind == 'replace' %} <a href="{{ s.resolve }}">change package →</a>{% elif s.state != 'done' and s.resolve %} <a href="{{ s.resolve }}">carry out →</a>{% elif s.resolve %} <a href="{{ s.resolve }}">proof →</a>{% endif %}{% elif 'pq' in r.kex_now %}<span class="pill landed">already hybrid</span>{% else %}—{% endif %}</td></tr>{% endfor %}
   </tbody></table>
 </section>
 
 <section id="resolve">
   <h2><span class="step">4</span> Carrying out a step</h2>
-  <p class="note">Each step links to where it is resolved: a change proposed, rehearsed on a copy, checked against every kind of client, approved by a person and proved on the wire — <a href="/resolve">the resolution stage</a> — or, where no setting can move it, <a href="/packages">a change package</a> for the replacement. When a change lands, its step turns done here.</p>
+  <p class="note">A step a setting can move is carried out on the resolution page: the change proposed from the policy, rehearsed on a copy, approved by a person, applied by the runner and proved on the wire, twice; its status here is read from the ledger. A step no setting can move goes to <a href="/packages">a change package</a> for the replacement.</p>
+  <table class="files actions"><tbody>
+  {% for s in plan.actions %}<tr class="{{ 'first-open' if s.id == plan.first_open }}">
+    <td><strong>{{ s.service }}</strong></td>
+    <td class="small">{% if s.kind == 'enable' %}add X25519MLKEM768 to the key exchange, alongside the classical groups{% elif s.kind == 'require' %}require X25519MLKEM768 and refuse every classical key exchange{% else %}replace software that lists no post-quantum algorithm{% endif %}</td>
+    <td class="small"><span class="pill {{ s.status }}">{{ s.status }}</span></td>
+    <td class="small">{% if s.kind == 'replace' %}<a href="{{ s.resolve }}">change package →</a>{% elif s.state == 'done' %}done{% if s.resolve %} · <a href="{{ s.resolve }}">the proof →</a>{% endif %}{% elif s.status == 'blocked' %}<span class="dim">after the replacement</span>{% elif s.resolve %}<a class="cta {{ 'primary' if s.id == plan.first_open }}" href="{{ s.resolve }}">Carry out this step →</a>{% endif %}</td></tr>{% endfor %}
+  </tbody></table>
 </section>
 {% endif %}
 </main>

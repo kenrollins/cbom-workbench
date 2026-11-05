@@ -1,0 +1,39 @@
+<html><body>
+<h1>cbom-workbench</h1>
+<p class="sub">Crypto agility starts with an inventory you can act on: a cryptography bill of materials, a plan, and changes with proof, on one Dell Pro Max GB10.</p>
+<p class="by">Dell Federal × NVIDIA hackathon · November 5, 2026 · build {ver}</p>
+<p class="outcome"><b>Mission outcome.</b> We must know the cryptography that each system uses and which change to make first. Then the agency can meet the post-quantum deadlines. We measure this by the planted weaknesses found and the changes proved on the network.</p>
+<h2>Summary</h2>
+<p><b>The problem.</b> A quantum computer can break the public-key cryptography that agencies use today. Federal direction tells each agency to make a cryptography bill of materials (CBOM). A list of systems does not show the cryptography inside them. A spreadsheet has one row for each system, with no links and no dates. The network and the files contain hundreds of components. The correct order of work depends on the data that each service protects, and for how long.</p>
+<p><b>The solution.</b> The workbench runs on one Dell Pro Max GB10, with no connection to an outside network. Open-source scanners examine a test agency of eight services. Each scanner runs in its own container. The workbench also reads one host fully: its files, its firmware and its management controller. Each finding goes into a signed ledger. The workbench builds the CBOM and the migration plan from this ledger. Rules assess each component and set the order of the steps.</p>
+<p><b>The change.</b> A local NVIDIA Nemotron model writes each configuration edit. The workbench tests the edit on a copy of the service. Then a person approves it, and the runner applies it. Two probes test the live service. A client that offers only the hybrid post-quantum key exchange must connect. A client that offers only classical key exchange must fail. The probes run again after the service restarts.</p>
+<p><b>The trust.</b> A model does not decide a finding or a result. Scanners find, rules assess, probes decide and people approve. A model gets a task only after it passes a written test. The ledger is an append-only file. Each event holds the hash of the previous event, and ML-DSA-65 signatures protect it. No data leaves the box.</p>
+<img src="overview.jpg" width="400">
+<p class="cap"><b>The workbench front page.</b> It shows the NIST crypto-agility model, with the live result of each part.</p>
+<h2>Results, measured on this GB10</h2>
+<table class="tiles"><tr>
+<td width="25%"><div class="big">259</div><div class="lab">CBOM components</div><div class="sm">61 quantum-vulnerable · 270 dependencies</div></td>
+<td width="25%"><div class="big">58 of 60</div><div class="lab">planted weaknesses found</div><div class="sm">0 false positives · 9 of 9 posture results correct</div></td>
+<td width="25%"><div class="big">4 of 4</div><div class="lab">changes proved</div><div class="sm">tested on a copy, approved, probed after restart</div></td>
+<td width="25%"><div class="big">2.8 s</div><div class="lab">median answer</div><div class="sm">12 of 12 answers with correct citations</div></td>
+</tr></table>
+<h2>How it works</h2>
+<img src="workflow3-q.png" width="536">
+<p class="cap">Each step writes to one signed ledger. Rules, scanners and probes decide. A local model only writes and explains. A person approves each change.</p>
+<h2>Compared with the scanners alone</h2>
+<img src="score-q.png" width="440">
+<p class="cap">The test agency has 60 planted weaknesses and an answer key. The workbench uses the same scanners and adds its own file reader and rules. These find the 6 weaknesses that the scanners miss in the image files, without false positives. The 2 network misses are not visible from outside the service.</p>
+<h2>Software bill of materials</h2>
+<table><tr><th width="13%">Layer</th><th width="60%">Components</th><th width="27%">Versions</th></tr>
+<tr><td class="k">Hardware</td><td>Dell Pro Max GB10: NVIDIA Grace CPU (20 Arm cores), Blackwell GPU, 128 GB unified memory</td><td class="n">—</td></tr>
+<tr><td class="k">Platform</td><td>Ubuntu 24.04 (Arm) · CUDA · Docker Engine · NVIDIA Container Toolkit · local image registry</td><td class="n">CUDA 13 · Docker 29.6.2 · Toolkit 1.20.1</td></tr>
+<tr><td class="k">AI models</td><td>NVIDIA Nemotron 3.5 Lightning 30B-A3B (NVFP4) on vLLM · NVIDIA NeMo Retriever embedding NIM (llama-nemotron-embed-1b-v2)</td><td class="n">vLLM 0.27.1 · NIM 1.13.0</td></tr>
+<tr><td class="k">Workbench</td><td>Web app (FastAPI), runner, signer (ML-DSA-65), host reader · Python libraries: httpx, jsonschema, PyYAML, Jinja2, cryptography · d3 charts</td><td class="n">Python 3.12.15 · FastAPI 0.142.2 · d3 7.9.0</td></tr>
+<tr><td class="k">Scanners</td><td>testssl.sh · ssh-audit · IBM cbomkit-theia · OpenSSL client · OpenSSH client · five workbench readers for files, firmware and controllers</td><td class="n">3.2.4 · 3.9.0 · 1.1.2 · 3.5 · 10</td></tr>
+<tr><td class="k">Formats</td><td>CycloneDX CBOM · JSONL ledger with a SHA-256 hash chain · ML-DSA-65 signatures (FIPS 204)</td><td class="n">CycloneDX 1.6</td></tr>
+<tr><td class="k">Test data</td><td>A synthetic agency of eight services with a copy for tests · this GB10 · a recorded PowerEdge XR7620. No real agency data.</td><td class="n">images by digest</td></tr>
+</table>
+<h2>Scale</h2>
+<p>The same containers run on two linked GB10s, a Pro Max GB300, a PowerEdge XE server or an AI factory. A larger system serves a larger model and examines more networks at the same time. The ledger and the method do not change. We measured only the single GB10.</p>
+<p class="foot">cbom-workbench is a personal research project and is open source (kenrollins.github.io/cbom-workbench). It is not a Dell product, reference architecture or supported offering. All numbers come from this GB10 on November 5, 2026, and are in its ledger. <b>Ken Rollins</b> · ken.rollins@federal.dell.com</p>
+</body></html>

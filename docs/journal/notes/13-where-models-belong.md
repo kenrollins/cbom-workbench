@@ -95,6 +95,11 @@ layer named where the evidence cannot tell. Round 1's stricter test for
 above it, and at least five discordant pairs at p ≤ 0.05 on an exact sign
 test — is what first separated the trace role from the rest.
 
+<figure class="sketch" markdown>
+![Six roles, each with a floor written before the run, placed where the measurement put them: call-site read (floor 27, 1 harmful) 29 of 30 at 13.6 s, classification (28, 0) 30 of 30 at 1.1 s and change plan (24, 2) 27 of 30 at 3.5 s on a 31B model on four L4s; trace to cause (24, 3) 28 of 30 at 36 to 44 s on the 120B; normalization (28, 0) and conflict resolution (24 of 29, 2) back to rules; and whether a change worked is the verifier's pair of probes, never a model's. 216 labeled items, 15 arms, three calls per item.](../img/sketches/13-six-roles.svg)
+<figcaption>Where each role landed, by the floor it had to clear; the seventh question belongs to no model.</figcaption>
+</figure>
+
 Three measurements the rule does not score and a design must:
 
 - **Temperature 0 is not determinism.** The 120B gave different replies to
@@ -113,6 +118,11 @@ Three measurements the rule does not score and a design must:
   ([lesson 26](../lessons/26-name-the-reasoning-setting-beside-the-model.md)).
   The incumbent's two runs nine days apart differed by about two items per
   role, which is the spike's noise.
+
+<figure class="sketch" markdown>
+![The same Nemotron 3.5 Super VL 120B-A12B weights tracing a wire finding to its configuration line on 30 items: 9 with thinking off, 26 at medium effort, 21 with full thinking where 8 of 90 calls hit the 900 s timeout, against a floor of 24 with 3 harmful allowed; the 120B it replaced scored 28 on each of two runs, so the reasoning switch moved the result from 9 to 26 and the change of model from 28 to 26.](../img/sketches/13-reasoning-setting.svg)
+<figcaption>One model, three reasoning settings, one floor: the switch moved the result more than the change of model.</figcaption>
+</figure>
 
 ## Worked example
 

@@ -167,6 +167,11 @@ Read it field by field, as the workbench's CBOM page does:
 | `pqch:role`, `pqch:family`, `pqch:quantum-vulnerable` | project | a signature, RSA, quantum-vulnerable | the rule `quantum/vulnerable/1` reading OMB M-26-15's table |
 | `pqch:verifiable-by` | project | a change to it is confirmed by parsing the served certificate | the rule `verifier/class/1` |
 
+<figure class="sketch" markdown>
+![The records database's served certificate as one CBOM entry: 10 fields CycloneDX 1.6 defines (type, bom-ref, name, assetType, certificateFormat, subjectName, issuerName, notValidBefore, notValidAfter, evidence.occurrences) beside 13 the project adds under pqch: (layer, subject, asset-type, role, name, parameters, fingerprint, evidence, tools, in-use, verifiable-by, family, quantum-vulnerable), with pqch:evidence naming the ledger event 01M5DGB4PY85H2ANQA75X4H3PK that holds the tool's raw output by path and SHA-256; the CBOM holds 254 components, 47 on the wire, 182 in images, 9 listeners, 8 services and 8 images.](../img/sketches/01-one-entry-two-namespaces.svg)
+<figcaption>One entry, field by field: the standard's ten say what and where, the project's thirteen say what it rests on.</figcaption>
+</figure>
+
 The standard says what the asset is and where; the extension says what the
 entry rests on and what follows from it. The chain is in the standard's own
 terms: the listener `listener:172.16.106.30:5432` depends on this certificate,

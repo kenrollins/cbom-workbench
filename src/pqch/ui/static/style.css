@@ -1,3 +1,4 @@
+@import url("header.css");   /* the header: one stylesheet for the demo and the site (site_src/stylesheets/header.css is a copy) */
 /* cbom-workbench — the page. The lab's house style: a near-black page, the header one step up
    under a lattice of points, one cyan accent, square corners, a serif for headings. Every
    asset is vendored; nothing loads from a network. Light scheme on request. */
@@ -7,11 +8,6 @@
              src: url(fonts/jetbrains-mono-latin-wght-normal.woff2) format("woff2"); }
 @font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 800; font-display: swap;
              src: url(fonts/eb-garamond-latin-wght-normal.woff2) format("woff2"); }
-/* The field notes' own faces, for the kraft box in the header (the site's theme, stylesheets/fieldnotes.css). */
-@font-face { font-family: "Jost"; font-style: normal; font-weight: 300 700; font-display: swap;
-             src: url(fonts/jost-latin-wght-normal.woff2) format("woff2"); }
-@font-face { font-family: "Caveat"; font-style: normal; font-weight: 400 700; font-display: swap;
-             src: url(fonts/caveat-latin-wght-normal.woff2) format("woff2"); }
 :root {
   --bg: #0b0f17; --bg2: #141b26; --card: #10161f; --line: #1f2a3a; --line2: #2a3648;
   --fg: #e4e9f0; --fg2: rgba(196,207,221,.82); --dim: rgba(196,207,221,.56); --faint: rgba(196,207,221,.28);
@@ -61,7 +57,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .sheet td { color: var(--dim); }
 .sheet td:nth-child(2) { font-style: italic; }
 
-.tag { font: 500 11px/1 var(--mono); padding: 3px 7px; border: 1px solid var(--line2); color: var(--dim); letter-spacing: .04em; }
+/* One box, never broken across lines: a tag that wraps in a narrow cell would draw a border on each fragment. */
+.tag { display: inline-block; white-space: nowrap; font: 500 11px/1 var(--mono); padding: 3px 7px; border: 1px solid var(--line2); color: var(--dim); letter-spacing: .04em; }
 .tag.static { border-color: var(--warn); color: var(--warn); }
 .tag.replay { border-color: var(--accent); color: var(--accent); }
 .tag.link { border-color: var(--good); color: var(--good); }
@@ -77,6 +74,18 @@ details.listener > summary::before { content: "▸"; color: var(--dim); font-siz
 details[open].listener > summary::before { content: "▾"; }
 .addr { font: 600 14px var(--mono); color: var(--fg); }
 .sni, .count { color: var(--dim); font-size: 13px; }
+/* A step's standing in the open change run, read from the ledger (the plan page). */
+.pill { font: 600 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px 3px; border: 1px solid var(--line2); color: var(--dim); }
+.pill.proposed, .pill.rehearsed { color: var(--warn); border-color: var(--warn); }
+.pill.approved, .pill.applied { color: var(--accent); border-color: var(--accent); }
+.pill.landed { color: var(--good); border-color: var(--good); }
+.pill.package, .pill.blocked { color: var(--classical); border-color: var(--classical); }
+a.cta { display: inline-block; padding: 6px 12px; border: 1px solid var(--accent); color: var(--accent); text-decoration: none; font-weight: 600; font-size: 13.5px; }
+a.cta.primary { background: var(--accent); color: var(--bg, #fff); }
+a.cta:hover { filter: brightness(1.1); }
+table.actions tr.first-open td { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+/* The change a plan row opened: marked when the page is reached at its anchor. */
+details.listener:target { outline: 2px solid var(--accent); outline-offset: 4px; }
 .posture { font: 600 11px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; padding: 5px 9px 4px; border: 1px solid; }
 .posture.classical { color: var(--classical); border-color: var(--classical); }
 .posture.mixed { color: var(--warn); border-color: var(--warn); }
@@ -158,6 +167,7 @@ table.conflicts td { font-size: 13px; }
 /* The CBOM page: the component as the document carries it, beside its fields traced to evidence. */
 .anatomy { display: grid; grid-template-columns: minmax(280px, 38%) minmax(0, 1fr); gap: 14px; align-items: start; }
 .anatomy .fields { min-width: 0; overflow-x: auto; } .anatomy .fields td { overflow-wrap: anywhere; }
+.anatomy .fields td:first-child { min-width: 8.5em; }   /* room for the origin tag under the field's name */
 .anatomy figure.json { margin: 0; background: var(--card); border: 1px solid var(--line); padding: 8px 12px; position: sticky; top: 8px; max-height: 80vh; overflow: auto; }
 .anatomy figure.json figcaption { font: 500 10.5px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 6px; }
 .anatomy pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--fg2); }
@@ -167,27 +177,10 @@ select.picker { font: 13px var(--sans); background: var(--card); color: var(--fg
 .scroll { overflow-x: auto; }
 @media (max-width: 900px) { .anatomy { grid-template-columns: 1fr; } .anatomy figure.json { position: static; } }
 
-/* One header for the demonstration and the site: the brand, then tabs in two groups — the live
-   pages and the reading — styled as the site's are, so moving between them reads as one place. */
-header.site { background: radial-gradient(120% 160% at 50% 120%, rgba(0,153,204,.20) 0%, rgba(0,153,204,.05) 45%, transparent 70%), var(--bg2);
-  border-bottom: 2px solid var(--accent); box-shadow: 0 6px 28px -6px var(--accent-glow); }
-header.site .bar, header.site .tabs, .where .inner { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-/* The header's two rows run wider than the page: the demo's tabs and the field notes box sit on one
-   line down to about 1350px, and wrap below that. */
-header.site .bar, header.site .tabs { max-width: 1560px; }
-header.site .bar { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding-top: 16px; flex-wrap: wrap; }
-header.site .brand { font: 700 26px/1 var(--serif); color: var(--fg); text-decoration: none; letter-spacing: .005em; }
-header.site .disclaimer { color: var(--dim); font-size: 12px; max-width: 520px; text-align: right; }
-header.site .tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 18px; padding-top: 12px; padding-bottom: 10px; }
-header.site .tabs a { color: var(--fg2); text-decoration: none; font-size: 14px; padding: 4px 0; border-bottom: 2px solid transparent; }
-header.site .tabs a:hover { color: var(--accent); }
-header.site .tabs a.on { color: var(--fg); border-bottom-color: var(--accent); font-weight: 600; }
-header.site .tabs .group { font: 500 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin-left: 10px; }
-header.site .tabs .group:first-child { margin-left: 0; }
-header.site .tabs .group { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; }
-header.site .tabs .group small { font: 500 9px/1 var(--mono); letter-spacing: .1em; color: var(--accent); text-transform: lowercase; }
+/* The header itself — brand row, the demo's tabs, the field notes box — is header.css, shared with the site.
+   The orienting line under it is the demo's own. */
 .where { background: var(--card); border-bottom: 1px solid var(--line); }
-.where .inner { padding-top: 12px; padding-bottom: 12px; font-size: 14px; color: var(--fg2); max-width: 1120px; }
+.where .inner { max-width: 1120px; margin: 0 auto; padding: 12px 24px; font-size: 14px; color: var(--fg2); }
 .where strong { color: var(--fg); }
 
 /* The overview: NIST CSWP 39-upd1 Fig. 3 redrawn. Its regions keep the figure's colour families —
@@ -330,26 +323,6 @@ table.steps tr.freed td { background: color-mix(in srgb, var(--accent) 12%, tran
 #loading .msg { margin: 10px auto 0; width: max-content; max-width: 90vw; background: var(--bg2); border: 1px solid var(--accent);
   color: var(--fg); padding: 8px 14px; font-size: 13.5px; box-shadow: 0 6px 24px -6px var(--accent-glow); }
 @media (prefers-reduced-motion: reduce) { #loading .bar-run { animation: none; background: var(--accent); } }
-header.site .bar .repo { color: var(--fg2); margin-left: 4px; align-self: center; } header.site .bar .repo:hover { color: var(--accent); }
-header.site .bar .repo svg { width: 20px; height: 20px; fill: currentColor; display: block; }
-/* The same box as the site's header, row for row, so moving between the demo and the site moves
-   nothing: a 58px brand row and a 44px tab row (site_src/stylesheets/extra.css says the same). */
-header.site .bar { height: 58px; padding-top: 0; align-items: center; flex-wrap: nowrap; }
-header.site .disclaimer { max-width: 460px; line-height: 1.4; margin-left: auto; }
-header.site .tabs { min-height: 44px; padding-top: 0; padding-bottom: 0; flex-wrap: wrap; row-gap: 6px; }
-header.site .tabs .learn-group { margin-left: auto; }
-@media (max-width: 900px) { header.site .disclaimer { display: none; } header.site .tabs { height: auto; flex-wrap: wrap; padding-bottom: 8px; } }
-
-/* Two groups, told apart three ways: the demo on the left in a tinted box, the reading on the right;
-   each with a two-line label. Shared, row for row, by the demo and the site. */
-header.site .tabs { justify-content: space-between; gap: 2px 16px; }
-header.site .tabs .demo-group, header.site .tabs .learn-group { display: flex; align-items: center; gap: 2px 14px; }
-header.site .tabs .demo-group { height: 34px; padding: 0 14px 0 10px; background: rgba(0,153,204,.08); border: 1px solid rgba(0,153,204,.35); border-radius: 3px; }
-header.site .tabs .demo-group a { border-bottom-width: 2px; }
-header.site .tabs .learn-group a { font-size: 13.5px; }
-header.site .tabs .learn-group .group { margin-left: 0; }
-header.site .tabs .demo-group .group { margin-left: 0; color: rgba(196,207,221,.55); }
-@media (max-width: 1100px) { header.site .tabs { height: auto !important; flex-wrap: wrap; padding-bottom: 8px; } header.site .tabs .demo-group { height: auto; flex-wrap: wrap; padding: 4px 10px; } }
 /* The overview's frame, read at a glance: the loop back runs the whole width, centred; the
    connectors between regions are legible; the credit and legend use the full width. */
 .frame { grid-template-columns: minmax(0, 1fr) 76px minmax(0, 1fr) 76px minmax(0, 1.25fr) 64px minmax(0, 1fr); }
@@ -394,15 +367,6 @@ table.agency-table tr:target { background: var(--bg2); box-shadow: inset 3px 0 0
 @media (max-width: 640px) { table.agency-table thead { display: none; } table.agency-table td { display: block; border: 0; padding: 3px 0; }
   table.agency-table tr { display: block; border-bottom: 1px solid var(--line); padding: 8px 0; } table.agency-table td.num { text-align: left; } }
 .estate-map .legend { display: flex; flex-wrap: wrap; gap: 4px 18px; }
-/* Six demo tabs and five Learn tabs share the 1072px row: no label breaks inside itself, the groups keep
-   their width, and the spacing gives way first. Below the breakpoint the row wraps between tabs. */
-header.site .tabs a, header.site .tabs .group { white-space: nowrap; }
-header.site .tabs { gap: 2px 16px; }
-header.site .tabs .demo-group, header.site .tabs .learn-group { flex-shrink: 0; gap: 2px 15px; }
-header.site .tabs .demo-group a { font-size: 14px; }
-header.site .tabs .learn-group { gap: 2px 13px; }
-@media (max-width: 1100px) { header.site .tabs .demo-group, header.site .tabs .learn-group { flex-shrink: 1; flex-wrap: wrap; } }
-@media (prefers-color-scheme: light) { header.site .tabs .demo-group .group { color: var(--dim); } }
 
 /* One weakness, from finding to fixed: a card a step — who acts, what happened, what the CBOM gives it,
    and the record behind it. A model's step is marked; while the replay plays, the current card is lit. */
@@ -440,24 +404,3 @@ figure.agility .caption .cap-keys { font: 11px var(--sans); color: var(--faint);
 
 /* Light scheme: the accent is a deeper blue there, and white text on it reads at 4.8:1 where dark text would not. */
 @media (prefers-color-scheme: light) { button:not(.secondary), #play, .playbar a.cta { color: #fff; } .playbar #play { color: var(--accent); } }
-
-
-/* ---- the field notes box: the cover of the little brown book, set into the demo's header ---------
-   The same materials as the site's theme (fieldnotes.css): kraft with its fibre, one ink, ballpoint
-   for what is written by hand, stamp red for the active tab. Flipping from the demo to the notes
-   lands on the same brown, so the reader knows which side of the desk they are on. */
-header.site .tabs .fn-box {
-  --fn-kraft: #d9c39c; --fn-ink: #211a14; --fn-ink-rgb: 33, 26, 20; --fn-ballpoint: #1f3a8a; --fn-accent: #c8401f; --fn-accent-rgb: 200, 64, 31;
-  height: 34px; padding: 0 12px 0 11px; margin: 5px 0 5px auto; border-radius: 2px; gap: 2px 13px;
-  color: var(--fn-ink); border: 1.5px solid var(--fn-ink);
-  background:
-    linear-gradient(90deg, rgba(0,0,0,.10) 0, rgba(0,0,0,.03) 10px, transparent 20px),
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.30  0 0 0 0 0.22  0 0 0 0 0.12  0.55 0 0 0 -0.08'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>"),
-    var(--fn-kraft);
-  box-shadow: 0 3px 10px -4px rgba(0,0,0,.6);
-}
-header.site .tabs .fn-box .group { font: 500 9.5px/1 "Jost", "Futura", sans-serif; letter-spacing: .16em; text-transform: uppercase; color: rgba(var(--fn-ink-rgb), .6); gap: 0; margin-top: -1px; }
-header.site .tabs .fn-box .group .hand { font: 600 13.5px/1 "Caveat", "Segoe Script", cursive; letter-spacing: 0; text-transform: none; color: var(--fn-ballpoint); margin-top: 2px; white-space: nowrap; }
-header.site .tabs .fn-box a { font: 500 13px/1 "Jost", "Futura", sans-serif; letter-spacing: .04em; color: rgba(var(--fn-ink-rgb), .88); padding: 6px 0; border-bottom: 2px solid transparent; }
-header.site .tabs .fn-box a:hover { color: var(--fn-accent); border-bottom-color: rgba(var(--fn-accent-rgb), .5); }
-header.site .tabs .fn-box a.on { color: var(--fn-ink); border-bottom-color: var(--fn-accent); font-weight: 700; }

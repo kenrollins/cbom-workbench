@@ -74,14 +74,44 @@ def load_config(path: str | Path) -> dict:
             if k not in t:
                 raise ValueError(f"{path}: tier {tier} lacks {k}")
         r = t.get("reasoning")
-        if r is not None and (not isinstance(r, dict) or set(r) - {"model", "timeout_s", "request"}):
-            raise ValueError(f"{path}: tier {tier}: reasoning takes only model, timeout_s and request")
+        if r is not None and (not isinstance(r, dict) or set(r) - {"model", "timeout_s", "request", "structured"}):
+            raise ValueError(f"{path}: tier {tier}: reasoning takes only model, timeout_s, request and structured")
     for role, b in (cfg.get("roles") or {}).items():
         if not isinstance(b, dict) or b.get("tier") not in cfg.get("tiers", {}):
             raise ValueError(f"{path}: role {role!r} is bound to no configured tier")
         if b["tier"] == "embed" or not isinstance(b.get("reasoning", False), bool):
             raise ValueError(f"{path}: role {role!r}: a role binds a completion tier and a boolean reasoning flag")
     return cfg
+
+
+def _skeleton(schema: dict):
+    """A filled-in instance of a JSON Schema's shape, for a prompt: objects with every property, one example
+    element per array, placeholder scalars."""
+    ty = schema.get("type")
+    if ty == "object":
+        return {k: _skeleton(v) for k, v in (schema.get("properties") or {}).items()}
+    if ty == "array":
+        return [_skeleton(schema.get("items") or {"type": "string"})]
+    if ty == "boolean":
+        return False
+    if ty in ("integer", "number"):
+        return 0
+    if "enum" in schema:
+        return schema["enum"][0]
+    return "text"
+
+
+def _schema_notes(schema: dict) -> str:
+    notes = []
+    for k, v in (schema.get("properties") or {}).items():
+        it = v.get("items") or {}
+        if v.get("enum"):
+            notes.append(f"{k}: one of {', '.join(map(str, v['enum']))}")
+        if it.get("pattern"):
+            notes.append(f"{k}: each element a string matching {it['pattern']}; an empty list when there are none")
+        if it.get("enum"):
+            notes.append(f"{k}: elements from {', '.join(map(str, it['enum']))}")
+    return (" Notes: " + "; ".join(notes) + ".") if notes else ""
 
 
 class Seam:
@@ -137,38 +167,62 @@ class Seam:
             # The same engine with reasoning on: another model id or lane, a longer timeout, extra
             # request fields — whatever the endpoint needs, from the config, never from here.
             r = t.get("reasoning") or {}
-            t = {**t, "model": r.get("model", t["model"]), "timeout_s": r.get("timeout_s", t.get("timeout_s", 60))}
+            t = {**t, "model": r.get("model", t["model"]), "timeout_s": r.get("timeout_s", t.get("timeout_s", 60)),
+                 "structured": r.get("structured", t.get("structured", True))}
             extra = r.get("request") or {}
         else:
-            extra = {}
+            # Reasoning off: the tier's own `request` block, for what the endpoint needs to answer plainly
+            # (a Nemotron chat template thinks unless told not to: chat_template_kwargs.enable_thinking).
+            extra = t.get("request") or {}
         self._require_loaded(t)
         body: dict = {**extra, "model": t["model"], "messages": messages, "temperature": 0}
         if max_tokens:
             body["max_tokens"] = max_tokens
-        if schema is not None:
+        if schema is not None and t.get("structured", True) is not False:
             body["response_format"] = {"type": "json_schema",
                                        "json_schema": {"name": purpose.replace("-", "_"), "schema": schema}}
+        elif schema is not None:
+            # `structured: false` on the tier: the engine's grammar is not used (on vLLM 0.27 with Lightning and
+            # thinking off, xgrammar fails to advance and the call runs to its cap, 2026-11-05); the reply's shape
+            # goes in the prompt as a filled-in skeleton (a schema pasted raw came back as the schema itself, 6 of
+            # 36 calls, 2026-11-05) and the reply is validated below exactly as before.
+            body["messages"] = messages + [{"role": "system", "content": "Reply with one JSON object only, no prose "
+                                            "and no code fence, with exactly these keys and value types, every key present: "
+                                            + json.dumps(_skeleton(schema)) + _schema_notes(schema)}]
         started = time.monotonic()
-        with self._client(t, t.get("timeout_s", 60)) as c:
-            r = c.post("/chat/completions", json=body)
-        latency_ms = round((time.monotonic() - started) * 1000)
-        r.raise_for_status()
-        raw = r.json()
-        # A gateway can move a lane between machines without the config knowing; when it names
-        # the upstream in a response header, that is recorded beside the config's hardware label.
-        served_by = r.headers.get(self.config.get("served_by_header", "x-litellm-model-api-base"))
-        text = raw["choices"][0]["message"].get("content") or ""
-        parsed = None
-        if schema is not None:
+        # A reply that fails its schema is asked for once more, with the complaint, when the engine's grammar is
+        # not holding the shape (structured: false); the total time of both calls is the call's latency.
+        tries = 2 if (schema is not None and t.get("structured", True) is False) else 1
+        for attempt in range(tries):
+            with self._client(t, t.get("timeout_s", 60)) as c:
+                r = c.post("/chat/completions", json=body)
+            r.raise_for_status()
+            raw = r.json()
+            served_by = r.headers.get(self.config.get("served_by_header", "x-litellm-model-api-base"))
+            text = raw["choices"][0]["message"].get("content") or ""
+            parsed = None
+            if schema is None:
+                break
             try:
-                parsed = json.loads(_strip_fences(text))
-            except json.JSONDecodeError as e:
-                err = SchemaViolation(f"reply is not JSON: {text[:200]!r}")
-                err.raw = raw      # so a caller can see why: a cap reached, a refusal
-                raise err from e
-            errors = list(Draft202012Validator(schema).iter_errors(parsed))
-            if errors:
-                raise SchemaViolation("; ".join(e.message for e in errors[:3]))
+                try:
+                    parsed = json.loads(_strip_fences(text))
+                except json.JSONDecodeError as e:
+                    # Why, on the record: a reply cut at the cap says so, with the tokens it used (lesson 55).
+                    fin = raw["choices"][0].get("finish_reason"); used = (raw.get("usage") or {}).get("completion_tokens")
+                    why = f" (finish_reason {fin}, {used} completion tokens)" if fin or used else ""
+                    err = SchemaViolation(f"reply is not JSON{why}: {text[:200]!r}")
+                    err.raw = raw      # so a caller can see why: a cap reached, a refusal
+                    raise err from e
+                errors = list(Draft202012Validator(schema).iter_errors(parsed))
+                if errors:
+                    raise SchemaViolation("; ".join(e.message for e in errors[:3]))
+                break
+            except SchemaViolation as sv:
+                if attempt + 1 >= tries:
+                    raise
+                body = {**body, "messages": body["messages"] + [{"role": "assistant", "content": text[:4000]},
+                                                               {"role": "user", "content": f"That reply did not fit: {sv}. Reply again with the JSON object only."}]}
+        latency_ms = round((time.monotonic() - started) * 1000)
         return Completion(text=text, parsed=parsed, usage=raw.get("usage", {}),
                           model=raw.get("model", t["model"]), tier=tier, hardware=t["hardware"],
                           latency_ms=latency_ms, purpose=purpose, reasoning=reasoning,

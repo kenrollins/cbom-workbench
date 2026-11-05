@@ -60,13 +60,26 @@ app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 # The built journal site (mkdocs build), when a deployment mounts it: served behind the same door
 # as the page, at /site/. Nothing in the application depends on it being there.
 SITE = Path(os.environ.get("PQCH_SITE_DIR", "/app/site"))
+
+
+class _Revalidated(StaticFiles):
+    """Static files the browser must check again on every visit (the ETag makes that cheap). Without
+    a Cache-Control, Firefox keeps a page a tenth of its age, so a site rebuilt under a page days old
+    is not seen for hours: the header changed on the demo and stayed old in the notes (2026-11-05)."""
+
+    def file_response(self, *args, **kwargs):
+        response = super().file_response(*args, **kwargs)
+        response.headers["Cache-Control"] = "no-cache"
+        return response
+
+
 if SITE.is_dir():
-    app.mount("/site", StaticFiles(directory=SITE, html=True), name="site")
+    app.mount("/site", _Revalidated(directory=SITE, html=True), name="site")
 # A preview of the public, static demo (tools/build_public.py --base /preview/), when a deployment
 # mounts one: reviewed behind the same door before anything is published.
 PREVIEW = Path(os.environ.get("PQCH_PREVIEW_DIR", "/app/preview"))
 if PREVIEW.is_dir():
-    app.mount("/preview", StaticFiles(directory=PREVIEW, html=True), name="preview")
+    app.mount("/preview", _Revalidated(directory=PREVIEW, html=True), name="preview")
 templates = Jinja2Templates(directory=HERE / "templates")
 # Under "Demo" in the header: "live" when this app serves the pages; a static copy sets another word.
 templates.env.filters["first_up"] = lambda s: s[:1].upper() + s[1:] if s else s
@@ -107,6 +120,9 @@ templates.env.globals["journal_span"] = _journal_span()
 # Set for the static build published on GitHub Pages (tools/build_public.py).
 PUBLIC = os.environ.get("PQCH_PUBLIC") == "1"
 templates.env.globals["public"] = PUBLIC
+# "A real network" is a tab only where there is one: a capture or an external scan in the run store.
+# On a box with neither (the demo box, 2026-11-04) the header shows Hosts alone.
+templates.env.globals["lab_shown"] = lambda: bool(Run.latest(VAR, "capture") or Run.latest(VAR, "scan-external"))
 # The lab portal's address(es), allowed to read the VLAN-level summary (/lab/estate.json) and
 # nothing else of the lab. Empty means only a signed-on viewer through the front door may.
 ESTATE_READERS = {a.strip() for a in os.environ.get("PQCH_ESTATE_READERS", "").split(",") if a.strip()}
@@ -225,6 +241,12 @@ def overview(request: Request, estate: str = "mini-agency"):
     return templates.TemplateResponse(request, "overview.html", {"a": a, "hardware": HARDWARE})
 
 
+@app.get("/about")
+def about(request: Request):
+    """What the project is and is not, and the disclaimer: the field notes' About in the demo's theme."""
+    return templates.TemplateResponse(request, "about.html", {})
+
+
 @app.get("/agency")
 def agency(request: Request):
     """The test agency at a glance: what the mini-agency is, its services and what was planted in each."""
@@ -299,7 +321,7 @@ def packages(request: Request, run: str | None = None):
 
 
 @app.get("/resolve")
-def resolve(request: Request, change: str | None = None):
+def resolve(request: Request, change: str | None = None, busy: str | None = None):
     """Resolution: carrying out a step of the plan — propose, rehearse, matrix, approve, apply, verify."""
     if change is not None and not change.isalnum():
         raise HTTPException(404)
@@ -309,7 +331,8 @@ def resolve(request: Request, change: str | None = None):
     cr = Run(VAR, change) if change else Run.latest(VAR, "change")
     cview = change_view(cr, signer_from_env(), _runner_log(), _runner_jobs) if cr and cr.ledger.exists() else {}
     return templates.TemplateResponse(request, "resolve.html", {"c": cview, "change": change_state.snapshot(),
-                                                                "who": identity(request), "hardware": HARDWARE})
+                                                                "who": identity(request), "hardware": HARDWARE,
+                                                                "busy": bool(busy)})
 
 
 @app.get("/walkthrough")
@@ -632,10 +655,20 @@ def _change_thread(fn) -> None:
             change_state.running = False
 
 
+class _ChangeInProgress(Exception):
+    """A second click while a proposal or an approval is being carried out: refused, and the person is
+    sent back to the page that shows the work in progress, not to a JSON 409 (demo GB10, 2026-11-04)."""
+
+
+@app.exception_handler(_ChangeInProgress)
+def _change_in_progress(request: Request, exc: _ChangeInProgress):
+    return RedirectResponse("/resolve?busy=1", status_code=303)
+
+
 def _start_change(fn) -> None:
     with change_state.lock:
         if change_state.running:
-            raise HTTPException(409, "a change is in progress")
+            raise _ChangeInProgress()
         change_state.running, change_state.error = True, None
     threading.Thread(target=_change_thread, args=(fn,), daemon=True).start()
 
@@ -748,3 +781,124 @@ def healthz():
     if missing:
         return JSONResponse({"ok": False, "missing": missing}, status_code=503)
     return {"ok": True}
+
+
+# ───────────── The demo stage: one page, the story in beats, every number live ─────────────
+# kit/README.md, "Demo day": eight minutes is one page, not eight. The data is the same run store,
+# CBOM projection, plan and ledgers the other pages show, served as one document the page animates.
+from pqch.ui import demo as _demo  # noqa: E402
+
+
+@app.get("/api/demo/slow")
+def demo_slow(s: float = 5):
+    """A pixel that arrives late: the stage's wait hook, so a headless browser's screenshot lands after the live animations."""
+    import time as _time
+    from fastapi.responses import Response as _Response
+    _time.sleep(max(0.0, min(20.0, s)))
+    return _Response(content=b"GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00\x00\x00\x00!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;", media_type="image/gif")
+
+
+@app.get("/demo")
+def demo_page(request: Request, snap: str | None = None, inline_data: str | None = None, wait: float | None = None):
+    if PUBLIC:
+        raise HTTPException(404)
+    inline = None
+    if snap or inline_data:  # a still of one beat (snap: the document inlined, animations skipped) or the live stage with the document inlined
+        import json as _json
+        inline = _json.dumps(_demo.payload(VAR, SHEET, snapshots_dir=Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots")),
+                                           hardware=os.environ.get("PQCH_HARDWARE", "unlabelled"), inference_config=os.environ.get("PQCH_INFERENCE_CONFIG"),
+                                           this_host=os.environ.get("PQCH_THIS_HOST") or None))
+    r = Run.latest(VAR, "scan")
+    try:
+        from pqch import planning
+        plan = planning.build(VAR, r, snapshots_dir=Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots"))) if r and r.ledger.exists() else None
+    except Exception:
+        plan = None
+    # the stage's own files, versioned by content so a browser never keeps a rebuilt script under the same name
+    import hashlib as _h
+    v = _h.md5(b"".join((HERE / "static" / n).read_bytes() for n in ("demo.js", "demo.css", "plan.js"))).hexdigest()[:10]
+    return templates.TemplateResponse(request, "demo.html", {
+        "inline": inline, "snap": bool(snap), "wait": wait, "plan": plan, "v": v,
+        "outcome": os.environ.get("PQCH_MISSION_OUTCOME",
+                                  "We need to know what cryptography every system depends on, and what to change first, "
+                                  "so that the agency meets the post-quantum deadlines — measured by every planted weakness found, "
+                                  "and every change proved on the wire."),
+        "hardware": os.environ.get("PQCH_HARDWARE", "unlabelled"), "operator": os.environ.get("PQCH_OPERATOR", "the operator")})
+
+
+@app.get("/api/demo")
+def demo_api(request: Request):
+    if PUBLIC:
+        raise HTTPException(404)
+    return JSONResponse(_demo.payload(VAR, SHEET, snapshots_dir=Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots")),
+                                      hardware=os.environ.get("PQCH_HARDWARE", "unlabelled"),
+                                      inference_config=os.environ.get("PQCH_INFERENCE_CONFIG"),
+                                      this_host=os.environ.get("PQCH_THIS_HOST") or None))
+
+
+@app.get("/api/demo/entry")
+def demo_entry(ref: str = ""):
+    """One component of the latest scan's CBOM, as the file holds it, with its dependency row: the stage shows the
+    entry beside the figure for whatever is under the pointer."""
+    if PUBLIC:
+        raise HTTPException(404)
+    import json as _json
+    scan = Run.latest(VAR, "scan")
+    path = scan.dir / "workbench.cdx.json" if scan else None
+    if not path or not path.is_file():
+        raise HTTPException(404, "no CBOM yet")
+    doc = _json.loads(path.read_text())
+    comp = next((c for c in doc.get("components", []) if c.get("bom-ref") == ref), None)
+    if comp is None:
+        raise HTTPException(404, "no such entry")
+    deps = next((d.get("dependsOn", []) for d in doc.get("dependencies", []) if d.get("ref") == ref), [])
+    return JSONResponse({"component": comp, "depends_on": deps, "run": scan.id,
+                         "bom": {"format": doc.get("bomFormat"), "spec": doc.get("specVersion"), "serial": doc.get("serialNumber"),
+                                 "components": len(doc.get("components", []))}})
+
+
+@app.post("/api/demo/narrate")
+async def demo_narrate(request: Request):
+    if PUBLIC:
+        raise HTTPException(404)
+    same_origin(request)
+    body = await request.json()
+    return JSONResponse(_demo.narrate(str(body.get("kind") or "plan"), body.get("row") or {}))
+
+
+# ───────────── Ask the field notes: the journal answered by the box's model, citations checked ─────────────
+_NOTES_INDEX: dict = {}
+
+
+@app.get("/notes/ask")
+def notes_ask(request: Request, q: str = ""):
+    if PUBLIC:
+        raise HTTPException(404)
+    from pqch import notes_ask as nmod
+    from pqch.inference import Seam, TierUnavailable, load_config
+    tries = ["How does the runner read a server's files, and as which user?", "What does the verifier check before a change counts as enforced?",
+             "Why is a role moved to a model only by measurement?", "What is the event substrate, and what is projected from it?",
+             "How is a recording replayed on another box?", "What did spike S3 measure on the GB10?"]
+    ctx = {"q": q.strip()[:400], "result": None, "unavailable": None, "tries": tries, "corpus": "—", "embed_model": "the embed tier", "model": "the deliberate tier"}
+    try:
+        seam = Seam(load_config(os.environ["PQCH_INFERENCE_CONFIG"]))
+        notes_tier = seam.for_role(nmod.ROLE)[0]
+        if "embed" not in seam.config["tiers"] or notes_tier not in seam.config["tiers"]:
+            raise TierUnavailable("this profile has no embed or deliberate tier")
+        ctx["embed_model"] = seam.config["tiers"]["embed"].get("model")
+        ctx["model"] = seam.config["tiers"][notes_tier].get("model")
+        idx_path = SITE / "search" / "search_index.json"
+        if not idx_path.exists():
+            raise TierUnavailable("the field notes site is not built on this box")
+        stamp = idx_path.stat().st_mtime
+        if _NOTES_INDEX.get("stamp") != stamp:
+            _NOTES_INDEX.update({"stamp": stamp, "index": nmod.Index(seam, SITE, VAR)})
+        index = _NOTES_INDEX["index"]
+        ctx["corpus"] = len(index.passages)
+        if ctx["q"]:
+            ctx["result"] = nmod.ask(seam, index, ctx["q"])
+    except (TierUnavailable, KeyError) as e:
+        ctx["unavailable"] = str(e)
+    except Exception as e:  # the page says what went wrong rather than a 500 on stage
+        ctx["unavailable"] = f"{type(e).__name__}: {str(e)[:200]}"
+    return templates.TemplateResponse(request, "notes_ask.html", ctx)

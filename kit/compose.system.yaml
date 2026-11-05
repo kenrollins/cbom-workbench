@@ -1,0 +1,82 @@
+# The kit reads the box it runs on as a server (an external estate), the way the lab reads the
+# xr7620: a second runner, for the system scan only, with the host's scoped paths and its firmware
+# interfaces mounted read-only under PQCH_SYSTEM_ROOT, and its socket shared with the app.
+#   docker compose -f compose.yaml -f kit/compose.kit.yaml -f bundle/out/compose.harness.yaml \
+#                  -f kit/compose.build.yaml -f kit/compose.system.yaml up -d
+#   docker compose … run --rm app pqch scan-system          # then the Hosts page
+# The scope is kit/scope.<box>.json: the operator's authorization, the paths read (never written),
+# the listeners the wire scan may probe. The runner packs only those paths, as the operator's own
+# uid, so what that user cannot read is listed as unread, not read as root (lesson 52). The host's
+# sshd is reached at the default bridge's gateway, so the targeted job runs on that bridge.
+services:
+  system-runner:
+    image: pqch/harness:kit
+    restart: "no"
+    # Root, so the packer can read what only root can (sshd's host keys, /etc/ssl/private): the
+    # owner's choice for this box (2026-11-04), recorded on the page as "read as uid 0". The lab's
+    # runner reads as the operator and lists what it could not open (lesson 52); a prompted
+    # elevation for just the read is the better shape and is not built yet. PQCH_SYSTEM_RUNNER_USER
+    # puts it back: PQCH_SYSTEM_RUNNER_USER=1001:1001.
+    # Switching uid after a scan: the runner's log dir is sticky and world-writable, and Ubuntu's
+    # fs.protected_regular refuses another uid's file there, root included; chown jobs.jsonl in the
+    # system-runner-log volume to the new uid first (docker exec … chown).
+    user: "${PQCH_SYSTEM_RUNNER_USER:-0:0}"
+    command: ["uvicorn", "pqch.runner.service:app", "--uds", "/run/pqch/runner.sock",
+              "--log-level", "warning"]
+    group_add: ["${DOCKER_GID:-999}"]
+    environment:
+      PQCH_SCOPE: /etc/pqch/scope.json
+      PQCH_RAW: /var/pqch/raw
+      PQCH_TARGET_NETWORK: bridge
+      PQCH_SYSTEM_ROOT: /host
+      PQCH_REGISTRY: 127.0.0.1:15000
+      PQCH_HARDWARE: ${PQCH_HARDWARE:-unlabelled}
+      PQCH_RUNS: /var/pqch/runs
+      PQCH_RUNNER_LOG: /var/pqch-runner
+      PQCH_AGENCY_DIR: /nonexistent
+      HOME: /tmp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${PQCH_SYSTEM_SCOPE:?the box's scope file, e.g. ./kit/scope.gb10.json}:/etc/pqch/scope.json:ro
+      - ${PQCH_VAR:-./var}/raw:/var/pqch/raw
+      - ${PQCH_VAR:-./var}/runs:/var/pqch/runs:ro
+      - system-runner-sock:/run/pqch
+      - system-runner-log:/var/pqch-runner
+      # The host, read-only, only where the scope looks: its files and its firmware interfaces.
+      - /etc/ssh:/host/etc/ssh:ro
+      - /etc/ssl:/host/etc/ssl:ro
+      - /etc/docker:/host/etc/docker:ro
+      - /usr/local/share/ca-certificates:/host/usr/local/share/ca-certificates:ro
+      - /sys:/host/sys:ro
+    mem_limit: 512m
+  # The estate's own signer, with its own key: a server's ledger is signed apart from the mini-agency's.
+  signer-system:
+    image: pqch/harness:kit
+    restart: "no"
+    user: "${PQCH_UID:-1000}:${PQCH_GID:-1000}"
+    command: ["uvicorn", "pqch.signer.service:app", "--uds", "/run/pqch-signer/signer.sock",
+              "--log-level", "warning"]
+    network_mode: none
+    environment:
+      PQCH_SIGNER_KEY_DIR: /var/pqch-signer
+      PQCH_RUNS: /var/pqch/runs
+      PQCH_HARDWARE: ${PQCH_HARDWARE:-unlabelled}
+    volumes:
+      - system-signer-key:/var/pqch-signer
+      - ${PQCH_VAR:-./var}/runs:/var/pqch/runs:ro
+      - system-signer-sock:/run/pqch-signer
+    mem_limit: 256m
+  app:
+    environment:
+      PQCH_SYSTEM_RUNNER_SOCKET: /run/pqch-system/runner.sock
+      PQCH_THIS_HOST: ${PQCH_THIS_HOST:-}
+    volumes:
+      - system-runner-sock:/run/pqch-system:ro
+      - system-signer-sock:/run/pqch-system-signer:ro
+      # The scan is run as:  … run --rm -e PQCH_SIGNER_SOCKET=/run/pqch-system-signer/signer.sock app pqch scan-system
+
+volumes:
+  system-runner-sock:
+  system-runner-log:
+  system-signer-key:
+  system-signer-sock:

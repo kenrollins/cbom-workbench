@@ -301,7 +301,20 @@ def intervals(events: list[dict]) -> list[dict]:
             "signer_approval_to_verdict_max_ms": _span(signer_before(approval), signer_time(last)),
         })
     for t in out:
-        # The two clocks are held within SKEW_MS at each end; further apart, one of them is wrong.
-        a, b = t["policy_to_verdict_ms"], t["signer_policy_to_verdict_ms"]
-        t["clocks_disagree_ms"] = abs(a - b) if a is not None and b is not None and abs(a - b) > 2 * SKEW_MS else None
+        # The signer's clock brackets the span: the first-seen reading is a floor (an event may have
+        # waited for its first signature; a proposal that drafts through a model waits minutes) and
+        # the reading from the signature before the event is a ceiling. The ledger's own span must lie
+        # inside that bracket, each end held within SKEW_MS; outside it, one of the clocks is wrong.
+        # On the demo GB10 (2026-11-04) the first-seen reading alone called a 439 s change a 290 s
+        # disagreement between two clocks that agreed to the second (lesson 56).
+        a, lo, hi = t["policy_to_verdict_ms"], t["signer_policy_to_verdict_ms"], t["signer_policy_to_verdict_max_ms"]
+        gap = None
+        if a is not None and lo is not None:
+            if a < lo - 2 * SKEW_MS:
+                gap = lo - a
+            elif hi is not None and a > hi + 2 * SKEW_MS:
+                gap = a - hi
+            elif hi is None and abs(a - lo) > 2 * SKEW_MS:
+                gap = abs(a - lo)
+        t["clocks_disagree_ms"] = gap
     return out

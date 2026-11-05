@@ -1,0 +1,17 @@
+# The harness built on the box itself, from the checkout, instead of pulled from the bundle's registry:
+#   docker compose -f compose.yaml -f kit/compose.kit.yaml -f bundle/out/compose.harness.yaml -f kit/compose.build.yaml build app
+#   docker compose -f compose.yaml -f kit/compose.kit.yaml -f bundle/out/compose.harness.yaml -f kit/compose.build.yaml up -d
+# The bundle's harness overlay stays in the stack for what the runner needs from the bundle (the
+# estate's compose overlay with its digest-pinned images, and the registry's address); this file only
+# replaces the three services' image with one built here. The estate itself still comes from the bundle.
+# Chosen 2026-11-04 for the demo box: nine bundles of about 800 MB carried mostly HTML and CSS changes.
+services:
+  app:
+    image: pqch/harness:kit
+    build: { context: ., dockerfile: Dockerfile }
+  runner:
+    image: pqch/harness:kit
+    build: { context: ., dockerfile: Dockerfile }
+  signer:
+    image: pqch/harness:kit
+    build: { context: ., dockerfile: Dockerfile }

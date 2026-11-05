@@ -77,6 +77,11 @@ dates apply to; everything else is Phase 5.
 | 2031 / 2031-12-31 | Phase 4: signatures post-quantum on the same systems | M-26-15; EO 14412 | The second queue; it waits on validated modules and certificate chains |
 | 2035 | Phase 5: full migration of remaining systems | M-26-15 §3.D | — |
 
+<figure class="sketch" markdown>
+![One line from 2026 to 2035: EO 14412 signed 2026-06-22, each agency's migration plan due 2026-10-22, CISA and NIST publish the minimum elements of a CBOM on 2027-03-19, TLS 1.3 supported by 2030-01-02, key establishment post-quantum on prioritized systems by 2030-12-31, signatures by 2031-12-31, full migration of remaining systems in 2035; below it the phases, with Phase 1, strategy, planning and discovery, running 2026 to 2027, so the minimum elements arrive inside the discovery phase in which the inventory is built.](../img/sketches/03-the-clock.svg)
+<figcaption>The dates on one line: the inventory is built in Phase 1, and what it must contain is published part way through it.</figcaption>
+</figure>
+
 Two further requirements shape what the inventory has to hold. M-26-15
 Appendix A §6 says the central CBOM is populated from software composition
 analysis, static and dynamic testing of code, and network scanning — the three

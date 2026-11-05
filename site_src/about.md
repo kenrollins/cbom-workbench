@@ -2,6 +2,8 @@
 title: About
 ---
 
+<!-- The demo serves the same text at /about in its own theme (src/pqch/ui/templates/about.html); change both together. -->
+
 # About cbom-workbench
 
 ## What this project is

@@ -14,4 +14,47 @@
     });
   })();
   </script>
+  {#- The ribbon: the red page-marker of a notebook, one per page, tucked in and pulled out with a click
+      (button .fn-ribbon, under the header at the page's right edge). The pages holding one are marked with a
+      small ribbon beside their entry in the index and in the Notes and Lessons lists (.ribboned); there is no
+      other list, and no other way to pull one out than the ribbon itself. Kept per browser in localStorage
+      under one key, as the index toggle is; nothing on the server knows. -#}
+  <script>
+  (function () {
+    var KEY = "fn-ribbons";
+    function load() { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { return []; } }
+    function save(list) { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (e) {} }
+    var content = document.querySelector(".md-content"); if (!content) return;
+    var here = location.pathname.replace(/index\.html$/, "");
+    var h1 = document.querySelector(".md-content h1");
+    var title = (h1 ? h1.textContent.replace(/¶\s*$/, "") : document.title.replace(/ - [^-]*$/, "")).trim();
+    function marked() { return load().some(function (r) { return r.url === here; }); }
+    var rib = document.createElement("button");
+    rib.className = "fn-ribbon"; rib.type = "button";
+    rib.innerHTML = '<svg viewBox="0 0 24 96" aria-hidden="true"><path d="M0 0h24v86l-12-9-12 9z"/></svg><span class="fn-ribbon__say"></span>';
+    content.insertBefore(rib, content.firstChild);
+    function paint() {
+      var on = marked();
+      rib.classList.toggle("on", on); rib.setAttribute("aria-pressed", on ? "true" : "false");
+      rib.querySelector(".fn-ribbon__say").textContent = on ? "pull the ribbon out" : "tuck a ribbon in";
+      rib.setAttribute("aria-label", on ? "Pull the ribbon out of this page" : "Tuck a ribbon into this page");
+    }
+    // The marks: beside each ribboned entry in the index at the left and in the Notes and Lessons lists.
+    function mark() {
+      var list = load();
+      var links = document.querySelectorAll(".md-sidebar--primary .md-nav__link[href], ol.fn-entries > li > a[href]");
+      for (var i = 0; i < links.length; i++) {
+        var u = new URL(links[i].getAttribute("href"), location.href), path = u.pathname.replace(/index\.html$/, "");
+        var on = !u.hash && list.some(function (r) { return r.url === path; });   // a section of this page is not the page
+        var li = links[i].closest("li"); (li || links[i]).classList.toggle("ribboned", on);
+      }
+    }
+    rib.addEventListener("click", function () {
+      var list = load().filter(function (r) { return r.url !== here; });
+      if (!marked()) list.push({ url: here, title: title });
+      save(list); paint(); mark();
+    });
+    paint(); mark();
+  })();
+  </script>
 {% endblock %}

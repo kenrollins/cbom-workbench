@@ -1,15 +1,17 @@
-{#- The header is the cover of the little brown book (stylesheets/fieldnotes.css, class fn-cover),
-    shared in look with the app's own header (src/pqch/ui/templates/_header.html): the demonstration's
-    tabs boxed on the left, the field notes on the right with the first and latest entry's dates
-    written under the label in ballpoint (extra.journal_span, from tools/build_site.py). The demo's
+{#- The header is the demo's own (src/pqch/ui/templates/_header.html, styled by header.css, which
+    tools/build_site.py copies into stylesheets/), so opening the field notes changes nothing above
+    the page: the dark band, the brand row, the demonstration's tabs boxed on the left, the field notes
+    box — the kraft cover of the little brown book — on the right, with the span of the entries written
+    under its label in ballpoint (extra.journal_span). Only the page below is the book. The demo's
     links come from extra.demo_base: "/" in the lab, where the app serves the demo beside the site at
-    /site/; the Pages path in a public build. "A real network" and "Hosts" appear only where the lab
-    is (extra.lab). -#}
+    /site/; the Pages path in a public build. "Demo", "Hosts" and the notes' "Ask" appear only where the lab
+    is (extra.lab); "A real network" is left out, as the app leaves it out until the lab has a capture. mkdocs-material's own tools — the drawer on a narrow screen, the index toggle,
+    search — sit in the brand row beside the repository link. -#}
 {%- set demo = config.extra.demo_base or "/" -%}
 {%- set here = page.url if page else "" -%}
-<header class="md-header fn-cover" data-md-component="header">
+<header class="md-header site" data-md-component="header">
   <div class="bar">
-    <a class="brand" href="{{ demo }}"><span class="title">cbom‑workbench</span></a>
+    <a class="brand" href="{{ demo }}">cbom-workbench</a>
     <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
     <div class="tools">
       <label class="md-header__button md-icon drawer" for="__drawer">{% include ".icons/material/menu.svg" %}</label>
@@ -23,21 +25,23 @@
   <nav class="tabs" aria-label="sections">
     <div class="demo-group">
       <span class="group">Demo<small>{{ config.extra.demo_mode or "live" }}</small></span>
+      {% if config.extra.lab == "true" %}<a href="{{ demo }}demo" class="stage">Demo</a>{% endif %}
       <a href="{{ demo }}">Overview</a>
       <a href="{{ demo }}agency">Test agency</a>
       <a href="{{ demo }}walkthrough">Walkthrough</a>
       <a href="{{ demo }}cbom">Inside the CBOM</a>
       <a href="{{ demo }}plan">The plan</a>
+      {% if config.extra.lab == "true" %}<a href="{{ demo }}hosts">Hosts</a>{% endif %}
       <a href="{{ demo }}ask">Ask the CBOM</a>
-      {% if config.extra.lab == "true" %}<a href="{{ demo }}lab">A real network</a><a href="{{ demo }}hosts">Hosts</a>{% endif %}
-      <a href="{{ 'about/' | url }}" class="{{ 'on' if here.startswith('about') }}">About</a>
+      <a href="{{ demo }}about">About</a>
     </div>
-    <div class="learn-group">
+    <div class="learn-group fn-box">
       <span class="group">Field notes<small class="hand">{{ config.extra.journal_span or "" }}</small></span>
       <a href="{{ 'how-it-works/' | url }}" class="{{ 'on' if here.startswith('how-it-works') or here.startswith('architecture') or here.startswith('hardware') or here.startswith('demo') or here.startswith('your-own-network') }}">How it works</a>
       <a href="{{ 'notes/' | url }}" class="{{ 'on' if here.startswith('notes') }}">Notes</a>
       <a href="{{ 'lessons/' | url }}" class="{{ 'on' if here.startswith('lessons') }}">Lessons</a>
       <a href="{{ 'sources/' | url }}" class="{{ 'on' if here.startswith('sources') }}">Sources</a>
+      {% if config.extra.lab == "true" %}<a href="{{ demo }}notes/ask">Ask</a>{% endif %}
     </div>
   </nav>
 </header>

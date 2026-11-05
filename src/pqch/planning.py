@@ -179,6 +179,22 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
         for iv in intervals(ce):
             if iv.get("landed") and iv.get("intent") in ("enable", "require") and (iv.get("verdict_ts") or "") > events[-1]["ts"]:
                 landed[(iv["target"]["service"], iv["intent"])] = {"run": cr.id, "change_id": iv["change_id"], "ts": iv["verdict_ts"]}
+    # Where each step stands in the open change run, by the ledger alone: the latest change run's
+    # proposals, each with the furthest event about it. Nothing here is new state (plan page, 2026-11-04).
+    changes: dict[tuple, dict] = {}
+    runs_ = change_runs(var)
+    if runs_:
+        ce = list(runs_[-1].ledger.events())
+        for prop in (e for e in ce if e["type"] == "change.proposed"):
+            cid = prop["payload"]["change_id"]
+            rel = [e for e in ce if e["payload"].get("change_id") == cid]
+            iv = next((i for i in intervals(ce) if i["change_id"] == cid), None)
+            status = ("landed" if iv and iv.get("landed") else
+                      "applied" if any(e["type"] == "change.applied" for e in rel) else
+                      "approved" if any(e["type"] == "approval.granted" for e in rel) else
+                      "rehearsed" if any(e["type"] == "rehearsal.completed" for e in rel) else "proposed")
+            changes[((prop["payload"].get("target") or {}).get("service"), prop["payload"].get("intent"))] = {
+                "run": runs_[-1].id, "change_id": cid, "status": status}
     met = {(r["service"], r["function"]) for r in q.get("met", [])}
     pk = packages_view(Run.latest(var, "package"))
     pk = pk if pk and not pk.get("broken") else None
@@ -266,10 +282,41 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
              title=f"Retire {len(unserved)} certificates and keys nothing serves",
              why="files in images that no listener serves: they inflate the inventory and outlive the services they belonged to")
 
+    # Each configurable step carries its change's status and opens the resolution page at that change.
+    # A step whose service's software lists no post-quantum key exchange is blocked, not open: the runner
+    # cannot carry it out until the replacement lands, so it gets no button (demo box, 2026-11-04).
+    for st in steps.values():
+        if st["kind"] in ("enable", "require"):
+            ch = changes.get((st["service"], st["kind"]))
+            st["change"] = ch
+            st["status"] = ("landed" if st["state"] == "done" else
+                            "blocked" if (st["service"], "key-establishment") in blocked else
+                            ch["status"] if ch else "open")
+            if ch:
+                st["resolve"] = f"/resolve?change={ch['run']}#change-{ch['change_id']}"
+            elif st["status"] == "blocked":
+                st["resolve"] = steps[f"replace:{st['service']}"]["resolve"]
+                st["resolve_label"] = "change package"
+        elif st["kind"] == "replace":
+            st["status"] = "package"
     freed = _settle(steps, assume)
     for st in steps.values():
         st["fields"] = FIELDS.get(st["kind"], [])
     order = _topo(steps, rank)
+    # The step each prioritized service is at: its first configurable step not yet done, or its last if
+    # all are; a service nothing configurable can move points at its change package.
+    # The Step cell follows the key-exchange lane, which is what the ranking orders: the service's
+    # first enable/require step not yet done; its replacement step when that lane is blocked; its last
+    # when all landed; none when the service already negotiates a hybrid group.
+    for r in ranking:
+        kex = [steps[i] for i in order if steps[i].get("service") == r["service"] and steps[i]["kind"] in ("enable", "require")]
+        nxt = next((s for s in kex if s["state"] != "done"), None)
+        if nxt and nxt["status"] == "blocked":
+            r["step"] = steps[f"replace:{r['service']}"]
+        else:
+            r["step"] = nxt or (kex[-1] if kex else None)
+    actions = [steps[i] for i in order if steps[i]["kind"] in ("replace", "enable", "require")]
+    first_open = next((s["id"] for s in actions if s["state"] != "done" and s["status"] not in ("blocked", "package")), None)
     traps = _traps(deps, steps, rows, blocked)
     waves = []
     for w, label in (("now", "Now — what takes longest to start"), ("2030", "By 2030 — key establishment, prioritized systems first"),
@@ -277,7 +324,7 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
         ws = [steps[i] for i in order if steps[i]["wave"] == w]
         if ws:
             waves.append({"id": w, "label": label, "steps": ws})
-    return {"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": scan.id, "dependencies": deps, "ranking": ranking, "waves": waves, "steps": len(steps), "traps": traps,
+    return {"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": scan.id, "dependencies": deps, "ranking": ranking, "waves": waves, "steps": len(steps), "traps": traps, "actions": actions, "first_open": first_open,
             "scan_ts": events[-1]["ts"], "entries": len({e["fingerprint"] for st in steps.values() for e in st["entries"]}),
             "assumed": sorted(a for a in assume if a in steps), "freed": freed, "whatif": _whatif(steps, assume, freed),
             "done": sum(1 for s in steps.values() if s["state"] == "done" and not s.get("assumed")),
@@ -533,6 +580,15 @@ SYSTEM_LANES = [("services", "Services on the host", "what its applications list
                 ("firmware", "Firmware and boot chain", "the BIOS, Secure Boot, the TPM")]
 
 
+
+def _latest_date(v) -> str:
+    """A finding's date parameter as `YYYY-MM-DD`. The collector folds findings that share a key identity
+    and merges their parameters, so a date may arrive as a list (two Secure Boot KEK certificates on
+    one key, the demo box): the latest counts."""
+    if isinstance(v, list):
+        return max((_latest_date(x) for x in v), default="")
+    return (v or "")[:10] if isinstance(v, str) else ""
+
 def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Path = "policy/packs/m-26-15.yaml",
                  cnsa_path: str | Path = "policy/packs/cnsa-2.0.yaml") -> dict | None:
     """A server's plan, from its system scan (`kind: scan-system`): what to fix on it, in what order,
@@ -749,7 +805,7 @@ def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Pat
     roots = [fid for fid, p in sbc.items() if p["subject"]["component"] in ("secure-boot:PK", "secure-boot:KEK", "secure-boot:db")
              and p["asset"]["name"] in ("RSA", "ECDSA") and not p["asset"]["parameters"].get("revoked")]
     if roots:
-        longest = max((sbc[x]["asset"]["parameters"].get("not_after", "")[:10] for x in roots), default="")
+        longest = max((_latest_date(sbc[x]["asset"]["parameters"].get("not_after")) for x in roots), default="")
         fw_due = f"{fw_sign.get('exclusive_by')}" if fw_sign else None
         step("supplier:signing", kind="supplier", service="firmware", wave="supplier", due=fw_due or sig_pri,
              depends_on=["fw:ca2023"] if "fw:ca2023" in steps else [],

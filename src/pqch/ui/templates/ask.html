@@ -16,13 +16,35 @@
 <section><p class="note">No CBOM yet: run a scan from <a href="/walkthrough">the walkthrough</a>.</p></section>
 {% else %}
 <section>
-<form method="get" action="/ask" class="ask">
+<style>
+  .ask-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 22px; }
+  .ask-flow div { border: 1px solid var(--line2); border-top: 3px solid var(--accent); padding: 10px 12px; background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  .ask-flow div:last-child { border-top-color: var(--good); background: color-mix(in srgb, var(--good) 6%, transparent); }
+  .ask-flow b { display: block; font: 600 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .ask-flow div:last-child b { color: var(--good); }
+  .ask-flow span { font-size: 13.5px; color: var(--fg2); }
+  form.ask.big { display: flex; gap: 0; margin: 6px 0 14px; }
+  form.ask.big input#q { flex: 1; font-size: 19px; padding: 14px 16px; background: var(--bg2, #111827); color: var(--fg); border: 1px solid var(--accent); border-right: 0; outline: none; box-shadow: 0 0 0 0 transparent; transition: box-shadow .2s; }
+  form.ask.big input#q:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+  form.ask.big button { font-size: 16px; font-weight: 700; padding: 0 28px; background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; }
+  form.ask.big button[disabled] { opacity: .75; cursor: progress; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .chips a { font-size: 13.5px; padding: 6px 12px; border: 1px solid var(--line2); border-radius: 16px; color: var(--fg2); text-decoration: none; transition: border-color .15s, color .15s; }
+  .chips a:hover { border-color: var(--accent); color: var(--accent); }
+  @media (max-width: 800px) { .ask-flow { grid-template-columns: 1fr 1fr; } }
+</style>
+<div class="ask-flow" aria-label="How a question is answered">
+  <div><b>1 · Embed</b><span>the question becomes a vector{% if bound %} ({{ bound.embed }}){% endif %}</span></div>
+  <div><b>2 · Retrieve</b><span>the eight nearest CBOM entries, and the chain above each, by rule</span></div>
+  <div><b>3 · Answer</b><span>{% if bound %}{{ bound.model }} on the {{ bound.tier }} tier{% else %}the model{% endif %}, from those passages only</span></div>
+  <div><b>4 · Check</b><span>every cited event against the ledger: a rule, not a model</span></div>
+</div>
+<form method="get" action="/ask" class="ask big" onsubmit="var b=this.querySelector('button');b.disabled=true;b.textContent='Asking…';">
   <input type="hidden" name="run" value="{{ run }}">
-  <label for="q"><strong>Question</strong></label>
-  <input id="q" name="q" value="{{ q }}" maxlength="500" placeholder="Which listener still offers DH-1024?" style="width:100%">
+  <input id="q" name="q" value="{{ q }}" maxlength="500" placeholder="Which listener still offers DH-1024?" aria-label="Question" autofocus>
   <button type="submit">Ask</button>
 </form>
-<p class="note">Try: {% for e in examples %}<a href="/ask?run={{ run }}&q={{ e | urlencode }}">{{ e }}</a>{% if not loop.last %} · {% endif %}{% endfor %}</p>
+<div class="chips">{% for e in examples %}<a href="/ask?run={{ run }}&q={{ e | urlencode }}" onclick="this.style.borderColor='var(--accent)';this.textContent='Asking… '+this.textContent">{{ e }}</a>{% endfor %}</div>
 {% if bound %}<p class="note">Role <code>ask-cbom</code> is bound to the <code>{{ bound.tier }}</code> tier ({{ bound.model }}{% if bound.reasoning %}, reasoning on{% endif %}); retrieval by <code>embed</code> ({{ bound.embed }}).</p>{% endif %}
 </section>
 
@@ -33,7 +55,7 @@
 <h2>Answer</h2>
 <p class="answer">{{ result.reply.answer }}</p>
 {% if result.reply.not_in_passages %}<p class="note">The model reports the retrieved passages do not answer this; see what it was shown below.</p>{% endif %}
-<p class="note">{{ result.model }} on {{ result.hardware }}, {{ result.latency_ms }} ms{% if result.reasoning %}, reasoning on{% endif %}. Retrieval: {{ result.embed_model }} on {{ result.embed_hardware }}.</p>
+<p class="note">{{ result.model }} on {{ result.hardware }}, {{ result.latency_ms }} ms{% if result.reasoning %}, reasoning on{% endif %}{% if result.completion_tokens %}, {{ result.completion_tokens }} completion tokens{% endif %}{% if result.finish_reason and result.finish_reason != "stop" %}, finish reason {{ result.finish_reason }}{% endif %}. Retrieval: {{ result.embed_model }} on {{ result.embed_hardware }}.</p>
 
 <h3>Components the answer rests on</h3>
 {% if result.reply.components %}

@@ -1,0 +1,112 @@
+/* header.css — the one header, for the demonstration and for the field notes site.
+   The demo's pages load it through style.css; tools/build_site.py copies it to
+   site_src/stylesheets/header.css and mkdocs loads it before the site's own theme, so moving
+   between the demo and the notes moves nothing above the page: the same dark band, the brand
+   row, the demo's tabs boxed in cyan on the left, and the field notes box — the kraft cover of
+   the little brown book — on the right. Only the page below changes.
+   Markup: <header class="site"> with .bar (brand, disclaimer, repo; on the site also the search)
+   and nav.tabs (.demo-group, .learn-group.fn-box); src/pqch/ui/templates/_header.html and
+   site_overrides/partials/header.html emit the same shape. Fonts are relative to this file:
+   fonts/ sits beside it in both places. */
+
+@font-face { font-family: "EB Garamond"; font-style: normal; font-weight: 400 800; font-display: swap;
+             src: url(fonts/eb-garamond-latin-wght-normal.woff2) format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+             src: url(fonts/inter-latin-wght-normal.woff2) format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 100 800; font-display: swap;
+             src: url(fonts/jetbrains-mono-latin-wght-normal.woff2) format("woff2"); }
+/* The field notes' own faces, for the kraft box (the site's theme, fieldnotes.css, declares the same). */
+@font-face { font-family: "Jost"; font-style: normal; font-weight: 300 700; font-display: swap;
+             src: url(fonts/jost-latin-wght-normal.woff2) format("woff2"); }
+@font-face { font-family: "Caveat"; font-style: normal; font-weight: 400 700; font-display: swap;
+             src: url(fonts/caveat-latin-wght-normal.woff2) format("woff2"); }
+
+/* The demo's palette, carried on the header itself so the site — which has no such :root — sets it
+   the same. The values mirror style.css's :root; change both or neither. */
+header.site {
+  --bg2: #141b26; --fg: #e4e9f0; --fg2: rgba(196,207,221,.82); --dim: rgba(196,207,221,.56); --faint: rgba(196,207,221,.28);
+  --accent: #0099CC; --accent-glow: rgba(0,153,204,.45);
+  --serif: "EB Garamond", Georgia, serif; --sans: "Inter", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: light) {
+  header.site { --bg2: #e9edf2; --fg: #111722; --fg2: #2a3340; --dim: #5d6773; --faint: #9aa4b1; --accent: #007aa8; --accent-glow: rgba(0,122,168,.25); }
+}
+
+/* The band: one step up from the page, lit from below by the accent hairline. */
+header.site {
+  background: radial-gradient(120% 160% at 50% 120%, rgba(0,153,204,.20) 0%, rgba(0,153,204,.05) 45%, transparent 70%), var(--bg2);
+  border-bottom: 2px solid var(--accent); box-shadow: 0 6px 28px -6px var(--accent-glow);
+  color: var(--fg2); font-family: var(--sans); -webkit-font-smoothing: antialiased;
+}
+/* The two rows run wider than the page (1560px): the demo's tabs and the field notes box share one
+   line down to about 1350px and wrap below that. A 58px brand row and a 44px tab row. */
+header.site .bar, header.site .tabs { max-width: 1560px; margin: 0 auto; padding: 0 24px; }
+header.site .bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 58px; flex-wrap: nowrap; }
+header.site .brand { font: 700 26px/1 var(--serif); color: var(--fg); text-decoration: none; letter-spacing: .005em; white-space: nowrap; }
+header.site .disclaimer { color: var(--dim); font: 400 12px/1.4 var(--sans); max-width: 460px; text-align: right; margin-left: auto; }
+header.site .bar .repo { color: var(--fg2); margin-left: 4px; align-self: center; display: block; }
+header.site .bar .repo:hover { color: var(--accent); }
+header.site .bar .repo svg { width: 20px; height: 20px; fill: currentColor; display: block; }
+
+/* The tab row: two groups, told apart three ways — the demo on the left in a tinted box, the reading on
+   the right on kraft; each with a two-line label. No label breaks inside itself; the spacing gives way
+   first, and below 1100px the row wraps between tabs. */
+header.site .tabs { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 16px; row-gap: 6px; min-height: 44px; }
+header.site .tabs a { color: var(--fg2); text-decoration: none; font: 400 14px/1.55 var(--sans); padding: 4px 0; border-bottom: 2px solid transparent; white-space: nowrap; }
+header.site .tabs a:hover { color: var(--accent); }
+header.site .tabs a.on { color: var(--fg); border-bottom-color: var(--accent); font-weight: 600; }
+header.site .tabs .group { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 3px; font: 500 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--faint); white-space: nowrap; }
+header.site .tabs .group small { font: 500 9px/1 var(--mono); letter-spacing: .1em; color: var(--accent); text-transform: lowercase; }
+header.site .tabs .demo-group, header.site .tabs .learn-group { display: flex; align-items: center; gap: 2px 15px; flex-shrink: 0; }
+header.site .tabs .demo-group { height: 34px; padding: 0 14px 0 10px; background: rgba(0,153,204,.08); border: 1px solid rgba(0,153,204,.35); border-radius: 3px; }
+header.site .tabs .demo-group .group { color: rgba(196,207,221,.55); }
+@media (prefers-color-scheme: light) { header.site .tabs .demo-group .group { color: var(--dim); } }
+header.site .tabs .learn-group { margin-left: auto; gap: 2px 13px; }
+header.site .tabs .learn-group a { font-size: 13.5px; }
+/* One line down to a 1236-px viewport (a 1854-px window at 150% zoom, the demo box's browser,
+   2026-11-04): the nine tabs and the field notes box together run about 1255 px at the full gaps, so
+   below 1320px the gaps close, the box's hand-written dates hide, and the two groups sit together
+   instead of the box being flung to the right edge of a second line. Below 1100px the rows wrap. */
+@media (max-width: 1320px) {
+  header.site .tabs { gap: 2px 10px; }
+  header.site .tabs .demo-group { gap: 2px 10px; padding: 0 10px 0 8px; }
+  header.site .tabs .learn-group { margin-left: 0; gap: 2px 9px; }
+  header.site .tabs .fn-box .group .hand { display: none; }
+}
+@media (max-width: 1100px) {
+  header.site .tabs { height: auto; padding-bottom: 8px; }
+  header.site .tabs .demo-group, header.site .tabs .learn-group { flex-shrink: 1; flex-wrap: wrap; }
+  header.site .tabs .demo-group { height: auto; padding: 4px 10px; }
+}
+@media (max-width: 900px) { header.site .disclaimer { display: none; } }
+
+/* ---- the field notes box: the cover of the little brown book, set into the dark header ----------
+   The same materials as the site's theme (fieldnotes.css): kraft with its fibre, one ink, ballpoint
+   for what is written by hand, stamp red for the current tab. The label is the printed title; the
+   span of the entries is written under it in ballpoint, short enough that the box stays a box:
+   "Oct 4 → Nov 4, 2026", not two ISO dates. */
+header.site .tabs .fn-box {
+  --fn-kraft: #d9c39c; --fn-ink: #211a14; --fn-ink-rgb: 33, 26, 20; --fn-ballpoint: #1f3a8a; --fn-accent: #c8401f; --fn-accent-rgb: 200, 64, 31;
+  height: 34px; padding: 0 12px 0 11px; margin: 5px 0 5px auto; border-radius: 2px; gap: 2px 13px;
+  color: var(--fn-ink); border: 1.5px solid var(--fn-ink);
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.10) 0, rgba(0,0,0,.03) 10px, transparent 20px),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.30  0 0 0 0 0.22  0 0 0 0 0.12  0.55 0 0 0 -0.08'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>"),
+    var(--fn-kraft);
+  box-shadow: 0 3px 10px -4px rgba(0,0,0,.6);
+}
+header.site .tabs .fn-box .group { font: 500 9.5px/1 "Jost", "Futura", sans-serif; letter-spacing: .16em; text-transform: uppercase; color: rgba(var(--fn-ink-rgb), .6); gap: 0; margin-top: -1px; }
+header.site .tabs .fn-box .group .hand { font: 600 13px/1 "Caveat", "Segoe Script", cursive; letter-spacing: 0; text-transform: none; color: var(--fn-ballpoint); margin-top: 2px; white-space: nowrap; }
+header.site .tabs .fn-box .group .hand:empty { display: none; }
+header.site .tabs .fn-box a { font: 500 13px/1 "Jost", "Futura", sans-serif; letter-spacing: .04em; color: rgba(var(--fn-ink-rgb), .88); padding: 6px 0; border-bottom: 2px solid transparent; }
+header.site .tabs .fn-box a:hover { color: var(--fn-accent); border-bottom-color: rgba(var(--fn-accent-rgb), .5); }
+header.site .tabs .fn-box a.on { color: var(--fn-ink); border-bottom-color: var(--fn-accent); font-weight: 700; }
+
+/* The plan's two acts under the header's one item: a thin row of two tabs, Plan | Changes, straight
+   under the header's bottom border on /plan and /resolve, in the header's own column and type. */
+.subnav { border-bottom: 1px solid var(--line); }
+.subnav .inner { max-width: 1560px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 22px; }
+.subnav a { color: var(--fg2); text-decoration: none; font: 400 14px/1.55 var(--sans); padding: 8px 0 6px; border-bottom: 2px solid transparent; white-space: nowrap; }
+.subnav a:hover { color: var(--accent); }
+.subnav a.on { color: var(--fg); border-bottom-color: var(--accent); font-weight: 600; }

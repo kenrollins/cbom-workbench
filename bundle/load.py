@@ -1,6 +1,6 @@
 """Start the slice and the harness from the offline bundle, with no image fetched from anywhere else.
 
-    uv run python bundle/load.py [--lab-overlay workshop/compose.lab.yaml]
+    uv run python bundle/load.py [--lab-overlay workshop/compose.lab.yaml]   (or .venv/bin/python bundle/load.py)
 
 1. Checks SHA256SUMS against a hash recorded outside the bundle (--expect-sums), every file
    against SHA256SUMS, and every registry blob against the SHA-256 it is named by.
@@ -124,7 +124,10 @@ def main() -> None:
 
     agency = ["docker", "compose", "-f", str(ROOT / "agency/compose.yaml"), "-f", str(OUT / "compose.agency.yaml")]
     sh(*agency, "up", "-d", "--pull", "never", "--no-build", "--force-recreate")
-    sh("uv", "run", "pqch", "scope", "generate", str(ROOT / "agency/compose.yaml"), str(OUT / "compose.agency.yaml"),
+    # The package under the interpreter running this loader (`uv run python bundle/load.py` or
+    # `.venv/bin/python bundle/load.py`): never `uv run`, which re-resolves the project and, on a
+    # box whose uv config is offline or no-index, fails or reaches for the network (demo box, 2026-11-04).
+    sh(sys.executable, "-m", "pqch.cli", "scope", "generate", str(ROOT / "agency/compose.yaml"), str(OUT / "compose.agency.yaml"),
        "--network", "agency_net", "--out", str(ROOT / "var/scope/scope.json"))
     harness = ["docker", "compose", "-f", str(ROOT / "compose.yaml")]
     if args.lab_overlay:

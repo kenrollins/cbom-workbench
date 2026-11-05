@@ -18,6 +18,8 @@ claims:
     provenance: "measured 2026-10-04, M0 slice, xr7620 (x86_64); change 01M43EN2B4ZVTSKAPG0WZTNZXT"
   - text: "The slice, the harness and every scanner start from an offline bundle — eight images for x86_64 and arm64 in a local registry, 611 MB — in 8.7 s, with no image fetched from elsewhere; a live scan through them scores as above, and a policy change is applied and verified on that estate with the bundle's registry stopped, in 62.0 s."
     provenance: "measured 2026-10-05, xr7620 (x86_64), harness at commit 9e45a6a; bundle/README.md; change run 01M46RP7WVRMW1EXNKM4D762P2"
+  - text: "The arm64 bundle (13 images, 756 MB), a 45-wheel wheelhouse and a git bundle of the tree, carried as one 771 MB archive, installed on a second GB10-class machine with no package index; the bundle verified and started in 4.5 s and the live scan scored wire 38 of 40, host 20 of 20, posture 9 of 9, 0 false positives in about 2.5 minutes."
+    provenance: "measured 2026-11-04 on a Dell Pro Max GB10 (aarch64, Docker 29.6.2), run 01M6KVZ4GYZ3K5MT31M1F59D0A, bundle at commit dc252fb"
   - text: "With a signature on each side of the policy event and the approval, a change measured 55.6 s on the ledger's clock and no more than 55.6 s on the signing service's."
     provenance: "measured 2026-10-05, xr7620 (x86_64); change run 01M46RCKJZA12PD1REM722YF4F"
   - text: "Every scanner and probe the harness uses ran as arm64 under emulation and gave the same results as on x86_64; Zeek's packet capture does not run under emulation."
@@ -107,6 +109,11 @@ now answer:
 Crypto agility — the top rung — is the ability to change an algorithm by
 changing policy, without re-engineering each system. The project treats it as
 something to measure: the time from a policy change to a verified result.
+
+<figure class="sketch" markdown>
+![A ladder of five rungs, bottom to top: Opaque, a hand-kept spreadsheet, answers nothing reliably; Enumerated, scanner output, answers where quantum-vulnerable cryptography is; Structured, a CBOM with dependencies, answers what depends on it; Managed, owners, priorities and approvals, answers what first, what is blocked and what changed; Agile, change as routine, answers how fast the organization can respond to a policy change and whether it landed, measured as the time from a policy change to a verified result.](../img/sketches/00-five-rungs.svg)
+<figcaption>The five rungs, what each one has, and the question each one can answer.</figcaption>
+</figure>
 
 ## The mechanism
 
@@ -222,7 +229,14 @@ after the service is recreated. Measured on the same machine: 63.4 s from the
 policy event to the last verdict, 62.9 s from approval, with the verdict
 `enforced` both times. With a person approving through the page, 69.4 s and
 65.6 s. Nearly all of that time is the second-witness scan, 21 to 31 s per
-verdict; the paired probes take about one second each. Each interval is
+verdict; the paired probes take about one second each.
+
+<figure class="sketch" markdown>
+![One policy change on the portal: 63.4 s from the policy event to the last verdict and 62.9 s from approval, two verdicts included; the enumerating witness takes 21 to 31 s per verdict and each paired probe about one second, so nearly all of the time is the witness; with a person approving through the page, 69.4 s and 65.6 s; a later change read 55.6 s on the ledger's clock and no more than 55.6 s on the signing service's.](../img/sketches/00-time-to-change.svg)
+<figcaption>Time to change on the four-service slice: about a minute, nearly all of it the witness that enumerates every group.</figcaption>
+</figure>
+
+Each interval is
 reported twice: from the harness's own timestamps, and as an upper bound from
 the times a separate signing service puts inside its signatures — the last
 signature before the policy event to the first over the verdict (55.6 s and
@@ -232,13 +246,24 @@ ledger out; the three changes above predate that log and are shown as
 unchecked.
 
 **Off the network.** Everything above — the slice, the harness, the scanners —
-starts from an offline bundle: eight images for both x86_64 and arm64, by
-digest, in a local registry on disk, 611 MB. With the bundle's images deleted
-first, it started in 8.7 s, every image came from the bundle, a live scan
-scored as above, and a policy change was applied and verified with the
-bundle's registry stopped. Every scanner and probe has also run as arm64
-under emulation with the same results. The host's own route to the internet
-has not been cut; that is the rehearsal on a second host.
+starts from an offline bundle: thirteen images (the whole mini-agency, the
+harness, three scanners, the registry) by digest, in a local registry on
+disk; 1.5 GB for both x86_64 and arm64, 756 MB for arm64 alone. With the
+bundle's images deleted first, it started in 8.7 s, every image came from the
+bundle, a live scan scored as above, and a policy change was applied and
+verified with the bundle's registry stopped. The rehearsal on a second host
+is done: on 2026-11-04 the arm64 bundle, a wheelhouse of 45 wheels and a git
+bundle of the tree, carried as one 771 MB archive, were installed on a second
+DGX Spark-class machine (a Dell Pro Max GB10) with no package index and no
+image pulled from outside; the bundle verified and started in 4.5 s and the
+live scan scored wire 38 of 40, host 20 of 20, posture 9 of 9, no false
+positives, in about 2.5 minutes ([lesson 53](../lessons/53-carry-the-build-backend-and-install-offline-outside-the-lock.md),
+[lesson 54](../lessons/54-join-the-boxs-own-engines-to-the-kits-bridge-under-the-kits-names.md)).
+On the same box the kit reads the machine it runs on as a server, with a second runner of its own
+and its own signer ([note 20](20-how-a-server-is-inventoried-and-planned-as-an-estate.md)). Ask the
+CBOM answers there on the fast tier with thinking off, every citation passing on 12 of 12 evaluation
+items at a median of 2.8 s a call ([note 19](19-how-a-question-to-the-cbom-is-answered-and-checked.md),
+[lesson 58](../lessons/58-a-thinking-template-must-be-told-not-to-think.md)).
 
 ## What follows
 

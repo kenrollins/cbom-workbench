@@ -128,6 +128,11 @@ The mini-agency on 2026-10-20 (scan run `01M5DFXYNNG08S8ADTDF48WYFE`):
 | portal, api | lifetime | kex-2030 | sig-2031 | none from the supplier |
 | bastion | none (data sensitive for one year) | remaining-2035 | remaining-2035 | supplier, signatures only: OpenSSH 10 has ML-KEM key exchange and no post-quantum host key |
 
+<figure class="sketch" markdown>
+![Eight services placed in the memo's queues: six key-establishment items due 2030-12-31 and six signature items due in 2031, two items for the jump host in the 2035 queue, and the post-quantum gateway meeting both functions; 14 items open, 2 met, and 7 of the 14, on the SFTP drop, the queue, the legacy application and the jump host's signatures, blocked on a supplier whose software lists no post-quantum algorithm.](../img/sketches/07-two-queues.svg)
+<figcaption>The two queues as the rules placed the estate in them, and the half of the open items no setting can move.</figcaption>
+</figure>
+
 Two rows show what the blocker rules are for. The queue's broker runs on an
 Erlang/OTP whose cryptographic library has ML-KEM, and a reader of its package
 list would call it ready; its TLS stack does not offer the group, so the item

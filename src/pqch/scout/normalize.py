@@ -218,9 +218,9 @@ def _file_subject(job: dict, path: str) -> dict:
 def theia(raw: bytes, job: dict) -> list[dict]:
     bom = json.loads(raw)
     digest = job["target"].get("image", "").partition("@")[2]
-    comps = {x.get("bom-ref"): x for x in bom.get("components", []) if x.get("bom-ref")}
+    comps = {x.get("bom-ref"): x for x in (bom.get("components") or []) if x.get("bom-ref")}
     c = _Collector(job, "host", subject_digest=digest or None)
-    for comp in bom.get("components", []):
+    for comp in (bom.get("components") or []):
         if comp.get("type") != "cryptographic-asset":
             continue
         cp = comp.get("cryptoProperties", {})

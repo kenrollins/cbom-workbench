@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — ask the field notes</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23d9c39c'/%3E%3C/svg%3E">
+<style>
+  .fn-page { --fn-kraft: #d9c39c; --fn-ink: #211a14; --fn-ink-rgb: 33, 26, 20; --fn-ballpoint: #1f3a8a; --fn-accent: #c8401f; --fn-accent-rgb: 200, 64, 31;
+    color: var(--fn-ink); background: var(--fn-kraft); border: 1.5px solid var(--fn-ink); border-radius: 2px; padding: 26px 30px 30px; max-width: 1100px; margin: 18px auto 40px;
+    background-image: linear-gradient(90deg, rgba(0,0,0,.10) 0, rgba(0,0,0,.03) 10px, transparent 20px); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .fn-page h1 { font: 700 30px/1.15 "Jost", "Futura", sans-serif; margin: 0 0 6px; letter-spacing: .01em; color: var(--fn-ink); }
+  .fn-page .hand { font: 600 20px/1.2 "Caveat", "Segoe Script", cursive; color: var(--fn-ballpoint); margin: 0 0 18px; }
+  .fn-page p, .fn-page li { font: 400 15.5px/1.55 "Jost", "Futura", sans-serif; }
+  .fn-page form { display: flex; gap: 10px; margin: 12px 0 18px; }
+  .fn-page input[type=text] { flex: 1; font: 400 17px/1.3 "Jost", "Futura", sans-serif; padding: 10px 12px; border: 1.5px solid var(--fn-ink); border-radius: 2px; background: rgba(255,255,255,.55); color: var(--fn-ink); }
+  .fn-page button { font: 600 14px/1 "Jost", "Futura", sans-serif; letter-spacing: .06em; text-transform: uppercase; padding: 10px 16px; border: 1.5px solid var(--fn-ink); background: var(--fn-ink); color: var(--fn-kraft); border-radius: 2px; cursor: pointer; }
+  .fn-page .answer { font: 400 21px/1.45 "EB Garamond", Georgia, serif; margin: 10px 0 12px; }
+  .fn-page .answer sup { color: var(--fn-accent); font-weight: 700; }
+  .fn-page .verdict { font: 700 15px/1.4 "Jost", sans-serif; color: var(--fn-ballpoint); }
+  .fn-page .verdict.bad { color: var(--fn-accent); }
+  .fn-page ol.cited { padding-left: 22px; margin: 8px 0 16px; }
+  .fn-page ol.cited li a { color: var(--fn-ballpoint); font-weight: 600; text-decoration: none; border-bottom: 1.5px solid rgba(var(--fn-accent-rgb), .5); }
+  .fn-page ol.cited li small { color: rgba(var(--fn-ink-rgb), .7); display: block; font-size: 13px; }
+  .fn-page .meta { font: 500 11px/1.6 "JetBrains Mono", monospace; letter-spacing: .06em; text-transform: uppercase; color: rgba(var(--fn-ink-rgb), .65); margin-top: 12px; }
+  .fn-page details { margin-top: 14px; } .fn-page summary { font: 600 13px/1.4 "Jost", sans-serif; cursor: pointer; }
+  .fn-page details li { font-size: 13.5px; margin: 4px 0; } .fn-page details li small { color: rgba(var(--fn-ink-rgb), .65); }
+  .fn-page .tries { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .fn-page .tries a { font: 400 13px/1.3 "Jost", sans-serif; color: var(--fn-ink); border: 1px solid rgba(var(--fn-ink-rgb), .35); padding: 5px 9px; border-radius: 2px; text-decoration: none; }
+  .fn-page .tries a:hover { border-color: var(--fn-accent); color: var(--fn-accent); }
+  .fn-page .stamp { display: inline-block; font: 700 11px/1 "Jost", sans-serif; letter-spacing: .14em; text-transform: uppercase; color: var(--fn-accent); border: 2px solid var(--fn-accent); padding: 4px 7px; border-radius: 2px; transform: rotate(-2deg); margin-left: 10px; vertical-align: 4px; }
+</style>
+</head>
+<body>
+{% set active = "notes" %}{% set lede = "<strong>Ask the field notes.</strong> A question about how the workbench works, what was learned and why, answered from the journal's own pages by the box's model, each citation checked against the passages it was shown." %}
+{% include "_header.html" %}
+<main>
+<div class="fn-page">
+  <h1>Ask the field notes <span class="stamp">answered on this box</span></h1>
+  <p class="hand">{{ corpus }} passages from the notes, lessons and how-it-works pages, read by {{ embed_model }}; the answer from {{ model }}.</p>
+  <form method="get" action="/notes/ask">
+    <input type="text" name="q" value="{{ q }}" maxlength="400" placeholder="How does the runner read a server's files, and as which user?" autofocus>
+    <button type="submit">Ask</button>
+  </form>
+  {% if unavailable %}<p class="verdict bad">Not answered. {{ unavailable }}</p>{% endif %}
+  {% if result %}
+    {% set r = result %}
+    <p class="answer">{{ r.reply.answer }}{% if "[" not in r.reply.answer %}{% for c in r.check.rows %}<sup>[{{ c.n }}]</sup>{% endfor %}{% endif %}</p>
+    <p class="verdict {{ '' if r.check.ok else 'bad' }}">{{ r.check.verdict }}</p>
+    {% if r.check.rows %}
+    <ol class="cited">
+      {% for c in r.check.rows %}{% if c.passage %}
+      <li value="{{ c.n }}"><a href="/site/{{ c.passage.location }}">{{ c.passage.page }}{% if c.passage.title and c.passage.title != c.passage.page %} — {{ c.passage.title }}{% endif %}</a><small>{{ c.passage.text[:220] }}…</small></li>
+      {% else %}<li value="{{ c.n }}"><em>passage {{ c.n }} was not shown to the model</em></li>{% endif %}{% endfor %}
+    </ol>
+    {% endif %}
+    <p class="meta">{{ r.model }} · {{ r.tier }} tier{% if r.reasoning %}, reasoning on{% endif %} · {{ "{:,}".format(r.latency_ms or 0) }} ms · {{ r.completion_tokens or "?" }} completion tokens{% if r.finish_reason and r.finish_reason != "stop" %} · finish reason {{ r.finish_reason }}{% endif %} · retrieval {{ r.embed_model }} · {{ r.hardware.split(';')[0] }}</p>
+    <details><summary>What the model was shown: {{ r.shown|length }} passages</summary>
+      <ol>{% for p in r.shown %}<li value="{{ p.shown_as }}"><a href="/site/{{ p.location }}">{{ p.page }}{% if p.title and p.title != p.page %} — {{ p.title }}{% endif %}</a> <small>score {{ p.score }}</small></li>{% endfor %}</ol>
+    </details>
+  {% else %}
+    <p>Try one:</p>
+    <div class="tries">
+      {% for t in tries %}<a href="/notes/ask?q={{ t|urlencode }}">{{ t }}</a>{% endfor %}
+    </div>
+  {% endif %}
+</div>
+</main>
+</body>
+</html>

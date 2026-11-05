@@ -272,6 +272,11 @@ baseline, so the scanners-alone column is still exactly the tools. On the
 eight images it took 1 to 8 s each where theia took 75 to 136 s, and it is
 what closes the image layer from 14 of 20 to 20 of 20.
 
+<figure class="sketch" markdown>
+![On the eight-service estate the three scanners alone and the workbench both find 38 of 40 keyed wire items with no false positive, the two misses keyed out of reach; in the images the scanners find 14 of 20 and flag both decoys while the workbench finds 20 of 20 and flags neither, by its own file reader and its rules; the scanners state no posture and the workbench states 9 of 9. Per image the harness's reader takes 1.0 to 7.6 s where cbomkit-theia takes 75 to 136 s.](../img/sketches/15-what-the-harness-adds.svg)
+<figcaption>The scanners alone beside the workbench, by layer: the wire is the same, the delta is the images and the postures.</figcaption>
+</figure>
+
 ## Scope
 
 Covered: eight services and nine listeners (TLS 1.2 and 1.3, TLS behind

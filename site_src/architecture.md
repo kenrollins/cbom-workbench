@@ -4,6 +4,13 @@ title: Architecture
 
 # Architecture
 
+<figure class="sketch" markdown>
+![Five layers on one Dell Pro Max GB10, top to bottom: outputs (the CBOM in CycloneDX 1.6, the plan ordered by rules, changes approved by a person, Ask the CBOM with its citations checked, the pages read live); the workbench (the app, the only door; the runner, which holds the Docker socket; the signer, with no network; the system runner, which reads this host; the inference seam, its three tiers (fast, deliberate, embed) bound in config; the scanners, containers pinned by digest); models on the GPU, offline (Nemotron 3.5 Lightning 30B-A3B in NVFP4 under vLLM, the llama-nemotron-embed-1b-v2 NIM, and the index: a cosine in the app, then rules); the platform (Ubuntu 24.04 aarch64, CUDA 13, the Container Toolkit giving the GPU through CDI, Docker Engine, a read-only registry on the box); and the hardware (20 Arm cores, 128 GB unified memory, the Blackwell GPU, and the path up to two GB10s, GB300, PowerEdge XE and an AI factory). Every layer writes to the ledger beside them: hash-chained events, checkpoints signed with ML-DSA-65, projections rebuilt from the events and never edited, and runs that replay on any box.](img/sketches/arch-five-layers.svg)
+<figcaption>The kit on one GB10: five layers from the silicon to what leaves the ledger, and the ledger beside every one; whatever a layer does is an event first.</figcaption>
+</figure>
+
+The same work as a pipeline of roles, and who does each:
+
 ```text
    SCOUT ─────► INVESTIGATOR ─────► ASSESSOR ─────► MIGRATOR ─────► VERIFIER
  (scanners,      (a model reads      (rules first;    (renders policy;  (paired probes;

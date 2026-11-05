@@ -21,6 +21,13 @@ from pqch.cbom import project
 HYBRID = re.compile(r"mlkem|kyber|sntrup", re.I)
 
 
+def _date(v) -> str:
+    """`YYYY-MM-DD` from a parameter that may be a list after the collector merged two findings."""
+    if isinstance(v, list):
+        return max((_date(x) for x in v), default="")
+    return (v or "")[:10] if isinstance(v, str) else ""
+
+
 def _props(c: dict) -> dict:
     return {p["name"]: p["value"] for p in c.get("properties", [])}
 
@@ -86,7 +93,7 @@ def build(capture_events: list[dict] | None, scan_bom: dict | None) -> dict | No
         ln["layers"] |= layers[fp]
         if c["cryptoProperties"]["assetType"] == "certificate":
             sp = c.get("_scan", {})
-            ln["certs"].append({"name": c["name"], "bits": sp.get("key_bits"), "not_after": (sp.get("not_after") or "")[:10],
+            ln["certs"].append({"name": c["name"], "bits": sp.get("key_bits"), "not_after": _date(sp.get("not_after")),
                                 "self_signed": sp.get("self_signed")})
         elif p.get("pqch:role") == "key-establishment":
             if "_capture" in c:

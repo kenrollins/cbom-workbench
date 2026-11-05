@@ -65,6 +65,7 @@ plugins:
   - search
 
 extra_css:
+  - stylesheets/header.css       # the demo's header, copied in by tools/build_site.py
   - stylesheets/fieldnotes.css   # the little brown book — shared with the lab's other field-notes sites
   - stylesheets/extra.css        # this site's own
   - stylesheets/drawings.css     # sketches (tools/draw.py, when a note carries one)
@@ -78,7 +79,7 @@ extra:
   demo_mode: !ENV [PQCH_DEMO_MODE, "live"]
   lab: !ENV [PQCH_SITE_LAB, "true"]
   # First entry → latest entry, written by tools/build_site.py from the journal's frontmatter dates.
-  journal_span: "2026-10-04 → 2026-11-04"   # >>> generated
+  journal_span: "Oct 4 → Nov 5, 2026"   # >>> generated
 
 nav:
   # The demo's pages are in the header, which every page shares; this is the reading beside them.
@@ -158,6 +159,16 @@ nav:
       - "50 \u2014 When a bundle keeps an image from one build to the next, key it to a hash of its build context, never to its name": lessons/50-key-a-kept-image-to-its-source-not-its-name.md
       - "51 \u2014 Where a protocol upgrade can be refused, ask for it once and record the answer before scanning what it would carry: a scanner that cannot represent a refusal records a timeout": lessons/51-probe-a-refusal-before-scanning-what-it-refuses.md
       - "52 \u2014 An inventory read as an ordinary user must list every path it could not open, and the plan must carry the privileged read as a step": lessons/52-a-read-without-privileges-must-list-what-it-could-not-open.md
+      - "53 \u2014 An offline install carries the build backend with the wheelhouse and installs outside the lock file; nothing in the runbook calls the package manager's run command": lessons/53-carry-the-build-backend-and-install-offline-outside-the-lock.md
+      - "54 \u2014 When a box already serves the engines on its loopback, join their containers to the kit's bridge under the kit's names instead of starting them again": lessons/54-join-the-boxs-own-engines-to-the-kits-bridge-under-the-kits-names.md
+      - "55 \u2014 A reply cap on a thinking tier is a thinking budget: set it from the measured tokens of the role's hardest items, and record a cut-off as an empty reply": lessons/55-a-reply-cap-on-a-thinking-tier-is-a-thinking-budget.md
+      - "56 \u2014 A signer's first signature over an event is a floor on the span that starts there, never a reading of it; check a ledger's clock against the bracket, not the floor": lessons/56-a-first-seen-signature-is-a-floor-on-a-span-not-a-reading-of-it.md
+      - "57 \u2014 When two renderers must show the same header, give them one stylesheet and one markup shape, copied at build time; a second implementation that matches by description drifts": lessons/57-render-a-shared-header-from-one-file.md
+      - "58 \u2014 A model whose chat template thinks by default must be told not to on every plain call, and its reply's shape belongs in the prompt and a validator, not in the engine's grammar": lessons/58-a-thinking-template-must-be-told-not-to-think.md
+      - "59 \u2014 Serve a static site that is rebuilt in place with Cache-Control: no-cache; without it the browser keeps old pages for a tenth of their age": lessons/59-serve-a-rebuilt-static-site-with-no-cache.md
+      - "60 \u2014 Before a component goes in an architecture picture, find the line of code that calls it; a stack drawn from what the box has installed claims parts the system never uses": lessons/60-before-a-component-goes-in-a-picture-find-its-call-site.md
+      - "61 \u2014 Give an animated presentation a snapshot mode that draws each frame's final state at once, and photograph every frame before presenting it": lessons/61-give-an-animated-presentation-a-snapshot-mode.md
+      - "62 \u2014 Before a container changes the user it runs as, change the owner of the files it appends to in a shared, sticky directory; the kernel refuses even root": lessons/62-before-a-container-changes-uid-chown-its-files-in-sticky-volumes.md
   # <<< end generated
   - Sources: sources.md
   - About: about.md

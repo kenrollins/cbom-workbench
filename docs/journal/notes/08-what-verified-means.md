@@ -73,6 +73,11 @@ So there are two different end states, and a verifier must tell them apart:
 breaking old clients — but it is not a pass against a policy that says
 *require*.
 
+<figure class="sketch" markdown>
+![Two probes against the listener after the change: a client offering only X25519MLKEM768 must connect and a client offering only the old groups, every one of them, must be refused; accepted and refused is enforced, accepted twice is enabled-not-enforced, refused first is not-landed; each probe takes about 1 s and the enumerating witness 21 to 31 s.](../img/sketches/08-paired-verdict.svg)
+<figcaption>The paired probe and the four verdicts it can give; accepted twice is enabled, not enforced.</figcaption>
+</figure>
+
 ## The mechanism
 
 **The check is fixed before the change.** A proposed change carries the check
@@ -98,6 +103,11 @@ recorded before anything is applied, so success cannot be redefined afterward.
   with no group at all. TLS 1.2 cannot carry the hybrid group, so any TLS 1.2
   handshake that completes is classical key establishment
   ([lesson 36](../lessons/36-probe-tls-1-2-apart-when-requiring-post-quantum.md)).
+
+<figure class="sketch" markdown>
+![A PostgreSQL 18 listener set to the hybrid group alone refused the negative probe, a TLS 1.3 client offering every classical group, and still completed the legacy probe, a TLS 1.2 handshake, with DHE-RSA and again with RSA key transport; with the minimum protocol also set to TLS 1.3, the positive probe was accepted, the negative refused, the witness found only X25519MLKEM768 and the TLS 1.2 handshake was refused: enforced, all four held.](../img/sketches/08-the-fourth-probe.svg)
+<figcaption>The four probes on two configurations of the records database's copy: only the TLS 1.2 probe tells them apart.</figcaption>
+</figure>
 
 The pair *samples*; the witness *enumerates*. If the witness finds the
 listener accepting any group that is not on the accept list, the status is at

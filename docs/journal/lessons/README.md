@@ -64,3 +64,13 @@ day it was learned.
 | 50 | When a bundle keeps an image from one build to the next, key it to a hash of its build context, never to its name | all |
 | 51 | Where a protocol upgrade can be refused, ask for it once and record the answer before scanning what it would carry | enumerated |
 | 52 | An inventory read as an ordinary user must list every path it could not open, and the plan must carry the privileged read | enumerated |
+| 53 | An offline install carries the build backend with the wheelhouse and installs outside the lock file; nothing in the runbook calls the package manager's run command | all |
+| 54 | When a box already serves the engines on its loopback, join their containers to the kit's bridge under the kit's names instead of starting them again | all |
+| 55 | A reply cap on a thinking tier is a thinking budget: set it from the measured tokens of the role's hardest items, and record a cut-off as an empty reply | all |
+| 56 | A signer's first signature over an event is a floor on the span that starts there, never a reading of it; check a ledger's clock against the bracket, not the floor | managed |
+| 57 | When two renderers must show the same header, give them one stylesheet and one markup shape, copied at build time | all |
+| 58 | A model whose chat template thinks by default must be told not to on every plain call, and its reply's shape belongs in the prompt and a validator, not in the engine's grammar | all |
+| 59 | Serve a static site that is rebuilt in place with Cache-Control: no-cache; without it the browser keeps old pages for a tenth of their age | all |
+| 60 | Before a component goes in an architecture picture, find the line of code that calls it | all |
+| 61 | Give an animated presentation a snapshot mode that draws each frame's final state at once, and photograph every frame before presenting it | all |
+| 62 | Before a container changes the user it runs as, change the owner of the files it appends to in a shared, sticky directory; the kernel refuses even root | all |

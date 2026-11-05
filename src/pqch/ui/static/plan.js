@@ -131,7 +131,7 @@ var withBase = (function () {
     lanes.forEach(function (l) {
       svg.append("line").attr("x1", 0).attr("x2", W).attr("y1", laneEnd[l.id]).attr("y2", laneEnd[l.id]).attr("stroke", C.line);
       svg.append("text").attr("x", 4).attr("y", laneY[l.id] - 2).attr("fill", l.id.charAt(0) === "@" ? C.dim : C.fg).attr("font-size", 12.5)
-        .attr("font-weight", 600).text(l.label);
+        .attr("font-weight", 600).attr("data-lane", l.label).attr("data-y0", laneEnd[l.id] - laneRows(l) * LH).attr("data-y1", laneEnd[l.id]).text(l.label);
       svg.append("text").attr("x", 4).attr("y", laneY[l.id] + 12).attr("fill", C.dim).attr("font-size", 10).text(l.sub);
       if (!steps.some(function (s) { return laneOf(s) === l.id; })) {
         svg.append("text").attr("x", LABEL + 8).attr("y", laneY[l.id] + 4).attr("fill", C.good).attr("font-size", 11)

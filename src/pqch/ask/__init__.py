@@ -21,7 +21,9 @@ SCHEMA = {
     "properties": {
         "answer": {"type": "string"},
         "components": {"type": "array", "items": {"type": "string"}},
-        "citations": {"type": "array", "items": {"type": "string"}},
+        # One ledger event id (a ULID) per citation, held by the schema: a reply that packed three ids
+        # into one string failed every citation at the rule on 2026-11-04 (Lightning, demo GB10).
+        "citations": {"type": "array", "items": {"type": "string", "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$"}},
         "not_in_passages": {"type": "boolean"},
     },
     "required": ["answer", "components", "citations", "not_in_passages"],
@@ -171,10 +173,19 @@ def ask(seam, index: Index, question: str, events: list[dict]) -> dict:
     """Retrieve, answer through the role, check. The result carries the shown passages, the typed
     reply, each citation's verdict, and the model call's provenance."""
     shown = index.retrieve(question)
-    # 8000: a reasoning engine thinks inside the budget; at 4000 three long answers came back cut short (2026-11-04).
-    c = seam.complete_role(ROLE, _messages(question, shown), schema=SCHEMA, max_tokens=8000, purpose="ask-cbom")
+    # A reply cap on a thinking tier is a thinking budget (lesson 55). On Lightning with thinking on a GB10
+    # (2026-11-04): at 4000 three of six example questions came back cut short, at 8000 three, at 16000 two
+    # (one empty after 120 s, one cut mid-answer); 20000 is the largest envelope any role measured (change
+    # plans, p90 19,352). The page shows each call's finish reason and completion tokens, so the next
+    # cut-off is measured, not guessed.
+    # Thinking off answers in a few hundred tokens; a cap of 1,200 ends a runaway in about ten seconds on this class of
+    # engine instead of two hundred. Thinking on keeps the 20,000 envelope above.
+    cap = 20000 if seam.for_role(ROLE)[1] else 1200
+    c = seam.complete_role(ROLE, _messages(question, shown), schema=SCHEMA, max_tokens=cap, purpose="ask-cbom")
     reply = c.parsed if isinstance(c.parsed, dict) else {"answer": c.text, "components": [], "citations": [],
                                                            "not_in_passages": True}
     return {"question": question, "shown": shown, "reply": reply, "check": check(reply, shown, events),
             "model": c.model, "tier": c.tier, "hardware": c.hardware, "latency_ms": c.latency_ms,
-            "reasoning": c.reasoning, "embed_model": index.model, "embed_hardware": index.hardware}
+            "reasoning": c.reasoning, "finish_reason": c.finish_reason,
+            "completion_tokens": (c.usage or {}).get("completion_tokens"),
+            "embed_model": index.model, "embed_hardware": index.hardware}

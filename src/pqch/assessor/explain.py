@@ -54,7 +54,10 @@ def explain(run: Run, *, seam: inference.Seam | None = None) -> dict:
         messages = [{"role": "system", "content": PROMPT},
                     {"role": "user", "content": "Findings:\n" + "\n".join(lines)}]
         try:
-            c = s.complete_role(ROLE, messages, schema=SCHEMA, max_tokens=4000, purpose=PURPOSE)
+            # A reply cap on a thinking tier is a thinking budget (lesson 55): conflict resolution thinks
+            # p50 11,600 and p90 15,762 tokens on Lightning (spike S3 dev set on a GB10, 2026-11-04); at
+            # 4000 every such call came back empty.
+            c = s.complete_role(ROLE, messages, schema=SCHEMA, max_tokens=16000, purpose=PURPOSE)
         except (inference.SchemaViolation, inference.TierUnavailable, OSError) as e:
             counts["failed"] += 1
             run.ledger.append("assessment.made", {"kind": "rule", "id": "explain/failed"}, {

@@ -27,8 +27,10 @@ targets/
 site/
 site_src/notes/
 site_src/lessons/
+site_src/img/
 site_src/sources.md
 site_src/stylesheets/fonts/
+site_src/stylesheets/header.css
 
 .env
 *.env
@@ -53,3 +55,9 @@ kit/engines.env
 
 # Written by tools/build_site.py from the journal, with the generated indexes.
 site_src/journal-span.txt
+bundle/carry/
+bundle/out.multiarch/
+
+# A box's own scope for scan-system (kit/compose.system.yaml): the operator's authorization and addresses; never in the repository
+kit/scope.*.json
+!kit/scope.example.json

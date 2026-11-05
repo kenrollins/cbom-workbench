@@ -44,6 +44,11 @@ mismatch, so the silent case cannot occur by accident; and the scan plan
 skips a protocol no profile claims and says so, so the gap is on the page
 rather than in a column of zeros.
 
+<figure class="sketch" markdown>
+![Port 5432, PostgreSQL, which speaks TLS only after an SSLRequest: the plain TLS profile sends a ClientHello first, is answered in the wrong language or closed, sees no TLS and reports nothing, the same as a port with no cryptography, silent and not negative; the postgres profile sends the SSLRequest and then TLS, and finds X25519MLKEM768, X25519, a 2048-bit DHE group, RSA key transport and the certificate in 91 s, every handshake repeating the upgrade.](../img/sketches/29-an-upgrade-port-is-silent.svg)
+<figcaption>The same port, two profiles: the one that speaks the upgrade sees everything, the other sees nothing and says nothing.</figcaption>
+</figure>
+
 ## When it applies
 
 Databases (PostgreSQL, MySQL's own upgrade), mail (SMTP, IMAP, POP3),

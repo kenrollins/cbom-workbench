@@ -1,0 +1,57 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #fff; }
+  svg { display: block; width: 1600px; height: 560px; font-family: "Inter", sans-serif; }
+  .box { fill: #f6f8fb; stroke: #1b2a3a; stroke-width: 1.6; }
+  .box.model { stroke: #0077a8; stroke-dasharray: 6 4; fill: #eef7fb; }
+  .box.person { stroke: #b8471f; fill: #fdf3ee; }
+  .box.probe { stroke: #1f7a4d; fill: #eef8f2; }
+  .t { font-size: 17px; font-weight: 600; fill: #111; }
+  .s { font-size: 13px; fill: #4a5563; }
+  .k { font-size: 12px; font-weight: 700; letter-spacing: .12em; fill: #6b7280; }
+  .arrow { fill: none; stroke: #1b2a3a; stroke-width: 1.8; marker-end: url(#a); }
+  .ledger { fill: #fff7e0; stroke: #9a6b00; stroke-width: 1.6; }
+  .lt { font-size: 16px; font-weight: 600; fill: #5a3f00; }
+  .ls { font-size: 12.5px; fill: #5a3f00; }
+  .down { fill: none; stroke: #9a6b00; stroke-width: 1.4; stroke-dasharray: 4 4; marker-end: url(#b); }
+  .phase { font-size: 12px; font-weight: 700; letter-spacing: .14em; fill: #0077a8; }
+</style>
+<body><svg viewBox="0 0 1600 560" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1b2a3a"/></marker>
+<marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a6b00"/></marker></defs>
+<text class="phase" x="40" y="34">1 · DISCOVER</text><text class="phase" x="640" y="34">2 · DECIDE</text><text class="phase" x="1100" y="34">3 · PROVE</text>
+<!-- row of boxes -->
+<g transform="translate(40,60)"><rect class="box" width="190" height="104" rx="6"/><text class="t" x="14" y="30">Scope</text><text class="s" x="14" y="54">the owner's networks and hosts,</text><text class="s" x="14" y="72">authorized in a scope file</text><text class="s" x="14" y="90">the runner touches nothing else</text></g>
+<path class="arrow" d="M232,112 L268,112"/>
+<g transform="translate(272,60)"><rect class="box" width="230" height="104" rx="6"/><text class="t" x="14" y="30">Scan</text><text class="s" x="14" y="54">scanners as containers, by digest:</text><text class="s" x="14" y="72">testssl.sh, ssh-audit, cbomkit-theia,</text><text class="s" x="14" y="90">openssl, OpenSSH, our file readers</text></g>
+<path class="arrow" d="M504,112 L540,112"/>
+<g transform="translate(544,60)"><rect class="box" width="200" height="104" rx="6"/><text class="t" x="14" y="30">CBOM</text><text class="s" x="14" y="54">CycloneDX 1.6, projected</text><text class="s" x="14" y="72">from the ledger: 259 components,</text><text class="s" x="14" y="90">270 dependencies, never edited</text></g>
+<path class="arrow" d="M746,112 L782,112"/>
+<g transform="translate(786,60)"><rect class="box" width="200" height="104" rx="6"/><text class="t" x="14" y="30">Assess and plan</text><text class="s" x="14" y="54">rules, from the owner's facts</text><text class="s" x="14" y="72">and the policy: 26 steps,</text><text class="s" x="14" y="90">three waves, dependencies</text></g>
+<path class="arrow" d="M988,112 L1024,112"/>
+<g transform="translate(1028,60)"><rect class="box model" width="200" height="104" rx="6"/><text class="t" x="14" y="30">Draft</text><text class="s" x="14" y="54">the config edit, written by</text><text class="s" x="14" y="72">Nemotron on the box from the</text><text class="s" x="14" y="90">findings; nothing applied</text></g>
+<path class="arrow" d="M1230,112 L1266,112"/>
+<g transform="translate(1270,60)"><rect class="box probe" width="290" height="104" rx="6"/><text class="t" x="14" y="30">Rehearse on a twin</text><text class="s" x="14" y="54">the edit applied to a copy of the</text><text class="s" x="14" y="72">service and probed before anyone</text><text class="s" x="14" y="90">is asked to approve</text></g>
+<!-- second row -->
+<g transform="translate(1270,200)"><rect class="box person" width="290" height="104" rx="6"/><text class="t" x="14" y="30">A person approves</text><text class="s" x="14" y="54">in their name, on the ledger;</text><text class="s" x="14" y="72">nothing applies without</text><text class="s" x="14" y="90">an approval event</text></g>
+<path class="arrow" d="M1415,166 L1415,196"/>
+<path class="arrow" d="M1266,252 L1232,252"/>
+<g transform="translate(1028,200)"><rect class="box" width="200" height="104" rx="6"/><text class="t" x="14" y="30">Apply</text><text class="s" x="14" y="54">the runner renders the policy</text><text class="s" x="14" y="72">into the service's config and</text><text class="s" x="14" y="90">restarts it from its image</text></g>
+<path class="arrow" d="M1024,252 L990,252"/>
+<g transform="translate(786,200)"><rect class="box probe" width="200" height="104" rx="6"/><text class="t" x="14" y="30">Probe, twice</text><text class="s" x="14" y="54">hybrid-only client accepted,</text><text class="s" x="14" y="72">classical-only refused; again</text><text class="s" x="14" y="90">after a restart: durable</text></g>
+<path class="arrow" d="M782,252 L748,252"/>
+<g transform="translate(544,200)"><rect class="box probe" width="200" height="104" rx="6"/><text class="t" x="14" y="30">Verdict</text><text class="s" x="14" y="54">enforced, from the probes;</text><text class="s" x="14" y="72">a model never decides it;</text><text class="s" x="14" y="90">the plan's step turns done</text></g>
+<path class="arrow" d="M540,252 L506,252"/>
+<g transform="translate(272,200)"><rect class="box model" width="230" height="104" rx="6"/><text class="t" x="14" y="30">Ask the CBOM</text><text class="s" x="14" y="54">retrieve with the embed NIM,</text><text class="s" x="14" y="72">answer with Nemotron, every</text><text class="s" x="14" y="90">citation checked on the ledger</text></g>
+<!-- ledger bar -->
+<g transform="translate(40,360)"><rect class="ledger" width="1520" height="76" rx="6"/><text class="lt" x="16" y="30">The ledger: one append-only JSONL file per run, hash-chained, checkpoints signed with ML-DSA-65</text><text class="ls" x="16" y="56">every finding, assessment, draft, approval, apply, probe and verdict is an event; the CBOM, the plan and every page are projections rebuilt from it; verified live each time it is shown</text></g>
+<path class="down" d="M387,166 L387,356"/><path class="down" d="M644,306 L644,356"/><path class="down" d="M886,306 L886,356"/><path class="down" d="M1128,306 L1128,356"/><path class="down" d="M1415,306 L1415,356"/>
+<!-- legend -->
+<g transform="translate(40,470)">
+<rect class="box" width="22" height="16" rx="3"/><text class="s" x="30" y="13">rules, scanners and probes decide</text>
+<rect class="box model" x="300" width="22" height="16" rx="3"/><text class="s" x="330" y="13">a local model writes or explains; it never decides a finding or a verdict</text>
+<rect class="box person" x="820" width="22" height="16" rx="3"/><text class="s" x="850" y="13">a person decides</text>
+<rect class="box probe" x="1020" width="22" height="16" rx="3"/><text class="s" x="1050" y="13">proof on the wire</text>
+<text class="s" x="0" y="48">Everything runs on one Dell Pro Max GB10, air-gapped: Nemotron 3.5 Lightning 30B-A3B (NVFP4, vLLM) and the NeMo Retriever embed NIM on the Blackwell GPU, scanners and the mini-agency as containers on the Grace CPU, one signed record.</text>
+</g>
+</svg></body>

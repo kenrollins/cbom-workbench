@@ -50,6 +50,11 @@ decides its future is below the operating system:
 None of these is visible to a scan of the operating system's listeners, and none changes when the
 operating system is patched.
 
+<figure class="sketch" markdown>
+![A server's cryptography sits in four places with four owners and four clocks: its listeners, changed by its software; its own files, changed by its administrators; its firmware's trust databases PK, KEK, db and dbx, changed by firmware updates; and its management controller, changed by the controller's firmware and settings. A scan of the listeners sees the first and nothing below the operating system; the runner reads all four in ten read-only jobs into one signed ledger.](../img/sketches/20-four-clocks.svg)
+<figcaption>The four places, who changes each, and what the runner reads there; a listener scan sees only the first.</figcaption>
+</figure>
+
 ## The mechanism
 
 **1. The scope.** The server is an `external` estate, with the operator's authorization in its scope.
@@ -67,6 +72,15 @@ raw output and hash:
 | `system-theia`, `system-files` | an archive of exactly the scoped paths, packed read-only by the runner as its own user | certificates, public and private keys, keystores; what could not be read, listed (lesson 52) |
 | `system-firmware` | the Secure Boot variables, DMI and the TPM from sysfs, in the same archive | every certificate in PK, KEK, db and dbx with its key and dates; the BIOS version; the TPM's banks; whether Secure Boot is on |
 | `controller-redfish` | the controller's Redfish API, GET only | its configured SSH and TLS, SNMP, FIPS mode, identity certificates, firmware inventory |
+
+**The runner's user decides what the files say.** The archive is packed by the runner as whatever
+user it runs as, so that choice is part of the result and is recorded with it ("read as uid 1001" or
+"read as uid 0"). Read as an ordinary user, a server shows the public half of each key pair and lists
+the private halves as unreadable (lesson 52). Read as root, the same paths show the private keys too,
+and the unreadable list is empty. Root is needed only for the read: the runner mounts the scoped paths
+read-only under `/host`, so even a root runner can open them but cannot change them. The kit runs this as a second runner beside the
+mini-agency's (`kit/compose.system.yaml`), with its own signer and its own key, so a server's ledger
+is signed apart from the test estate's.
 
 **3. The ledger and the CBOM.** Findings go on the wire, host or the new `platform` layer; what is not
 a cryptographic asset (the device, its firmware versions, its security settings) is a

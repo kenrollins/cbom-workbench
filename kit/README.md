@@ -38,7 +38,20 @@ weights take; no root for anything in the kit.
    read-only, pulls the thirteen images by digest, writes the estate's starting policy files from
    `agency/baseline/` where `agency/generated/` has none, starts the estate, regenerates the scope from
    what is running, and starts the harness. On the GB10 that took 8 s after the first load (29 s with the pulls).
-5. **The page:** http://127.0.0.1:8080/ on the box. The walkthrough runs the scan; the CBOM, the plan,
+5. **The page:** http://127.0.0.1:8080/ on the box.
+
+**Updating the harness without a new bundle.** A change to the harness alone (a page, a rule, a cap) is
+fetched as commits and built on the box, natively; the estate's images stay the bundle's. With the same
+exports as step 4, and `C` the four compose files in this order:
+```sh
+git fetch <remote> m1-prep && git merge --ff-only FETCH_HEAD
+C="docker compose -f compose.yaml -f kit/compose.kit.yaml -f bundle/out/compose.harness.yaml -f kit/compose.build.yaml"
+$C build app && $C up -d
+```
+`kit/compose.build.yaml` replaces the three harness services' image with one built from the checkout;
+the bundle's harness overlay stays for what the runner needs from the bundle. A bundle is for the day
+the network is cut, rehearsed once as such; on 2026-11-04 nine bundles of about 800 MB each carried
+mostly HTML and CSS to the demo box, and one of them a stale stylesheet from a shared working tree. The walkthrough runs the scan; the CBOM, the plan,
    resolution and Ask the CBOM follow from it.
 
 ## Who approves
@@ -72,6 +85,18 @@ docker compose -f compose.yaml -f kit/compose.kit.yaml -f bundle/out/compose.har
 ```
 
 Then: the plan page's "A server's plan" tab, and the CBOM page's "A server's CBOM".
+
+## The box itself, read as a server
+
+`kit/compose.system.yaml` (branch `gb10-box`, 2026-11-04) runs the system runner and its own signer
+beside the stack, the lab's shape: the runner as the operator's uid with the scoped paths and `/sys`
+mounted read-only under `/host`, its socket shared with the app, no credentials. The scope is the
+operator's own file (`kit/scope.example.json` is the shape; a real one is git-ignored) and its
+authorisation text is theirs to write. Then `pqch scan-system` through the app, and the Hosts page shows
+the box beside any replayed server. Two things that bit: the runner's socket volume must mount at
+`/run/pqch` inside the runner, the directory the image pre-owns (a fresh volume elsewhere is root's and
+uvicorn gets EACCES as the operator's uid); and a scanner may return a valid document whose component
+list is `null`, not empty.
 
 ## Leaving a box
 
