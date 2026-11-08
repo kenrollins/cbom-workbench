@@ -204,7 +204,7 @@ written.
 
 The full test estate is eight services, these four among them, with a key of
 74 items (58 to find, 9 decoys, 2 out of reach, 5 supplied); the demo's
-[test agency](https://kenrollins.github.io/cbom-workbench/agency/) page shows
+[test agency](https://kenrollins.github.io/cbom-workbench/site/pages/#the-test-agency) page shows
 each service and what was planted in it. The slice's key is kept, frozen, in
 `eval/answer-keys/mini-agency-m0.yaml`, and the scores below are the slice's.
 
@@ -286,6 +286,16 @@ ledgers, the plan's narration recorded once, and the hardware named as the runs 
   review, were in the verifier and in who is allowed to write what.
 - **Time-to-change is a measurable property.** About a minute on one service
   is a starting figure for one estate, not a benchmark.
+- **The tool is judged before the estate.** An agency authorizes the workbench
+  as a system of its own. Reviewed against those controls, its foundation holds
+  and the three blockers are in the shell around it: roles and separation of
+  duties, its own cryptography in a validated module, and TLS
+  ([note 21](21-what-a-federal-authorization-asks-of-a-cbom-tool-itself.md)).
+  What can change without changing the demo has: every deadline assessed from
+  now on names the document that set it (M-26-15 or NIST IR 8547), a model-set fact in the CBOM
+  names its model, the checkpoint algorithm is a setting, the scope carries
+  who authorized it and until when, and TLS to the models, origin checks, file
+  modes and a release signature are settings a deployment turns on.
 
 ## Scope
 
@@ -371,4 +381,5 @@ a Dell product, reference architecture or supported offering.
 - Related notes: [what federal policy requires, and by when](03-what-federal-policy-requires-and-when.md);
   [what "verified" means](08-what-verified-means.md);
   [what an auditable record contains](12-what-an-auditable-record-contains.md);
-  [what the open-source scanners cover](15-what-the-open-source-scanners-cover.md).
+  [what the open-source scanners cover](15-what-the-open-source-scanners-cover.md);
+  [what a federal authorization asks of the tool itself](21-what-a-federal-authorization-asks-of-a-cbom-tool-itself.md).

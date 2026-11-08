@@ -10,6 +10,24 @@ The resource paths are Dell iDRAC 9's (16th generation); a path a controller doe
 recorded with its status, not treated as an error. A recording of an earlier read is the same
 document, and is brought into a run as that read's raw output (`pqch scan-system --controller-recording`).
 
+Trust (FR-03). The first handshake is an observation: it sends nothing but a ClientHello and records
+the certificate served. Whether the authenticated session that follows trusts that controller is set
+in the same per-controller file as the credentials, and recorded in the output's `trust` block, which
+the controller's `platform.observed` event carries onto the ledger:
+
+- `REDFISH_TRUST=ca` with `REDFISH_CA_PEM_B64` (a base64 PEM bundle): the session is verified against
+  that CA, hostname included.
+- `REDFISH_TRUST=pin` with `REDFISH_PIN_SHA256`: the certificate served must be that one, or no
+  credential is sent.
+- `REDFISH_TRUST=observed`: the session is held to the certificate the observing handshake of this same
+  read saw, and its fingerprint is recorded so the operator can set `pin`. This is not trust on first
+  use: nothing from an earlier read is consulted, so a controller that serves a new certificate on
+  every read is accepted on every read. It stops only a swap between the observation and the session.
+- unset: as before, no verification, and `trust.mode` says `none`.
+
+An expired or not-yet-valid certificate fails `ca`, `pin` and `observed` alike (OpenSSL checks the
+time of a trust anchor too): the read stops before any credential is sent.
+
     pqch controller-redfish <host> [--port 443]
 """
 from __future__ import annotations
@@ -23,6 +41,7 @@ import sys
 from pathlib import Path
 
 SCHEMA = "pqch-controller-redfish/1"
+_OBSERVED: dict[tuple[str, int], bytes] = {}
 CRED = Path("/scan/controller.env")
 PATHS = [
     "/redfish/v1/Managers/iDRAC.Embedded.1",
@@ -57,6 +76,7 @@ def handshake(host: str, port: int) -> dict:
     with socket.create_connection((host, port), timeout=15) as raw, ctx.wrap_socket(raw, server_hostname=host) as s:
         der = s.getpeercert(binary_form=True)
         version, cipher = s.version(), s.cipher()[0]
+    _OBSERVED[(host, port)] = der
     c = x509.load_der_x509_certificate(der)
     k = c.public_key()
     fam, bits = (("RSA", k.key_size) if isinstance(k, rsa.RSAPublicKey) else ("ECDSA", k.key_size)
@@ -69,13 +89,51 @@ def handshake(host: str, port: int) -> dict:
                             "self_signed": c.subject == c.issuer, "sha256": hashlib.sha256(der).hexdigest()}}
 
 
-def _credentials() -> tuple[str, str]:
+def _settings() -> dict:
     vals = {}
+    if not CRED.exists():
+        return vals
     for line in CRED.read_text().splitlines():
         if "=" in line and not line.lstrip().startswith("#"):
             k, v = line.split("=", 1)
             vals[k.strip()] = v.strip()
+    return vals
+
+
+def _credentials() -> tuple[str, str]:
+    vals = _settings()
     return vals["REDFISH_USER"], vals["REDFISH_PASSWORD"]
+
+
+def trust_context(settings: dict, observed_der: bytes) -> tuple[ssl.SSLContext | bool, dict]:
+    """The verification for the authenticated session, and the record of it. Raises ValueError when
+    the controller served a certificate other than the pinned one."""
+    import base64
+
+    mode = (settings.get("REDFISH_TRUST") or "none").strip()
+    observed = hashlib.sha256(observed_der).hexdigest()
+    rec = {"mode": mode, "observed_sha256": observed}
+    if mode == "none":
+        return False, rec
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)       # trusts only what is loaded below
+    if mode == "ca":
+        ctx.load_verify_locations(cadata=base64.b64decode(settings["REDFISH_CA_PEM_B64"]).decode())
+        rec["ca_sha256"] = hashlib.sha256(base64.b64decode(settings["REDFISH_CA_PEM_B64"])).hexdigest()
+        return ctx, rec
+    if mode == "pin":
+        pin = settings["REDFISH_PIN_SHA256"].lower()
+        rec["pinned_sha256"] = pin
+        if pin != observed:
+            raise ValueError(f"the controller served certificate {observed[:16]}…, not the pinned {pin[:16]}…")
+    elif mode == "observed":
+        rec["pinned_sha256"] = observed
+    else:
+        raise ValueError(f"REDFISH_TRUST {mode!r} is not one of ca, pin, observed")
+    # The served certificate itself is the only trust anchor; a leaf a CA issued is accepted as an anchor too.
+    ctx.check_hostname = False
+    ctx.verify_flags |= ssl.VERIFY_X509_PARTIAL_CHAIN
+    ctx.load_verify_locations(cadata=observed_der)
+    return ctx, rec
 
 
 def read(host: str, port: int = 443) -> dict:
@@ -88,14 +146,29 @@ def read(host: str, port: int = 443) -> dict:
            "read_at": datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
            "method": "Redfish GET only", "tls": handshake(host, port), "resources": {}}
     base = f"https://{host}:{port}"
-    with httpx.Client(base_url=base, verify=False, timeout=60, headers={"Accept": "application/json"}) as anon:
-        r = anon.get("/redfish/v1")
+    try:
+        verify, out["trust"] = trust_context(_settings(), _OBSERVED[(host, port)])
+    except ValueError as e:
+        out["trust"] = {"mode": _settings().get("REDFISH_TRUST"), "refused": str(e),
+                        "observed_sha256": out["tls"]["certificate"]["sha256"]}
+        out["authenticated"] = False
+        return out
+    with httpx.Client(base_url=base, verify=verify, timeout=60, headers={"Accept": "application/json"}) as anon:
+        try:
+            r = anon.get("/redfish/v1")
+        except httpx.ConnectError as e:
+            if verify is False:
+                raise
+            # The session did not verify: stop before any credential is sent, and say why.
+            out["trust"]["refused"] = f"{type(e).__name__}: {e}"[:300]
+            out["authenticated"] = False
+            return out
         out["service_root"] = r.json() if r.status_code == 200 else {"status": r.status_code}
     if not CRED.exists():
         out["authenticated"] = False
         return out
     user, password = _credentials()
-    with httpx.Client(base_url=base, verify=False, timeout=120, auth=(user, password),
+    with httpx.Client(base_url=base, verify=verify, timeout=120, auth=(user, password),
                       headers={"Accept": "application/json"}) as c:
         first = c.get(PATHS[0])
         if first.status_code in (401, 403):

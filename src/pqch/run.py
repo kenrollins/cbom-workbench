@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from pqch import cryptoinfo, varmode
 from pqch import scope as scope_mod
 from pqch.common import sha256_hex, ulid
 from pqch.ledger import Ledger
@@ -30,10 +31,11 @@ class Run:
             "run.started",
             {"kind": "runner", "id": runner_id},
             {"run": run.id, "scope": scope, "scope_hash": ours, "profile": profile,
-             "schemas": SCHEMAS_IN_USE, "kind": kind},
+             "schemas": SCHEMAS_IN_USE, "kind": kind, "crypto": cryptoinfo.provenance()},
         )
-        (run.var / "runs" / "LATEST").write_text(run.id + "\n")
-        (run.var / "runs" / f"LATEST_{kind.upper()}").write_text(run.id + "\n")
+        for latest in ("LATEST", f"LATEST_{kind.upper()}"):
+            (run.var / "runs" / latest).write_text(run.id + "\n")
+            varmode.private(run.var / "runs" / latest)
         return run
 
     @classmethod
@@ -48,9 +50,10 @@ class Run:
             "run.started",
             {"kind": "runner", "id": sensor_id},
             {"run": run.id, "scope": scope, "scope_hash": scope_mod.scope_hash(scope), "profile": "capture",
-             "schemas": SCHEMAS_IN_USE, "kind": "capture"},
+             "schemas": SCHEMAS_IN_USE, "kind": "capture", "crypto": cryptoinfo.provenance()},
         )
         (run.var / "runs" / "LATEST_CAPTURE").write_text(run.id + "\n")
+        varmode.private(run.var / "runs" / "LATEST_CAPTURE")
         return run
 
     @classmethod
@@ -76,6 +79,7 @@ class Run:
         pub = self.dir / "ledger.pub"
         if not pub.exists():
             pub.write_text(signer.key()["public_key_pem"])
+            varmode.private(pub)
         return self.ledger.append(
             "checkpoint.signed", {"kind": "controller", "id": "pqch-signer"},
             {**res["checkpoint"], "signing_ms": res["signing_ms"], "hardware": res["hardware"]},

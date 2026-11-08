@@ -1509,6 +1509,128 @@ def sketch_arch_five_layers() -> None:
     p.save(SKETCHES / "arch-five-layers.svg")
 
 
+def sketch_21_foundation_and_shell() -> None:
+    """Note 21: the federal readiness review of 2026-11-06 at f3f2621. The foundation holds; the
+    thirteen findings are in the shell around it, three of them blocking (federal-review/01-findings.md)."""
+    FOUNDATION = [  # what holds, the review's closing table
+        "a hash-chained ledger, ML-DSA checkpoints",
+        "the CBOM rebuilt from it",
+        "scans bounded by a scope file",
+        "images by digest, an offline bundle",
+        "rules first; models by measurement",
+        "verified by probes, never a model",
+    ]
+    SHELL = [  # (severity, finding) in the review's order
+        ("P0", "who may act: one owner, no roles"),
+        ("P0", "its own crypto in no validated module"),
+        ("P0", "plain HTTP to the page and the models"),
+        ("P1", "containers at Docker's defaults"),
+        ("P1", "no SBOM or signature of itself"),
+        ("P1", "a model's fact unlabelled in the CBOM"),
+        ("P1", "AI use undocumented; origin unchecked"),
+        ("P1", "the inventory handled as plain files"),
+        ("P1", "WCAG gaps, no conformance report"),
+        ("P1", "IR 8547 final not in the packs"),
+        ("P2", "sockets open to any caller"),
+        ("P2", "no log export; reads unrecorded"),
+        ("P2", "authorization a free-text name"),
+    ]
+    p = Page(1000, 640, seed=21, title="The foundation holds; the thirteen findings are in the shell around it")
+    p.text(500, 48, "Nothing underneath fails. What blocks is around it.", 36, INK, "middle")
+
+    fx, fy, fw, fh = 40, 110, 400, 470
+    p.box(fx, fy, fw, fh, INK, 2.6)
+    p.text(fx + fw / 2, fy + 44, "the foundation", 30, INK, "middle")
+    p.text(fx + fw / 2, fy + 70, "what an assessor looks for", 18, PENCIL, "middle")
+    for i, t in enumerate(FOUNDATION):
+        y = fy + 124 + i * 54
+        p.tick(fx + 34, y - 6, 14, BALLPOINT, 2.4)
+        p.text(fx + 58, y, t, 21, BALLPOINT)
+
+    sx = 520
+    p.text(sx, fy + 20, f"the shell: {len(SHELL)} findings", 26, INK)
+    for i, (sev, t) in enumerate(SHELL):
+        y = fy + 80 + i * 31 + (0 if sev == "P0" else 20)   # room under the ring
+        p.text(sx, y, sev, 20, INK if sev == "P0" else PENCIL, weight=700)
+        p.text(sx + 44, y, t, 20, BALLPOINT if sev == "P0" else PENCIL)
+    # The point: the three that block are all outside the foundation.
+    n0 = sum(1 for s, _ in SHELL if s == "P0")
+    p.ring(sx + 180, fy + 80 + (n0 - 1) * 31 / 2 - 7, 235, 64)
+    p.text(40, 616, "read 2026-11-06 at f3f2621; P0 blocks an authorization as it stands, P1 an assessor opens at once", 18, PENCIL)
+    p.save(SKETCHES / "21-foundation-and-shell.svg")
+
+
+def sketch_65_two_writers_three_readers() -> None:
+    """Lesson 65: before a private mode, the readers. Two writers (the kit's system runner as root, writing
+    var/raw and agency/generated/) and three readers at three uids (the app as 1000, the public builder as the
+    host user, the estate's services as their own). The red ring is on the raw-output file: 0600 under root
+    closes it to the uid-1000 reader. Read from kit/compose.system.yaml and compose.yaml, 2026-11-06/08."""
+    p = Page(1000, 520, seed=65, title="Two writers, three readers: find every reader before a private mode")
+    p.text(500, 46, "Before a private mode, list every reader and its uid.", 32, INK, "middle")
+    # The writer, left.
+    p.box(30, 120, 250, 150, INK, 2.2, fill=PAPER)
+    p.text(155, 156, "system runner", 21, INK, "middle")
+    p.text(155, 184, "uid 0 (root)", 18, BALLPOINT, "middle")
+    p.text(155, 212, "reads host keys only", 14, PENCIL, "middle")
+    p.text(155, 232, "root can read; writes two places", 14, PENCIL, "middle")
+    # Two files in the middle.
+    p.box(400, 90, 200, 90, INK, 2.0, fill=PAPER)
+    p.text(500, 122, "var/raw/<job>", 18, INK, "middle")
+    p.text(500, 150, "owner root, 0600 if private", 14, BALLPOINT, "middle")
+    p.box(400, 300, 200, 90, INK, 2.0, fill=PAPER)
+    p.text(500, 332, "agency/generated/", 18, INK, "middle")
+    p.text(500, 360, "the estate's own config", 14, PENCIL, "middle")
+    p.arrow([(284, 170), (340, 150), (396, 135)], BALLPOINT, 2.0)
+    p.arrow([(284, 230), (340, 300), (396, 340)], BALLPOINT, 2.0)
+    # Three readers, right.
+    p.box(720, 60, 250, 80, INK, 2.0, fill=PAPER)
+    p.text(845, 90, "app", 19, INK, "middle")
+    p.text(845, 116, "uid 1000: cannot open 0600 of root", 13, BALLPOINT, "middle")
+    p.box(720, 170, 250, 80, INK, 2.0, fill=PAPER)
+    p.text(845, 200, "tools/build_public.py", 18, INK, "middle")
+    p.text(845, 226, "the host user, outside the containers", 13, PENCIL, "middle")
+    p.box(720, 310, 250, 80, INK, 2.0, fill=PAPER)
+    p.text(845, 340, "the estate's services", 18, INK, "middle")
+    p.text(845, 366, "their own uids: a umask would close this", 13, PENCIL, "middle")
+    p.arrow([(604, 125), (660, 110), (716, 100)], BALLPOINT, 2.0)
+    p.arrow([(604, 145), (660, 180), (716, 205)], BALLPOINT, 2.0)
+    p.arrow([(604, 345), (660, 348), (716, 350)], BALLPOINT, 2.0)
+    p.ring(500, 135, 118, 52)
+    p.text(60, 450, "so: the private mode is a setting (PQCH_VAR_PRIVATE=1), turned on where every writer and reader is one uid;", 14, PENCIL)
+    p.text(60, 472, "a process-wide umask is not used, because the second file is read by other uids by design", 14, PENCIL)
+    p.save(SKETCHES / "65-two-writers-three-readers.svg")
+
+
+def sketch_67_recording_record_notes() -> None:
+    """Lesson 67: what a public copy of a running system may be made of. Three boxes with the cost of a new
+    feature in each; the facsimile crossed out with its cost. Counts from the lesson: 11 pages rendered
+    before, 4 after; 17 public branches before, none on the dropped pages after."""
+    p = Page(1000, 520, seed=67, title="Publish a recording, a record and notes, not a facsimile")
+    p.text(500, 46, "What a public copy of a running system is made of", 32, INK, "middle")
+    boxes = [(30, "a recording", ["the stage: eight beats", "from one run, dated,", "the hardware named"], "a new feature: one beat"),
+             (270, "the record", ["the run's documents:", "ledger, CBOM, score,", "each with its hash"], "a new feature: one row"),
+             (510, "notes", ["the explanation, and", "the screens as captured", "(7 screenshots, 1440 px)"], "a new feature: a picture")]
+    for x, title, lines, cost in boxes:
+        p.box(x, 110, 210, 200, INK, 2.2, fill=PAPER)
+        p.text(x + 105, 146, title, 22, INK, "middle")
+        for k, ln in enumerate(lines):
+            p.text(x + 105, 180 + 24 * k, ln, 15, PENCIL, "middle")
+        p.text(x + 105, 284, cost, 15, BALLPOINT, "middle")
+    # The facsimile, crossed out.
+    x = 760
+    p.box(x, 110, 210, 200, PENCIL, 2.0, fill=PAPER, dash=True)
+    p.text(x + 105, 146, "a facsimile", 22, PENCIL, "middle")
+    for k, ln in enumerate(["the app's pages, static,", "11 of them, 12 branches", "to disable what is dead"]):
+        p.text(x + 105, 180 + 24 * k, ln, 15, PENCIL, "middle")
+    p.text(x + 105, 284, "a new feature: a page", 15, PENCIL, "middle")
+    p.line(x + 20, 125, x + 190, 295, STAMP, 3.0, opacity=0.55)
+    p.line(x + 190, 125, x + 20, 295, STAMP, 3.0, opacity=0.55)
+    p.text(60, 380, "the first three cost a beat, a row or a picture per feature; the fourth costs a fixture, a template branch,", 15, PENCIL)
+    p.text(60, 402, "a dead-button note and a leak check per page, and it is the one the reader who checks learns to distrust", 15, PENCIL)
+    p.text(60, 450, "after the rule: 4 pages rendered (the stage, the CBOM viewer, the recorded answers, About), none with a dead control", 15, BALLPOINT)
+    p.save(SKETCHES / "67-recording-record-notes.svg")
+
+
 def _wrap(s: str, n: int) -> list[str]:
     """Words into lines of at most about n characters."""
     out, cur = [], ""

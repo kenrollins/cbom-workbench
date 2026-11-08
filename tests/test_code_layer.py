@@ -38,7 +38,7 @@ def seam():
                                          "choices": [{"message": {"content": json.dumps(reply)}, "finish_reason": "stop"}]})
     cfg = {"schema": "pqch.inference/1", "profile": "t", "roles": {"call-site-read": {"tier": "fast", "reasoning": True}},
            "tiers": {"fast": {"base_url": "http://x.test/v1", "api_key_env": "K", "model": "g", "hardware": "l4",
-                              "reasoning": {"model": "g-think"}}}}
+                              "engine": "test-engine", "reasoning": {"model": "g-think"}}}}
     return Seam(cfg, transport=httpx.MockTransport(handler))
 
 
@@ -72,3 +72,39 @@ def test_a_checkout_not_at_its_pin_is_refused(tmp_path):
     with pytest.raises(ValueError, match="not the pinned"):
         scan(tmp_path / "var", r, repo="x/y", commit="b" * 40, rules_path="policy/code-rules/ruby.yaml",
              seam=seam(), authorized_by="test")
+
+
+def test_a_model_set_in_use_says_which_model_engine_and_hardware_and_by_what_agreement(tmp_path):
+    r = repo(tmp_path)
+    run, _ = scan(tmp_path / "var", r, repo="x/y", commit="a" * 40, rules_path="policy/code-rules/ruby.yaml",
+                  seam=seam(), authorized_by="test")
+    bom = build_all(list(run.ledger.events()))["workbench"]
+    code = [{p["name"]: p["value"] for p in c["properties"]} for c in bom["components"]
+            if any(p["name"] == "pqch:layer" and p["value"] == "code" for p in c.get("properties", []))]
+    assert code and all("pqch:in-use-by" in p and p["pqch:in-use-agreement"] == "3 of 3" for p in code)
+    by = json.loads(code[0]["pqch:in-use-by"])
+    assert by["model"] == "g" and by["hardware"] == "l4" and by["role"] == "call-site-read"
+    assert by.get("engine") == "test-engine" and "served_by" not in by      # the engine is declared, never a URL
+    assert by["reasoning"] is True
+    assert all("pqch:in-use-rule" not in p for p in code)
+
+
+def test_a_rule_set_in_use_carries_no_model_label():
+    from pqch.cbom import _model_label
+
+    assert _model_label({"kind": "rule", "id": "in-use/served/1"}) is None
+    lab = _model_label({"kind": "model", "id": "fast:m", "tier": "fast", "model": "m", "hardware": "gb10",
+                        "served_by": "http://engine:8000"})
+    assert lab["served_by"] == "http://engine:8000" and "engine" not in lab   # a URL is not an engine
+    assert _model_label({"kind": "model", "id": "fast:m", "tier": "fast", "model": "m", "hardware": "gb10",
+                         "engine": "vllm"})["engine"] == "vllm"
+
+
+def test_every_cbom_field_a_model_can_set_is_labelled_in_fields_yaml():
+    import yaml
+    fields = yaml.safe_load(open("src/pqch/cbom/fields.yaml"))
+    flat = {k: v for sec in fields.values() if isinstance(sec, dict) for k, v in sec.items() if isinstance(v, dict)}
+    by_model = [k for k, v in flat.items() if "model:" in str(v.get("from", "")) and not k.endswith(("-by", "-agreement"))]
+    assert by_model == ["pqch:in-use"]
+    for k in by_model:
+        assert f"{k}-by" in flat and f"{k}-agreement" in flat

@@ -9,12 +9,12 @@
 </head>
 <body>
 {% set active = "plan" %}{% set lede = "<strong>The plan.</strong> What the CBOM says depends on what, what comes first, and in what order — the migration plan an inventory of systems cannot give, computed from the mini-agency's CBOM." %}{% include "_header.html" %}{% set sub = "plan" %}{% include "_subnav.html" %}
-<main>
-{% if not public %}<nav class="estates" aria-label="estate">
+<main id="main">
+<nav class="estates" aria-label="estate">
   <a href="/plan" class="{{ 'on' if estate == 'mini-agency' }}"><strong>The mini-agency's plan</strong><span>ranked by the memo, from the owner's facts</span></a>
   <a href="/plan?estate=lab" class="{{ 'on' if estate == 'lab' }}"><strong>The lab's plan</strong><span>a real network: who holds whom back, measured</span></a>
   <a href="/hosts" class="{{ 'on' if estate == 'system' }}"><strong>Hosts</strong><span>servers read whole: listeners, files, firmware, controller</span></a>
-</nav>{% endif %}
+</nav>
 {% if not plan %}
 <p class="orient">{% if estate == 'system' %}No server has been scanned yet: run <code>pqch scan-system</code>, or replay a recording with <code>pqch system replay</code>.{% else %}No plan yet: it is computed from a scan of the mini-agency. Run one from <a href="/walkthrough">the walkthrough</a>.{% endif %}</p>
 {% elif estate == 'lab' %}
@@ -53,7 +53,7 @@
   {% set titles = {} %}{% for st in plan.order %}{% set _ = titles.update({st.id: st.title}) %}{% endfor %}
   {% for st in plan.order %}<tr data-step="{{ st.id }}" class="{{ 'assumed' if st.assumed else ('freed' if st.id in (plan.freed or []) else '') }}">
     <td class="num">{{ st.n }}</td><td><strong>{{ st.title }}</strong>{% if st.assumed %} <span class="tag whatif-tag">assumed done</span>{% elif st.id in (plan.freed or []) %} <span class="tag freed-tag">freed by the what-if</span>{% endif %}</td>
-    <td class="small">{{ st.service or ('internal CA' if st.kind == 'ca' else 'whole estate') }}</td><td class="small">{{ st.due or '—' }}</td>
+    <td class="small">{{ st.service or ('internal CA' if st.kind == 'ca' else 'whole estate') }}</td><td class="small">{{ st.due or '—' }}{% if st.due_set_by %}<br><span class="dim">set by {{ st.due_set_by|join(' and ') }}</span>{% endif %}{% if st.deprecated_after and st.deprecated_after < (st.due or '') %}<br><span class="dim">deprecated after {{ st.deprecated_after }} (NIST IR 8547{% if st.key_size_unchecked %}; key size unchecked{% endif %})</span>{% endif %}{% if st.already_disallowed %}<br><span class="dim">{{ st.already_disallowed|join(', ') }}: below the row's key size, already disallowed (SP 800-131A Rev. 2)</span>{% endif %}</td>
     <td class="small state">{{ {'done': 'done', 'ready': 'ready', 'waiting': 'waiting'}[st.state] }}</td>
     <td class="small dim">{% for d in st.depends_on %}{{ titles.get(d, d) }}{{ '; ' if not loop.last }}{% else %}—{% endfor %}</td>
     <td class="small">{{ st.why }}{% if st.resolve and st.state != 'done' %} <a href="{{ st.resolve }}">{{ st.resolve_label or 'resolve' }} →</a>{% endif %}</td></tr>{% endfor %}
@@ -67,7 +67,7 @@
 </section>
 {% elif estate == 'system' %}
 <p class="orient">One real server, scanned the way an estate is: its listeners on the wire, its own files read without changing them, its firmware's trust databases, and its management controller read through Redfish. Each part has its own owner and its own clock. A setting can change today; a software update next; requiring the new key exchange comes after its clients are known; and what sits in firmware and in the controller waits for the vendor, however soon the owner wants it.
-  <span class="ai">Computed by rules from system scan <code>{{ plan.run }}</code>{% if plan.device %} of a {{ plan.device.vendor or '' }} {{ plan.device.model or '' }}{% endif %}, read between {{ plan.read_from[:16].replace('T', ' ') }} and {{ plan.read_to[:16].replace('T', ' ') }} UTC{% if plan.replayed %} and replayed here on {{ plan.replayed_at[:16].replace('T', ' ') }} UTC from recording <code>{{ plan.replayed }}</code>, its identifiers replaced{% endif %}. No owner's facts are supplied for a single server, so nothing is prioritized: its key establishment and signatures fall in the memo's remaining queue, by {{ plan.deadlines.remaining }}; named high-value, they would be due by {{ plan.deadlines.kex_prioritized }} and {{ plan.deadlines.sig_prioritized }}.</span></p>
+  <span class="ai">Computed by rules from system scan <code>{{ plan.run }}</code>{% if plan.device %} of a {{ plan.device.vendor or '' }} {{ plan.device.model or '' }}{% endif %}, read between {{ plan.read_from[:16].replace('T', ' ') }} and {{ plan.read_to[:16].replace('T', ' ') }} UTC{% if plan.replayed %} and replayed here on {{ plan.replayed_at[:16].replace('T', ' ') }} UTC from recording <code>{{ plan.replayed }}</code>, its identifiers replaced{% endif %}. No owner's facts are supplied for a single server, so nothing is prioritized: its key establishment and signatures fall in the memo's remaining queue, by {{ plan.deadlines.remaining }}; named high-value, they would be due by {{ plan.deadlines.kex_prioritized }} and {{ plan.deadlines.sig_prioritized }}.{% if plan.deadlines.deprecated_after %} NIST IR 8547 deprecates every quantum-vulnerable algorithm here after {{ plan.deadlines.deprecated_after }} and disallows it after {{ plan.deadlines.disallowed_after }} (Tables 2 and 4): {% if plan.deadlines.disallowed_after == plan.deadlines.remaining %}the {{ plan.deadlines.remaining }} date is set by both the memo and the report, and {% endif %}use after {{ plan.deadlines.deprecated_after }} is a risk accepted.{% endif %}</span></p>
 <div class="versus">
   <div class="side sheet-side">
     <div class="k">From a device list</div>
@@ -101,7 +101,7 @@
   {% set lane_names = {} %}{% for l in plan.lanes %}{% set _ = lane_names.update({l.id: l.label}) %}{% endfor %}
   {% for st in plan.order %}<tr data-step="{{ st.id }}" class="{{ 'assumed' if st.assumed else ('freed' if st.id in (plan.freed or []) else '') }}">
     <td class="num">{{ st.n }}</td><td><strong>{{ st.title }}</strong>{% if st.assumed %} <span class="tag whatif-tag">assumed done</span>{% elif st.id in (plan.freed or []) %} <span class="tag freed-tag">freed by the what-if</span>{% endif %}</td>
-    <td class="small">{{ lane_names.get(st.service, st.service) }}</td><td class="small">{{ st.due or '—' }}</td>
+    <td class="small">{{ lane_names.get(st.service, st.service) }}</td><td class="small">{{ st.due or '—' }}{% if st.due_set_by %}<br><span class="dim">set by {{ st.due_set_by|join(' and ') }}</span>{% endif %}{% if st.deprecated_after and st.deprecated_after < (st.due or '') %}<br><span class="dim">deprecated after {{ st.deprecated_after }} (NIST IR 8547{% if st.key_size_unchecked %}; key size unchecked{% endif %})</span>{% endif %}{% if st.already_disallowed %}<br><span class="dim">{{ st.already_disallowed|join(', ') }}: below the row's key size, already disallowed (SP 800-131A Rev. 2)</span>{% endif %}</td>
     <td class="small state">{{ {'done': 'done', 'ready': 'ready', 'waiting': 'waiting'}[st.state] }}</td>
     <td class="small dim">{% for d in st.depends_on %}{{ titles.get(d, d) }}{{ '; ' if not loop.last }}{% else %}—{% endfor %}</td>
     <td class="small">{{ st.why }}</td></tr>{% endfor %}
@@ -153,7 +153,7 @@
   {% set titles = {} %}{% for st in plan.order %}{% set _ = titles.update({st.id: st.title}) %}{% endfor %}
   {% for st in plan.order %}<tr data-step="{{ st.id }}" class="{{ 'assumed' if st.assumed else ('freed' if st.id in (plan.freed or []) else '') }}">
     <td class="num">{{ st.n }}</td><td><strong>{{ st.title }}</strong>{% if st.assumed %} <span class="tag whatif-tag">assumed done</span>{% elif st.id in (plan.freed or []) %} <span class="tag freed-tag">freed by the what-if</span>{% endif %}</td>
-    <td class="small">{{ st.service or ('internal CA' if st.kind == 'ca' else 'whole estate') }}</td><td class="small">{{ st.due or '—' }}</td>
+    <td class="small">{{ st.service or ('internal CA' if st.kind == 'ca' else 'whole estate') }}</td><td class="small">{{ st.due or '—' }}{% if st.due_set_by %}<br><span class="dim">set by {{ st.due_set_by|join(' and ') }}</span>{% endif %}{% if st.deprecated_after and st.deprecated_after < (st.due or '') %}<br><span class="dim">deprecated after {{ st.deprecated_after }} (NIST IR 8547{% if st.key_size_unchecked %}; key size unchecked{% endif %})</span>{% endif %}{% if st.already_disallowed %}<br><span class="dim">{{ st.already_disallowed|join(', ') }}: below the row's key size, already disallowed (SP 800-131A Rev. 2)</span>{% endif %}</td>
     <td class="small state">{{ {'done': 'done', 'ready': 'ready', 'waiting': 'waiting'}[st.state] }}</td>
     <td class="small dim">{% for d in st.depends_on %}{{ titles.get(d, d) }}{{ '; ' if not loop.last }}{% else %}—{% endfor %}</td>
     <td class="small">{{ st.why }}{% if st.resolve and st.state != 'done' %} <a href="{{ st.resolve }}">{{ st.resolve_label or 'resolve' }} →</a>{% endif %}</td></tr>{% endfor %}

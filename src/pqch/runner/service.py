@@ -10,18 +10,25 @@
     POST /reset     {"run"} -> the owned estate back to its starting state (agency/baseline/), on a recorded request
     GET  /log       every apply and recreate this runner has done
     GET  /jobs      ?ids=a,b — the runner's own record of those jobs
+
+Served with `--http pqch.peercred:PeerCredProtocol`: `PQCH_SOCKET_ALLOW_UIDS` limits who may connect at
+all, and `PQCH_RUNNER_CHANGE_UIDS`, when set, who may ask for a change to the estate (apply, recreate,
+rehearse, reset). Both unset, every caller is accepted, as before.
 """
 
 from __future__ import annotations
 
 import os
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel
+
+from pqch.peercred import check_env, require_uid
 
 from pqch.runner import Refused, Runner
 from pqch.runner.apply import Applier
 
+check_env()                                   # a uid list that cannot be read stops the service here
 app = FastAPI(title="pqch-runner", docs_url=None, redoc_url=None, openapi_url=None)
 runner = Runner(
     os.environ.get("PQCH_SCOPE", "/etc/pqch/scope.json"),
@@ -73,13 +80,20 @@ def post_job(job: Job) -> dict:
         raise HTTPException(status_code=r.code, detail=r.reason) from r
 
 
+def _may_change(request: Request) -> None:
+    require_uid(request, "PQCH_RUNNER_CHANGE_UIDS")
+
+
+CHANGE = [Depends(_may_change)]
+
+
 def _applier() -> Applier:
     if applier is None:
         raise HTTPException(status_code=503, detail="this runner is not configured to apply changes")
     return applier
 
 
-@app.post("/apply")
+@app.post("/apply", dependencies=CHANGE)
 def post_apply(c: Change) -> dict:
     try:
         return _applier().apply(c.run, c.change_id)
@@ -87,7 +101,7 @@ def post_apply(c: Change) -> dict:
         raise HTTPException(status_code=r.code, detail=r.reason) from r
 
 
-@app.post("/recreate")
+@app.post("/recreate", dependencies=CHANGE)
 def post_recreate(c: Change) -> dict:
     try:
         return _applier().recreate(c.run, c.change_id)
@@ -95,7 +109,7 @@ def post_recreate(c: Change) -> dict:
         raise HTTPException(status_code=r.code, detail=r.reason) from r
 
 
-@app.post("/rehearse")
+@app.post("/rehearse", dependencies=CHANGE)
 def post_rehearse(c: Change) -> dict:
     try:
         return _applier().rehearse(c.run, c.change_id)
@@ -107,7 +121,7 @@ class Reset(BaseModel):
     run: str
 
 
-@app.post("/reset")
+@app.post("/reset", dependencies=CHANGE)
 def post_reset(r: Reset) -> dict:
     try:
         return _applier().reset(r.run)
@@ -115,7 +129,7 @@ def post_reset(r: Reset) -> dict:
         raise HTTPException(status_code=e.code, detail=e.reason) from e
 
 
-@app.post("/rehearse/end")
+@app.post("/rehearse/end", dependencies=CHANGE)
 def post_rehearse_end(c: Change) -> dict:
     try:
         return _applier().rehearse_end(c.run, c.change_id)

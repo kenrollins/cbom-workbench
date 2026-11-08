@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Build the public, static demo for GitHub Pages: the mini-agency only, read-only, no lab.
+"""Build the public, static copy for GitHub Pages: a recording, a record and notes (ADR-0006).
 
     uv run --with mkdocs-material python tools/build_public.py --var /path/to/deployment/var --out public-build
 
@@ -7,10 +7,14 @@
    investigator's traces, changes) and only the raw outputs those runs reference. No capture run, no
    targeted scan of the lab, and nothing else from the deployment's state is copied, so a link the
    pages miss still has nothing from the lab to reach.
-2. The demo's pages rendered by the app itself in public mode (PQCH_PUBLIC=1, PQCH_DEMO_MODE=snapshot),
-   their links rewritten for the Pages path; a link to something not published is disabled.
-3. The site built with the shared header pointing at the same path, without the lab's tab.
-4. Identities and the lab's sign-on replaced by neutral words, and every file scanned for lab
+2. Four of the app's pages rendered by the app itself in public mode (PQCH_PUBLIC=1,
+   PQCH_DEMO_MODE=snapshot): the stage (at the root), the CBOM viewer with the entries it and the
+   stage link to, the recorded Ask answers, and About (PUBLIC_PAGES). Their links are rewritten for
+   the Pages path; a link to anything else is disabled. No other page of the running workbench is
+   rendered: the field notes show them as screenshots (site_src/pages.md, tools/screenshots.py).
+3. The record: the recorded run's documents with their hashes, written as a page of the site.
+4. The site built with the shared header pointing at the same path, without the lab's tabs.
+5. Identities and the lab's sign-on replaced by neutral words, and every file scanned for lab
    patterns: any match fails the build and nothing is left to publish.
 """
 
@@ -31,6 +35,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 PUBLIC_KINDS = {"scan", "scan-code", "package", "import", "investigate", "change"}
+# The app's pages the public copy renders, and the file each becomes: the stage is the root (ADR-0006).
+PUBLIC_PAGES = {"/demo": "index.html", "/cbom": "cbom/index.html", "/about": "about/index.html"}
+RECORD_FILES = ("ledger.jsonl", "workbench.cdx.json", "baseline-cbomkit.cdx.json", "baseline-scanners.cdx.json", "score.json")
 # Identities to replace in rendered pages, and patterns that must never be published, come from a
 # private file (workshop/public.yaml, git-ignored), so the public tools name nothing they protect.
 # Built in: only an inference engine's private-network address, as a model's call records it.
@@ -131,23 +138,16 @@ def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
 
         import pqch.ui.app as ui
         c = TestClient(ui.app)
-    code = (work / "runs" / "LATEST_SCAN-CODE").read_text().strip() if (work / "runs" / "LATEST_SCAN-CODE").exists() else None
     scan = (work / "runs" / "LATEST_SCAN").read_text().strip()
-    pages = {"/": "index.html", "/walkthrough": "walkthrough/index.html", "/cbom": "cbom/index.html",
-             "/plan": "plan/index.html", "/agency": "agency/index.html", "/packages": "packages/index.html", "/imports": "imports/index.html",
-             "/resolve": "resolve/index.html", "/about": "about/index.html", "/demo": "demo/index.html"}
-    if code:
-        pages[f"/cbom?run={code}"] = "cbom/code/index.html"
-    from pqch.ui.agility import _change_story
-    story = _change_story(work)
-    for rid in {(story or {}).get("before"), (story or {}).get("after")} - {None, scan}:
-        pages[f"/cbom?run={rid}"] = f"cbom/{rid.lower()}/index.html"
+    pages = dict(PUBLIC_PAGES)
     html = {}
     for url, path in pages.items():
         r = c.get(url)
         if r.status_code != 200:
             raise SystemExit(f"{url}: {r.status_code}")
         html[path] = r.text
+    # The stage is the root; the old /demo/ path keeps working for links already in the world.
+    html["demo/index.html"] = html["index.html"]
     # Ask the CBOM: the page, and one page per example question whose answer was recorded (pqch ask record).
     if (work / "ask" / f"{scan}.json").is_file():
         r = c.get("/ask")
@@ -157,8 +157,8 @@ def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
             r = c.get(url)
             if r.status_code == 200:
                 html[f"ask/{i}/index.html"], pages[url] = r.text, f"ask/{i}/index.html"
-    # The scan's own CBOM, reached from the code layer's page, is the CBOM page itself.
-    pages_alias = {f"/cbom?run={scan}": "cbom/index.html", f"/walkthrough?run={scan}": "walkthrough/index.html"}
+    # The scan's own CBOM is the CBOM page itself; the brand and the old root both lead to the stage.
+    pages_alias = {f"/cbom?run={scan}": "cbom/index.html", "/": "index.html"}
     # Each CBOM entry another page links to — a change package's entries, a plan step's — gets a page of its own.
     # Followed to closure: an entry's page links to its listener, its assets, its files.
     find = lambda t: {m.group(1) for m in re.finditer(r'href="(/cbom\?[^"]*ref=[^"#]+)', t)}  # noqa: E731
@@ -181,7 +181,7 @@ def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
         r = c.get(f"/runs/{scan}/projection/{proj}.csv")
         if r.status_code == 200:
             downloads[f"/runs/{scan}/projection/{proj}.csv"] = r.text
-    for f in ("ledger.jsonl", "workbench.cdx.json", "baseline-cbomkit.cdx.json", "baseline-scanners.cdx.json", "score.json"):
+    for f in RECORD_FILES:
         p = work / "runs" / scan / f
         if p.exists():
             downloads[f"/runs/{scan}/{f}"] = p.read_text()
@@ -222,6 +222,66 @@ def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
     return pages
 
 
+def record_page(work: Path, out: Path, base: str, tree: Path) -> Path:
+    """The record (ADR-0006): the recorded run's documents, each with its size and SHA-256, the run's id,
+    hardware and date, and its score against the answer key, written as a page of the site so what the
+    stage shows can be checked against what the run produced."""
+    import hashlib
+    scan = (work / "runs" / "LATEST_SCAN").read_text().strip()
+    run_dir = work / "runs" / scan
+    first = json.loads(run_dir.joinpath("ledger.jsonl").open().readline())
+    score = json.loads((run_dir / "score.json").read_text())
+    wb = score["columns"]["workbench"]
+    w, h = wb["layers"]["wire"], wb["layers"]["host"]
+    hardware = score.get("labels", {}).get("hardware", "unlabelled")
+    rows = []
+    for f in [*RECORD_FILES, "projection/agency-inventory.csv"]:
+        p = run_dir / f if not f.startswith("projection/") else None
+        if p is not None and p.exists():
+            data = p.read_bytes()
+        elif p is None and (out / "runs" / scan / f).exists():
+            data = (out / "runs" / scan / f).read_bytes()
+        else:
+            continue
+        what = {"ledger.jsonl": "the ledger: every event of the run, hash-chained, with its signed checkpoint",
+                "workbench.cdx.json": "the CBOM the workbench projects from the ledger (CycloneDX 1.6)",
+                "baseline-cbomkit.cdx.json": "the baseline: CBOMkit alone, on the same estate",
+                "baseline-scanners.cdx.json": "the baseline: the open-source scanners alone, merged with no harness",
+                "score.json": "the score against the answer key, by layer, with the decoys",
+                "projection/agency-inventory.csv": "an agency inventory projected from the same ledger"}[f]
+        rows.append(f"| [`{f}`]({base}runs/{scan}/{f}) | {what} | {len(data):,} | `{hashlib.sha256(data).hexdigest()}` |")
+    text = f"""---
+title: The record
+---
+
+# The record
+
+<!-- generated by tools/build_public.py from the recorded run; do not edit by hand -->
+
+What the stage shows is a recording of one run; this page is what that run produced, so the one
+can be checked against the other. Run `{scan}`, started {first["ts"][:19].replace("T", " ")} UTC
+on {hardware}; every event on the ledger is chained to the one before it and the chain is signed
+([how the record is kept](notes/12-what-an-auditable-record-contains.md)).
+
+Against the answer key, by layer: on the wire {w["covered"]} of {w["present"]} keyed items present were found
+({w["out_of_reach"]} out of reach, {w["false_positives"]} false positives); in the images {h["covered"]} of {h["present"]}
+({h["false_positives"]} false positives); the posture of {wb["posture"]["correct"]} of {wb["posture"]["total"]} listeners correct.
+The baselines beside it are in `score.json`.
+
+| Document | What it is | Bytes | SHA-256 |
+|---|---|---|---|
+{chr(10).join(rows)}
+
+To check a document: download it, take its SHA-256, and compare. To check the ledger's chain and its
+checkpoint, the verifier is in the repository (`pqch ledger verify --signed --pub ledger.pub ledger.jsonl`,
+with the public key the stage's run carries beside its ledger). The CBOM is a projection: rebuilding
+it from the ledger gives the same document, byte for byte.
+"""
+    dest = tree / "site_src" / "record.md"
+    dest.write_text(text)
+    return dest
+
+
 def build_site(out: Path, base: str, tree: Path) -> None:
     """The site from the exported tree (tools/export_public.py), whose journal has already lost every
     lab passage and lab-only entry: the public site can hold nothing the public repository does not."""
@@ -231,7 +291,7 @@ def build_site(out: Path, base: str, tree: Path) -> None:
     site = out / "site"
     for page in site.rglob("*.html"):
         # The site's own links into the demo ("/", "/walkthrough", …) point at the Pages path.
-        text = re.sub(r'href="/(walkthrough|agency|cbom|plan|packages|imports|resolve|about)?(/?)(["#?])',
+        text = re.sub(r'href="/(cbom|ask|about|demo)?(/?)(["#?])',
                       lambda m: f'href="{base}{m.group(1) + "/" if m.group(1) else ""}{m.group(3)}', page.read_text())
         page.write_text(text)
 
@@ -276,6 +336,7 @@ def main() -> int:
     ids = curate(args.var, work)
     out.mkdir(parents=True, exist_ok=True)
     pages = render(work, out, args.base, span=journal_span(args.tree.resolve()))
+    record_page(work, out, args.base, args.tree.resolve())
     build_site(out, args.base, args.tree.resolve())
     (out / ".nojekyll").write_text("")
     shutil.rmtree(work)
@@ -285,7 +346,8 @@ def main() -> int:
         print(f"LEAK CHECK FAILED: {len(hits)} matches; nothing to publish", file=sys.stderr)
         clear(out)
         return 1
-    print(f"{len(pages)} demo pages from {len(ids)} mini-agency runs, the site, and no lab pattern in {sum(1 for _ in out.rglob('*'))} files: {out}")
+    print(f"{len(pages)} pages (the stage, the CBOM viewer and its entries, the recorded answers, About) from {len(ids)} mini-agency runs, "
+          f"the record, the site, and no lab pattern in {sum(1 for _ in out.rglob('*'))} files: {out}")
     return 0
 
 

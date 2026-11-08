@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import json
 import re
 from collections import Counter
@@ -34,12 +36,16 @@ def signed_view(run: Run, events: list[dict], signer=None) -> dict:
     beside = run.dir / "ledger.pub"
     if pub is None and beside.exists():
         pub = beside.read_bytes()
-    res = verify_signed(events, pub, known=known)
+    # The deployment's checkpoint algorithm (the signer's PQCH_CHECKPOINT_ALG, given to the app too) is
+    # required of every checkpoint, so a ledger signed under a weaker setting does not read as verified.
+    require_alg = os.environ.get("PQCH_CHECKPOINT_ALG") or None
+    res = verify_signed(events, pub, known=known, require_alg=require_alg)
     mismatch = bool(signer_key and beside.exists()
                     and beside.read_text().strip() != signer_key["public_key_pem"].strip())
     return {"ok": res.ok, "error": res.error, "checkpoints": res.checkpoints,
             "signed_through": res.signed_through, "unsigned_after": res.unsigned_after,
-            "key_id": res.key_id, "source": source, "pub_mismatch": mismatch,
+            "key_id": res.key_id, "source": source, "pub_mismatch": mismatch, "algs": res.algs,
+            "require_alg": require_alg,
             "last": next((e["payload"] for e in reversed(events) if e["type"] == "checkpoint.signed"), None)}
 
 
@@ -695,6 +701,7 @@ def capture_view(run: Run) -> dict:
         "run": run.id, "started": events[0]["ts"], "closed": events[-1]["ts"] if events[-1]["type"] == "run.closed" else None,
         "span": [summary.get("started_at"), summary.get("ended_at")], "hardware": summary.get("hardware"),
         "scope": {"hash": started["scope_hash"], "authorized_by": scope.get("authorized_by"),
+                  "authorization": scope.get("authorization"),
                   "captures": scope.get("captures", []), "vlans": sorted({v for c in scope.get("captures", []) for v in c["vlans"]})},
         "loss": cap_sum, "files": summary.get("files", []),
         "ledger": {"events": len(events), "head": check.head, "ok": True},

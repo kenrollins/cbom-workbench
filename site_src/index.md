@@ -8,11 +8,12 @@ hide:
 # cbom-workbench
 
 !!! tip "The live demo"
-    This site is the reading beside a working demonstration.
-    **[Open the overview](/)** — NIST's crypto-agility plan with what the workbench does in
-    each part — then **[the walkthrough](/walkthrough)**,
-    a scan to a change proved on the wire, or **[inside the CBOM](/cbom)**. The tabs under
-    *Demo* at the top, and the title, always lead back.
+    This site is the reading beside a demonstration. **[The stage](/)** plays eight beats recorded
+    from one run of the workbench against the test agency; **[inside the CBOM](/cbom)** opens the
+    document that run produced, entry by entry; **[the record](record.md)** is that run's ledger,
+    CBOM and score, with their hashes; and **[page by page](pages.md)** shows the running
+    workbench's other screens as they were captured. The tabs at the top, and the title, always
+    lead back.
 
 !!! quote ""
     **A cryptography bill of materials, built from evidence and kept on a signed

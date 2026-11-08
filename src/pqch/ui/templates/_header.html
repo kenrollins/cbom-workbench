@@ -2,6 +2,7 @@
    which the site build copies in and site_overrides/partials/header.html emits too, so opening the field
    notes changes nothing above the page (lesson 57). `active` names this page's tab; `lede` says, in a
    line, where the reader is. #}
+<a class="skip" href="#main">Skip to content</a>
 <header class="site">
   <div class="bar">
     <a class="brand" href="/">cbom-workbench</a>
@@ -13,12 +14,14 @@
     <div class="demo-group">
     <span class="group">Demo<small>{{ demo_mode }}</small></span>
     <a href="/demo" class="{{ 'on' if active == 'stage' }} stage" title="{{ 'The eight beats on stage, recorded from the lab' if public else 'The eight minutes on stage: the story in beats, every number live' }}">Demo</a>
-    <a href="/" class="{{ 'on' if active == 'overview' }}" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    {# The public copy carries the stage, the CBOM viewer, the recorded answers and About (ADR-0006); the
+       running workbench's other pages are shown there as screenshots, page by page, in the field notes. #}
+    {% if not public %}<a href="/" class="{{ 'on' if active == 'overview' }}" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
     <a href="/agency" class="{{ 'on' if active == 'agency' }}" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
-    <a href="/walkthrough" class="{{ 'on' if active == 'demo' }}" title="The walkthrough, on a test agency built for it">Walkthrough</a>
+    <a href="/walkthrough" class="{{ 'on' if active == 'demo' }}" title="The walkthrough, on a test agency built for it">Walkthrough</a>{% endif %}
     <a href="/cbom" class="{{ 'on' if active == 'cbom' }}" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
-    <a href="/plan" class="{{ 'on' if active == 'plan' }}" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
-    {% if not public %}<a href="/hosts" class="{{ 'on' if active == 'hosts' }}" title="Servers read whole: listeners, files, firmware, controller">Hosts</a>{% endif %}
+    {% if not public %}<a href="/plan" class="{{ 'on' if active == 'plan' }}" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>
+    <a href="/hosts" class="{{ 'on' if active == 'hosts' }}" title="Servers read whole: listeners, files, firmware, controller">Hosts</a>{% endif %}
     <a href="/ask" class="{{ 'on' if active == 'ask' }}" title="A question answered from the CBOM, citing ledger events, each citation checked">Ask the CBOM</a>
     {% if not public and lab_shown() %}<a href="/lab" class="{{ 'on' if active == 'lab' }}" title="The owner's own network, observed passively">A real network</a>{% endif %}
     <a href="/about" class="{{ 'on' if active == 'about' }}" title="What this is, who made it, and the disclaimer in full">About</a>
@@ -28,6 +31,8 @@
     <div class="learn-group fn-box">
     <span class="group">Field notes<small class="hand">cbom workbench</small></span>
     <a href="/site/how-it-works/">How it works</a>
+    {% if public %}<a href="/site/pages/">Page by page</a>
+    <a href="/site/record/">The record</a>{% endif %}
     <a href="/site/notes/">Notes</a>
     <a href="/site/lessons/">Lessons</a>
     <a href="/site/sources/">Sources</a>

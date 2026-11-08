@@ -9,7 +9,7 @@
 </head>
 <body>
 {% set active = "hosts" %}{% set lede = "<strong>Hosts.</strong> Servers read whole, each as an estate of its own: its listeners on the wire, its own files, its firmware's trust databases and, where it has one, its management controller. Each has its own signed ledger, CBOM and plan." %}{% include "_header.html" %}
-<main>
+<main id="main">
 <nav class="estates" aria-label="estate">
   <a href="/cbom"><strong>The mini-agency's CBOM</strong><span>built for the demo, every answer known</span></a>
   {% if lab_run %}<a href="/cbom?run={{ lab_run }}"><strong>The lab's CBOM</strong><span>a real network: the targeted scan, with the capture beside it</span></a>{% endif %}

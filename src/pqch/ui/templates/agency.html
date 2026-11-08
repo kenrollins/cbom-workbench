@@ -9,9 +9,9 @@
 </head>
 <body>
 {% set active = "agency" %}{% set lede = "<strong>The test agency.</strong> What the workbench is pointed at in this demo: a small, fictional agency built for it, every weakness planted on purpose and written down in an answer key." %}{% include "_header.html" %}
-<main>
+<main id="main">
 <p class="orient">{{ e.summary }}
-  <span class="ai">Everything on this page is read from the estate's own files — what each service is for, the owner's facts, the listeners and the answer key — not from a scan. It is the estate as built: the state the walkthrough starts from{% if not public %}, and the state a reset returns it to{% endif %}.</span></p>
+  <span class="ai">Everything on this page is read from the estate's own files — what each service is for, the owner's facts, the listeners and the answer key — not from a scan. It is the estate as built: the state the walkthrough starts from, and the state a reset returns it to.</span></p>
 
 <div class="receipts">
   <div class="receipt"><div class="k">Services</div><div class="n">{{ e.services|length }}</div><div class="s">in containers on one internal network, {{ e.network.subnet }}{% if e.network.internal %}, no route out{% endif %}</div></div>

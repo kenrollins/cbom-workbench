@@ -37,3 +37,4 @@ the overview and is rewritten as the project advances.
 | 18 | What is the workbench built from, why each part, and what would an enterprise run in its place? | all |
 | 19 | How is a question to the CBOM answered, and how is the answer checked without asking a model? | structured |
 | 20 | How is one server inventoried as an estate, below its operating system as well as on the wire, and planned from its CBOM? | structured |
+| 21 | What does a federal authorization ask of a CBOM tool itself, and where does the workbench stand? | all |

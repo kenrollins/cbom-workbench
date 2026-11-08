@@ -12,6 +12,7 @@ import json
 import math
 from pathlib import Path
 
+from pqch import varmode
 from pqch.cbom import anatomy
 
 PROMPT = (Path(__file__).parent / "prompts" / "ask-cbom.md").read_text()
@@ -87,7 +88,7 @@ class Index:
         for d in bom.get("dependencies", []):
             for child in d["dependsOn"]:
                 self.parents.setdefault(child, []).append(d["ref"])
-        key = hashlib.sha256(json.dumps([p["text"] for p in self.passages]).encode()).hexdigest()
+        key = hashlib.sha256(json.dumps([p["text"] for p in self.passages]).encode(), usedforsecurity=False).hexdigest()
         tier = seam.config["tiers"].get("embed") or {}
         self.model = tier.get("model", "")
         self.hardware = tier.get("hardware", "")
@@ -101,6 +102,7 @@ class Index:
             for i in range(0, len(self.passages), 32):
                 self.vectors += seam.embed("embed", [p["text"] for p in self.passages[i:i + 32]], purpose="passage")
             self.path.write_text(json.dumps({"key": key, "model": self.model, "vectors": self.vectors}))
+            varmode.private(self.path)
 
     def retrieve(self, question: str, k: int = TOP_K) -> list[dict]:
         """The k passages nearest the question, then the chain each sits in: an asset brings its
@@ -227,4 +229,5 @@ def record(seam, run, questions: list[str] | None = None) -> dict:
     p = recording_path(run.var, run.id)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(rec, indent=1))
+    varmode.private(p)
     return rec

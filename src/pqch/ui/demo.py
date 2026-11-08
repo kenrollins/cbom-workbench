@@ -14,6 +14,7 @@ import os
 import time
 from pathlib import Path
 
+from pqch import varmode
 from pqch.run import Run
 
 
@@ -402,6 +403,7 @@ def record(var: Path, scan: Run, *, snapshots_dir: Path, inference_config: str |
     p = recording_path(var, scan.id)
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(json.dumps(rec, indent=1))
+    varmode.private(p)
     return rec
 
 

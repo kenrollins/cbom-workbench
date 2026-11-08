@@ -150,6 +150,12 @@ def main() -> None:
         # (PLAN.md, PROGRESS.md) are working notes, not entries, and stay off the site.
         shutil.copytree(JOURNAL / "img" / "sketches", sketches,
                         ignore=lambda d, names: [n for n in names if not n.endswith(".svg") and not (Path(d) / n).is_dir()])
+    # The running workbench's screens, captured by tools/screenshots.py for "page by page" (ADR-0006).
+    pages = SRC / "img" / "pages"
+    if pages.exists():
+        shutil.rmtree(pages)
+    if (JOURNAL / "img" / "pages").exists():
+        shutil.copytree(JOURNAL / "img" / "pages", pages, ignore=lambda d, names: [n for n in names if not n.endswith(".png")])
 
 
 if __name__ == "__main__":

@@ -843,7 +843,9 @@ def demo_page(request: Request, snap: str | None = None, inline_data: str | None
         plan = None
     # the stage's own files, versioned by content so a browser never keeps a rebuilt script under the same name
     import hashlib as _h
-    v = _h.md5(b"".join((HERE / "static" / n).read_bytes() for n in ("demo.js", "demo.css", "plan.js"))).hexdigest()[:10]
+    # A cache-busting version, not security: under a FIPS provider md5 raises unless it says so.
+    v = _h.md5(b"".join((HERE / "static" / n).read_bytes() for n in ("demo.js", "demo.css", "plan.js")),
+               usedforsecurity=False).hexdigest()[:10]
     return templates.TemplateResponse(request, "demo.html", {
         "inline": inline, "snap": bool(snap), "wait": wait, "plan": plan, "v": v,
         "outcome": os.environ.get("PQCH_MISSION_OUTCOME",

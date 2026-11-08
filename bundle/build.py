@@ -72,13 +72,13 @@ def sh(*args, check=True, capture=True, timeout=3600) -> str:
 def digest_of(repo: str, tag: str) -> str:
     req = urllib.request.Request(f"http://{REG}/v2/{repo}/manifests/{tag}", method="HEAD",
                                  headers={"Accept": INDEX_TYPES})
-    with urllib.request.urlopen(req, timeout=30) as r:
+    with urllib.request.urlopen(req, timeout=30) as r:  # noqa: S310 - http:// to the bundle's own local registry
         return r.headers["Docker-Content-Digest"]
 
 
 def platforms_of(repo: str, ref: str) -> list[str]:
     req = urllib.request.Request(f"http://{REG}/v2/{repo}/manifests/{ref}", headers={"Accept": INDEX_TYPES})
-    with urllib.request.urlopen(req, timeout=30) as r:
+    with urllib.request.urlopen(req, timeout=30) as r:  # noqa: S310 - http:// to the bundle's own local registry
         doc = json.loads(r.read())
     return sorted({f"{m['platform']['os']}/{m['platform']['architecture']}" for m in doc.get("manifests", [])
                    if m.get("platform", {}).get("os") not in (None, "unknown")})
@@ -212,7 +212,7 @@ def main() -> None:
         (OUT / name).write_text(text)
     sums = []
     for p in sorted(OUT.rglob("*")):
-        if p.is_file() and "registry" not in p.relative_to(OUT).parts[:1] and p.name != "SHA256SUMS":
+        if p.is_file() and "registry" not in p.relative_to(OUT).parts[:1] and p.name not in ("SHA256SUMS", "SHA256SUMS.sig"):
             sums.append(f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(OUT)}")
     (OUT / "SHA256SUMS").write_text("\n".join(sums) + "\n")
     size = sh("du", "-sh", str(OUT)).split()[0]
@@ -220,6 +220,13 @@ def main() -> None:
     # SHA256SUMS travels with the bundle and can be edited with it. Its own hash is the one
     # value to carry separately: bundle/load.py --expect-sums <hash>.
     print(f"SHA256SUMS sha256 {hashlib.sha256((OUT / 'SHA256SUMS').read_bytes()).hexdigest()}  <- record this outside the bundle")
+    # With a release key (python -m pqch.release keygen), the sums are also signed with ML-DSA; the
+    # public key travels apart from the bundle: bundle/load.py --sums-pub release.pub --sums-key-id <id>.
+    (OUT / "SHA256SUMS.sig").unlink(missing_ok=True)
+    if os.environ.get("PQCH_RELEASE_KEY"):
+        from pqch.release import sign
+        sig = sign(OUT / "SHA256SUMS", os.environ["PQCH_RELEASE_KEY"])
+        print(f"SHA256SUMS signed: {sig['alg']}, key id {sig['key_id']}")
 
 
 if __name__ == "__main__":

@@ -61,13 +61,15 @@ the open-source scanners run alone with no harness. The second is the bar.
 
 ## See it
 
-**[The demo](https://kenrollins.github.io/cbom-workbench/)** — a snapshot of the workbench run against
-the *mini-agency*, an eight-service test estate built with every cryptographic weakness planted and an
-answer key. Start at [the test agency](https://kenrollins.github.io/cbom-workbench/agency/) for what is
-being scanned, then the overview on NIST's crypto-agility plan, the walkthrough from a stale
-spreadsheet to a CBOM, the CBOM itself opened field by field, and the migration plan it makes
-possible, with what-ifs. The snapshot is read-only; the live workbench scans, proposes and verifies on
-demand.
+**[The demo](https://kenrollins.github.io/cbom-workbench/)** — eight beats recorded from one run of the
+workbench against the *mini-agency*, an eight-service test estate built with every cryptographic
+weakness planted and an answer key: a scan, the CBOM it folds into, the plan the CBOM makes possible,
+a change proved on the wire. Beside it, [inside the CBOM](https://kenrollins.github.io/cbom-workbench/cbom/)
+opens that run's document entry by entry, [the record](https://kenrollins.github.io/cbom-workbench/site/record/)
+is the run's ledger, CBOM and score with their hashes, and
+[page by page](https://kenrollins.github.io/cbom-workbench/site/pages/) shows the running workbench's
+other screens as captured. Nothing on the public copy pretends to run; the live workbench scans,
+proposes and verifies on demand in the lab.
 
 ## Status
 

@@ -1,0 +1,109 @@
+# One card per model role (FR-07): what the role decides, what data it sees, its floor and its measured
+# score, what gates its output, and what happens when no model answers. tools/role_cards.py renders
+# them, with each role's binding read from an inference config, into site_src/role-cards.md; a test
+# keeps the page equal to its sources and every role the code names carded.
+#
+# `measured` entries with `report` take their numbers from spike S3's scored report
+# (spikes/s3/results/scored/report.json, by role and arm) when the page is built, so they cannot drift;
+# the others are copied from the source they name, with it.
+schema: pqch.role-cards/1
+roles:
+  call-site-read:
+    s3: R1
+    decides: "Whether a line a rule flagged in source code is a live cryptographic use, and its family and function."
+    sees: "The flagged line and its surrounding lines from a repository read at a pinned commit; nothing is run."
+    output: "The code finding's in-use, carried in the CBOM with pqch:in-use-by (model, engine, hardware) and pqch:in-use-agreement."
+    gate: "Three calls per line, the majority kept, every call on the ledger; no rule acts on it, and the CBOM marks it as a model's."
+    floor: {correct: 27, of: 30, harmful: 1}
+    measured:
+      - {report: r1, arm: fast-thinking, label: "Nemotron 3.5 Lightning 30B-A3B, thinking on", hardware: "a GB10", date: 2026-10-08}
+      - {report: r1, arm: gemma4-31b-l4-think, label: "Gemma 4 31B, thinking on", hardware: "four NVIDIA L4 GPUs", date: 2026-10-15}
+      - {report: r1, arm: gb10-nim-nano9b, label: "Nemotron Nano 9B v2 NIM", hardware: "a GB10", date: 2026-11-04}
+    unavailable: "The line's in-use stays unknown and is shown so; nothing else waits on it."
+  normalize-name:
+    s3: R2
+    decides: "The standard name of an algorithm spelling the name table does not hold."
+    sees: "The tool, the field and the spelling."
+    output: "A fallback name, shown as unconfirmed."
+    gate: "The name table decides every spelling it holds; a model's name is a labelled fallback."
+    floor: {correct: 28, of: 30, harmful: 0}
+    measured:
+      - {report: r2, arm: lab-reason-supervl, label: "Nemotron 3.5 Super VL 120B-A12B, medium effort", hardware: "a GB10", date: 2026-10-21}
+      - {report: r2, arm: gemma4-31b-l4, label: "Gemma 4 31B, thinking off", hardware: "four NVIDIA L4 GPUs", date: 2026-10-15}
+    unavailable: "No pipeline step calls the role today: the name table decides every name the CBOM carries."
+  classify-algorithm:
+    s3: R3
+    decides: "The key-establishment family of an algorithm name, as a second opinion beside the policy data."
+    sees: "One finding's algorithm name and the tool's spelling."
+    output: "An assessment recorded with used_by_rules false and whether it agrees with the policy data."
+    gate: "The policy pack's table decides vulnerability; the model's answer is a cross-check only."
+    floor: {correct: 28, of: 30, harmful: 0}
+    measured:
+      - {report: r3, arm: fast-thinking, label: "Nemotron 3.5 Lightning 30B-A3B, thinking on", hardware: "a GB10", date: 2026-10-08}
+      - {report: r3, arm: gemma4-31b-l4, label: "Gemma 4 31B, thinking off", hardware: "four NVIDIA L4 GPUs", date: 2026-10-15}
+    unavailable: "No cross-check is recorded; the table's answer stands."
+  resolve-conflict:
+    s3: R4
+    decides: "Which layer's evidence is in force when the wire, the host and the configuration disagree, in plain words."
+    sees: "The conflicting findings for one asset."
+    output: "An explanation beside the rule's resolution, recorded with whether it agrees."
+    gate: "A rule resolves every conflict (conflict/resolve/1); the model only explains, and is not used by any rule."
+    floor: {correct: 24, of: 30, harmful: 2}
+    measured:
+      - {label: "Nemotron 3.5 Super VL 120B-A12B, medium effort", hardware: "a GB10", date: 2026-10-21, correct: 26, of: 29, harmful: 2,
+         source: "spike S3 round 5, spikes/s3/README.md"}
+    unavailable: "The rule's resolution is shown alone."
+  trace-to-cause:
+    s3: R5
+    decides: "The configuration line that causes a listener's finding, or that a default applies."
+    sees: "The finding, the service's configuration files, and what it greps and reads in them within a step and token budget."
+    output: "A trace on the ledger, marked as the model's claim, scored against the answer key where there is one."
+    gate: "Settles nothing by itself: a change built on it is rehearsed and verified by paired probes before it counts."
+    floor: {correct: 24, of: 30, harmful: 3}
+    measured:
+      - {label: "Nemotron 3 Super 120B-A12B, thinking on", hardware: "a GB10", date: 2026-10-08, correct: 28, of: 30, harmful: 1,
+         source: "spike S3 round 1, spikes/s3/README.md"}
+      - {label: "Nemotron 3.5 Super VL 120B-A12B, medium effort", hardware: "a GB10", date: 2026-10-20, correct: 27, of: 30, harmful: 2,
+         source: "spike S3 round 4, BRIEF.md"}
+    unavailable: "No trace; the finding stays in the inventory without a cause."
+  change-plan:
+    s3: R6
+    decides: "A draft configuration change for a service: the edits, or that it is blocked on a supplier or a protocol."
+    sees: "The service's findings, the intent, and its configuration files (up to 400 lines each)."
+    output: "A proposal on the ledger marked as drafted by a model."
+    gate: "Rehearsed on a twin, approved by a person, applied by the runner and verified by paired probes; a model never judges whether it worked."
+    floor: {correct: 24, of: 30, harmful: 2}
+    measured:
+      - {label: "Gemma 4 31B, thinking off", hardware: "four NVIDIA L4 GPUs", date: 2026-10-15, correct: 27, of: 30, harmful: 0,
+         source: "spike S3 round 2, BRIEF.md"}
+      - {label: "Nemotron 3.5 Lightning 30B-A3B, thinking on", hardware: "a GB10", date: 2026-11-04, correct: 23, of: 30, harmful: 3,
+         source: "kit/inference.yaml, spike S3"}
+    unavailable: "No draft; a change can still be proposed from the policy's own rendering."
+  explain-queue:
+    decides: "A plain-words explanation of why a migration item sits in its queue."
+    sees: "The item, its priority and three passages of the policy pack retrieved for it."
+    output: "An explanation shown beside the rule's basis, checked against the rule that fired."
+    gate: "Shown only while the role is bound and only when the check passes; not used by any rule."
+    floor: {correct: 13, of: 14, harmful: 0}
+    measured:
+      - {label: "Gemma 4 31B, thinking off", hardware: "four NVIDIA L4 GPUs", date: 2026-10-20, correct: 3, of: 14, harmful: 3,
+         source: "explain run of 2026-10-20, BRIEF.md (3 harmful calls of 42)"}
+    unavailable: "The page shows the rule's basis alone."
+  ask-cbom:
+    decides: "An answer to a question about the CBOM, citing ledger events."
+    sees: "The passages of the CBOM retrieved for the question (components and the events behind them)."
+    output: "An answer with citations; a rule checks every cited event against the ledger and the verdict is shown beside it."
+    gate: "Answers nothing that changes the inventory; every citation checked by a rule."
+    floor: {correct: 12, of: 12, harmful: 0, note: "floors 11 retrieval, 10 phrase, 12 clean citations"}
+    measured:
+      - {label: "Nemotron 3.5 Super VL 120B-A12B, medium effort", hardware: "a GB10", date: 2026-11-04, correct: 9, of: 12, harmful: 0,
+         source: "eval/ask, note 19: clean citations 9 of 12 with the chain rule; phrase 11 of 12"}
+    unavailable: "Not answered, and the page says so."
+  ask-notes:
+    decides: "An answer to a question about the project's own field notes, citing passages."
+    sees: "Passages of the built site retrieved for the question."
+    output: "An answer with citations checked by a rule."
+    gate: "Nothing is written to a ledger; every citation checked."
+    floor: null
+    measured: []
+    unavailable: "Not answered, and the page says so."

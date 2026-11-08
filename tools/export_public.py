@@ -7,6 +7,7 @@ lab-derived passage removed, scanned for anything from the lab before it is writ
 What leaves out, and why:
 - PLAN.md and CLAUDE.md: the working plan and the agent's instructions, full of the lab's own detail;
 - docs/fable-review/: the design reviews — their findings are in the lessons, in general form;
+- docs/federal-review/: the federal readiness review of the workbench itself — private working material;
 - spikes/*/results/: the raw replies of every model call; the summaries and the method stay;
 - journal entries marked `lab_only: true`: operations of the owner's lab;
 - inside any Markdown file: blocks between `<!-- lab -->` and `<!-- /lab -->`, and in an entry's
@@ -31,7 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 from build_public import LEAKS  # noqa: E402
 
-EXCLUDE = [re.compile(p) for p in (r"^PLAN\.md$", r"^CLAUDE\.md$", r"^docs/fable-review/", r"^spikes/[^/]+/results/")]
+EXCLUDE = [re.compile(p) for p in (r"^PLAN\.md$", r"^CLAUDE\.md$", r"^docs/fable-review/", r"^docs/federal-review/", r"^spikes/[^/]+/results/")]
 BODY = re.compile(r"^<!-- lab -->\n.*?^<!-- /lab -->\n?", re.S | re.M)
 CLAIM = re.compile(r"^\s*# lab\n.*?^\s*# /lab\n", re.S | re.M)
 
@@ -91,7 +92,7 @@ def main() -> int:
         p = out / n
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_bytes(b)
-    print(f"{len(files)} files exported to {out}; left out: PLAN.md, CLAUDE.md, the design reviews, raw spike results, "
+    print(f"{len(files)} files exported to {out}; left out: PLAN.md, CLAUDE.md, the design and federal reviews, raw spike results, "
           f"{len(dropped)} lab-only entries ({', '.join(sorted(dropped))}); no lab pattern found")
     return 0
 

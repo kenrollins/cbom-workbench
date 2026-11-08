@@ -75,3 +75,7 @@ day it was learned.
 | 61 | Give an animated presentation a snapshot mode that draws each frame's final state at once, and photograph every frame before presenting it | all |
 | 62 | Before a container changes the user it runs as, change the owner of the files it appends to in a shared, sticky directory; the kernel refuses even root | all |
 | 63 | A static copy of a page whose answer comes from a model shows a call made once and labelled, offers only the questions recorded, and runs the rule's check again where it is built | structured |
+| 64 | Run the accessibility check in every colour scheme a page ships; a palette that passes in light can fail in dark, and the reverse | all |
+| 65 | Before making a shared directory's files private, list every process that reads them and the user each runs as | all |
+| 66 | Pinning a self-signed certificate by making it the only trust anchor still checks its dates; an expired management-controller certificate fails the pin | all |
+| 67 | Publish a running system as a recording, a record and notes; never as a static copy of its pages with the buttons disabled | all |

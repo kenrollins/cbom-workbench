@@ -210,3 +210,93 @@ def test_the_page_shows_no_model_explanation_while_the_role_is_unbound(monkeypat
         config = {"roles": {"trace-to-cause": {"tier": "deliberate"}}}  # noqa: RUF012
     monkeypatch.setattr("pqch.inference.default", lambda: Cfg())
     assert view.role_bound("explain-queue") is False and view.role_bound("trace-to-cause") is True
+
+
+# ---- NIST IR 8547 beside M-26-15 (M8, FR-10)
+
+IR = "policy/packs/ir-8547.yaml"
+
+
+def test_every_quote_in_the_ir_8547_pack_is_the_reports_own_words():
+    pack = load_pack(IR)
+    assert pack["source"]["pdf_sha256"].startswith("3049cdfd")
+    assert str(pack["transition"]["deprecated_after"]) == "2030-12-31"
+    assert str(pack["transition"]["disallowed_after"]) == "2035-12-31"
+    text = Path(pack["source"]["text"]).read_text()
+    bad = copy.deepcopy(pack)
+    bad["transition"]["quote"] = "NIST will disallow quantum-vulnerable public-key cryptography after 2031."
+    assert check_quotes(bad, text) and check_quotes(pack, text) == []
+
+
+def test_each_open_item_names_which_source_set_its_deadline(slice_run):
+    prepared(slice_run)
+    q = {(e["payload"]["subject"]["service"], e["payload"]["subject"]["function"]): e["payload"]["classification"]
+         for e in rule(slice_run, "queue/m-26-15/1")}
+    # Prioritized: the memo's dates are earlier than the report's disallowance, and the memo sets them.
+    portal = q[("portal", "key-establishment")]
+    assert portal["deadline"] == "2030-12-31" and portal["deadline_set_by"] == ["m-26-15 §3.A; 3.D Phase 3"]
+    assert portal["deprecated_after"] == "2030-12-31" and portal["disallowed_after"] == "2035-12-31"
+    sig = q[("portal", "signature")]
+    assert sig["deadline"] == "2031-12-31" and sig["deprecated_after"] == "2030-12-31"
+    # Remaining: both sources set 2035-12-31, and the report deprecates the algorithms after 2030.
+    bastion = q[("bastion", "key-establishment")]
+    assert bastion["deadline"] == "2035-12-31"
+    assert bastion["deadline_set_by"] == ["m-26-15 §3.D Phase 5", "ir-8547 Table 4 (§4.1.2)"]
+    assert bastion["transition"]["covers"] and "strength_basis" in bastion["transition"]
+    # A met item carries no date from either source.
+    met = [c for c in q.values() if c["state"] == "met"]
+    assert all(c["deadline"] is None and "deprecated_after" not in c for c in met)
+
+
+def test_a_name_no_ir_8547_row_covers_is_recorded_not_dated():
+    fam = load_families(FAM)
+    t = managed._transition(load_pack(IR), fam, "key-establishment", ["sntrup761x25519", "X25519"])
+    assert t["covers"] == ["X25519"] and t["not_covered"] == ["sntrup761x25519"]
+    assert managed._transition(load_pack(IR), fam, "signature", ["DSA"]) is None
+    assert managed._transition(load_pack(IR), fam, "signature", ["Ed25519"])["rows"][0]["row"] == "EdDSA"
+
+
+def test_the_rows_key_size_condition_is_checked_where_the_finding_carries_one():
+    fam = load_families(FAM)
+    ir = load_pack(IR)
+    # RSA-1024 is below 112 bits: already disallowed, not dated 2035. RSA-2048 is 112 and in the row.
+    t = managed._transition(ir, fam, "signature", ["RSA"], {"RSA": [{"key_bits": 1024}]})
+    assert t["below_condition"] == ["RSA"] and t["parameters_checked"] is True
+    t = managed._transition(ir, fam, "signature", ["RSA"], {"RSA": [{"key_bits": 2048}]})
+    assert t["below_condition"] == [] and t["parameters_checked"] is True
+    # A 1024-bit and a 2048-bit key under one name: the name is not below (its strongest key is in the row).
+    t = managed._transition(ir, fam, "signature", ["RSA"], {"RSA": [{"key_bits": 1024}, {"key_bits": 2048}]})
+    assert t["below_condition"] == []
+    # No key size at all: unchecked, and the item says so.
+    t = managed._transition(ir, fam, "key-establishment", ["RSA"], {"RSA": [{}]})
+    assert t["unchecked"] == ["RSA"] and t["parameters_checked"] is False
+    # Sizes the name itself carries: DH-1024 is 80 bits; X25519, secp256r1 and Ed25519 are 128.
+    assert managed._transition(ir, fam, "key-establishment", ["DH-1024"])["below_condition"] == ["DH-1024"]
+    for fn, name in (("key-establishment", "X25519"), ("key-establishment", "secp256r1"), ("signature", "Ed25519")):
+        t = managed._transition(ir, fam, fn, [name])
+        assert t["below_condition"] == [] and t["unchecked"] == [], name
+    assert managed.classical_strength("signature", "RSA", "rsa-sig", {"key_bits": 3072}) == 128
+    assert managed.classical_strength("key-establishment", "DH-GEX", "finite-field-dh", {}) is None
+    assert managed._transition(None, fam, "signature", ["ECDSA"]) is None
+
+
+def test_the_cbom_says_which_source_set_the_deadline_and_when_ir_8547_deprecates(slice_run):
+    prepared(slice_run)
+    slice_run.close()
+    wb = build_all(ev(slice_run))["workbench"]
+    svc = {c["name"]: {p["name"]: p["value"] for p in c["properties"]} for c in wb["components"] if c["type"] == "application"}
+    assert svc["portal"]["pqch:deprecated-after"] == "2030-12-31"
+    assert "m-26-15" in svc["portal"]["pqch:deadline-set-by"]
+    assert "ir-8547" in svc["bastion"]["pqch:deadline-set-by"]
+
+
+def test_without_the_transition_pack_the_items_are_as_before(slice_run, tmp_path):
+    import shutil
+    shutil.copy(PACK, tmp_path / "m-26-15.yaml")
+    structure(slice_run, POLICY)
+    chains.link_services(slice_run)
+    chains.supply(slice_run, "agency/context.yaml", author="owner")
+    managed.assess(slice_run, pack_path=tmp_path / "m-26-15.yaml", families_path=FAM, capabilities_path=CAPS,
+                   cmvp_path=CMVP, as_of=date(2026, 10, 20))
+    c = [e["payload"]["classification"] for e in rule(slice_run, "queue/m-26-15/1")]
+    assert c and all("deadline_set_by" not in x and "deprecated_after" not in x for x in c)

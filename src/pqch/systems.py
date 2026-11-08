@@ -20,7 +20,7 @@ import shutil
 from collections.abc import Callable
 from pathlib import Path
 
-from pqch import schemas
+from pqch import schemas, varmode
 from pqch import scope as scope_mod
 from pqch.common import sha256_hex, ulid, utc_now
 from pqch.run import Run
@@ -60,6 +60,7 @@ def recorded_job(var: Path, run: Run, ctl: dict, path: Path, recorder: Path | No
     raw_rel = f"runs/{run.id}/raw/{job_id}.json"
     (var / raw_rel).parent.mkdir(parents=True, exist_ok=True)
     (var / raw_rel).write_bytes(data)
+    varmode.private(var / raw_rel)
     rec_digest = "sha256:" + (sha256_hex(recorder.read_bytes()) if recorder and recorder.is_file() else sha256_hex(data))
     job = {"job_id": job_id, "profile": "controller-redfish",
            "target": {"controller": ctl["host"], "port": ctl["port"], "of": ctl["of"]},
@@ -234,6 +235,7 @@ def replay_recording(var: Path, rec: Path, *, progress: Callable[[dict], None] |
             rel = f"runs/{run.id}/raw/{Path(j['raw']).name}"
             (var / rel).parent.mkdir(parents=True, exist_ok=True)
             (var / rel).write_bytes(data)
+            varmode.private(var / rel)
             job["raw"] = f"var/{rel}"
         origin = {"recording": manifest["id"], "source_run": manifest["source_run"], "original_event": j.get("original_event"),
                   "recorded_at": j.get("started_at"), "sanitized": manifest.get("sanitized", False)}

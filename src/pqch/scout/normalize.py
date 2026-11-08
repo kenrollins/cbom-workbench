@@ -443,7 +443,8 @@ def platform_facts(raw: bytes, job: dict) -> dict | None:
     return {"system": system, "source": "controller", "controller": {
                 "host": t.get("controller"), "model": mgr.get("Model"), "firmware_version": mgr.get("FirmwareVersion"),
                 "redfish_version": (doc.get("service_root") or {}).get("RedfishVersion"),
-                "authenticated": doc.get("authenticated", bool(res))},
+                "authenticated": doc.get("authenticated", bool(res)),
+                **({"trust": doc["trust"]} if doc.get("trust") else {})},
             "device": {"model": sysres.get("Model"), "vendor": sysres.get("Manufacturer")},
             "firmware": sorted(inv, key=lambda x: x["name"]),
             "settings": {k: v for k, v in {

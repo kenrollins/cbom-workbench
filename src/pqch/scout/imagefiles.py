@@ -194,7 +194,7 @@ def _read_ssh_public(data: bytes) -> list[dict]:
     for m in _SSH_PUB.finditer(data):
         try:
             pub = serialization.load_ssh_public_key(m.group(0))
-        except Exception:
+        except Exception:  # noqa: S112 - text that looks like a key and is not one is not a finding
             continue
         family, params = _family_and_params(pub)
         out.append({"type": "related-crypto-material", "name": family,
@@ -207,7 +207,7 @@ def _read_pkcs12(data: bytes) -> list[dict]:
     for pw in PKCS12_PASSWORDS:
         try:
             key, cert, extra = pkcs12.load_key_and_certificates(data, pw)
-        except Exception:
+        except Exception:  # noqa: S112 - the next known password is tried
             continue
         holds = []
         out = []
@@ -253,11 +253,11 @@ def read_file(path: str, data: bytes) -> list[dict]:
     if data[:1] == b"\x30":
         try:
             return [_cert_entry(cert_der=data)]
-        except Exception:
+        except Exception:  # noqa: S110 - not a DER certificate; tried as a key next
             pass
         try:
             return [_private_key_entry(serialization.load_der_private_key(data, None), "DER PRIVATE KEY")]
-        except Exception:
+        except Exception:  # noqa: S110 - not a DER key either: the file holds nothing to report
             pass
     return []
 

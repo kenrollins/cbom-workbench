@@ -61,3 +61,4 @@ bundle/out.multiarch/
 # A box's own scope for scan-system (kit/compose.system.yaml): the operator's authorization and addresses; never in the repository
 kit/scope.*.json
 !kit/scope.example.json
+release/

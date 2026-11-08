@@ -16,6 +16,8 @@ import math
 import re
 from pathlib import Path
 
+from pqch import varmode
+
 TOP_K = 8
 ROLE = "ask-notes"   # bound to a tier in the inference config, like every role; code never chooses
 SCHEMA = {
@@ -73,7 +75,7 @@ class Index:
         self.seam = seam
         self.passages = passages(site)
         self.path = Path(var) / "runs" / "notes-ask-index.json"
-        key = hashlib.sha256(json.dumps([p["text"] for p in self.passages]).encode()).hexdigest()
+        key = hashlib.sha256(json.dumps([p["text"] for p in self.passages]).encode(), usedforsecurity=False).hexdigest()
         tier = seam.config["tiers"].get("embed") or {}
         self.model, self.hardware = tier.get("model", ""), tier.get("hardware", "")
         self.key = key
@@ -90,6 +92,7 @@ class Index:
             for i in range(0, len(self.passages), 32):
                 self.vectors += seam.embed("embed", [f"{p['page']} — {p['title']}. {p['text']}" for p in self.passages[i:i + 32]], purpose="passage")
             self.path.write_text(json.dumps({"key": key, "model": self.model, "vectors": self.vectors}))
+            varmode.private(self.path)
 
     def retrieve(self, question: str, k: int = TOP_K) -> list[dict]:
         q = self.seam.embed("embed", [question], purpose="query")[0]

@@ -21,12 +21,15 @@ services:
     # fs.protected_regular refuses another uid's file there, root included; chown jobs.jsonl in the
     # system-runner-log volume to the new uid first (docker exec … chown).
     user: "${PQCH_SYSTEM_RUNNER_USER:-0:0}"
+    # Root keeps its capabilities here (reading what only root can is the point); no-new-privileges only.
+    security_opt: ["no-new-privileges:true"]
     command: ["uvicorn", "pqch.runner.service:app", "--uds", "/run/pqch/runner.sock",
-              "--log-level", "warning"]
+              "--log-level", "warning", "--http", "pqch.peercred:PeerCredProtocol"]
     group_add: ["${DOCKER_GID:-999}"]
     environment:
       PQCH_SCOPE: /etc/pqch/scope.json
       PQCH_RAW: /var/pqch/raw
+      PQCH_CHECKPOINT_ALG: ${PQCH_CHECKPOINT_ALG:-ML-DSA-65}
       PQCH_TARGET_NETWORK: bridge
       PQCH_SYSTEM_ROOT: /host
       PQCH_REGISTRY: 127.0.0.1:15000
@@ -54,13 +57,18 @@ services:
     image: pqch/harness:kit
     restart: "no"
     user: "${PQCH_UID:-1000}:${PQCH_GID:-1000}"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    read_only: true
+    tmpfs: [/tmp]
     command: ["uvicorn", "pqch.signer.service:app", "--uds", "/run/pqch-signer/signer.sock",
-              "--log-level", "warning"]
+              "--log-level", "warning", "--http", "pqch.peercred:PeerCredProtocol"]
     network_mode: none
     environment:
       PQCH_SIGNER_KEY_DIR: /var/pqch-signer
       PQCH_RUNS: /var/pqch/runs
       PQCH_HARDWARE: ${PQCH_HARDWARE:-unlabelled}
+      PQCH_CHECKPOINT_ALG: ${PQCH_CHECKPOINT_ALG:-ML-DSA-65}
     volumes:
       - system-signer-key:/var/pqch-signer
       - ${PQCH_VAR:-./var}/runs:/var/pqch/runs:ro

@@ -111,7 +111,7 @@
     ];
     items.forEach((it, k) => {
       const g = document.createElement("div"); g.className = "gauge";
-      g.innerHTML = `<svg viewBox="0 0 220 130"></svg><div class="num">0<small> of ${fmt(it.of)}</small></div><div class="lab">${esc(it.lab)}</div><div class="sub">${esc(it.sub)}</div>`;
+      g.innerHTML = `<svg viewBox="0 0 220 130" role="img" aria-label="${esc(it.lab)}: ${it.num == null ? "not measured" : esc(String(it.num)) + " of " + esc(String(it.of))}"></svg><div class="num">0<small> of ${fmt(it.of)}</small></div><div class="lab">${esc(it.lab)}</div><div class="sub">${esc(it.sub)}</div>`;
       el.appendChild(g);
       const svg = d3.select(g).select("svg");
       const arc = d3.arc().innerRadius(78).outerRadius(96).startAngle(-Math.PI / 2);

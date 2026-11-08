@@ -114,10 +114,18 @@ def test_public_mode_leaves_no_way_into_the_lab(slice_run, monkeypatch):
         c = TestClient(ui.app)
     for url in ("/lab", "/lab/house.cdx.json", "/?estate=lab", "/plan?estate=lab"):
         assert c.get(url).status_code == 404, url
-    for url in ("/", "/agency", "/walkthrough", "/plan", "/cbom", "/resolve"):
+    # Only the pages the public copy renders are held to this (ADR-0006): the rest are never published.
+    import importlib.util as ilu
+    spec = ilu.spec_from_file_location("build_public", "tools/build_public.py")
+    bp = ilu.module_from_spec(spec)
+    spec.loader.exec_module(bp)
+    assert set(bp.PUBLIC_PAGES) == {"/demo", "/cbom", "/about"} and bp.PUBLIC_PAGES["/demo"] == "index.html"
+    for url in [*bp.PUBLIC_PAGES, "/ask"]:
         html = c.get(url).text
         assert 'href="/lab"' not in html and "estate=lab" not in html.replace("estate=lab|", ""), url
-        assert "<form" not in html or url == "/cbom", url
+        assert "<form" not in html or url in ("/cbom", "/ask"), url
+        for dropped in ("/walkthrough", "/agency", "/plan", "/packages", "/imports", "/resolve", "/hosts"):
+            assert f'href="{dropped}"' not in html, (url, dropped)
     monkeypatch.delenv("PQCH_PUBLIC")
     importlib.reload(ui)
 

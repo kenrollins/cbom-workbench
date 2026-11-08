@@ -203,8 +203,9 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
         cap = snapshot["services"].get(svc, {})
         ups = [o for o, s in snapshot["services"].items() if o != svc and _sw_family(s["software"]) == _sw_family(cap.get("software", "?"))
                and (s.get("pq") or {}).get("kex" if "key-establishment" in fns else "sig")]
-        due = min(r["deadline"] for r in rows if r["service"] == svc and r["function"] in fns)
-        step(f"replace:{svc}", kind="replace", service=svc, due=due, wave="now",
+        due_row = min((r for r in rows if r["service"] == svc and r["function"] in fns), key=lambda r: r["deadline"])
+        due = due_row["deadline"]
+        step(f"replace:{svc}", kind="replace", service=svc, due=due, wave="now", **_set_by(due_row),
              title=f"Start replacing {cap.get('software', svc)} on {svc}" if not ups else f"Upgrade {svc} to the {cap['software'].split(' ')[0]} the estate already runs on {', '.join(ups)}",
              why=f"its software lists no post-quantum algorithm for {' or '.join(fns)}; nothing configurable can move it, "
                  f"and replacement takes procurement time, so it starts now for a {due} deadline",
@@ -226,12 +227,12 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
                    and e["payload"]["asset"]["role"] == "key-establishment"]
             build_note = next((d["consequence"] for d in deps if d["kind"] == "library-build" and svc in d["services"]), None)
             if not accepts:
-                st = step(f"enable:{svc}", kind="enable", service=svc, due=r["deadline"], wave="2030", depends_on=list(pre),
+                st = step(f"enable:{svc}", kind="enable", service=svc, due=r["deadline"], wave="2030", **_set_by(r), depends_on=list(pre),
                           title=f"Offer the hybrid group on {svc}", entries=fps,
                           why="clients that can use X25519MLKEM768 get it; nobody is refused" + (f"; {build_note}" if build_note else ""),
                           resolve="/resolve", resolve_label="propose the change")
                 pre = [st["id"]]
-            st = step(f"require:{svc}", kind="require", service=svc, due=r["deadline"], wave="2030", depends_on=list(pre),
+            st = step(f"require:{svc}", kind="require", service=svc, due=r["deadline"], wave="2030", **_set_by(r), depends_on=list(pre),
                       title=f"Require the hybrid group on {svc}", entries=fps,
                       why=("it already offers the hybrid group but still accepts classical key exchange: enabled, not enforced. "
                            if accepts else "") + "M-26-15 counts a classical key exchange still accepted as open; requiring refuses "
@@ -251,15 +252,16 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
             ca = next((c["issuer"] for c in mine if c["issuer"] and c["issuer"] != c["subject"]), None)
             if ca:
                 cid = f"ca:{ca}"
-                cst = step(cid, kind="ca", service=None, due=r["deadline"], wave="2031",
+                cst = step(cid, kind="ca", service=None, due=r["deadline"], wave="2031", **_set_by(r),
                            title=f"Stand up an ML-DSA root for {ca.split(',')[0].replace('CN=', '')} and distribute it",
                            why="every service holding the old root must be able to verify ML-DSA before any leaf moves; "
                                "a service whose software cannot is a blocker of the root, not only of itself")
-                cst["due"] = min(cst["due"], r["deadline"])
+                if r["deadline"] < cst["due"]:
+                    cst.update(due=r["deadline"], **_set_by(r))
                 cst["depends_on"] = sorted(set(cst["depends_on"]) | set(pre))
                 pre = [cid]
             shared = next((d for d in deps if d["kind"] == "shared-key" and svc in d["services"]), None)
-            step(f"reissue:{svc}", kind="reissue", service=svc, due=r["deadline"], wave="2031", depends_on=pre,
+            step(f"reissue:{svc}", kind="reissue", service=svc, due=r["deadline"], wave="2031", **_set_by(r), depends_on=pre,
                  title=f"Reissue {svc}'s certificate with ML-DSA" if mine else f"Move {svc}'s host keys to a post-quantum signature",
                  entries=[{"fingerprint": c["fingerprint"], "event": c["event"]} for c in mine],
                  why=("issued by the internal CA: waits for the new root" if ca else "self-signed: the service's own software decides")
@@ -376,6 +378,22 @@ def _brief(s: dict, steps: dict) -> dict:
     still = [steps[d]["title"] for d in s["depends_on"] if d in steps and steps[d]["state"] != "done"]
     return {"id": s["id"], "title": s["title"], "due": s.get("due"), "why": s["why"], "entries": len(s["entries"]),
             "service": s.get("service"), "still_waits_for": still, "unblocks": [steps[u]["title"] for u in s.get("unblocks", []) if u in steps]}
+
+
+def _set_by(row: dict) -> dict:
+    """Which source set a step's due date, and NIST IR 8547's deprecation date when the item has one
+    (the queue item's `deadline_set_by`; absent on a ledger assessed before IR 8547 was a pack)."""
+    out = {}
+    if row.get("deadline_set_by"):
+        out["due_set_by"] = row["deadline_set_by"]
+    if row.get("deprecated_after"):
+        out["deprecated_after"] = row["deprecated_after"]
+    tr = row.get("transition") or {}
+    if tr.get("unchecked"):
+        out["key_size_unchecked"] = tr["unchecked"]
+    if tr.get("below_condition"):
+        out["already_disallowed"] = tr["below_condition"]
+    return out
 
 
 def _traps(deps: list[dict], steps: dict, rows: list[dict], blocked: set) -> list[dict]:
@@ -612,6 +630,8 @@ def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Pat
     cnsa = yaml.safe_load(Path(cnsa_path).read_text()) if Path(cnsa_path).is_file() else {}
     fw_sign = next((x for x in (cnsa.get("timeline") or cnsa.get("dates") or []) if "firmware" in str(x.get("category", ""))), None)
     remaining = str(q["remaining-2035"]["deadline"])
+    ir_path = Path(pack_path).with_name("ir-8547.yaml")
+    ir = (yaml.safe_load(ir_path.read_text()) or {}).get("transition", {}) if ir_path.is_file() else {}
     kex_pri, sig_pri, tls13 = str(q["kex-2030"]["deadline"]), str(q["sig-2031"]["deadline"]), str(q["tls13-2030"]["deadline"])
     when = events[0]["ts"][:10]
     today = dt.date.fromisoformat(when)
@@ -886,4 +906,6 @@ def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Pat
             "read_from": min(reads) if reads else events[0]["ts"], "read_to": max(reads) if reads else events[0]["ts"],
             "replayed": replayed, "replayed_at": events[0]["ts"] if replayed else None,
             "device": next((f.get("device") for f in facts if f.get("device", {}).get("model")), {}),
-            "deadlines": {"remaining": remaining, "kex_prioritized": kex_pri, "sig_prioritized": sig_pri, "tls13": tls13}}
+            "deadlines": {"remaining": remaining, "kex_prioritized": kex_pri, "sig_prioritized": sig_pri, "tls13": tls13,
+                          "deprecated_after": str(ir["deprecated_after"]) if ir.get("deprecated_after") else None,
+                          "disallowed_after": str(ir["disallowed_after"]) if ir.get("disallowed_after") else None}}

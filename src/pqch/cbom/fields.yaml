@@ -33,8 +33,10 @@ pqch:
   pqch:fingerprint: {meaning: "The SHA-256 of the observation's identity — layer, subject, type, role, name, key. Two scans that see the same thing give the same fingerprint; that is how change is detected.", from: finding}
   pqch:evidence: {meaning: "The ledger events of every observation folded into this entry. Each names its tool, the raw output by path and SHA-256, and an excerpt a person can read.", from: finding}
   pqch:tools: {meaning: "Which tools saw it. An entry two tools agree on is one entry.", from: finding}
-  pqch:in-use: {meaning: "Whether a rule judged it in use: a certificate in an image that no listener serves is not. On the wire, true by definition.", from: "rule:in-use/served/1, rule:in-use/not-served/1"}
+  pqch:in-use: {meaning: "Whether it is in use: judged by a rule (a certificate in an image that no listener serves is not) or, on the code layer, by a model's majority of three (the call-site-read role; then pqch:in-use-by says which model). On the wire, true by definition.", from: "rule:in-use/served/1, rule:in-use/not-served/1, model:call-site-read"}
   pqch:in-use-rule: {meaning: "Which rule made the in-use judgement.", from: rule}
+  pqch:in-use-by: {meaning: "Present only when a model made the in-use judgement: the model, its tier and role, the engine the config declares for its tier (vLLM, a NIM, ollama; absent when the config names none), the upstream the endpoint reported (served_by, when it does) and the hardware it ran on, from the ledger's actor.", from: model:call-site-read}
+  pqch:in-use-agreement: {meaning: "How many of the model's repeated calls agreed with the judgement recorded, as 'k of n'.", from: model:call-site-read}
   pqch:verifiable-by: {meaning: "Which verifier could confirm a change to this entry: paired probes on the wire, a certificate parse, or none.", from: rule:verifier/class/1}
   pqch:conflict: {meaning: "When two findings about this asset disagreed, which layer a rule held to be in force, and why.", from: rule:conflict/resolve/1}
   pqch:family: {meaning: "The algorithm's family in the memo's table: ecdh, rsa-sig, ml-kem and so on.", from: rule:quantum/vulnerable/1}
@@ -52,7 +54,9 @@ pqch:
   pqch:priority: {meaning: "Whether M-26-15 §3.C.2 prioritizes the service, and by which criteria.", from: rule:priority/m-26-15/1}
   pqch:migration: {meaning: "One item per function — key establishment, signature — with its state, queue, deadline and blockers.", from: "rule:queue/m-26-15/1, rule:blocker/supplier/1, rule:blocker/validated-module/1"}
   pqch:queue: {meaning: "The earliest queue among the open items.", from: rule:queue/m-26-15/1}
-  pqch:deadline: {meaning: "That queue's deadline.", from: rule:queue/m-26-15/1}
+  pqch:deadline: {meaning: "That queue's deadline: the earlier of M-26-15's queue date and NIST IR 8547's disallowance.", from: rule:queue/m-26-15/1}
+  pqch:deadline-set-by: {meaning: "Which source set that deadline: M-26-15's section, NIST IR 8547's table, or both when they agree.", from: rule:queue/m-26-15/1}
+  pqch:deprecated-after: {meaning: "The date after which NIST IR 8547 deprecates the open items' quantum-vulnerable algorithms (Tables 2 and 4): use past it is a risk accepted, not compliance.", from: rule:queue/m-26-15/1}
   pqch:state: {meaning: "open while any item is open; met when none is.", from: rule:queue/m-26-15/1}
   pqch:image: {meaning: "The image reference with its digest.", from: finding}
 metadata:

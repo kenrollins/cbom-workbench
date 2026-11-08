@@ -22,7 +22,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from pqch import schemas
+from pqch import schemas, varmode
 from pqch import scope as scope_mod
 from pqch.common import sha256_hex, utc_now
 from pqch.run import Run
@@ -113,6 +113,7 @@ def run_import(var: Path, docs: list[tuple[Path, str | None]], scope: dict, *, r
         digest = "sha256:" + sha256_hex(raw)
         stored = run.dir / f"imported-{n}.cdx.json"
         stored.write_bytes(raw)
+        varmode.private(stored)
         documents.append({"name": path.name, "image": image, "path": str(stored.relative_to(var)), "sha256": digest,
                           "spec_version": bom.get("specVersion")})
         image_digest = None

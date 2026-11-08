@@ -35,12 +35,13 @@
 <body>
 {% set active = "notes" %}{% set lede = "<strong>Ask the field notes.</strong> A question about how the workbench works, what was learned and why, answered from the journal's own pages by the box's model, each citation checked against the passages it was shown." %}
 {% include "_header.html" %}
-<main>
+<main id="main">
 <div class="fn-page">
   <h1>Ask the field notes <span class="stamp">answered on this box</span></h1>
   <p class="hand">{{ corpus }} passages from the notes, lessons and how-it-works pages, read by {{ embed_model }}; the answer from {{ model }}.</p>
   <form method="get" action="/notes/ask">
-    <input type="text" name="q" value="{{ q }}" maxlength="400" placeholder="How does the runner read a server's files, and as which user?" autofocus>
+    <label for="notes-q" class="visually-hidden">Question about the field notes</label>
+    <input type="text" id="notes-q" name="q" value="{{ q }}" maxlength="400" placeholder="How does the runner read a server's files, and as which user?" autofocus>
     <button type="submit">Ask</button>
   </form>
   {% if unavailable %}<p class="verdict bad">Not answered. {{ unavailable }}</p>{% endif %}

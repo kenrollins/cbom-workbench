@@ -20,19 +20,19 @@ from .test_ledger import rewrite
 class PySigner(Signer):
     """The real Signer, with its one OpenSSL call replaced by `cryptography`."""
 
-    def __init__(self, key_dir, runs_dir):
-        super().__init__(key_dir, runs_dir, hardware="test")
-        self._key = mldsa.MLDSA65PrivateKey.generate()
+    def __init__(self, key_dir, runs_dir, alg="ML-DSA-65"):
+        super().__init__(key_dir, runs_dir, hardware="test", alg=alg)
+        self._key = {"ML-DSA-65": mldsa.MLDSA65PrivateKey, "ML-DSA-87": mldsa.MLDSA87PrivateKey}[alg].generate()
 
     def ensure_key(self):
-        self.key_dir.mkdir(parents=True, exist_ok=True)
+        self.pub_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.pub_path.write_bytes(self._key.public_key().public_bytes(
             serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo))
 
     def public(self):
         from pqch.signer import key_id
         pem = self.pub_path.read_bytes()
-        return {"alg": "ML-DSA-65", "key_id": key_id(pem), "public_key_pem": pem.decode(), "openssl": "none"}
+        return {"alg": self.alg, "key_id": key_id(pem), "public_key_pem": pem.decode(), "openssl": "none"}
 
     key = public
 
@@ -143,3 +143,71 @@ def test_openssl_signer(slice_run, tmp_path):
     events = closed(slice_run, s)
     res = verify_signed(events, Path(slice_run.dir / "ledger.pub").read_bytes(), known=s.record(slice_run.id))
     assert res.ok, res.error
+
+
+# ---- the checkpoint algorithm, a setting (M8; CNSA 2.0 asks for ML-DSA-87)
+
+def test_ml_dsa_87_checkpoints_are_recorded_and_verify(slice_run, tmp_path):
+    s = PySigner(tmp_path / "s87", slice_run.var / "runs", alg="ML-DSA-87")
+    s.ensure_key()
+    events = closed(slice_run, s)
+    cps = [e["payload"] for e in events if e["type"] == "checkpoint.signed"]
+    assert cps and {c["alg"] for c in cps} == {"ML-DSA-87"}
+    pub = Path(slice_run.dir / "ledger.pub").read_bytes()
+    res = verify_signed(events, pub, known=s.record(slice_run.id))
+    assert res.ok and res.algs == ["ML-DSA-87"]
+    assert verify_signed(events, pub, require_alg="ML-DSA-87").ok
+    bad = verify_signed(events, pub, require_alg="ML-DSA-65")
+    assert not bad.ok and "ML-DSA-65 is required" in bad.error
+
+
+def test_the_default_stays_ml_dsa_65_and_a_policy_can_require_87(slice_run, signer):
+    events = closed(slice_run, signer)
+    pub = Path(slice_run.dir / "ledger.pub").read_bytes()
+    assert verify_signed(events, pub).algs == ["ML-DSA-65"]
+    res = verify_signed(events, pub, require_alg="ML-DSA-87")
+    assert not res.ok and "ML-DSA-87 is required" in res.error
+
+
+def test_a_checkpoint_whose_named_algorithm_is_not_the_keys_fails(slice_run, signer):
+    events = closed(slice_run, signer)
+    pub = Path(slice_run.dir / "ledger.pub").read_bytes()
+    for alg, msg in (("ML-DSA-87", "says ML-DSA-87, but the key is ML-DSA-65"), ("RSA", "not one of")):
+        rewrite(slice_run.ledger, [dict(e, payload={**e["payload"], "alg": alg}) if e["type"] == "checkpoint.signed" else e
+                                   for e in events])
+        res = verify_signed(list(slice_run.ledger.events()), pub)
+        assert not res.ok and msg in res.error, res.error
+
+
+def test_the_signer_refuses_an_algorithm_it_does_not_allow_and_a_key_of_another(slice_run, tmp_path):
+    with pytest.raises(SignerError, match="not one of"):
+        Signer(tmp_path / "x", slice_run.var / "runs", alg="ML-DSA-44")
+    s65 = PySigner(tmp_path / "k", slice_run.var / "runs")
+    s65.ensure_key()
+    s87 = Signer(tmp_path / "k", slice_run.var / "runs", alg="ML-DSA-87")
+    with pytest.raises(SignerError, match="rotate the key"):
+        s87.check_key()
+
+
+def test_the_checkpoint_schema_admits_both_parameter_sets():
+    import json
+    doc = json.loads(Path("src/pqch/schemas/checkpoint.json").read_text())
+    assert doc["properties"]["alg"]["enum"] == ["ML-DSA-65", "ML-DSA-87"]
+
+
+def test_a_new_signer_keeps_its_key_and_record_in_a_directory_only_it_can_enter(slice_run, tmp_path):
+    import stat
+    s = PySigner(tmp_path / "vol", slice_run.var / "runs")
+    s.ensure_key()
+    s.checkpoint(slice_run.id, len(list(slice_run.ledger.events())) - 1)
+    assert s.secret_dir == tmp_path / "vol" / "private"
+    assert stat.S_IMODE(s.secret_dir.stat().st_mode) == 0o700
+    assert stat.S_IMODE(s.record_dir.stat().st_mode) == 0o700
+
+
+def test_a_key_written_before_the_private_directory_is_used_where_it_is(slice_run, tmp_path):
+    vol = tmp_path / "old"
+    vol.mkdir()
+    (vol / "ledger.key").write_text("legacy")
+    s = Signer(vol, slice_run.var / "runs")
+    assert s.key_path == vol / "ledger.key" and s.record_dir == vol / "record"

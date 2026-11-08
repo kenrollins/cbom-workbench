@@ -20,7 +20,8 @@ def _ledger_verify(args: argparse.Namespace) -> int:
         return 0 if res.ok else 1
     pub = Path(args.pub) if args.pub else Path(args.path).parent / "ledger.pub"
     known = json.loads(Path(args.known).read_text()) if args.known else None
-    res = verify_signed(events, pub.read_bytes() if pub.exists() else None, known=known)
+    res = verify_signed(events, pub.read_bytes() if pub.exists() else None, known=known,
+                        require_alg=args.require_alg)
     out = dict(res.__dict__)
     if args.key_id:
         out["key_checked"] = res.key_id == args.key_id
@@ -33,6 +34,17 @@ def _ledger_verify(args: argparse.Namespace) -> int:
               "page) or --pub from the signer, and --known.", file=sys.stderr)
     print(json.dumps(out))
     return 0 if out["ok"] else 1
+
+
+def _var_harden(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch import varmode
+
+    root = Path(args.var or os.environ.get("PQCH_VAR", "var"))
+    print(json.dumps({"root": str(root), **varmode.harden(root)}))
+    return 0
 
 
 def _scope_generate(args: argparse.Namespace) -> int:
@@ -621,7 +633,15 @@ def build_parser() -> argparse.ArgumentParser:
     v.add_argument("--pub", help="public key PEM (default: ledger.pub beside the ledger)")
     v.add_argument("--known", help="JSON list of {through_seq, head_hash} recorded outside the ledger")
     v.add_argument("--key-id", help="the signer's key id, recorded outside the ledger")
+    v.add_argument("--require-alg", choices=["ML-DSA-65", "ML-DSA-87"],
+                   help="refuse a checkpoint signed with any other algorithm (CNSA 2.0: ML-DSA-87)")
     v.set_defaults(func=_ledger_verify)
+
+    vh = sub.add_parser("var", help="what is kept under var/").add_subparsers(dest="sub", required=True)
+    h = vh.add_parser("harden", help="every directory under var/ 0700 and every file 0600 (FR-08); "
+                                     "set PQCH_VAR_PRIVATE=1 so what is written next follows")
+    h.add_argument("--var", help="the directory (default: $PQCH_VAR, else var)")
+    h.set_defaults(func=_var_harden)
 
     sc = sub.add_parser("scope", help="scope tools").add_subparsers(dest="sub", required=True)
     g = sc.add_parser("generate", help="generate an owned, colocated scope from a compose file")

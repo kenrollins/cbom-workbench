@@ -10,7 +10,7 @@
 </head>
 <body>
 {% set active = "plan" %}{% set lede = "<strong>Resolution.</strong> Carrying out a step of <a href=\"/plan\">the plan</a>: the change proposed from the policy, rehearsed on a copy, checked against every kind of client, approved by a person and proved on the wire, twice. Nothing here is the plan; it is the proof that a step of it can be done." %}{% include "_header.html" %}{% set sub = "changes" %}{% set change_run = c.run %}{% include "_subnav.html" %}
-<main>
+<main id="main">
 {% if busy %}<p class="whatif"><strong>That click was not recorded.</strong> A proposal or an approval was already being carried out; one approval per change, and the ledger holds the first. What is running, or just finished, is below.</p>{% endif %}
 {% if change.running %}<p class="whatif"><strong>Working…</strong> a proposal or an approval is being carried out — applied, probed, the service recreated and probed again. This page refreshes itself until it is done.</p>{% endif %}
 <p class="orient">Each step of the plan that a setting can move is carried out here. The order is always the same: propose, rehearse on a copy of the service, see who the change would shut out, approve — a person, signed into the ledger — and then the runner applies it and probes on the wire decide whether it landed, before and after the service is recreated. No model decides that.
@@ -56,7 +56,7 @@
       <p class="note">A change a model drafted is rehearsed before it can be approved; the runner refuses to apply one whose rehearsal did not meet its intent.</p>
     {% elif not ch.approvals %}
       {% if who %}<form method="post" action="/changes/{{ c.run }}/{{ ch.change_id }}/approve"><button type="submit" {% if change.running %}disabled{% endif %}>Approve as {{ who }}</button></form>
-      {% elif public %}<p class="note">Waiting for approval by a person signed on to the workbench; this snapshot is read-only.</p>{% else %}<p class="note">Waiting for approval. Approving needs the lab's sign-on; this request carried none.</p>{% endif %}
+      {% else %}<p class="note">Waiting for approval. Approving needs the lab's sign-on; this request carried none.</p>{% endif %}
     {% endif %}
     {% for a in ch.actions %}<p class="rule">{{ a.type }} at {{ a.ts }}: container <code>{{ a.payload.containers[0].before[:12] }}</code> → <code>{{ (a.payload.containers[0].after or '')[:12] }}</code>, image <code>{{ (a.payload.containers[0].image_digest or '')[:19] }}…</code>
       {% if a.in_runner_log is true %}<span class="good">matches the runner's own log</span>{% elif a.in_runner_log is false %}<span class="bad">not in the runner's own log</span>{% else %}<span class="dim">runner log unreachable</span>{% endif %}</p>{% endfor %}

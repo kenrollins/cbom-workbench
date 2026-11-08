@@ -2,6 +2,10 @@
 
 Verification uses the `cryptography` library's ML-DSA, not the OpenSSL command
 line the signer signs with, so each implementation checks the other.
+
+Each checkpoint names its algorithm (ML-DSA-65 or ML-DSA-87; `pqch.signer.ALLOWED`). The verifier
+checks the name against the public key's own parameter set, and a caller that requires one
+algorithm (`require_alg`: CNSA 2.0 asks for ML-DSA-87) refuses a checkpoint signed with another.
 """
 
 from __future__ import annotations
@@ -26,6 +30,7 @@ class SignedVerification:
     events: int = 0
     key_id: str | None = None
     legacy_checkpoints: int = 0
+    algs: list[str] = field(default_factory=list)
     error: str | None = None
     notes: list[str] = field(default_factory=list)
 
@@ -40,7 +45,11 @@ def _message(through_seq: int, head_hash: str, signed_at: str | None = None) -> 
     return text.encode("ascii")
 
 
-def verify_signed(events: list, public_pem: bytes | str | None, *, known: list[dict] | None = None) -> SignedVerification:
+ALLOWED = ("ML-DSA-65", "ML-DSA-87")
+
+
+def verify_signed(events: list, public_pem: bytes | str | None, *, known: list[dict] | None = None,
+                  require_alg: str | None = None) -> SignedVerification:
     """The chain, every checkpoint's signature, and every checkpoint recorded outside the ledger.
 
     `known` is a list of {through_seq, head_hash} recorded elsewhere — the signer's own
@@ -58,6 +67,8 @@ def verify_signed(events: list, public_pem: bytes | str | None, *, known: list[d
         pub = serialization.load_pem_public_key(pem)
         out.key_id = sha256_hex(pub.public_bytes(serialization.Encoding.DER,
                                                  serialization.PublicFormat.SubjectPublicKeyInfo))
+        from pqch.signer import key_alg
+        pub_alg = key_alg(pem)
     last_signed: tuple[int, str] | None = None
     for ev in events:
         if ev["type"] != "checkpoint.signed":
@@ -76,6 +87,18 @@ def verify_signed(events: list, public_pem: bytes | str | None, *, known: list[d
         if cp["key_id"] != out.key_id:
             out.error = f"checkpoint at event {ev['seq']} was signed with another key ({cp['key_id'][:12]})"
             return out
+        alg = cp.get("alg")
+        if alg not in ALLOWED:
+            out.error = f"checkpoint at event {ev['seq']} names algorithm {alg!r}, not one of {', '.join(ALLOWED)}"
+            return out
+        if alg != pub_alg:
+            out.error = f"checkpoint at event {ev['seq']} says {alg}, but the key is {pub_alg}"
+            return out
+        if require_alg and alg != require_alg:
+            out.error = f"checkpoint at event {ev['seq']} is signed with {alg}; {require_alg} is required"
+            return out
+        if alg not in out.algs:
+            out.algs.append(alg)
         try:
             pub.verify(base64.b64decode(cp["signature"]), _message(n, cp["head_hash"], cp.get("signed_at")))
         except (InvalidSignature, ValueError):

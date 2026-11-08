@@ -37,8 +37,8 @@ PQ = ("ML-KEM", "ML-DSA", "SLH-DSA")
 
 
 def fetch(url: str) -> tuple[str, str]:
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=60) as r:
+    req = urllib.request.Request(url, headers={"User-Agent": UA})  # noqa: S310 - NIST's https:// pages, fixed below
+    with urllib.request.urlopen(req, timeout=60) as r:  # noqa: S310
         data = r.read()
     time.sleep(1)
     return data.decode("utf-8", "replace"), hashlib.sha256(data).hexdigest()

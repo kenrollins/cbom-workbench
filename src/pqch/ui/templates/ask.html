@@ -9,7 +9,7 @@
 </head>
 <body>
 {% set active = "ask" %}{% set lede = "<strong>Ask the CBOM.</strong> A question in plain words, answered from the inventory's own components and the ledger events behind them. The model sees only the passages retrieved for the question; every event it cites is checked against the ledger by a rule, and the verdict is shown beside it." %}{% include "_header.html" %}
-<main>
+<main id="main">
 <p class="orient">The CBOM is a document a person can read, and a model can read it too. Here the question is embedded, the eight components nearest to it are handed to the model as passages with their evidence event ids, and the typed reply names the components it rests on and the events it cites. <span class="ai">The model never decides whether it cited well: a rule checks each event id against the ledger and against what the model was shown. An id that fails is marked, not hidden. Retrieval and the answer are measured apart (eval/ask), with a floor written before the first run.</span></p>
 
 {% if not run %}
@@ -20,13 +20,13 @@
   .ask-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 22px; }
   .ask-flow div { border: 1px solid var(--line2); border-top: 3px solid var(--accent); padding: 10px 12px; background: color-mix(in srgb, var(--accent) 5%, transparent); }
   .ask-flow div:last-child { border-top-color: var(--good); background: color-mix(in srgb, var(--good) 6%, transparent); }
-  .ask-flow b { display: block; font: 600 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .ask-flow b { display: block; font: 600 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--accent) 82%, var(--fg)); margin-bottom: 4px; }
   .ask-flow div:last-child b { color: var(--good); }
   .ask-flow span { font-size: 13.5px; color: var(--fg2); }
   form.ask.big { display: flex; gap: 0; margin: 6px 0 14px; }
-  form.ask.big input#q { flex: 1; font-size: 19px; padding: 14px 16px; background: var(--bg2, #111827); color: var(--fg); border: 1px solid var(--accent); border-right: 0; outline: none; box-shadow: 0 0 0 0 transparent; transition: box-shadow .2s; }
+  form.ask.big input#q { flex: 1; font-size: 19px; padding: 14px 16px; background: var(--bg2, #111827); color: var(--fg); border: 1px solid var(--accent); border-right: 0; box-shadow: 0 0 0 0 transparent; transition: box-shadow .2s; }
   form.ask.big input#q:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
-  form.ask.big button { font-size: 16px; font-weight: 700; padding: 0 28px; background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; }
+  form.ask.big button { font-size: 16px; font-weight: 700; padding: 0 28px; background: color-mix(in srgb, var(--accent) 78%, #000); color: #fff; border: 1px solid var(--accent); cursor: pointer; }
   form.ask.big button[disabled] { opacity: .75; cursor: progress; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
   .chips a { font-size: 13.5px; padding: 6px 12px; border: 1px solid var(--line2); border-radius: 16px; color: var(--fg2); text-decoration: none; transition: border-color .15s, color .15s; }

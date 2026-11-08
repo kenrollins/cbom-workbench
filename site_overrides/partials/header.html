@@ -25,19 +25,25 @@
   <nav class="tabs" aria-label="sections">
     <div class="demo-group">
       <span class="group">Demo<small>{{ config.extra.demo_mode or "live" }}</small></span>
-      {% if config.extra.lab == "true" %}<a href="{{ demo }}demo" class="stage">Demo</a>{% endif %}
+      {#- In the lab every page; in a public build the four the copy carries (ADR-0006): the stage at the
+          root, the CBOM viewer, the recorded answers and About. -#}
+      {% if config.extra.lab == "true" %}<a href="{{ demo }}demo" class="stage">Demo</a>
       <a href="{{ demo }}">Overview</a>
       <a href="{{ demo }}agency">Test agency</a>
       <a href="{{ demo }}walkthrough">Walkthrough</a>
       <a href="{{ demo }}cbom">Inside the CBOM</a>
       <a href="{{ demo }}plan">The plan</a>
-      {% if config.extra.lab == "true" %}<a href="{{ demo }}hosts">Hosts</a>{% endif %}
+      <a href="{{ demo }}hosts">Hosts</a>
+      {% else %}<a href="{{ demo }}" class="stage">Demo</a>
+      <a href="{{ demo }}cbom">Inside the CBOM</a>{% endif %}
       <a href="{{ demo }}ask">Ask the CBOM</a>
       <a href="{{ demo }}about">About</a>
     </div>
     <div class="learn-group fn-box">
       <span class="group">Field notes<small class="hand">{{ config.extra.journal_span or "" }}</small></span>
       <a href="{{ 'how-it-works/' | url }}" class="{{ 'on' if here.startswith('how-it-works') or here.startswith('architecture') or here.startswith('hardware') or here.startswith('demo') or here.startswith('your-own-network') }}">How it works</a>
+      {% if config.extra.lab != "true" %}<a href="{{ 'pages/' | url }}" class="{{ 'on' if here.startswith('pages') }}">Page by page</a>
+      <a href="{{ 'record/' | url }}" class="{{ 'on' if here.startswith('record') }}">The record</a>{% endif %}
       <a href="{{ 'notes/' | url }}" class="{{ 'on' if here.startswith('notes') }}">Notes</a>
       <a href="{{ 'lessons/' | url }}" class="{{ 'on' if here.startswith('lessons') }}">Lessons</a>
       <a href="{{ 'sources/' | url }}" class="{{ 'on' if here.startswith('sources') }}">Sources</a>

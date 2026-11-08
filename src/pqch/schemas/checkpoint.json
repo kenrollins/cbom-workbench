@@ -23,7 +23,7 @@
       "$ref": "event.json#/$defs/sha256"
     },
     "alg": {
-      "const": "ML-DSA-65"
+      "enum": ["ML-DSA-65", "ML-DSA-87"]
     },
     "key_id": {
       "$ref": "event.json#/$defs/sha256"

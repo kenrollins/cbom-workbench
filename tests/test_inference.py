@@ -39,7 +39,8 @@ def test_typed_completion_carries_tier_model_and_hardware(monkeypatch):
     c = Seam(CFG, transport=t).complete("fast", [{"role": "user", "content": "x"}], schema=SCHEMA, purpose="t")
     assert c.parsed == {"label": "a"} and c.model == "m-fast" and c.hardware == "test-box"
     assert c.actor() == {"kind": "model", "id": "fast:m-fast", "tier": "fast", "model": "m-fast", "hardware": "test-box",
-                         "served_by": "http://upstream.test:8013/v1"}
+                         "served_by": "http://upstream.test:8013/v1", "transport": c.transport}
+    assert c.transport in ("plain", "listed-subnet", "loopback")
     assert c.finish_reason == "stop"
     assert seen[0].headers["authorization"] == "Bearer k"
 
@@ -102,3 +103,101 @@ def test_config_refuses_a_role_bound_to_no_tier(tmp_path):
 def test_example_config_binds_the_measured_roles():
     cfg = load_config("config/inference.example.yaml")
     assert cfg["roles"]["trace-to-cause"]["tier"] == "deliberate" and cfg["roles"]["classify-algorithm"]["reasoning"] is True
+
+
+# ---- TLS and model origin in the seam (M8: FR-03 part, FR-07)
+
+def _cfg(**extra):
+    import copy
+    c = copy.deepcopy(CFG)
+    c.update(extra)
+    return c
+
+
+def test_transport_is_classified_from_the_url_and_the_listed_subnets():
+    from pqch.inference import transport_of
+    assert transport_of("https://gateway.example/v1") == "tls"
+    assert transport_of("http://127.0.0.1:8000/v1") == "loopback"
+    assert transport_of("http://localhost:8000/v1") == "loopback"
+    # A routable address is plain unless the operator listed its subnet; nothing is read from the routing table.
+    assert transport_of("http://10.255.255.1:8000/v1") == "plain"
+    assert transport_of("http://10.255.255.1:8000/v1", ("10.255.255.0/24",)) == "listed-subnet"
+    assert transport_of("http://10.255.255.1:8000/v1", ("10.255.254.0/24",)) == "plain"
+
+
+def _plain(**tls):
+    c = _cfg(tls=tls) if tls else _cfg()
+    c["tiers"]["fast"]["base_url"] = "http://10.255.255.1:8000/v1"
+    return c
+
+
+def test_with_tls_required_plain_http_to_an_unlisted_host_is_refused():
+    t, _ = transport('{"label": "a"}')
+    with pytest.raises(TierUnavailable, match="requires TLS"):
+        Seam(_plain(require=True), transport=t).complete("fast", [{"role": "user", "content": "x"}], schema=SCHEMA, purpose="t")
+    with pytest.raises(TierUnavailable, match="requires TLS"):     # a listed subnet that does not hold the host
+        Seam(_plain(require=True, allow_plain_subnets=["10.255.254.0/24"]), transport=t).complete(
+            "fast", [{"role": "user", "content": "x"}], schema=SCHEMA, purpose="t")
+    # Without the setting, the same call goes through as before, and the actor says how it travelled.
+    c = Seam(_plain(), transport=t).complete("fast", [{"role": "user", "content": "x"}], schema=SCHEMA, purpose="t")
+    assert c.actor()["transport"] == "plain" and "plain_subnets" not in c.actor()
+
+
+def test_with_tls_required_loopback_a_listed_subnet_and_https_are_allowed():
+    t, _ = transport('{"label": "a"}')
+    for url, tls, how in (("http://127.0.0.1:8000/v1", {"require": True}, "loopback"),
+                          ("http://10.255.255.1:8000/v1", {"require": True, "allow_plain_subnets": ["10.255.255.0/24"]}, "listed-subnet"),
+                          ("https://gateway.example/v1", {"require": True}, "tls")):
+        cfg = _cfg(tls=tls)
+        cfg["tiers"]["fast"]["base_url"] = url
+        a = Seam(cfg, transport=t).complete("fast", [{"role": "user", "content": "x"}], schema=SCHEMA, purpose="t").actor()
+        assert a["transport"] == how
+        assert a.get("plain_subnets") == (["10.255.255.0/24"] if how == "listed-subnet" else None)
+
+
+def test_a_bad_subnet_or_an_unknown_tls_key_is_refused_when_the_config_loads(tmp_path):
+    import yaml
+
+    from pqch.inference import load_config
+    for tls, msg in (({"allow_plain_subnets": ["not-a-network"]}, "allow_plain_subnets"), ({"verify": False}, "tls takes only")):
+        p = tmp_path / "c.yaml"
+        p.write_text(yaml.safe_dump(_cfg(tls=tls)))
+        with pytest.raises(ValueError, match=msg):
+            load_config(p)
+
+
+def test_a_ca_file_is_what_an_https_tier_is_verified_against(tmp_path):
+    ca = tmp_path / "ca.pem"
+    ca.write_text("not a certificate")
+    cfg = _cfg(tls={"ca_file": str(ca)})
+    cfg["tiers"]["fast"]["base_url"] = "https://gateway.example/v1"
+    import ssl
+    with pytest.raises((ssl.SSLError, OSError)):      # httpx loads the CA file when the client is built: a bad one fails
+        Seam(cfg)._client(cfg["tiers"]["fast"], 5)
+
+
+def test_the_origin_allowlist_refuses_a_model_of_another_origin_or_none(tmp_path):
+    import yaml
+
+    from pqch.inference import load_config
+    cfg = _cfg(origins={"allowed": ["US"]})
+    for t in cfg["tiers"].values():
+        t["provenance"] = {"origin": "US", "licence": "test", "weights_sha256": "a" * 64}
+    p = tmp_path / "ok.yaml"
+    p.write_text(yaml.safe_dump(cfg))
+    load_config(p)
+    cfg["tiers"]["fast"]["provenance"]["origin"] = "XX"
+    p.write_text(yaml.safe_dump(cfg))
+    with pytest.raises(ValueError, match="origin XX"):
+        load_config(p)
+    del cfg["tiers"]["fast"]["provenance"]
+    with pytest.raises(TierUnavailable, match="declares no origin"):
+        Seam(cfg).admit("fast", cfg["tiers"]["fast"])
+
+
+def test_the_actor_records_origin_and_weights_digest(monkeypatch):
+    t, _ = transport('{"label": "a"}')
+    cfg = _cfg(origins={"allowed": ["US"]})
+    cfg["tiers"]["fast"]["provenance"] = {"origin": "US", "weights_sha256": "b" * 64}
+    a = Seam(cfg, transport=t).complete("fast", [{"role": "user", "content": "x"}], schema=SCHEMA, purpose="t").actor()
+    assert a["origin"] == "US" and a["weights_sha256"] == "b" * 64

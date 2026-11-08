@@ -13,7 +13,7 @@ from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
-from pqch import schemas
+from pqch import schemas, varmode
 from pqch.common import hash_object, ulid, utc_now
 
 GENESIS = "0" * 64
@@ -76,8 +76,9 @@ class Ledger:
         evidence: Iterable[dict] = (),
         ts: str | None = None,
     ) -> dict:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
+        varmode.mkdir(self.path.parent)
         with self.path.open("a+", encoding="utf-8") as f:
+            varmode.private(self.path)
             fcntl.flock(f, fcntl.LOCK_EX)
             try:
                 seq, prev = self._head(f)

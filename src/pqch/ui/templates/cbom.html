@@ -9,7 +9,7 @@
 </head>
 <body>
 {% set active = "cbom" %}{% set lede = "<strong>Inside the CBOM.</strong> The inventory itself — the mini-agency's or the lab's — opened up: drawn along its chain, what the document holds, one entry field by field with the evidence behind each field, the same record projected another way, and what changed since the last scan." %}{% include "_header.html" %}
-<main>
+<main id="main">
 {% if switch and (switch.lab or switch.system) and not public %}
 <nav class="estates" aria-label="estate">
   <a href="/cbom" class="{{ 'on' if switch.on == switch.estate }}"><strong>The mini-agency's CBOM</strong><span>built for the demo, every answer known</span></a>
@@ -59,14 +59,15 @@
   {% if public %}<p class="note">One entry is opened here; in the live workbench any entry can be picked. The chain above opens any entry's evidence by a click.</p>{% else %}
   <form method="get" action="/cbom" class="scanform">
     <input type="hidden" name="run" value="{{ run }}">
-    <select name="ref" onchange="this.form.submit()" class="picker">
+    <label for="cbom-ref" class="visually-hidden">CBOM entry to open</label>
+    <select name="ref" id="cbom-ref" class="picker">
       {% for e in entries %}<option value="{{ e.ref }}" {% if e.ref == c.ref %}selected{% endif %}>{{ e.kind }} — {{ e.label }}</option>{% endfor %}
     </select>
-    <noscript><button type="submit">Open</button></noscript>
+    <button type="submit">Open</button>
   </form>{% endif %}
   <p class="lede"><strong>{{ c.label }}</strong> <span class="dim">({{ c.kind }})</span>: {{ c.standard_fields }} fields CycloneDX defines, {{ c.extension_fields }} this project adds, resting on {{ c.events }} ledger event{{ 's' if c.events != 1 }}.</p>
   <div class="anatomy">
-    <figure class="json"><figcaption>As the document carries it</figcaption><pre class="mono small">{{ c.json }}</pre></figure>
+    <figure class="json" tabindex="0" role="region" aria-label="The entry as the document carries it"><figcaption>As the document carries it</figcaption><pre class="mono small">{{ c.json }}</pre></figure>
     <div class="fields">
       <table class="files"><thead><tr><th>Field</th><th>Value</th><th>What it means · where it came from</th></tr></thead><tbody>
       {% for r in c.rows %}
@@ -106,7 +107,7 @@
   <h2><span class="step">4</span> The same record, projected again</h2>
   <p class="lede">The CBOM is one projection of the ledger. Here is another, rebuilt now from the same events — no scanner ran: <strong>{{ p.title }}</strong>, {{ p.rows|length }} rows, built in {{ p.ms_total }} ms ({{ p.ms_cbom }} ms to rebuild the CBOM from {{ p.events }} events, {{ p.ms_table }} ms to project it), from ledger head <code>{{ p.head[:16] }}…</code>. When the minimum elements of a federal CBOM are published, meeting them is another definition file like <code>policy/projections/{{ p.id }}.yaml</code> and a rebuild like this one.</p>
   <p class="note">Illustrative: the field list is one plausible agency inventory, not the minimum elements, which are not published until 2027-03-19. {% set gaps = p.empty.items()|selectattr(1)|list %}{% if gaps %}Empty cells, where the record has nothing for a column: {% for k, n in gaps %}{{ k }} {{ n }}{% if not loop.last %}, {% endif %}{% endfor %} — met items have no queue.{% endif %} <a href="/runs/{{ run }}/projection/{{ p.id }}.csv">Download as CSV</a>.</p>
-  <div class="scroll"><table class="files"><thead><tr>{% for col in p.columns %}<th>{{ col }}</th>{% endfor %}</tr></thead><tbody>
+  <div class="scroll" tabindex="0" role="region" aria-label="{{ p.title }}"><table class="files"><thead><tr>{% for col in p.columns %}<th>{{ col }}</th>{% endfor %}</tr></thead><tbody>
   {% for row in p.rows[:14] %}<tr>{% for v in row %}<td class="small">{% if v is none %}<span class="dim">—</span>{% elif v is string and v|length > 28 %}<span title="{{ v }}">{{ v[:26] }}…</span>{% else %}{{ v }}{% endif %}</td>{% endfor %}</tr>{% endfor %}
   </tbody></table></div>
   {% if p.rows|length > 14 %}<p class="note">The first 14 of {{ p.rows|length }} rows.</p>{% endif %}

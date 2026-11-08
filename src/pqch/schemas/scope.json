@@ -37,6 +37,48 @@
     "null"
    ]
   },
+  "authorization": {
+   "description": "Who authorized the scan, for which system, and for how long (FR-13). The runner refuses every job outside the window.",
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "system_id",
+    "person",
+    "role",
+    "valid_from",
+    "valid_until"
+   ],
+   "properties": {
+    "system_id": {
+     "description": "The system's identifier in the agency's inventory (its FISMA or ATO system id).",
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 128
+    },
+    "person": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 200
+    },
+    "role": {
+     "description": "The authorizing person's role: system owner, authorizing official, ISSO.",
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 200
+    },
+    "valid_from": {
+     "$ref": "#/$defs/day_or_ts"
+    },
+    "valid_until": {
+     "$ref": "#/$defs/day_or_ts"
+    },
+    "rules_of_engagement_sha256": {
+     "description": "The signed rules-of-engagement document, by hash.",
+     "type": "string",
+     "pattern": "^[0-9a-f]{64}$"
+    }
+   }
+  },
   "endpoints": {
    "type": "array",
    "items": {
@@ -314,6 +356,21 @@
  "allOf": [
   {
    "if": {
+    "required": [
+     "authorization"
+    ]
+   },
+   "then": {
+    "properties": {
+     "authorized_by": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   }
+  },
+  {
+   "if": {
     "properties": {
      "estate": {
       "const": "external"
@@ -329,5 +386,12 @@
     }
    }
   }
- ]
+ ],
+ "$defs": {
+  "day_or_ts": {
+   "description": "A day (YYYY-MM-DD, the whole day in UTC) or an RFC 3339 UTC time.",
+   "type": "string",
+   "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z)?$"
+  }
+ }
 }

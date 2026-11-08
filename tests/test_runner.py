@@ -159,3 +159,95 @@ def test_a_postgres_listener_is_scanned_through_its_upgrade_and_by_no_plain_tls_
     assert args[args.index("--starttls") + 1] == "postgres"
     assert args[-1] == "https://172.16.106.30:5432" and "-E" in args
 
+
+
+# ---- the scope's authorization: system, person, role and a window the runner enforces (M8, FR-13)
+
+AUTH = {"system_id": "AGY-0042", "person": "Pat Example", "role": "system owner",
+        "valid_from": "2026-11-01", "valid_until": "2026-11-30"}
+
+
+def _authorized(tmp_path, auth, now):
+    s = {**SCOPE, "authorized_by": "Pat Example", "authorization": auth}
+    p = tmp_path / "scope-auth.json"
+    p.write_text(json.dumps(s))
+    r = Runner(p, tmp_path / "raw", target_network="net", docker_client=ExplodingDocker())
+    r._now = lambda: now
+    return r, scope_mod.scope_hash(s)
+
+
+def test_a_job_inside_the_authorization_window_runs_and_outside_it_is_refused(tmp_path):
+    from datetime import UTC, datetime
+    target = {"host": "172.16.106.10", "port": 443}
+    r, h = _authorized(tmp_path, AUTH, datetime(2026, 11, 30, 23, 59, tzinfo=UTC))   # the last day counts whole
+    r.check("tls-targeted", target, h)
+    for now, why in ((datetime(2026, 12, 1, 0, 0, 1, tzinfo=UTC), "expired 2026-11-30"),
+                     (datetime(2026, 10, 31, 23, 0, tzinfo=UTC), "not yet valid")):
+        r, h = _authorized(tmp_path, AUTH, now)
+        with pytest.raises(Refused) as e:
+            r.run("tls-targeted", target, h)
+        assert e.value.code == 403 and why in e.value.reason and "AGY-0042" in e.value.reason
+
+
+def test_a_scope_without_authorization_runs_as_before_unless_the_runner_requires_one(runner, monkeypatch):
+    target = {"host": "172.16.106.10", "port": 443}
+    runner.check("tls-targeted", target, H)
+    monkeypatch.setenv("PQCH_REQUIRE_AUTHORIZATION", "1")
+    with pytest.raises(Refused) as e:
+        runner.check("tls-targeted", target, H)
+    assert e.value.code == 403 and "requires one" in e.value.reason
+
+
+def test_the_schema_holds_the_authorization_to_its_fields():
+    import jsonschema
+
+    from pqch import schemas
+    ok = {**SCOPE, "authorized_by": "Pat Example", "authorization": {**AUTH, "valid_until": "2026-11-30T12:00:00Z",
+                                                                    "rules_of_engagement_sha256": "a" * 64}}
+    schemas.validate(ok)
+    for bad in ({**ok, "authorization": {k: v for k, v in AUTH.items() if k != "role"}},
+                {**ok, "authorization": {**AUTH, "valid_from": "next week"}},
+                {**ok, "authorized_by": None}):          # an authorization names a person in authorized_by too
+        with pytest.raises(jsonschema.ValidationError):
+            schemas.validate(bad)
+
+
+def test_an_impossible_date_is_a_refusal_with_a_reason():
+    from datetime import UTC, datetime
+    why = scope_mod.authorization_refusal({"authorization": {**AUTH, "valid_from": "2026-02-30"}},
+                                          now=datetime(2026, 11, 5, tzinfo=UTC))
+    assert "does not exist" in why
+
+
+def test_an_authorization_that_ends_before_it_begins_is_refused():
+    from datetime import UTC, datetime
+    why = scope_mod.authorization_refusal({"authorization": {**AUTH, "valid_until": "2026-10-01"}},
+                                          now=datetime(2026, 11, 5, tzinfo=UTC))
+    assert "before it begins" in why
+
+
+# ---- containers confined (M8, FR-04 part)
+
+def test_every_job_gets_no_new_privileges_and_a_wire_probe_no_capability():
+    from pqch.runner import load_profiles
+    profiles = load_profiles()
+    for name, prof in profiles.items():
+        c = Runner.confinement(prof)
+        assert c["security_opt"] == ["no-new-privileges:true"], name
+        if prof["layer"] == "wire":
+            assert c["cap_drop"] == ["ALL"] and "cap_add" not in c, name
+        else:
+            assert "cap_drop" not in c, name      # archive readers keep Docker's defaults until measured without
+    assert Runner.confinement({"layer": "host", "caps": "none", "cap_add": ["DAC_READ_SEARCH"]}) == {
+        "security_opt": ["no-new-privileges:true"], "cap_drop": ["ALL"], "cap_add": ["DAC_READ_SEARCH"]}
+
+
+def test_the_harness_services_are_confined_in_compose():
+    import yaml
+    doc = yaml.safe_load(open("compose.yaml"))
+    for name in ("runner", "signer", "app"):
+        svc = doc["services"][name]
+        assert svc["cap_drop"] == ["ALL"] and "no-new-privileges:true" in svc["security_opt"], name
+    assert doc["services"]["signer"]["read_only"] is True and "/tmp" in doc["services"]["signer"]["tmpfs"]
+    kit = yaml.safe_load(open("kit/compose.system.yaml"))["services"]
+    assert kit["signer-system"]["read_only"] is True and "no-new-privileges:true" in kit["system-runner"]["security_opt"]

@@ -24,6 +24,10 @@ up_fast() {
       --max-num-seqs 32 --trust-remote-code --reasoning-parser nemotron_v3 >/dev/null
     return
   fi
+  # Every image by digest (FR-05): a tag such as :latest names whatever the registry holds today.
+  case "$FAST_IMAGE" in *@sha256:*) ;; *)
+    echo "FAST_IMAGE is $FAST_IMAGE: pin it by digest (pull once, then: docker inspect --format '{{index .RepoDigests 0}}' <image>)" >&2
+    exit 2 ;; esac
   docker run -d --name pqch-engine-fast --network $NET --gpus all --shm-size=16g --restart unless-stopped \
     --env-file "$NGC_ENV_FILE" -e NIM_MAX_MODEL_LEN=$FAST_WINDOW -e NIM_MAX_GPU_MEMORY_UTILIZATION_STARTUP=$FAST_SHARE \
     -v "$HOME/.cache/nim:/opt/nim/.cache" -p 127.0.0.1:8022:8000 "$FAST_IMAGE" >/dev/null

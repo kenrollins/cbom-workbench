@@ -8,15 +8,31 @@ longer timeout, extra request fields). The file's `roles` section binds each
 named role to a tier and a reasoning setting — that binding is data decided by
 measurement (spike S3), never a default in code. The seam knows nothing of
 prompts or the ledger.
+
+Two checks, both opt-in in the config, so a config without them behaves as before (FR-03, FR-07):
+
+- `tls: {require: true, ca_file: <path>, allow_plain_subnets: [<cidr>, ...]}` — an `https://` base
+  URL is verified against `ca_file` (or a tier's own `ca_file`; else the system's trust store), and a
+  plain `http://` one is refused unless its host is a loopback address or every address it resolves
+  to lies in a subnet the operator listed (the kit's engine bridge, say). Nothing is inferred from
+  the routing table: a container with a leg on a VLAN reaches the whole VLAN with no router. Every
+  call's actor records which: `tls`, `loopback`, `listed-subnet` (with the subnets) or `plain`.
+- `origins: {allowed: [US, ...]}` — each tier names its model's `provenance: {origin, licence,
+  weights_sha256}`; a tier whose origin is not on the list is refused when the config is loaded and
+  again at the call. The actor records the origin and the weights digest.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
+import socket
 import time
+from functools import lru_cache
 from dataclasses import dataclass, field
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import httpx
 import yaml
@@ -48,7 +64,12 @@ class Completion:
     finish_reason: str | None = None
     role: str | None = None
     served_by: str | None = None   # the upstream the endpoint said served this call, when it says
+    engine: str | None = None      # the tier's declared engine (vLLM, a NIM, ollama), when the config names it
     raw: dict = field(repr=False, default_factory=dict)
+    transport: str | None = None   # tls, loopback, listed-subnet or plain
+    plain_subnets: tuple[str, ...] = ()   # the subnets listed, when the transport is listed-subnet
+    origin: str | None = None
+    weights_sha256: str | None = None
 
     def actor(self) -> dict:
         """The ledger actor for an event this completion contributed to."""
@@ -60,7 +81,58 @@ class Completion:
             a["role"] = self.role
         if self.served_by:
             a["served_by"] = self.served_by
+        if self.engine:
+            a["engine"] = self.engine
+        for k in ("transport", "origin", "weights_sha256"):
+            if getattr(self, k):
+                a[k] = getattr(self, k)
+        if self.transport == "listed-subnet":
+            a["plain_subnets"] = list(self.plain_subnets)
         return a
+
+
+@lru_cache(maxsize=64)
+def transport_of(base_url: str, plain_subnets: tuple[str, ...] = ()) -> str:
+    """How a base URL is reached: `tls` (https), `loopback`, `listed-subnet` (every address the host
+    resolves to lies in a subnet the operator listed in `tls.allow_plain_subnets`) or `plain`. The seam
+    does not guess what a bridge is: a container with a leg on a VLAN reaches the whole VLAN with no
+    router, so "directly attached" would admit every host on it. The operator names the subnets."""
+    u = urlsplit(base_url)
+    if u.scheme == "https":
+        return "tls"
+    host = u.hostname or ""
+    if host == "localhost":
+        return "loopback"
+    try:
+        addrs = {ai[4][0] for ai in socket.getaddrinfo(host, u.port or 80, proto=socket.IPPROTO_TCP)}
+    except OSError:
+        return "plain"
+    ips = [ipaddress.ip_address(a.split("%")[0]) for a in addrs]
+    if ips and all(ip.is_loopback for ip in ips):
+        return "loopback"
+    nets = [ipaddress.ip_network(s, strict=False) for s in plain_subnets]
+    if ips and nets and all(any(ip in n for n in nets) for ip in ips):
+        return "listed-subnet"
+    return "plain"
+
+
+def plain_subnets(cfg: dict) -> tuple[str, ...]:
+    """`tls.allow_plain_subnets` as a tuple of validated CIDR strings; empty when none is listed."""
+    subs = (cfg.get("tls") or {}).get("allow_plain_subnets") or []
+    return tuple(str(ipaddress.ip_network(s, strict=False)) for s in subs)
+
+
+def origin_refusal(cfg: dict, tier: str, t: dict) -> str | None:
+    """Why a tier's model may not be used under the config's origin allowlist, or None."""
+    allowed = (cfg.get("origins") or {}).get("allowed")
+    if not allowed:
+        return None
+    origin = (t.get("provenance") or {}).get("origin")
+    if origin is None:
+        return f"tier {tier}: model {t.get('model')} declares no origin, and the config allows only {', '.join(allowed)}"
+    if origin not in allowed:
+        return f"tier {tier}: model {t.get('model')} is of origin {origin}, not one of {', '.join(allowed)}"
+    return None
 
 
 def load_config(path: str | Path) -> dict:
@@ -73,9 +145,23 @@ def load_config(path: str | Path) -> dict:
         for k in ("base_url", "api_key_env", "model", "hardware"):
             if k not in t:
                 raise ValueError(f"{path}: tier {tier} lacks {k}")
+        prov = t.get("provenance")
+        if prov is not None and (not isinstance(prov, dict) or set(prov) - {"origin", "licence", "weights_sha256", "source"}):
+            raise ValueError(f"{path}: tier {tier}: provenance takes only origin, licence, weights_sha256 and source")
+        why = origin_refusal(cfg, tier, t)
+        if why:
+            raise ValueError(f"{path}: {why}")
         r = t.get("reasoning")
         if r is not None and (not isinstance(r, dict) or set(r) - {"model", "timeout_s", "request", "structured"}):
             raise ValueError(f"{path}: tier {tier}: reasoning takes only model, timeout_s, request and structured")
+    tls = cfg.get("tls")
+    if tls is not None:
+        if not isinstance(tls, dict) or set(tls) - {"require", "ca_file", "allow_plain_subnets"}:
+            raise ValueError(f"{path}: tls takes only require, ca_file and allow_plain_subnets")
+        try:
+            plain_subnets(cfg)
+        except ValueError as e:
+            raise ValueError(f"{path}: tls.allow_plain_subnets: {e}") from e
     for role, b in (cfg.get("roles") or {}).items():
         if not isinstance(b, dict) or b.get("tier") not in cfg.get("tiers", {}):
             raise ValueError(f"{path}: role {role!r} is bound to no configured tier")
@@ -125,11 +211,26 @@ class Seam:
             raise TierUnavailable(f"tier {tier!r} is not configured in profile {self.config.get('profile')!r}")
         return t
 
+    def admit(self, tier: str, t: dict) -> str:
+        """The tier's transport, after the config's checks: refused (TierUnavailable) when its origin is
+        not allowed, or when TLS is required and the URL is plain HTTP to another network."""
+        why = origin_refusal(self.config, tier, t)
+        if why:
+            raise TierUnavailable(why)
+        how = transport_of(t["base_url"], plain_subnets(self.config))
+        if (self.config.get("tls") or {}).get("require") and how == "plain":
+            raise TierUnavailable(f"tier {tier}: {t['base_url']} is plain HTTP to a host that is neither loopback nor "
+                                  f"in a subnet listed in tls.allow_plain_subnets, and the config requires TLS")
+        return how
+
     def _client(self, t: dict, timeout_s: float) -> httpx.Client:
         key = os.environ.get(t["api_key_env"], "")
         headers = {"Authorization": f"Bearer {key}"} if key else {}
-        return httpx.Client(base_url=t["base_url"].rstrip("/"), headers=headers, timeout=timeout_s,
-                            transport=self._transport)
+        verify = t.get("ca_file") or (self.config.get("tls") or {}).get("ca_file") or True
+        if self._transport is not None:
+            return httpx.Client(base_url=t["base_url"].rstrip("/"), headers=headers, timeout=timeout_s,
+                                transport=self._transport)
+        return httpx.Client(base_url=t["base_url"].rstrip("/"), headers=headers, timeout=timeout_s, verify=verify)
 
     def _require_loaded(self, t: dict) -> None:
         if t.get("residency", "resident") != "on-demand":
@@ -174,6 +275,7 @@ class Seam:
             # Reasoning off: the tier's own `request` block, for what the endpoint needs to answer plainly
             # (a Nemotron chat template thinks unless told not to: chat_template_kwargs.enable_thinking).
             extra = t.get("request") or {}
+        how = self.admit(tier, t)
         self._require_loaded(t)
         body: dict = {**extra, "model": t["model"], "messages": messages, "temperature": 0}
         if max_tokens:
@@ -226,13 +328,17 @@ class Seam:
         return Completion(text=text, parsed=parsed, usage=raw.get("usage", {}),
                           model=raw.get("model", t["model"]), tier=tier, hardware=t["hardware"],
                           latency_ms=latency_ms, purpose=purpose, reasoning=reasoning,
-                          finish_reason=raw["choices"][0].get("finish_reason"), served_by=served_by, raw=raw)
+                          finish_reason=raw["choices"][0].get("finish_reason"), served_by=served_by, raw=raw,
+                          transport=how, plain_subnets=plain_subnets(self.config), engine=t.get("engine"),
+                          origin=(t.get("provenance") or {}).get("origin"),
+                          weights_sha256=(t.get("provenance") or {}).get("weights_sha256"))
 
     def embed(self, tier: str, texts: list[str], *, purpose: str = "passage") -> list[list[float]]:
         """`purpose` is `query` or `passage`. An engine that embeds the two differently names the
         request field that carries it in the tier's `purpose_field` (NVIDIA's retrieval NIMs:
         `input_type`); the tier's `request` block adds any other field the endpoint needs."""
         t = self._tier(tier)
+        self.admit(tier, t)
         self._require_loaded(t)
         body = {**(t.get("request") or {}), "model": t["model"], "input": texts}
         if t.get("purpose_field"):

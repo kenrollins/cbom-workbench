@@ -24,6 +24,7 @@ import subprocess
 import time
 from pathlib import Path
 
+from pqch import varmode
 from pqch.common import ms_between, sha256_hex, utc_now
 from pqch.ledger import Ledger
 from pqch.ledger.checkpoints import verify_signed
@@ -58,6 +59,7 @@ class Applier:
     def _append_log(self, entry: dict) -> None:
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         with self.log_path.open("a") as f:
+            varmode.private(self.log_path)
             f.write(json.dumps(entry, sort_keys=True) + "\n")
             f.flush()
             os.fsync(f.fileno())
@@ -71,7 +73,8 @@ class Applier:
             raise Refused(404, f"no run {run_id}")
         events = list(Ledger(path).events())
         key = self.signer.key()
-        res = verify_signed(events, key["public_key_pem"].encode(), known=self.signer.record(run_id))
+        res = verify_signed(events, key["public_key_pem"].encode(), known=self.signer.record(run_id),
+                            require_alg=os.environ.get("PQCH_CHECKPOINT_ALG") or None)
         if not res.ok:
             raise Refused(409, f"the ledger does not verify: {res.error}")
         return events
@@ -103,6 +106,11 @@ class Applier:
         scope, _ = self.runner.scope()
         if not scope.get("owned"):
             raise Refused(403, "the scope is not an owned estate; changes are handed off, never applied")
+        from pqch import scope as scope_mod
+        why = scope_mod.authorization_refusal(scope, now=self.runner._now(),
+                                              required=os.environ.get("PQCH_REQUIRE_AUTHORIZATION") == "1")
+        if why:
+            raise Refused(403, why)
         if not SERVICE.match(t.get("service", "")):
             raise Refused(400, "bad service name")
         if not any(e["host"] == t["address"] and e["port"] == t["port"] for e in scope["endpoints"]):
@@ -383,6 +391,11 @@ class Applier:
         scope, _ = self.runner.scope()
         if not scope.get("owned"):
             raise Refused(403, "the scope is not an owned estate; it cannot be reset")
+        from pqch import scope as scope_mod
+        why = scope_mod.authorization_refusal(scope, now=self.runner._now(),
+                                              required=os.environ.get("PQCH_REQUIRE_AUTHORIZATION") == "1")
+        if why:                                       # a reset is a change to the estate like any other
+            raise Refused(403, why)
         import yaml
 
         compose = yaml.safe_load(Path(self.compose_files[0]).read_text())

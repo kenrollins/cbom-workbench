@@ -23,6 +23,7 @@ from pathlib import Path
 import yaml
 
 from pqch import scope as scope_mod
+from pqch import varmode
 from pqch.common import ms_between, sha256_hex, ulid, utc_now
 
 
@@ -102,6 +103,12 @@ class Runner:
         path = rest if rest and ("." in first or ":" in first or first == "localhost") else name
         return f"{self.registry}/{path}@{digest}"
 
+    @staticmethod
+    def _now():
+        from datetime import UTC, datetime
+
+        return datetime.now(UTC)
+
     def _client(self):
         """A Docker client per job: jobs run concurrently and a client is not shared."""
         if self._docker is not None:
@@ -126,6 +133,11 @@ class Runner:
         scope, held = self.scope()
         if scope_hash != held:
             raise Refused(409, f"scope hash {scope_hash[:12]} is not the scope the runner holds ({held[:12]})")
+        # Who authorized it, for which system and until when (FR-13): outside the window, nothing runs.
+        why = scope_mod.authorization_refusal(scope, now=self._now(),
+                                              required=os.environ.get("PQCH_REQUIRE_AUTHORIZATION") == "1")
+        if why:
+            raise Refused(403, why)
         if prof.get("target") == "system":
             name = target.get("system")
             sysdef = next((x for x in scope.get("systems", []) if x["name"] == name), None)
@@ -153,6 +165,19 @@ class Runner:
             raise Refused(403, f"image {target.get('image')!r} is not in the scope")
         return prof, scope, {"image": ref}
 
+    @staticmethod
+    def confinement(prof: dict) -> dict:
+        """How a job's container is confined (FR-04). Every job: no-new-privileges. A wire probe is a
+        network client and needs no capability, so it gets none. Jobs that read an archive put into
+        their container keep Docker's default capabilities until each is measured without them; a
+        profile can say `caps: none` or list `cap_add` to change that."""
+        out = {"security_opt": ["no-new-privileges:true"]}
+        if prof.get("caps") == "none" or prof.get("layer") == "wire":
+            out["cap_drop"] = ["ALL"]
+            if prof.get("cap_add"):
+                out["cap_add"] = list(prof["cap_add"])
+        return out
+
     # ---------------------------------------------------------------- run
     def run(self, profile: str, target: dict, scope_hash: str, params: dict | None = None) -> JobResult:
         prof, _scope, resolved = self.check(profile, target, scope_hash)
@@ -173,7 +198,7 @@ class Runner:
             container = client.containers.create(
                 image_digest if prof["image"] == "self" else image_ref, command=args, network=network,
                 mem_limit=prof.get("mem_limit"), labels={"pqch.job": job_id, "pqch.profile": profile},
-                detach=True, platform=self.platform,
+                detach=True, platform=self.platform, **self.confinement(prof),
             )
             if prof.get("input") == "image-archive":
                 self._put_image(client, container, resolved["image"])
@@ -206,7 +231,7 @@ class Runner:
             if container is not None:
                 try:
                     container.remove(force=True)
-                except Exception:
+                except Exception:  # noqa: S110 - a container already gone needs no removal; the job's result stands
                     pass
         ended = utc_now()
         binding = None
@@ -221,9 +246,10 @@ class Runner:
             binding=binding, hardware=self.hardware,
         )
         if raw_bytes:
-            self.raw_dir.mkdir(parents=True, exist_ok=True)
+            varmode.mkdir(self.raw_dir)
             name = f"{job_id}.{prof['output'].get('ext', 'out')}"
             (self.raw_dir / name).write_bytes(raw_bytes)
+            varmode.private(self.raw_dir / name)
             result.raw = f"var/raw/{name}"
             result.raw_sha256 = sha256_hex(raw_bytes)
         self._log_job(result, values)
@@ -239,6 +265,7 @@ class Runner:
         with self._lock:
             self.jobs_log.parent.mkdir(parents=True, exist_ok=True)
             with self.jobs_log.open("a") as f:
+                varmode.private(self.jobs_log)
                 f.write(json.dumps(entry, sort_keys=True) + "\n")
                 f.flush()
                 os.fsync(f.fileno())

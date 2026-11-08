@@ -39,12 +39,22 @@ select = [
     "C4",               # comprehensions
     "UP",               # pyupgrade
     "RUF",              # ruff-native checks
+    "S",                # flake8-bandit: security (M8, FR-05)
 ]
 ignore = [
     # Typographic characters in prose strings and comments are deliberate.
     "RUF001", "RUF002", "RUF003",
     "E501",
+    # Every subprocess here is an argument list from fixed profiles or the operator, never a shell
+    # string; S602/S604 (shell=True) still apply.
+    "S603", "S607",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S108"]          # asserts, fixture passwords and paths in tests
+"spikes/**" = ["S101", "S311"]                  # build-time checks and seeded sampling, not secrets
+"eval/**" = ["S101"]                            # scorer self-checks
+"tools/draw.py" = ["S101", "S311"]              # a drawing's own checks, and a pen's jitter
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

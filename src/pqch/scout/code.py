@@ -23,7 +23,7 @@ from pathlib import Path
 
 import yaml
 
-from pqch import inference
+from pqch import inference, varmode
 from pqch.common import hash_object, sha256_hex, utc_now
 from pqch.run import Run
 
@@ -117,6 +117,7 @@ def scan(var: Path, repo_dir: Path, *, repo: str, commit: str, rules_path: Path,
     # The reader's output is the harness's own, so it lives with its run: raw scanner output under
     # var/raw is the runner's, which the harness may only read.
     (run.dir / "code-candidates.json").write_bytes(raw)
+    varmode.private(run.dir / "code-candidates.json")
     raw_ref = f"var/runs/{run.id}/code-candidates.json"
     digest = sha256_hex(raw)
     sc = run.ledger.append("scan.completed", {"kind": "runner", "id": "pqch-code-reader"}, {

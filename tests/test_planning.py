@@ -49,3 +49,12 @@ def test_a_what_if_frees_what_waited_on_the_assumed_step():
              "reissue:a": {"id": "reissue:a", "depends_on": ["ca:x"], "state": "ready"}}
     assert _settle(steps, frozenset({"replace:b"})) == ["ca:x"]
     assert steps["replace:b"]["assumed"] and steps["reissue:a"]["state"] == "waiting"
+
+
+def test_a_step_says_which_source_set_its_due_date():
+    from pqch.planning import _set_by
+
+    row = {"deadline": "2035-12-31", "deadline_set_by": ["m-26-15 §3.D Phase 5", "ir-8547 Table 4 (§4.1.2)"],
+           "deprecated_after": "2030-12-31"}
+    assert _set_by(row) == {"due_set_by": row["deadline_set_by"], "deprecated_after": "2030-12-31"}
+    assert _set_by({"deadline": "2030-12-31"}) == {}      # a ledger assessed before IR 8547 was a pack

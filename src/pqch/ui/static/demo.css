@@ -146,8 +146,8 @@ figure.stage-plan rect.lane-hl { fill: rgba(0,163,204,.10); stroke: rgba(0,163,2
 .gauges.stacked .gauge { width: 240px; }
 /* advancing */
 .advance { position: fixed; right: 32px; bottom: 44px; display: flex; gap: 8px; z-index: 6; }
-.advance a { font: 600 13px/1 var(--sans); color: var(--fg2); text-decoration: none; border: 1px solid rgba(255,255,255,.22); padding: 10px 16px; border-radius: 3px; background: rgba(12,17,23,.9); }
-.advance a.primary { color: #fff; background: var(--accent); border-color: var(--accent); }
+.advance a { font: 600 13px/1 var(--sans); color: #dfe5ec; text-decoration: none; border: 1px solid rgba(255,255,255,.22); padding: 10px 16px; border-radius: 3px; background: rgba(12,17,23,.9); }
+.advance a.primary { color: #fff; background: color-mix(in srgb, var(--accent) 78%, #000); border-color: var(--accent); }
 .advance a:hover { filter: brightness(1.15); }
 .keys { bottom: 96px; }
 /* a graph that is never still */

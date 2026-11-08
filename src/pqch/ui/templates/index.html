@@ -10,7 +10,7 @@
 <body>
 {% set active = "demo" %}{% set lede = "<strong>Walkthrough.</strong> Everything here runs against the <em>mini-agency</em>: eight small services — a benefits portal, a records database, a message queue, two SSH hosts and others — built in this lab for the purpose, with every cryptographic weakness planted, so there is an answer key to score against. Read top to bottom: the spreadsheet, the scan, the CBOM, what comes first, a change proved on the wire, the receipts." %}{% include "_header.html" %}
 
-<main>
+<main id="main">
 
 <p class="orient">A cryptographic inventory built from evidence, kept on a signed ledger, and used to plan the migration: what depends on what, what comes first, and in what order. The sections below go from a stale spreadsheet to that plan; carrying out a step of it is a separate stage, <a href="/resolve">resolution</a>.
   <span class="ai">Where the models are: reading a call site, naming an unfamiliar spelling, resolving a conflict between findings — each role given to a model only where measurement showed it earned it. Scanners, rules and probes do the rest, and no model decides whether a change worked.</span></p>
@@ -34,11 +34,10 @@
 
 <section id="scan">
   <h2><span class="step">2</span> Scan the mini-agency</h2>
-  {% if public %}<p class="note">This is a snapshot of the demo, built ahead of time: the scan below is one the live workbench ran. The live workbench scans the mini-agency on demand.</p>{% else %}
   <form method="post" action="/scan" class="scanform">
     <button type="submit" {% if scan.running %}disabled{% endif %}>{% if scan.running %}Scanning…{% else %}Scan{% endif %}</button>
     <span class="note">Targeted wire checks run live, each with a time budget. Image scans are replayed from the ledger with their original timestamps; the first run of a new image runs them live.</span>
-  </form>{% endif %}
+  </form>
   <div id="progress" data-running="{{ 'true' if scan.running else 'false' }}">
     {% if scan.running or scan.lines %}
     <table class="jobs"><thead><tr><th>Profile</th><th>Target</th><th>Status</th><th class="num">Time</th><th class="num">Findings</th></tr></thead>
@@ -197,7 +196,7 @@
       {% set sup = r.blockers.get('blocker/supplier/1') %}{% set vm = r.blockers.get('blocker/validated-module/1') %}
       <tr>
         <td><strong>{{ r.service }}</strong></td><td>{{ r.function }}</td>
-        <td><code>{{ r.queue }}</code><br><span class="dim small">{{ r.deadline }}{% if r.deadline_basis == 'computed' %} (end of the year the memo names){% endif %} · §{{ r.section }}</span></td>
+        <td><code>{{ r.queue }}</code><br><span class="dim small">{{ r.deadline }}{% if r.deadline_basis == 'computed' %} (end of the year the memo names){% endif %} · §{{ r.section }}{% if r.deadline_set_by %}<br>set by {{ r.deadline_set_by|join(' and ') }}{% endif %}{% if r.deprecated_after and r.deprecated_after < r.deadline %}<br>deprecated after {{ r.deprecated_after }} (NIST IR 8547 {{ r.transition.table }}{% if r.transition.unchecked %}; key size unchecked for {{ r.transition.unchecked|join(', ') }}{% endif %}){% endif %}{% if r.transition and r.transition.below_condition %}<br>{{ r.transition.below_condition|join(', ') }}: below the row's key size, already disallowed (SP 800-131A Rev. 2){% endif %}</span></td>
         <td>{{ r.owner or '—' }} {% if r.owner %}<span class="tag supplied">supplied</span>{% endif %}</td>
         <td class="small">{{ r.basis }}.<br><span class="dim">Prioritized: {{ r.criteria|join(', ') if r.criteria else 'no' }} (<code>priority/m-26-15/1</code>, event <code>{{ r.priority_event }}</code>); item event <code>{{ r.event }}</code>.</span>
           {% if r.explained %}{% set x = r.explained %}<br><span class="small">{% if x.passed %}<span class="good">In plain words</span>{% else %}<span class="bad">A model's explanation that failed its check</span>{% endif %}: {{ x.explanation }}</span>
@@ -227,7 +226,7 @@
   {% set sg = v.signed %}
   <p>Signatures:
     {% if not sg.ok %}<span class="bad">{{ sg.error }}</span>
-    {% elif sg.checkpoints %}<span class="good">{{ sg.checkpoints }} checkpoint{{ 's' if sg.checkpoints != 1 }} verified</span>, {{ sig_alg }}, signed through event {{ sg.signed_through }}{% if sg.unsigned_after %}; <span class="bad">{{ sg.unsigned_after }} event{{ 's' if sg.unsigned_after != 1 }} after it unsigned</span>{% endif %}
+    {% elif sg.checkpoints %}<span class="good">{{ sg.checkpoints }} checkpoint{{ 's' if sg.checkpoints != 1 }} verified</span>, {{ sig_alg }}{% if sg.algs %} (on the ledger: {{ sg.algs|join(', ') }}{% if sg.require_alg %}; {{ sg.require_alg }} required{% endif %}){% endif %}, signed through event {{ sg.signed_through }}{% if sg.unsigned_after %}; <span class="bad">{{ sg.unsigned_after }} event{{ 's' if sg.unsigned_after != 1 }} after it unsigned</span>{% endif %}
     {% else %}<span class="dim">no checkpoint yet</span>{% endif %}
     · checked against {{ sg.source }}{% if sg.pub_mismatch %} · <span class="bad">the ledger.pub beside this run is not the signer's key</span>{% endif %}</p>
   {% if sg.key_id %}<p class="note">Public key id (SHA-256 of the key): <code>{{ sg.key_id }}</code>{% if sg.last %} · latest checkpoint head <code>{{ sg.last.head_hash }}</code> through event {{ sg.last.through_seq }}, signed in {{ sg.last.signing_ms }} ms on {{ sg.last.hardware }}{% endif %}.

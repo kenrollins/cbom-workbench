@@ -9,7 +9,7 @@
 </head>
 <body>
 {% set active = "overview" %}{% set lede = "<strong>Overview.</strong> Where the CBOM sits in NIST's plan for crypto agility, and what this workbench does in each part — " ~ ("read from its ledgers when this snapshot was built." if public else "read live from its ledgers.") %}{% include "_header.html" %}
-<main>
+<main id="main">
 {% macro who(list) %}<span class="who">{% for w in list %}<span class="actor {{ w }}" title="{{ {'scanner': 'a scanner observes', 'rule': 'a rule decides, from data', 'model': 'a language model acts here, under a measured floor', 'person': 'a person decides', 'verifier': 'probes on the wire decide; no model'}[w] }}">{{ 'verifier — no model' if w == 'verifier' else w }}</span>{% endfor %}</span>{% endmacro %}
 {% macro body(b) %}
   <p class="here">{{ b.here }}</p>
@@ -24,17 +24,17 @@
   <span class="name">{{ title }}{% if sub %}<small>{{ sub }}</small>{% endif %}</span>
   <span class="big">{{ b.big }}</span><span class="small">{{ b.small }}</span>
   {% if caller %}{{ caller() }}{% endif %}
-  <span class="acts">{% for w in b.who %}<i class="dot {{ w }}" title="{{ w }}"></i>{% endfor %}{% if b.ai %}<span class="aitag">model ×{{ b.ai|length }}</span>{% endif %}</span>
+  <span class="acts">{% for w in b.who %}<i class="dot {{ w }}" title="{{ w }}" role="img" aria-label="{{ w }}"></i>{% endfor %}{% if b.ai %}<span class="aitag">model ×{{ b.ai|length }}</span>{% endif %}</span>
 </a>{% endmacro %}
 {% macro items(region) %}<ul class="nist">{% for i in a.nist[region] %}<li class="{{ i.state }}" title="{{ i.what }}">{{ i.label }}</li>{% endfor %}</ul>{% endmacro %}
 
 <p class="orient">NIST's plan for crypto agility, drawn as NIST draws it, filled with what this workbench does in each part. The CBOM is the <strong>Information Repository</strong> in the middle. <span class="hint">Click any box for what is behind it.</span></p>
 
-{% if not public %}<nav class="estates" aria-label="estate">
+<nav class="estates" aria-label="estate">
   <a href="/?estate=mini-agency" class="{{ 'on' if a.estate == 'mini-agency' }}"><strong>The mini-agency</strong><span>built for the demo, every answer known</span></a>
   {% if lab_shown() %}<a href="/?estate=lab" class="{{ 'on' if a.estate == 'lab' }}"><strong>A real network</strong><span>the owner's lab, observed, nothing planted</span></a>{% endif %}
   <a href="/hosts"><strong>Hosts</strong><span>servers read whole: listeners, files, firmware, controller</span></a>
-</nav>{% endif %}
+</nav>
 
 <div class="playbar">
   <a class="cta" href="/plan{{ '?estate=lab' if a.estate == 'lab' else '' }}">See the plan this CBOM makes →</a>
@@ -85,7 +85,7 @@
   </div>
   <div class="loop bottom"><span>Crypto</span><i>◀</i><span>Agility</span></div>
 </figure>
-<p class="credit">Layout after NIST CSWP 39-upd1, <cite>Considerations for Achieving Crypto Agility: Strategies and Practices</cite> (Barker, Chen, Cooper, Moody, Regenscheid, Souppaya, Newhouse, Housley, Turner, Barker and Kent; December 19, 2025, updated June 29, 2026), Fig. 3, “Crypto agility strategic plan for managing an organization’s cryptographic risks” — <a href="https://doi.org/10.6028/NIST.CSWP.39-upd1">doi:10.6028/NIST.CSWP.39-upd1</a>. Redrawn; NIST’s labels kept, its “…” boxes left out. NIST has not reviewed this page. Contents are {% if public %}the state of this snapshot when it was read{% else %}this deployment’s live state{% endif %}: a label is bright where this estate reaches it, dashed in part, dim where it does not.</p>
+<p class="credit">Layout after NIST CSWP 39-upd1, <cite>Considerations for Achieving Crypto Agility: Strategies and Practices</cite> (Barker, Chen, Cooper, Moody, Regenscheid, Souppaya, Newhouse, Housley, Turner, Barker and Kent; December 19, 2025, updated June 29, 2026), Fig. 3, “Crypto agility strategic plan for managing an organization’s cryptographic risks” — <a href="https://doi.org/10.6028/NIST.CSWP.39-upd1">doi:10.6028/NIST.CSWP.39-upd1</a>. Redrawn; NIST’s labels kept, its “…” boxes left out. NIST has not reviewed this page. Contents are this deployment’s live state: a label is bright where this estate reaches it, dashed in part, dim where it does not.</p>
 <div class="legend">Who acts: {% for w in ['scanner', 'rule', 'model', 'person', 'runner', 'verifier'] %}<span><i class="dot {{ w }}"></i>{{ 'verifier — probes, no model' if w == 'verifier' else w }}</span>{% endfor %}</div>
 
 <div id="details">
@@ -123,7 +123,7 @@
     <li><a href="/walkthrough">The walkthrough</a> — the mini-agency from a stale spreadsheet to a CBOM and the plan it makes possible, step by step.</li>
     <li><a href="/cbom">Inside the CBOM</a> — the repository box opened: the document, one entry field by field, projections, and what changed between scans.</li>
     <li><a href="/plan">The plan</a> — what the CBOM says depends on what, what comes first, and in what order: the migration plan no list of systems can give.</li>
-    {% if not public and lab_shown() %}<li><a href="/lab">A real network</a> — the lab estate as passive capture and targeted checks see it.</li>
+    {% if lab_shown() %}<li><a href="/lab">A real network</a> — the lab estate as passive capture and targeted checks see it.</li>
     <li><a href="/hosts">Hosts</a> — servers read whole, each with its own CBOM and plan: listeners, files, firmware's trust databases and management controller.</li>{% endif %}
     <li><a href="/imports">Bring your own scanner</a> — any discovery tool's CBOM, imported and scored against the same answer key.</li>
     <li><a href="/site/notes/16-what-a-cbom-makes-possible/">What a CBOM makes possible</a> — the note behind this page, and the rungs from Opaque to Agile.</li>

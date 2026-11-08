@@ -10,7 +10,7 @@
              src: url(fonts/eb-garamond-latin-wght-normal.woff2) format("woff2"); }
 :root {
   --bg: #0b0f17; --bg2: #141b26; --card: #10161f; --line: #1f2a3a; --line2: #2a3648;
-  --fg: #e4e9f0; --fg2: rgba(196,207,221,.82); --dim: rgba(196,207,221,.56); --faint: rgba(196,207,221,.28);
+  --fg: #e4e9f0; --fg2: rgba(196,207,221,.82); --dim: rgba(196,207,221,.62); --faint: rgba(196,207,221,.28);
   --accent: #0099CC; --accent-glow: rgba(0,153,204,.45);
   --good: #2ec4a6; --warn: #e0b64a; --bad: #e0655a; --classical: #9aa8b8;
   --serif: "EB Garamond", Georgia, serif; --sans: "Inter", system-ui, sans-serif;
@@ -20,7 +20,7 @@
 @media (prefers-color-scheme: light) {
   :root { --bg: #f6f7f9; --bg2: #e9edf2; --card: #ffffff; --line: #d8dee7; --line2: #c3ccd8;
           --fg: #111722; --fg2: #2a3340; --dim: #5d6773; --faint: #9aa4b1; --accent: #007aa8;
-          --accent-glow: rgba(0,122,168,.25); --good: #157a62; --warn: #8a6a12; --bad: #b2392e; --classical: #6b7684;
+          --accent-glow: rgba(0,122,168,.25); --good: #157a62; --warn: #8a6a12; --bad: #b2392e; --classical: #5f6a78;
           color-scheme: light; }
 }
 * { box-sizing: border-box; }
@@ -237,11 +237,12 @@ a.box.sub.engine { margin-left: 12px; } a.box.sub.kpi { margin-left: 24px; }
 .outs { display: flex; flex-direction: column; gap: 10px; }
 a.box.out { border-top-color: var(--outc); } a.box.out .name { color: var(--outc); }
 ul.nist { list-style: none; padding: 0; margin: 4px 0 6px; display: flex; flex-wrap: wrap; gap: 4px; }
-ul.nist li { font: 500 11px/1.2 var(--sans); padding: 3px 7px; border: 1px solid var(--line2); color: var(--faint); background: var(--bg); }
+ul.nist li { font: 500 11px/1.2 var(--sans); padding: 3px 7px; border: 1px solid var(--line2); color: var(--dim); background: var(--bg); }
 ul.nist li.on { color: var(--fg); border-color: currentColor; }
 ul.nist li.partial { color: var(--fg2); border-style: dashed; }
 .gov ul.nist li.on { color: var(--gov); } .assets ul.nist li.on { color: var(--ast); }
 a.box.partial { opacity: .92; } a.box.off { opacity: .45; }
+a.box.partial .small { color: var(--fg2); }   /* the dimmed box keeps its small print at 4.5:1 (FR-09) */
 figure.agility .caption:empty { display: none; }
 figure.agility.playing .caption { position: sticky; top: 8px; z-index: 2; margin: -8px 0 12px; background: var(--bg2); border: 1px solid var(--accent); padding: 8px 12px; color: var(--fg); font-size: 14px; }
 figure.agility.playing a.box { opacity: .35; }

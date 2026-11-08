@@ -13,14 +13,19 @@ jobs:
   check:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
-      - uses: astral-sh/setup-uv@v6
+      # Actions pinned by commit, not by a tag that can move (M8, FR-05); the tag they were at, 2026-11-06.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09   # v5
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e   # v6.8.0
         with:
           python-version: "3.12"
       - name: Install
         run: uv sync --group dev
-      - name: Lint
+      - name: Lint (with ruff's security rules)
         run: uv run ruff check .
+      - name: Known vulnerabilities in the locked dependencies
+        run: |
+          uv export --frozen --no-dev --no-emit-project --format requirements-txt > /tmp/requirements.txt
+          uvx --from 'pip-audit==2.9.0' pip-audit --disable-pip --require-hashes -r /tmp/requirements.txt
       - name: Tests
         run: uv run python -m pytest -p no:warnings
       - name: Site builds

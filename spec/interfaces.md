@@ -62,7 +62,8 @@ and the runner refuses anything outside it (ADR-0003).
 |---|---|
 | `estate` | `colocated`, `remote` or `external` |
 | `owned` | `true` only when the harness generated this scope from an estate it built. The apply job requires it, and separately checks that each container was created by the runner |
-| `authorized_by` | Required when `estate` is `external`: who authorized the scan, as free text |
+| `authorized_by` | Required when `estate` is `external`, or when `authorization` is given: who authorized the scan, as free text |
+| `authorization` | Optional: the system's identifier in the agency's inventory (`system_id`, its FISMA or ATO id), the authorizing `person` and their `role`, and a window `valid_from`..`valid_until` (a day, taken as the whole day in UTC, or an RFC 3339 UTC time); optionally `rules_of_engagement_sha256`, the signed rules-of-engagement document by hash. The runner refuses every job and every apply outside the window. With `PQCH_REQUIRE_AUTHORIZATION=1` the runner refuses a scope without one |
 | `endpoints` | The only addresses and ports a wire scan may touch. Each `host` is one address; a range is not expressible in `/1`. Optional `image`: the scoped image that serves this listener, when the scope is generated from an estate the harness built; rules use it to ask whether a certificate in an image is served by any of that image's listeners. Optional `service`: the compose service that serves the listener, written by the generator; the rule `link/service/1` asserts the listener's and the image's link to that service only when the runner found a container at the address running the scope's image for the whole scan |
 | `images`, `sources` | Where host and code evidence may be read from. Either may be empty |
 | `reach` | `{"kind": "local"}` or `{"kind": "ssh-docker", "context": "<name>"}` |
@@ -294,6 +295,11 @@ chained like any other.
 }
 ```
 
+- `alg` is `ML-DSA-65` (the default) or `ML-DSA-87`, the signer's `PQCH_CHECKPOINT_ALG`. The
+  verifier checks it against the public key's parameter set and, when a policy requires one
+  algorithm (`pqch ledger verify --require-alg ML-DSA-87`), refuses any other. A key on the
+  signer's volume of another algorithm than the setting is refused at start: changing the
+  algorithm is a key rotation.
 - `head_hash` is the `hash` of the event at `through_seq`.
 - The signed message is the ASCII bytes of
   `pqch.checkpoint/1\n<through_seq>\n<head_hash>\n<signed_at>`.

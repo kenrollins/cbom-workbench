@@ -24,7 +24,7 @@
 /* The demo's palette, carried on the header itself so the site — which has no such :root — sets it
    the same. The values mirror style.css's :root; change both or neither. */
 header.site {
-  --bg2: #141b26; --fg: #e4e9f0; --fg2: rgba(196,207,221,.82); --dim: rgba(196,207,221,.56); --faint: rgba(196,207,221,.28);
+  --bg2: #141b26; --fg: #e4e9f0; --fg2: rgba(196,207,221,.82); --dim: rgba(196,207,221,.62); --faint: rgba(196,207,221,.28);
   --accent: #0099CC; --accent-glow: rgba(0,153,204,.45);
   --serif: "EB Garamond", Georgia, serif; --sans: "Inter", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
@@ -110,3 +110,11 @@ header.site .tabs .fn-box a.on { color: var(--fn-ink); border-bottom-color: var(
 .subnav a { color: var(--fg2); text-decoration: none; font: 400 14px/1.55 var(--sans); padding: 8px 0 6px; border-bottom: 2px solid transparent; white-space: nowrap; }
 .subnav a:hover { color: var(--accent); }
 .subnav a.on { color: var(--fg); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* Accessibility (FR-09): a skip link that appears on focus, and a focus ring nothing removes. */
+a.skip { position: absolute; left: -9999px; top: 8px; z-index: 1000; padding: 8px 14px; background: #111722; color: #fff;
+         font: 600 14px/1.2 var(--sans, system-ui, sans-serif); text-decoration: none; }
+a.skip:focus { left: 8px; }
+:focus-visible { outline: 2px solid var(--accent, #007aa8); outline-offset: 2px; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+                   clip: rect(0 0 0 0); white-space: nowrap; border: 0; }

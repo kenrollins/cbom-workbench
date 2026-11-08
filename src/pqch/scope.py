@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import subprocess
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import yaml
@@ -116,6 +117,37 @@ def load(path: str | Path) -> tuple[dict, str]:
     scope = json.loads(Path(path).read_text())
     schemas.validate(scope)
     return scope, scope_hash(scope)
+
+
+def _bound(value: str, *, end: bool) -> datetime:
+    """A day is the whole day in UTC: from its first instant, or until its last."""
+    if len(value) == 10:
+        d = datetime.fromisoformat(value).replace(tzinfo=UTC)
+        return d + timedelta(days=1) - timedelta(microseconds=1) if end else d
+    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+
+
+def authorization_refusal(scope: dict, *, now: datetime | None = None, required: bool = False) -> str | None:
+    """Why a job under this scope may not run now, or None. A scope with an `authorization` runs only
+    inside its window; one without runs as before unless `required` (the runner's
+    PQCH_REQUIRE_AUTHORIZATION) says every scope must carry one."""
+    a = scope.get("authorization")
+    if not a:
+        return ("the scope carries no authorization (system, person, role and validity window), and this "
+                "runner requires one") if required else None
+    now = now or datetime.now(UTC)
+    try:
+        start, until = _bound(a["valid_from"], end=False), _bound(a["valid_until"], end=True)
+    except ValueError as e:
+        return f"the scope's authorization carries a date that does not exist ({e}); fix the scope"
+    if until < start:
+        return f"the scope's authorization ends ({a['valid_until']}) before it begins ({a['valid_from']})"
+    if now < start:
+        return f"the scope's authorization for {a['system_id']} begins {a['valid_from']}; it is not yet valid"
+    if now > until:
+        return (f"the scope's authorization for {a['system_id']} by {a['person']} ({a['role']}) expired "
+                f"{a['valid_until']}; a new scope must be authorized")
+    return None
 
 
 def scope_hash(scope: dict) -> str:

@@ -10,8 +10,7 @@ import os
 from collections.abc import Callable
 from pathlib import Path
 
-from pqch import cbom, scout
-from pqch import schemas
+from pqch import cbom, schemas, scout, varmode
 from pqch.assessor import load_policy, structure
 from pqch.run import Run
 from pqch.score import score_run
@@ -106,6 +105,7 @@ def write_score(run: Run, key_path: Path) -> dict:
     result["labels"] = {"hardware": os.environ.get("PQCH_HARDWARE", "unlabelled"),
                         "build": os.environ.get("PQCH_BUILD", "unlabelled"), "run": run.id}
     (run.dir / "score.json").write_text(json.dumps(result, indent=1) + "\n")
+    varmode.private(run.dir / "score.json")
     return result
 
 
@@ -166,5 +166,6 @@ def write_cboms(run: Run) -> dict[str, Path]:
     for name, bom in cbom.build_all(list(run.ledger.events())).items():
         path = run.dir / f"{name}.cdx.json"
         path.write_text(json.dumps(bom, indent=1, ensure_ascii=False) + "\n")
+        varmode.private(path)
         out[name] = path
     return out

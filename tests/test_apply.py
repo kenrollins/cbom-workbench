@@ -42,8 +42,8 @@ def setup(tmp_path):
     pol.write_text(POLICY)
     scope_path = tmp_path / "scope.json"
 
-    def make(owned=True):
-        s = {**SCOPE, "owned": owned}
+    def make(owned=True, **extra):
+        s = {**SCOPE, "owned": owned, **extra}
         scope_path.write_text(json.dumps(s))
         signer = PySigner(tmp_path / "signer", var / "runs")
         signer.ensure_key()
@@ -234,3 +234,38 @@ def test_the_estate_is_reset_only_on_a_signed_request_and_once(setup, tmp_path):
     assert (agency / "generated" / "portal" / "tls.conf").read_text().startswith("ssl_protocols TLSv1.2 TLSv1.3;")
     with pytest.raises(Refused):                       # once per run
         applier.reset(r.id)
+
+
+def test_no_change_is_applied_under_an_expired_authorization(setup):
+    auth = {"system_id": "AGY-0042", "person": "Ken", "role": "system owner",
+            "valid_from": "2020-01-01", "valid_until": "2020-12-31"}
+    run, cid, signer, applier = setup(authorized_by="Ken", authorization=auth)
+    approve(run, cid, by="ken", authenticated_by="test", signer=signer)
+    _, prop, _ = applier.authorize(run.id, cid)
+    with pytest.raises(Refused, match="expired 2020-12-31"):
+        applier._target(prop)
+
+
+def test_no_reset_under_an_expired_authorization(setup):
+    from pqch import scope as scope_mod
+    from pqch.run import Run
+
+    auth = {"system_id": "AGY-0042", "person": "Ken", "role": "system owner",
+            "valid_from": "2020-01-01", "valid_until": "2020-12-31"}
+    _run, _cid, signer, applier = setup(authorized_by="Ken", authorization=auth)
+    scope, _ = applier.runner.scope()
+    r = Run.start(applier.runs_dir.parent, scope, runner_scope_hash=scope_mod.scope_hash(scope), profile="estate-reset", kind="reset")
+    r.ledger.append("reset.requested", {"kind": "human", "id": "ken"}, {"by": "ken", "authenticated_by": "test"})
+    r.checkpoint(signer)
+    with pytest.raises(Refused, match="expired 2020-12-31"):
+        applier.reset(r.id)
+
+
+def test_the_applier_requires_the_deployments_checkpoint_algorithm(setup, monkeypatch):
+    run, cid, signer, applier = setup()
+    approve(run, cid, by="ken", authenticated_by="test", signer=signer)
+    monkeypatch.setenv("PQCH_CHECKPOINT_ALG", "ML-DSA-87")       # the ledger's checkpoints are ML-DSA-65
+    with pytest.raises(Refused, match="ML-DSA-87 is required"):
+        applier.authorize(run.id, cid)
+    monkeypatch.setenv("PQCH_CHECKPOINT_ALG", "ML-DSA-65")
+    applier.authorize(run.id, cid)

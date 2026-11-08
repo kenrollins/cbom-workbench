@@ -10,12 +10,22 @@
 # below are spike S3's result (2026-10-08); change them only on a new measurement.
 schema: pqch.inference/1
 profile: example
+# Optional (M8, FR-03 and FR-07); without them the seam behaves as it always has.
+# tls:
+#   require: true                   # refuse http:// unless loopback or in a subnet listed below
+#   allow_plain_subnets: [172.16.108.0/24]   # where plain http:// is still allowed: the kit's engine bridge, by name, never inferred
+#   ca_file: /etc/pqch/inference-ca.pem   # what https:// base URLs are verified against (a tier may set its own ca_file)
+# origins:
+#   allowed: [US]                   # refuse any tier whose model's provenance.origin is not listed, or is not given
+# and on each tier:
+#   provenance: {origin: US, licence: <the model licence>, weights_sha256: <digest of the weights served>, source: <where from>}
 tiers:
   fast:
     base_url: http://127.0.0.1:8000/v1
     api_key_env: PQCH_FAST_KEY
     model: fast-model-id
     hardware: label-the-machine
+    engine: vllm                  # optional: the engine serving the tier (vllm, nim, ollama), recorded on every model actor
     max_context: 32768
     timeout_s: 60
     residency: resident

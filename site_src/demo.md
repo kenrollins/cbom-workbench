@@ -37,8 +37,9 @@ ledger timestamp on screen. Each step is marked.
 
 ## What is built today
 
-Every step of the opening runs on the eight-service mini-agency, live in the lab
-at [the walkthrough](/walkthrough). Measured on the lab's x86_64 server:
+Every step of the opening runs on the eight-service mini-agency, live in the lab;
+the published copy shows it as a recording on [the stage](/) and as screenshots
+[page by page](pages.md). Measured on the lab's x86_64 server:
 
 | | |
 |---|---|

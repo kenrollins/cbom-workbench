@@ -13,7 +13,11 @@ inputs, the pack and the section of the memo it rests on.
 - `queue/m-26-15/1` — per service and function (key establishment, signature): the vulnerable
   assets the service still offers or holds in use, the queue the memo puts them in and its
   deadline; `met` when there are none. A vulnerable algorithm still accepted beside a
-  post-quantum one keeps the item open (Appendix A §5: only acceptable algorithms).
+  post-quantum one keeps the item open (Appendix A §5: only acceptable algorithms). With NIST
+  IR 8547's pack beside it (`policy/packs/ir-8547.yaml`), the item also carries the report's
+  deprecation and disallowance dates for the vulnerable names its tables cover; the deadline is
+  the earlier of the memo's queue date and the disallowance, and `deadline_set_by` names the
+  source of that date (both when they agree).
 - `deadline/tls13/1` — per TLS listener: whether it offered TLS 1.3, against §4's date.
 - `blocker/supplier/1` — per open item: whether the service's software can offer a post-quantum
   algorithm in that function at all, from the capability snapshot; when it cannot, the item is
@@ -48,9 +52,86 @@ def _library(software: str) -> str:
     return "unknown"
 
 
+# Classical security strength by key size, SP 800-57 Part 1 Rev. 5 Table 2: the IR 8547 rows apply at or
+# above 112 bits (128 for EdDSA); below that, SP 800-131A Rev. 2 disallows the key already.
+_FF_RSA = ((15360, 256), (7680, 192), (3072, 128), (2048, 112))
+_EC = ((512, 256), (384, 192), (256, 128), (224, 112))
+
+
+def classical_strength(fn: str, name: str, family: str, params: dict | None) -> int | None:
+    """Bits of classical security a quantum-vulnerable asset provides, from its key size, or None when
+    the finding does not carry one. Computed, not measured: the table is SP 800-57's."""
+    import re
+    params = params or {}
+    bits = params.get("key_bits")
+    if family in ("rsa-sig", "rsa-kex", "finite-field-dh", "mqv"):
+        if bits is None:
+            m = re.search(r"(?:DH|ffdhe)-?(\d{3,5})$", name)
+            bits = int(m.group(1)) if m else None
+        if bits is None:
+            return None
+        return next((s for k, s in _FF_RSA if bits >= k), 80 if bits >= 1024 else 0)
+    if name in ("Ed25519", "Ed448"):
+        return 128 if name == "Ed25519" else 224
+    if family in ("ecdh", "ecdsa"):
+        if bits is None:
+            m = re.search(r"(?:secp|P-|brainpoolP|X)(\d{3})", name)
+            bits = int(m.group(1)) if m else None
+            if bits is None and name in ("X25519", "X448"):
+                bits = 255 if name == "X25519" else 448
+        if bits is None:
+            return None
+        return next((s for k, s in _EC if bits >= k), 0)
+    return None
+
+
+def _transition(tr: dict | None, families: dict, fn: str, names: list[str],
+                params_by_name: dict[str, list[dict]] | None = None) -> dict | None:
+    """IR 8547's dates for the vulnerable names of one function: which rows cover them, which names no
+    row covers, and the row's key-size condition checked where the findings carry a key size: a name
+    whose every known key is below the condition is `below_condition` (already disallowed under SP
+    800-131A Rev. 2, not dated 2035), a name with no key size is `unchecked`. None when no transition
+    pack is loaded or no name is covered."""
+    import re
+    if not tr:
+        return None
+    f = tr["functions"][fn]
+    covered, rows, missing, below, unchecked = [], [], [], [], []
+    for name in names:
+        fam = family_of(families, fn, name)
+        row = next((r for r in f["rows"] if name in r.get("names", []) or fam in r.get("families", [])), None)
+        if row is None:
+            missing.append(name)
+            continue
+        covered.append(name)
+        if row["row"] not in [r["row"] for r in rows]:
+            rows.append({"row": row["row"], "parameters": row["parameters"]})
+        need = int(re.search(r"(\d+) bits", row["parameters"]).group(1))
+        strengths = [s for s in (classical_strength(fn, name, fam, p) for p in (params_by_name or {}).get(name) or [{}])
+                     if s is not None]
+        if not strengths:
+            unchecked.append(name)
+        elif max(strengths) < need:
+            below.append(name)
+    if not covered:
+        return None
+    t = tr["transition"]
+    return {"pack": tr["id"], "pdf_sha256": tr["source"].get("pdf_sha256"), "section": f["section"], "table": f["table"],
+            "deprecated_after": str(t["deprecated_after"]), "disallowed_after": str(t["disallowed_after"]),
+            "dates_basis": t["dates_basis"], "covers": covered, "not_covered": missing, "rows": rows,
+            "parameters_checked": not unchecked, "unchecked": unchecked, "below_condition": below,
+            "strength_basis": "SP 800-57 Part 1 Rev. 5 Table 2, from the finding's key size; computed"}
+
+
 def assess(run: Run, *, pack_path: str | Path, families_path: str | Path, capabilities_path: str | Path | None,
-           cmvp_path: str | Path | None, as_of: date | None = None) -> dict:
+           cmvp_path: str | Path | None, as_of: date | None = None,
+           transition_path: str | Path | None = None) -> dict:
+    """`transition_path` defaults to `ir-8547.yaml` beside the pack, when it is there."""
     pack = load_pack(pack_path)
+    if transition_path is None:
+        sibling = Path(pack_path).with_name("ir-8547.yaml")
+        transition_path = sibling if sibling.is_file() else None
+    tr = load_pack(transition_path) if transition_path else None
     families = load_families(families_path)
     caps = json.loads(Path(capabilities_path).read_text()) if capabilities_path and Path(capabilities_path).is_file() else None
     cmvp = json.loads(Path(cmvp_path).read_text()) if cmvp_path and Path(cmvp_path).is_file() else None
@@ -163,6 +244,22 @@ def assess(run: Run, *, pack_path: str | Path, families_path: str | Path, capabi
             names_v = sorted({findings[i]["asset"]["name"] for i in vulnerable})
             names_r = sorted({findings[i]["asset"]["name"] for i in resistant})
             state = "open" if vulnerable else "met"
+            deadline, set_by, t = (str(q["deadline"]), [f"{pack['id']} §{q['section']}"], None) if vulnerable else (None, [], None)
+            if vulnerable:
+                by_name: dict[str, list[dict]] = {}
+                for i in vulnerable:
+                    by_name.setdefault(findings[i]["asset"]["name"], []).append(findings[i]["asset"].get("parameters") or {})
+                t = _transition(tr, families, fn, names_v, by_name)
+                if t and t["below_condition"] == t["covers"]:
+                    # Every covered key is below the row's condition: already disallowed, and the 2035 date
+                    # does not apply to it. The memo's queue date stands alone.
+                    t = {**t, "deprecated_after": None, "disallowed_after": None}
+                elif t:
+                    t_by = f"{t['pack']} {t['table']} (§{t['section']})"
+                    if t["disallowed_after"] < deadline:
+                        deadline, set_by = t["disallowed_after"], [t_by]
+                    elif t["disallowed_after"] == deadline:
+                        set_by.append(t_by)
             basis = (f"{svc} still offers or holds {', '.join(names_v)}" +
                      (f" beside {', '.join(names_r)}: enabled, not enforced" if names_r else "")
                      if vulnerable else
@@ -170,10 +267,14 @@ def assess(run: Run, *, pack_path: str | Path, families_path: str | Path, capabi
             item = run.ledger.append("assessment.made", _actor("queue/m-26-15/1"), {
                 "subject": {"kind": "migration-item", "service": svc, "function": fn}, "rule_id": "queue/m-26-15/1",
                 "classification": {"state": state, "queue": q["id"] if vulnerable else None,
-                                   "deadline": str(q["deadline"]) if vulnerable else None,
+                                   "deadline": deadline,
                                    "deadline_basis": q["deadline_basis"] if vulnerable else None,
                                    "prioritized": prioritized, "vulnerable": names_v, "post_quantum": names_r,
-                                   "enforced": not vulnerable and bool(names_r)},
+                                   "enforced": not vulnerable and bool(names_r),
+                                   **({"deadline_set_by": set_by} if tr and vulnerable else {}),
+                                   **({"deprecated_after": t["deprecated_after"], "disallowed_after": t["disallowed_after"],
+                                       "transition": t} if t and t["disallowed_after"] else {}),
+                                   **({"transition": t} if t and not t["disallowed_after"] else {})},
                 "basis": basis, "source": {**src, "section": q["section"]},
             }, inputs=sorted(set(vulnerable) | set(resistant) | link_events))
             if not vulnerable:

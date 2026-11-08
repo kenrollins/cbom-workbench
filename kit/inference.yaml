@@ -10,6 +10,7 @@ tiers:
     api_key_env: PQCH_ENGINE_KEY
     model: fast
     hardware: "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Lightning 30B-A3B NVFP4, 0.20 share, 40k window)"
+    engine: vllm                  # the engine serving this tier, on every model actor and in the CBOM's in-use-by
     max_context: 40960
     timeout_s: 300
     residency: resident
@@ -27,6 +28,7 @@ tiers:
     api_key_env: PQCH_ENGINE_KEY
     model: deliberate
     hardware: "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)"
+    engine: vllm
     max_context: 131072
     timeout_s: 1800
     residency: resident
@@ -39,6 +41,7 @@ tiers:
     api_key_env: PQCH_ENGINE_KEY
     model: mxbai-embed-large
     hardware: "DGX Spark GB10 (aarch64; ollama, mxbai-embed-large)"
+    engine: ollama
     residency: resident
     # For a retrieval NIM instead: purpose_field: input_type and request: {truncate: END}
 # Bindings by measurement on this hardware class (a GB10 under vLLM), spike S3: round 1 (2026-10-08,

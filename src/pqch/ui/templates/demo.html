@@ -11,6 +11,7 @@
 <body class="stage-body">
 {% set active = "stage" %}{% set lede = "" %}
 {% include "_header.html" %}
+<div id="main" tabindex="-1"></div>
 <main id="stage" class="stage" data-hardware="{{ hardware }}" data-operator="{{ operator }}"
       data-spec="Grace: 20 Arm cores · Blackwell GPU · 128 GB unified memory · CUDA 13 · Ubuntu 24.04 aarch64"
       data-scale="one GB10 → two GB10s linked over ConnectX-7 → Pro Max GB300 → PowerEdge XE → an AI factory">
@@ -22,7 +23,7 @@
     {% if static %}<p class="static-note">A recorded copy of the stage. Every number comes from the test agency's own runs in the lab, recorded on <b>{{ hardware }}</b>; a model's words were recorded once and say so; nothing here scans or calls a model.</p>{% endif %}
     <div class="open-grid">
       <div class="story">
-        <svg id="story-svg"></svg>
+        <svg id="story-svg" role="img" aria-label="The story of the scan: the spreadsheet's gap, the chain the CBOM draws, and the plan, as the same dots"></svg>
         <p id="story-p"></p>
       </div>
       <div class="hero"><canvas id="hero-canvas"></canvas><div class="hero-caption" id="hero-caption"></div></div>
@@ -39,7 +40,7 @@
     <div class="kicker">{% if static %}The scan · the test agency's network, replayed from its ledger ({{ hardware }}){% else %}The scan · the network from this box, and a host read whole{% endif %}</div>
     <h2>Scanners in containers, on the wire and in the files; no model decides a finding. <span class="hint">hover a service · click to hold · <kbd>S</kbd> {{ 'replays the scan' if static else 'scans live' }}</span></h2>
     <div class="lan-grid">
-      <div class="lan"><svg id="chain-svg"></svg><div class="counters over" id="counters-scan"></div></div>
+      <div class="lan"><svg id="chain-svg" role="img" aria-label="The scan reaching each listener of the test agency, with the counters of what it found"></svg><div class="counters over" id="counters-scan"></div></div>
       <div class="lan-side">
         <div class="term" id="term-scan"></div>
         <div class="scan-side" id="hosts-scan"></div>
@@ -51,7 +52,7 @@
     <div class="kicker">Inside the CBOM · what the record holds</div>
     <h2>What each service negotiates on the wire, and what the rules made of it. <span class="hint"><kbd>↑</kbd><kbd>↓</kbd> follow one service</span></h2>
     <div class="cbom-grid">
-      <div class="graph-wrap"><svg class="graph" id="graph-cbom"></svg><canvas class="graph-dots" id="dots-cbom"></canvas><div class="legend" id="legend-cbom"></div></div>
+      <div class="graph-wrap"><svg class="graph" id="graph-cbom" role="img" aria-label="The CBOM as a graph: each entry a dot, joined to what it depends on"></svg><canvas class="graph-dots" id="dots-cbom"></canvas><div class="legend" id="legend-cbom"></div></div>
       <aside class="entry" id="entry-cbom"></aside>
     </div>
   </section>

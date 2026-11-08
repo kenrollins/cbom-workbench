@@ -63,6 +63,19 @@ def _prop(name: str, value) -> dict:
     return {"name": f"pqch:{name}", "value": value}
 
 
+def _model_label(actor: dict) -> dict | None:
+    """What a consumer of the CBOM needs to know of a model that set a fact: which model, on which
+    engine and hardware, in which role. None for a rule or a person."""
+    if (actor or {}).get("kind") != "model":
+        return None
+    out = {k: actor[k] for k in ("model", "tier", "role", "hardware", "engine", "served_by") if actor.get(k)}
+    # `engine` is the tier's declared engine (data in the inference config); `served_by` is the upstream the
+    # endpoint named, a URL. Neither stands in for the other, and a missing one is missing.
+    if actor.get("reasoning"):
+        out["reasoning"] = True
+    return out
+
+
 def _location(subject: dict) -> str:
     if subject["kind"] == "endpoint":
         return f"{subject['host']}:{subject['port']}"
@@ -240,7 +253,9 @@ def project(events: list[dict], *, tools: set[str] | None = None, rules: bool = 
             if rid == "queue/m-26-15/1":
                 migration.setdefault(p["subject"]["service"], []).append(
                     {"function": p["subject"]["function"], **{k: p["classification"][k] for k in
-                     ("state", "queue", "deadline", "deadline_basis")}, "event": ev["id"]})
+                     ("state", "queue", "deadline", "deadline_basis")},
+                     **{k: p["classification"][k] for k in ("deadline_set_by", "deprecated_after", "disallowed_after")
+                        if k in p["classification"]}, "event": ev["id"]})
                 continue
             if rid in ("blocker/supplier/1", "blocker/validated-module/1"):
                 blockers.setdefault((p["subject"]["service"], p["subject"]["function"]), {})[
@@ -272,6 +287,8 @@ def project(events: list[dict], *, tools: set[str] | None = None, rules: bool = 
                 if fp:
                     comps[fp]["in_use"] = p["classification"]["in_use"]
                     comps[fp]["in_use_rule"] = p["rule_id"]
+                    comps[fp]["in_use_by"] = _model_label(ev["actor"])
+                    comps[fp]["in_use_agreement"] = p.get("agreement") if comps[fp]["in_use_by"] else None
             elif ev["type"] == "assessment.made" and "posture" in p.get("classification", {}):
                 postures[(p["subject"]["host"], p["subject"]["port"])] = p["classification"]
 
@@ -298,6 +315,11 @@ def project(events: list[dict], *, tools: set[str] | None = None, rules: bool = 
             props.append(_prop("in-use", in_use))
             if c["in_use_rule"]:
                 props.append(_prop("in-use-rule", c["in_use_rule"]))
+            if c.get("in_use_by"):
+                # A model's majority set it (the call-site-read role): the CBOM says so, and by whom.
+                props.append(_prop("in-use-by", c["in_use_by"]))
+                if c.get("in_use_agreement"):
+                    props.append(_prop("in-use-agreement", c["in_use_agreement"]))
             kind = verifiable.get((f["layer"], f["asset"]["type"], f["asset"]["role"]))
             props.append(_prop("verifiable-by", kind[0] if kind else "unstated"))
             judged = next((conflicts[e] for e in c["events"] if e in conflicts), None)
@@ -386,6 +408,11 @@ def project(events: list[dict], *, tools: set[str] | None = None, rules: bool = 
                 first = min(open_items, key=lambda i: i["deadline"])
                 props.append(_prop("queue", first["queue"]))
                 props.append(_prop("deadline", first["deadline"]))
+                if first.get("deadline_set_by"):
+                    props.append(_prop("deadline-set-by", first["deadline_set_by"]))
+                dep = [i["deprecated_after"] for i in open_items if i.get("deprecated_after")]
+                if dep:
+                    props.append(_prop("deprecated-after", min(dep)))
             props.append(_prop("state", "open" if open_items else "met"))
         components.append({"type": "application", "bom-ref": f"svc:{name}", "name": name, "properties": props})
         depends = sorted(s_["listeners"]) + sorted(f"img:{i.split('@')[0]}" for i in s_["images"])

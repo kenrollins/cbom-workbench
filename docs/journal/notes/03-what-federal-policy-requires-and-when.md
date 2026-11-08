@@ -16,6 +16,8 @@ claims:
     provenance: "cited: EO 14412 as recorded in BRIEF.md's facts table, read through a summarizing tool on 2026-10-03 — check the quotations against the published order before reuse; the 270-day date computed"
   - text: "M-26-15 requires a central CBOM populated from software composition analysis, static and dynamic testing, and network scanning."
     provenance: "cited: OMB M-26-15 Appendix A §6, read first-hand 2026-10-03"
+  - text: "NIST IR 8547, finalized 2026-10-27, deprecates every quantum-vulnerable signature and key-establishment scheme at or above 112 bits of classical strength (EdDSA at or above 128) after 2030 and disallows it under NIST standards after 2035, at any key size."
+    provenance: "cited: NIST IR 8547 (final) Tables 2 and 4 and §4.1.1, read first-hand 2026-11-06, PDF sha256 3049cdfd…"
   - text: "CNSA 2.0 requires new national security system acquisitions to be compliant from 2027-01-01."
     provenance: "secondary: summaries of the NSA CNSA 2.0 FAQ that agree with one another; NSA's site refused the primary document on 2026-10-05 and 2026-10-20, so it was not read first-hand"
 reuse: [whitepaper, talk, customer-question]
@@ -75,12 +77,49 @@ dates apply to; everything else is Phase 5.
 | 2030-01-02 | TLS 1.3 supported | M-26-15 §4 | Hybrid key establishment in TLS is a TLS 1.3 mechanism; a listener on 1.2 alone cannot offer ML-KEM |
 | 2030-12-31 | Key establishment post-quantum on HVAs and high-impact systems | EO 14412; M-26-15 Phase 3 | The first queue closes |
 | 2031 / 2031-12-31 | Phase 4: signatures post-quantum on the same systems | M-26-15; EO 14412 | The second queue; it waits on validated modules and certificate chains |
+| After 2030 / after 2035 | Every quantum-vulnerable signature and key-establishment scheme deprecated / disallowed under NIST standards, at any key size | NIST IR 8547 (final, 2026-10-27), Tables 2 and 4 | For a system the dates above do not prioritize, RSA-3072 or P-384 is deprecated after 2030, not acceptable to 2035; the plan has to say which source set each date |
 | 2035 | Phase 5: full migration of remaining systems | M-26-15 §3.D | — |
 
 <figure class="sketch" markdown>
 ![One line from 2026 to 2035: EO 14412 signed 2026-06-22, each agency's migration plan due 2026-10-22, CISA and NIST publish the minimum elements of a CBOM on 2027-03-19, TLS 1.3 supported by 2030-01-02, key establishment post-quantum on prioritized systems by 2030-12-31, signatures by 2031-12-31, full migration of remaining systems in 2035; below it the phases, with Phase 1, strategy, planning and discovery, running 2026 to 2027, so the minimum elements arrive inside the discovery phase in which the inventory is built.](../img/sketches/03-the-clock.svg)
 <figcaption>The dates on one line: the inventory is built in Phase 1, and what it must contain is published part way through it.</figcaption>
 </figure>
+
+NIST IR 8547, *Transition to Post-Quantum Cryptography Standards*, sets
+the clock for everything the two documents do not prioritize. In its final
+form (2026-10-27) every quantum-vulnerable public-key family at or above 112
+bits of classical strength is deprecated after 2030 and disallowed after
+2035: ECDSA and RSA signatures, EdDSA (at or above 128 bits), finite-field and
+elliptic-curve Diffie-Hellman and MQV, and RSA key establishment (Tables 2
+and 4). The 2024 draft deprecated only the 112-bit parameter sets after 2030,
+so RSA-3072 and P-256 read as acceptable until 2035; the final removes that
+reading. *Deprecated* means the algorithm may still be used with the risk
+accepted; *disallowed* means it is no longer approved. For prioritized
+federal systems the report itself points to the earlier dates of M-26-15 and
+EO 14412.
+
+The workbench carries both documents as policy packs, each quote checked
+against the text it was read from (`policy/packs/m-26-15.yaml`,
+`policy/packs/ir-8547.yaml`). Each open migration item's deadline is the
+earlier of the memo's queue date and the report's disallowance, and the item
+names which source set it. The deprecation date travels beside it:
+
+| Item | Deadline | Set by | Deprecated after |
+|---|---|---|---|
+| Prioritized key establishment | 2030-12-31 | M-26-15 §3.A, Phase 3 | 2030-12-31 (IR 8547 Table 4) |
+| Prioritized signature | 2031-12-31 | M-26-15 Phase 4 | 2030-12-31 (IR 8547 Table 2) |
+| Remaining system, either function | 2035-12-31 | M-26-15 Phase 5 and IR 8547 (the same date) | 2030-12-31 |
+
+The report gives years ("after 2030", "after 2035"); the pack carries the last
+day of each year and marks the dates computed. For a prioritized signature the
+report's deprecation comes a year before the memo's deadline: use in 2031 is
+still within the memo's schedule, with the risk accepted. The tables' parameter
+condition (at or above 112 bits of classical strength, 128 for EdDSA) is
+checked where the finding carries a key size, read through SP 800-57 Part 1's
+strength table: a key below it is already disallowed under SP 800-131A Rev. 2
+and gets no 2035 date; a name with no key size is marked unchecked. DSA and
+OpenSSH's `sntrup761x25519` are in no row of either table, and an item that
+also holds a covered name says so instead of dating them.
 
 Two further requirements shape what the inventory has to hold. M-26-15
 Appendix A §6 says the central CBOM is populated from software composition
@@ -138,6 +177,9 @@ beyond Phase 5; national security systems in any detail
   (2026-06-24) — §1 the plan, §3.D the phases, §4 TLS 1.3, Appendix A §6 the
   central CBOM and its three evidence sources.
 - NSA, CNSA 2.0 FAQ — the national security system dates; not read first-hand (refused twice), the date taken from secondary summaries.
+- NIST IR 8547, *Transition to Post-Quantum Cryptography Standards*
+  (final, 2026-10-27) — the 2030 deprecation and 2035 disallowance of every
+  quantum-vulnerable family, Tables 2 and 4.
 - FIPS 203 (ML-KEM), FIPS 204 (ML-DSA).
 - `BRIEF.md` in the repository, "The clock" and the facts table — every date
   above with its provenance.
