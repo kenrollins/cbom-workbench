@@ -1,0 +1,33 @@
+# Which claim is in force when two findings describe one asset (M9). Data, versioned: the projection
+# reads this file and nothing else for the order. Precedence is by the kind of evidence, never by
+# vendor or tool: what was watched happening on the wire outranks what was read from a host, which
+# outranks what was parsed from a file, which outranks what a document reports. Every claim is kept;
+# the projection names the one in force and the rule that decided, and a person's resolution event
+# (`claim.resolved`) outranks the rule until a `resolution.revoked` event cites it.
+schema: pqch.precedence/1
+id: precedence
+version: 1
+grades:
+  - id: observed-wire
+    means: "a handshake or a probe the harness made or watched: the listener answered"
+  - id: observed-host
+    means: "a value read from a running system's firmware variables, controller or settings"
+  - id: parsed-file
+    means: "a file's content, parsed: a certificate, a key, a configuration line, a call site"
+  - id: reported
+    means: "a document someone else produced: an imported CBOM, a supplier's statement"
+# The grade each tool's findings carry, by the tool's name; a tool not listed is graded by its
+# layer (wire → observed-wire, platform → observed-host, host and code → parsed-file).
+tools:
+  testssl.sh: observed-wire
+  ssh-audit: observed-wire
+  pqch-postgres-probe: observed-wire
+  pqch-capture: observed-wire
+  cbomkit-theia: parsed-file
+  pqch-image-files: parsed-file
+  pqch-system-files: parsed-file
+  pqch-code-rules: parsed-file
+  pqch-system-firmware: observed-host
+  pqch-controller-redfish: observed-host
+  pqch-import: reported
+by_layer: {wire: observed-wire, platform: observed-host, host: parsed-file, code: parsed-file}

@@ -326,11 +326,23 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
         ws = [steps[i] for i in order if steps[i]["wave"] == w]
         if ws:
             waves.append({"id": w, "label": label, "steps": ws})
-    return {"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": scan.id, "dependencies": deps, "ranking": ranking, "waves": waves, "steps": len(steps), "traps": traps, "actions": actions, "first_open": first_open,
+    return with_buckets({"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": scan.id, "dependencies": deps, "ranking": ranking, "waves": waves, "steps": len(steps), "traps": traps, "actions": actions, "first_open": first_open,
             "scan_ts": events[-1]["ts"], "entries": len({e["fingerprint"] for st in steps.values() for e in st["entries"]}),
             "assumed": sorted(a for a in assume if a in steps), "freed": freed, "whatif": _whatif(steps, assume, freed),
             "done": sum(1 for s in steps.values() if s["state"] == "done" and not s.get("assumed")),
-            "waiting": sum(1 for s in steps.values() if s["state"] == "waiting")}
+            "waiting": sum(1 for s in steps.values() if s["state"] == "waiting"),
+            "compatibility": _compatibility_counts(events)})
+
+
+def _compatibility_counts(events: list[dict]) -> dict | None:
+    """The entries' statuses under their packs (`compatibility/entry/1`), counted for the plan's header;
+    None for a run from before the rule."""
+    rows = [e["payload"]["classification"] for e in events
+            if e["type"] == "assessment.made" and e["payload"].get("rule_id") == "compatibility/entry/1"]
+    if not rows:
+        return None
+    return {s: sum(1 for r in rows if r["status"] == s) for s in ("compatible", "not-compatible", "unknown", "outside-pack")} | {
+        "provisional": any(r["provisional"] for r in rows), "packs": sorted({r["pack"] for r in rows})}
 
 
 def _settle(steps: dict, assume: frozenset) -> list[str]:
@@ -378,6 +390,147 @@ def _brief(s: dict, steps: dict) -> dict:
     still = [steps[d]["title"] for d in s["depends_on"] if d in steps and steps[d]["state"] != "done"]
     return {"id": s["id"], "title": s["title"], "due": s.get("due"), "why": s["why"], "entries": len(s["entries"]),
             "service": s.get("service"), "still_waits_for": still, "unblocks": [steps[u]["title"] for u in s.get("unblocks", []) if u in steps]}
+
+
+@__import__("functools").cache
+def _buckets() -> dict:
+    """policy/buckets.yaml: the buckets a later phase is scoped by."""
+    import yaml
+
+    from pqch.policy import ROOT
+
+    doc = yaml.safe_load((ROOT / "policy" / "buckets.yaml").read_text())
+    if doc.get("schema") != "pqch.buckets/1":
+        raise ValueError("policy/buckets.yaml: expected schema pqch.buckets/1")
+    return doc
+
+
+def bucket_of(step: dict) -> str:
+    """Which bucket a step falls in: by its id's prefix first, then by its kind; `unplaced` otherwise."""
+    for b in _buckets()["buckets"]:
+        if any(step["id"].startswith(x) for x in b.get("ids", [])):
+            return b["id"]
+    for b in _buckets()["buckets"]:
+        if step.get("kind") in b.get("kinds", []):
+            return b["id"]
+    return "unplaced"
+
+
+def with_buckets(plan: dict) -> dict:
+    """Every step placed in a bucket (`step.bucket`), and `plan.buckets`: one row per bucket with its
+    steps, services, earliest due date and how many wait; `unplaced` listed when any step is."""
+    if not plan:
+        return plan
+    for s in plan.get("order", []):
+        s["bucket"] = bucket_of(s)
+    rows = []
+    for b in [*_buckets()["buckets"], {"id": "unplaced", "label": "Unplaced", "means": "a step no bucket row names"}]:
+        mine = [s for s in plan.get("order", []) if s["bucket"] == b["id"]]
+        if not mine and b["id"] == "unplaced":
+            continue
+        rows.append({"id": b["id"], "label": b["label"], "means": b.get("means"), "steps": len(mine),
+                     "services": sorted({s.get("service") for s in mine if s.get("service")}),
+                     "earliest_due": min((s["due"] for s in mine if s.get("due")), default=None),
+                     "waiting": sum(1 for s in mine if s.get("state") == "waiting"),
+                     "done": sum(1 for s in mine if s.get("state") == "done")})
+    plan["buckets"] = rows
+    plan["buckets_pack"] = f"{_buckets()['id']}/{_buckets()['version']}"
+    return plan
+
+
+REGISTER_COLUMNS = ["n", "step", "title", "bucket", "wave", "due", "due_set_by", "state", "waits_for", "service", "system",
+                    "interface", "mission_thread", "owner", "classification", "fips199_impact", "high_value_asset",
+                    "data_lifetime_years", "sensitive_through", "prioritized", "criteria", "not_compatible_entries",
+                    "unknown_entries", "blocked_on_supplier", "vendor_path", "cost_to_fix", "entries", "fingerprints", "why"]
+
+
+def register(plan: dict, events: list[dict]) -> dict:
+    """The plan as a register a later phase is planned from: one row per step, with the owner's facts
+    for its service beside it and the CBOM entries it moves by fingerprint. Owner-supplied columns are
+    the owner's words; nothing here is computed from them."""
+    facts: dict[str, dict] = {}
+    for e in events:
+        p = e["payload"]
+        if e["type"] == "link.asserted" and p.get("status") == "supplied":
+            facts.setdefault(p["from"]["name"], {})[p["kind"]] = p["to"]["value"]
+    prio = {e["payload"]["subject"]["name"]: e["payload"]["classification"] for e in events
+            if e["type"] == "assessment.made" and e["payload"].get("rule_id") == "priority/m-26-15/1"}
+    compat: dict[str, dict[str, int]] = {}
+    for e in events:
+        p = e["payload"]
+        if e["type"] == "assessment.made" and p.get("rule_id") == "compatibility/entry/1" and p["classification"].get("service"):
+            c = compat.setdefault(p["classification"]["service"], {})
+            c[p["classification"]["status"]] = c.get(p["classification"]["status"], 0) + 1
+    rows = []
+    for s in plan.get("order", []):
+        svc = s.get("service")
+        f = facts.get(svc, {}) if svc else {}
+        pr = prio.get(svc, {}) if svc else {}
+        rows.append([s.get("n"), s["id"], s.get("title"), s.get("bucket"), s.get("wave"), s.get("due"),
+                     " and ".join(s.get("due_set_by") or []) or None, s.get("state"), "; ".join(s.get("depends_on") or []) or None,
+                     svc, f.get("system"), f.get("interface"), f.get("mission-thread"), f.get("owner"), f.get("classification"),
+                     f.get("fips199-impact"), f.get("high-value-asset"), f.get("data-lifetime"), pr.get("sensitive_through"),
+                     pr.get("prioritized"), ", ".join(pr.get("criteria") or []) or None,
+                     compat.get(svc, {}).get("not-compatible") if svc else None, compat.get(svc, {}).get("unknown") if svc else None,
+                     "yes" if s.get("status") in ("blocked", "package") or s.get("kind") == "supplier" else None,
+                     f.get("vendor-path"), f.get("cost-to-fix"), len(s.get("entries") or []),
+                     ",".join(sorted({e["fingerprint"] for e in s.get("entries") or []})) or None, s.get("why")])
+    import os
+
+    marking = os.environ.get("PQCH_MARKING", "").strip() or None
+    if marking:
+        for r in rows:
+            r.append(marking)
+    return {"columns": REGISTER_COLUMNS + (["marking"] if marking else []), "rows": rows, "run": plan.get("run"),
+            "buckets": plan.get("buckets"), "buckets_pack": plan.get("buckets_pack"), "steps": len(rows),
+            "cost": _cost(rows), "marking": marking, "schema": "pqch.register/1"}
+
+
+def _cost(rows: list[list]) -> dict | None:
+    """The owner-supplied costs summed per currency, counted once per service. A sum of the owner's
+    numbers, labelled as such; a row with no cost adds nothing and is counted as uncosted."""
+    seen, by_cur, uncosted = set(), {}, 0
+    for r in rows:
+        svc, cost = r[REGISTER_COLUMNS.index("service")], r[REGISTER_COLUMNS.index("cost_to_fix")]
+        if not svc or svc in seen:
+            continue
+        seen.add(svc)
+        if isinstance(cost, dict):
+            by_cur[cost["currency"]] = by_cur.get(cost["currency"], 0) + cost["amount"]
+        else:
+            uncosted += 1
+    return {"by_currency": by_cur, "services_costed": len(seen) - uncosted, "services_uncosted": uncosted,
+            "basis": "the owner's cost_to_fix facts, summed per currency, once per service; nothing is estimated here"}
+
+
+def register_csv(reg: dict) -> str:
+    import csv
+    import io
+
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(reg["columns"])
+    for r in reg["rows"]:
+        w.writerow(["" if v is None else (json.dumps(v) if isinstance(v, (dict, list)) else v) for v in r])
+    return buf.getvalue()
+
+
+def write_register(var: Path, scan: Run) -> dict[str, Path] | None:
+    """The register and the grouped plan written beside the run (register.csv, register.json), as the
+    CBOMs are: a projection, rebuilt at will; the routes serve the live one."""
+    from pqch import varmode
+
+    plan = build(var, scan)
+    if not plan:
+        return None
+    reg = register(with_buckets(plan), list(scan.ledger.events()))
+    out = {}
+    for name, text in (("register.csv", register_csv(reg)), ("register.json", json.dumps(reg, indent=1, sort_keys=True) + "\n")):
+        p = scan.dir / name
+        p.write_text(text)
+        varmode.private(p)
+        out[name] = p
+    return out
 
 
 def _set_by(row: dict) -> dict:
@@ -607,8 +760,26 @@ def _latest_date(v) -> str:
         return max((_latest_date(x) for x in v), default="")
     return (v or "")[:10] if isinstance(v, str) else ""
 
+def _attested_line(att: dict | None, pick) -> tuple[str, dict] | None:
+    """One firmware row of a supplier's statement, as a sentence for a step's why and as data."""
+    if not att:
+        return None
+    row = next((r for r in att["firmware"] if pick(r)), None)
+    if not row:
+        return None
+    pq = row.get("post_quantum") or {}
+    route = (f"{', '.join(pq.get('algorithms') or [])}" + (f" in version {pq['version']}" if pq.get("version") else "")
+             + (f", {pq['available']}" if pq.get("available") else ", no date given")) if pq else "no post-quantum route stated"
+    ver = ("the installed version" if row["agrees"] else f"version {row['attested_version']}, not the installed {row['observed_version']}"
+           if row["agrees"] is False else f"version {row['attested_version']}")
+    text = (f"The supplier's statement ({att['supplier']}, {att['issued']}{', illustrative' if att.get('illustrative') else ''}; "
+            f"reported, not observed) says of {ver}: supportability {row['supportability']}; {route}")
+    return text, {"supplier": att["supplier"], "issued": att["issued"], "illustrative": att.get("illustrative", False),
+                  "firmware": row["name"], "supportability": row["supportability"], "agrees": row["agrees"], "post_quantum": pq or None}
+
+
 def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Path = "policy/packs/m-26-15.yaml",
-                 cnsa_path: str | Path = "policy/packs/cnsa-2.0.yaml") -> dict | None:
+                 cnsa_path: str | Path = "policy/packs/cnsa-2.0.yaml", attestation: dict | None = None) -> dict | None:
     """A server's plan, from its system scan (`kind: scan-system`): what to fix on it, in what order,
     and what waits for its supplier. Rules only, over the run's findings and `platform.observed`
     facts. No owner's facts are supplied for a single server, so nothing is prioritized: its key
@@ -773,11 +944,13 @@ def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Pat
         wire_ctl = pick(lambda p: p["layer"] == "wire" and p["subject"].get("host") == ctl["host"] and p["asset"]["role"] == "key-establishment")
         ident = pick(lambda p: p["subject"].get("component", "").startswith("bmc:certificate:"))
         fwv = ctl_fact.get("controller", {}).get("firmware_version")
+        ctl_att = _attested_line(attestation, lambda r: r.get("tls") or "controller" in r["name"].lower() or "idrac" in r["name"].lower())
         sup = step("supplier:controller", kind="supplier", service="controller", wave="supplier", due=remaining,
                    title=f"Controller firmware with ML-KEM key exchange, from the vendor (now {fwv or 'unknown'})",
                    why="its HTTPS and SSH accept only classical key exchange, on the wire and as configured; its SSH list is the "
                        "vendor's to extend, and its web server's groups are fixed in the firmware. Ask the vendor for the release "
-                       f"and the date; it falls in the memo's remaining queue, by {remaining}",
+                       f"and the date; it falls in the memo's remaining queue, by {remaining}"
+                       + (f". {ctl_att[0]}" if ctl_att else ""), attested=ctl_att[1] if ctl_att else None,
                    fields=["what its listeners accept (targeted scan)", "its configured key exchange (Redfish)", "its firmware version (Redfish)"],
                    entries=[ref(x) for x in wire_ctl + ssh_cfg])
         step("require:controller", kind="require", service="controller", wave="then", due=remaining,
@@ -827,13 +1000,15 @@ def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Pat
     if roots:
         longest = max((_latest_date(sbc[x]["asset"]["parameters"].get("not_after")) for x in roots), default="")
         fw_due = f"{fw_sign.get('exclusive_by')}" if fw_sign else None
+        bios_att = _attested_line(attestation, lambda r: r["name"].upper() == "BIOS")
         step("supplier:signing", kind="supplier", service="firmware", wave="supplier", due=fw_due or sig_pri,
              depends_on=["fw:ca2023"] if "fw:ca2023" in steps else [],
              title="A post-quantum firmware-signing root, and a way to rotate the platform key, KEK and db, from the vendor",
              why=f"every key the boot chain trusts is RSA or ECDSA ({len(roots)} certificates, valid to {longest}); a firmware "
                  "signature is checked for the life of the hardware, so the root has to change before the hardware retires"
                  + (f"; CNSA 2.0 sets {fw_sign['exclusive_by']} for software and firmware signing in national security systems"
-                    f"{' (the pack marks that date unverified)' if fw_sign.get('verified') is False else ''}" if fw_sign else ""),
+                    f"{' (the pack marks that date unverified)' if fw_sign.get('verified') is False else ''}" if fw_sign else "")
+                 + (f". {bios_att[0]}" if bios_att else ""), attested=bios_att[1] if bios_att else None,
              fields=["the Secure Boot databases' certificates and keys", "the quantum-vulnerable table"], entries=[ref(x) for x in roots])
         deps.append({"kind": "firmware-trust", "id": "dep:bootchain", "name": f"The BIOS ({bios.get('version', '?')}) and its trust databases",
                      "what": f"the BIOS enforces {len(sbc)} certificates in the platform key, KEK, db and dbx when Secure Boot is on",
@@ -897,15 +1072,24 @@ def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Pat
     if unread:
         traps.append({"dependency": None, "sheet": "count a scan run as an ordinary user as complete",
                       "cbom": f"{len(unread)} paths, the private host keys among them, were unreadable to it: the inventory says so instead of omitting them"})
-    return {"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": run.id, "estate": "system", "system": system,
+    return with_buckets({"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": run.id, "estate": "system", "system": system,
             "dependencies": deps, "lanes": lanes, "ranking": [],
             "wave_labels": {"now": "now", "next": "next", "supplier": "vendor", "then": "then"}, "waves": waves,
             "steps": len(steps), "traps": traps, "entries": len(finds), "done": 0,
             "assumed": sorted(a for a in assume if a in steps), "freed": freed, "whatif": _whatif(steps, assume, freed),
             "waiting": sum(1 for s in steps.values() if s["state"] == "waiting"),
+            "attestation": attestation and {"supplier": attestation["supplier"], "issued": attestation["issued"],
+                                            "illustrative": attestation.get("illustrative", False), "run": attestation["run"],
+                                            "named": len(attestation["firmware"]),
+                                            "agree": sum(1 for r in attestation["firmware"] if r["agrees"]),
+                                            "differ": sum(1 for r in attestation["firmware"] if r["agrees"] is False),
+                                            "unseen": sum(1 for r in attestation["firmware"] if r["agrees"] is None),
+                                            "not_attested": len(attestation["not_attested"]),
+                                            "by_supportability": {k: sum(1 for r in attestation["firmware"] if r["supportability"] == k)
+                                                                  for k in ("update", "replace", "end-of-life", "no-statement")}},
             "read_from": min(reads) if reads else events[0]["ts"], "read_to": max(reads) if reads else events[0]["ts"],
             "replayed": replayed, "replayed_at": events[0]["ts"] if replayed else None,
             "device": next((f.get("device") for f in facts if f.get("device", {}).get("model")), {}),
             "deadlines": {"remaining": remaining, "kex_prioritized": kex_pri, "sig_prioritized": sig_pri, "tls13": tls13,
                           "deprecated_after": str(ir["deprecated_after"]) if ir.get("deprecated_after") else None,
-                          "disallowed_after": str(ir["disallowed_after"]) if ir.get("disallowed_after") else None}}
+                          "disallowed_after": str(ir["disallowed_after"]) if ir.get("disallowed_after") else None}})

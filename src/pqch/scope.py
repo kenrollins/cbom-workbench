@@ -127,14 +127,19 @@ def _bound(value: str, *, end: bool) -> datetime:
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
-def authorization_refusal(scope: dict, *, now: datetime | None = None, required: bool = False) -> str | None:
+def authorization_refusal(scope: dict, *, now: datetime | None = None, required: bool = False,
+                          require_roe: bool = False) -> str | None:
     """Why a job under this scope may not run now, or None. A scope with an `authorization` runs only
     inside its window; one without runs as before unless `required` (the runner's
-    PQCH_REQUIRE_AUTHORIZATION) says every scope must carry one."""
+    PQCH_REQUIRE_AUTHORIZATION) says every scope must carry one. With `require_roe` (PQCH_REQUIRE_ROE)
+    the authorization must also name the signed rules-of-engagement document by hash (FR-13)."""
     a = scope.get("authorization")
     if not a:
         return ("the scope carries no authorization (system, person, role and validity window), and this "
                 "runner requires one") if required else None
+    if require_roe and not a.get("rules_of_engagement_sha256"):
+        return (f"the scope's authorization for {a.get('system_id', '?')} names no rules-of-engagement document "
+                "(rules_of_engagement_sha256), and this runner requires one")
     now = now or datetime.now(UTC)
     try:
         start, until = _bound(a["valid_from"], end=False), _bound(a["valid_until"], end=True)

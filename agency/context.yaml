@@ -15,6 +15,12 @@
 # prioritizes a "high impact system" (§3.C.2, footnote 5). owner: who the migration item is
 # assigned to. national_security_system: whether CNSA 2.0 rather than M-26-15 governs it
 # (M-26-15 §3.B). All supplied, all typed in; the mini-agency's are planted like its weaknesses.
+#
+# system, interface, mission_thread, classification: what a discovery-and-planning engagement maps each
+# item to (the system of record in the inventory, the interface it serves, the mission thread it
+# carries, the enclave's classification: unclassified, cui, confidential, secret, top-secret).
+# vendor_path and cost_to_fix: the register's owner-supplied columns; cost_to_fix is a mapping of amount,
+# currency and basis so the number carries where it came from. None of these is computed by anything.
 schema: pqch.context/1
 estate: mini-agency
 supplied_by: the system owner
@@ -26,6 +32,10 @@ services:
     mission_function: benefits enrollment
     data_lifetime_years: 10
     high_value_asset: false
+    system: BEN-PORTAL
+    interface: public HTTPS, citizens' browsers
+    mission_thread: benefits enrollment
+    classification: cui
   api:
     owner: Integration
     fips199_impact: moderate
@@ -33,6 +43,10 @@ services:
     mission_function: partner data exchange
     data_lifetime_years: 10
     high_value_asset: false
+    system: PARTNER-API
+    interface: partner HTTPS with client certificates
+    mission_thread: partner data exchange
+    classification: cui
   pq-gateway:
     owner: Integration
     fips199_impact: high
@@ -40,6 +54,10 @@ services:
     mission_function: inter-agency data exchange
     data_lifetime_years: 25
     high_value_asset: true
+    system: IAX-GW
+    interface: inter-agency HTTPS
+    mission_thread: inter-agency data exchange
+    classification: cui
   records-db:
     owner: Records office
     fips199_impact: high
@@ -47,6 +65,10 @@ services:
     mission_function: benefits records
     data_lifetime_years: 75
     high_value_asset: true
+    system: BEN-RECORDS
+    interface: internal PostgreSQL from the portal and case processing
+    mission_thread: benefits records
+    classification: cui
   queue:
     owner: Case processing
     fips199_impact: moderate
@@ -54,6 +76,10 @@ services:
     mission_function: case processing
     data_lifetime_years: 7
     high_value_asset: false
+    system: CASE-MQ
+    interface: internal AMQP over TLS
+    mission_thread: case processing
+    classification: cui
   legacy-app:
     owner: Case management
     fips199_impact: moderate
@@ -61,6 +87,15 @@ services:
     mission_function: case management
     data_lifetime_years: 10
     high_value_asset: false
+    system: CASE-LEGACY
+    interface: internal HTTPS, case workers
+    mission_thread: case management
+    classification: cui
+    vendor_path: no statement from the vendor; the product's last release was in 2021
+    cost_to_fix:
+      amount: 120000
+      currency: USD
+      basis: 'planted: a replacement estimate the owner typed in'
   sftp-legacy:
     owner: Records office
     fips199_impact: high
@@ -68,6 +103,15 @@ services:
     mission_function: records transfer with the archive
     data_lifetime_years: 75
     high_value_asset: true
+    system: REC-SFTP
+    interface: partners' SFTP drop
+    mission_thread: benefits records intake
+    classification: cui
+    vendor_path: end-of-life appliance; the vendor offers a replacement model running OpenSSH 9.9
+    cost_to_fix:
+      amount: 40000
+      currency: USD
+      basis: 'planted: a replacement estimate the owner typed in'
   bastion:
     owner: Operations
     fips199_impact: moderate
@@ -75,3 +119,7 @@ services:
     mission_function: administrative access
     data_lifetime_years: 1
     high_value_asset: false
+    system: OPS-BASTION
+    interface: administrators' SSH
+    mission_thread: operations
+    classification: cui

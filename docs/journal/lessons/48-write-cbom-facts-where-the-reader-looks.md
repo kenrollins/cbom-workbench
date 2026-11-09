@@ -10,8 +10,8 @@ one_line: "Two valid CycloneDX 1.6 CBOMs of the same estate can share almost not
 claims:
   - text: "CycloneDX 1.6's protocolProperties has type, version, cipherSuites, ikev2TransformTypes and cryptoRefArray: no field for the key-exchange group a TLS server selected, and none for an SSH server's key exchange, host-key or encryption algorithms."
     provenance: "cited: CycloneDX 1.6 JSON schema, definitions.cryptoProperties (src/pqch/cbom/schema/bom-1.6.schema.json)"
-  - text: "The workbench's CBOM writer fills, of the standard's crypto fields, only assetType, algorithmProperties.primitive (curve or parameterSetIdentifier on 3 of 62 algorithms), the certificate names and dates, protocolProperties.type, and relatedCryptoMaterialProperties.type and size; never protocolProperties.version or cipherSuites, certificateProperties.signatureAlgorithmRef or subjectPublicKeyRef, or a key's algorithmRef."
-    provenance: "computed 2026-11-01 over the CBOM of mini-agency run 01M5JFEP7D145D2T38TW0S6631 (250 components), counting every scalar path under cryptoProperties"
+  - text: "Until 2026-11-09 the workbench's CBOM writer filled, of the standard's crypto fields, only assetType, algorithmProperties.primitive (curve or parameterSetIdentifier on 3 of 62 algorithms), the certificate names and dates, protocolProperties.type, and relatedCryptoMaterialProperties.type and size; never protocolProperties.version or cipherSuites, certificateProperties.signatureAlgorithmRef or subjectPublicKeyRef, or a key's algorithmRef. Since then it fills every one of those it has the fact for, references resolving to components inside the document, and writes the consumers' property names beside its own (ADR-0007)."
+    provenance: "computed 2026-11-01 over the CBOM of mini-agency run 01M5JFEP7D145D2T38TW0S6631 (250 components), counting every scalar path under cryptoProperties; the writer's fields after 2026-11-09 in src/pqch/cbom/__init__.py and tests/test_interop.py"
 reuse: [whitepaper, customer-question, runbook]
 ---
 
@@ -68,3 +68,6 @@ standard is silent.
    a name that carries the size or curve (`RSA-2048`, `ECDSA-P-256`), or a filled `parameterSetIdentifier` and
    `curve`, is safer than a family name with the size kept elsewhere.
 5. Test the result in the consumer: import the CBOM and confirm that a planted weakness is reported.
+
+Steps 1 to 4 are applied in the workbench's writer since 2026-11-09 (ADR-0007 records the names chosen and the
+alternatives); step 5, the re-upload to a consumer, is still to be done with the next access to one.

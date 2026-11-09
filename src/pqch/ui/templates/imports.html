@@ -32,6 +32,10 @@
   {% endif %}{% else %}<tr><td colspan="8" class="dim">No import yet.</td></tr>{% endfor %}
   </tbody>
 </table>
+{% if combined %}
+<h3>The scan and its imports, as one document</h3>
+<p class="lede">Every tool's CBOM of this estate projected together, the workbench's own scan first: <strong>{{ combined.components }} components</strong> over {{ combined.runs|length }} runs, {{ combined.claims.multi }} entries described by more than one tool, {{ combined.claims.dissent }} with a parameter the tools disagree on (kept, shown, not resolved), the value in force chosen by the grade of its evidence (observed before reported), never by vendor.{% if combined.score %} Scored against the same key: {% for l in ['wire', 'host', 'code'] %}{% set r = combined.score[l] %}{% if r.scanned %}{{ l }} {{ r.covered }} of {{ r.present }}{% if r.false_positives %} with {{ r.false_positives }} false positive{{ 's' if r.false_positives != 1 }}{% endif %}{{ '; ' if not loop.last }}{% endif %}{% endfor %}. A tool's misspelling of an entry the scan saw is the same entry, not a second one.{% endif %} <a href="/estate/cbom.json?runs={{ combined.runs|join(',') }}">The combined document</a>, each run pinned by its ledger's head.</p>
+{% endif %}
 <p class="note">"Out of reach": keyed items no scan of this kind can see — a client's certificate, a key exchange only one client offers. A decoy is a planted item that should <em>not</em> be reported as in use — an unserved certificate, a retired key. Flagging one is a false positive the answer key was built to catch. The workbench's row is its latest full scan; an imported tool is scored only on the layers its documents reach.</p>
 </main>
 </body>

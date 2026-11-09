@@ -45,6 +45,9 @@ def run_once(var: Path, client, key_path: Path, *, host: str = "replay", classif
     run.close(signer_from_env())
     write_cboms(run)
     write_score(run, key_path)
+    from pqch.planning import write_register
+
+    write_register(var, run)
     return run, summary
 
 
@@ -79,10 +82,18 @@ def enrich(run: Run, *, author: str, context: Path | str | None = "env") -> dict
         context = Path(os.environ.get("PQCH_CONTEXT", "agency/context.yaml"))
     if context is not None and Path(context).is_file():
         out.update(chains.supply(run, Path(context), author=author))
+    from pqch.assessor import libraries
+
+    snap = Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots"))
+    caps = sorted(snap.glob("capabilities-*.json"))
+    out.update(libraries.link(run, json.loads(caps[-1].read_text()) if caps else None))
     out.update(verifiers.classes(run, verifiers.load_verifiers(
         os.environ.get("PQCH_VERIFIERS", "policy/verifiers.yaml"))))
     out.update(conflicts.resolve(run))
     out.update(managed(run))
+    from pqch.assessor import gaps
+
+    out.update(gaps.record(run))
     return out
 
 
@@ -163,7 +174,12 @@ def signer_from_env():
 def write_cboms(run: Run) -> dict[str, Path]:
     """Rebuild every CBOM of a run from its ledger. Safe to delete and rerun at any time."""
     out = {}
+    marking = os.environ.get("PQCH_MARKING", "").strip()
     for name, bom in cbom.build_all(list(run.ledger.events())).items():
+        if marking:
+            # The deployment's marking travels with the written document (FR-08); the projection itself
+            # stays a function of the ledger, so the marking is added here, at the file, not in project().
+            bom["metadata"]["properties"].append({"name": "pqch:marking", "value": marking})
         path = run.dir / f"{name}.cdx.json"
         path.write_text(json.dumps(bom, indent=1, ensure_ascii=False) + "\n")
         varmode.private(path)

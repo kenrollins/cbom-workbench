@@ -28,7 +28,13 @@ from pqch.run import Run
 CONTEXT_SCHEMA = "pqch.context/1"
 SUPPLIED_KINDS = {"mission_function": "mission-function", "data_lifetime_years": "data-lifetime",
                   "high_value_asset": "high-value-asset", "fips199_impact": "fips199-impact",
-                  "owner": "owner", "national_security_system": "national-security-system"}
+                  "owner": "owner", "national_security_system": "national-security-system",
+                  # What a discovery-and-planning engagement maps each item to (M10): the system of record it
+                  # belongs to, the interface it serves, the mission thread it carries, the enclave's
+                  # classification; and the register's owner-supplied columns, the vendor's path and the cost.
+                  "system": "system", "interface": "interface", "mission_thread": "mission-thread",
+                  "classification": "classification", "vendor_path": "vendor-path", "cost_to_fix": "cost-to-fix"}
+CLASSIFICATIONS = ("unclassified", "cui", "confidential", "secret", "top-secret")
 
 
 def load_context(path: str | Path) -> tuple[dict, str]:
@@ -44,6 +50,12 @@ def load_context(path: str | Path) -> tuple[dict, str]:
             raise ValueError(f"{path}: service {name!r}: data_lifetime_years is a whole number of years")
         if facts.get("fips199_impact", "low") not in ("low", "moderate", "high"):
             raise ValueError(f"{path}: service {name!r}: fips199_impact is low, moderate or high")
+        if "classification" in facts and str(facts["classification"]).lower() not in CLASSIFICATIONS:
+            raise ValueError(f"{path}: service {name!r}: classification is one of {', '.join(CLASSIFICATIONS)}")
+        cost = facts.get("cost_to_fix")
+        if cost is not None and not (isinstance(cost, dict) and isinstance(cost.get("amount"), (int, float))
+                                     and isinstance(cost.get("currency"), str) and isinstance(cost.get("basis"), str)):
+            raise ValueError(f"{path}: service {name!r}: cost_to_fix is a mapping of amount, currency and basis (where the number comes from)")
     return ctx, sha256_hex(data)
 
 

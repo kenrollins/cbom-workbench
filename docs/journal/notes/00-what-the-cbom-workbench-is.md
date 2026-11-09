@@ -296,6 +296,38 @@ ledgers, the plan's narration recorded once, and the hardware named as the runs 
   names its model, the checkpoint algorithm is a setting, the scope carries
   who authorized it and until when, and TLS to the models, origin checks, file
   modes and a release signature are settings a deployment turns on.
+- **Every entry is tagged, and unknown is a count.** Each CBOM entry carries
+  its status under the pack that governs its service, compatible, not
+  compatible, unknown or outside the pack, judged by a rule from the pack's own
+  table; on the four-service slice, 2, 39, 1 and 5 under M-26-15. A gap in the
+  evidence is a number of its own, never a pass, and a status from a pack not
+  read first-hand says it is provisional
+  ([note 22](22-what-compatible-means-entry-by-entry.md)).
+- **A supplier's statement is evidence of its own grade.** What signs a
+  firmware, which modules a controller carries and whether the installed
+  version has a route forward come from the supplier; the workbench records
+  such a statement as reported evidence on its own ledger, joins it to a
+  scanned server by model and firmware version, and shows the two side by
+  side with every disagreement visible; it never becomes a finding
+  ([note 23](23-what-a-suppliers-attestation-can-stand-in-for.md)).
+- **The plan is handed over as a register.** One row per step, grouped into
+  the buckets a later phase is scoped by from a versioned pack, with the
+  system, interface, mission thread, owner, classification, vendor path and
+  cost the owner supplied beside the priority, deadline and blockers the rules
+  computed, and the entries each step moves by fingerprint; the cost column is
+  the owner's numbers summed once per service, nothing estimated
+  ([note 24](24-what-a-later-phase-needs-from-a-discovery-phase.md)).
+- **What no tool could see is a queue, not a percentage.** Each gap a scan
+  leaves is an event with a stable id, its asset class, the reason and what
+  fills it; a person closes one by citing evidence; coverage per class is
+  counted from reached against reached plus open gaps
+  ([note 25](25-how-much-of-an-estates-cryptography-a-tool-can-reach.md)).
+- **Measured against the phase most organisations start with.** Ten asks of
+  a discovery-and-planning phase, nine answered from the ledger on the
+  mini-agency's scan of 2026-11-09 (313 components, 183 not compatible, 10
+  gaps, 25 steps in three buckets) and one, the proof in a commercial
+  consumer, named and waiting
+  ([note 26](26-what-a-discovery-and-planning-phase-asks-of-a-cbom-tool.md)).
 
 ## Scope
 

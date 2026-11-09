@@ -26,3 +26,19 @@ timeline:
   - {category: "operating systems", prefer_by: 2027, exclusive_by: 2033, verified: false}
   - {category: "niche equipment", prefer_by: 2030, exclusive_by: 2033, verified: false}
   - {category: "new NSS acquisitions compliant", by: 2027-01-01, verified: false}
+
+# Compatibility, entry by entry (`compatibility/entry/1`), as the secondary sources state the suite:
+# one algorithm per function, at one parameter set. NOT READ FIRST-HAND: every status this block
+# yields is marked provisional until the primary documents are read and the names checked against
+# them. A name in `unsettled` is one the summaries do not place (a hybrid whose ML-KEM part is the
+# suite's): its status is unknown, not a verdict either way.
+compatible:
+  section: "the suite's table (secondary sources)"
+  basis: named-algorithms
+  verified: false
+  names:
+    key-establishment: [ML-KEM-1024]
+    signature: [ML-DSA-87, LMS, XMSS]
+    encryption: [AES-256]
+    hash: [SHA-384, SHA-512]
+  unsettled: [SecP384r1MLKEM1024]

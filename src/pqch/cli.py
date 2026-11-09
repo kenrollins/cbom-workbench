@@ -205,6 +205,138 @@ def _import(args: argparse.Namespace) -> int:
     return 0
 
 
+def _retention_apply(args: argparse.Namespace) -> int:
+    """Destroy the artefacts of runs older than the retention period, on the record; the ledgers stay."""
+    import os
+    from pathlib import Path
+
+    from pqch import retention
+    from pqch.pipeline import signer_from_env
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    days = args.days if args.days is not None else int(os.environ.get("PQCH_RETENTION_DAYS", "0") or 0)
+    if days <= 0:
+        raise SystemExit("a retention period in days is needed (--days or PQCH_RETENTION_DAYS)")
+    s = retention.apply(var, days=days, by=args.by or os.environ.get("PQCH_OPERATOR", "operator"), basis=args.basis,
+                        dry_run=args.dry_run, signer=signer_from_env())
+    for c in s["runs"]:
+        print(f"{c['run']} ({c['kind']}, {c['started'][:10]}): {len(c['raw'])} raw outputs, {len(c['documents'])} documents"
+              + ("" if c["verifies"] else "  [ledger does not verify]"))
+    print(f"{'would destroy' if s['dry_run'] else 'destroyed'} {sum(len(c['raw']) + len(c['documents']) for c in s['runs'])} files across "
+          f"{len(s['runs'])} runs" + (f"; recorded on run {s['run']}" if s.get("run") else ""))
+    return 0
+
+
+def _gap_list(args: argparse.Namespace) -> int:
+    """What no tool could see on a run: the open gaps, each with what would fill it."""
+    import os
+    from pathlib import Path
+
+    from pqch.assessor import gaps
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    if not run or not run.ledger.exists():
+        raise SystemExit("no run")
+    q = gaps.queue(var, list(run.ledger.events()))
+    if q is None:
+        raise SystemExit(f"run {run.id} was assessed before the gap rule existed; rescan to record its gaps")
+    for c in q["classes"]:
+        print(f"{c['class']:<12} {c['reached']:>4} reached  {c['gaps']:>3} gaps  {c['coverage']:>3}% coverage")
+    for g in q["open"]:
+        print(f"{g['gap']}  {g['kind']:<34} {g['asset_class']:<10} {__import__('json').dumps(g['subject'])}\n    {g['reason']}\n    fill: {g['fills']}")
+    print(f"{len(q['open'])} open, {len(q['filled'])} filled, on run {run.id}")
+    return 0
+
+
+def _gap_fill(args: argparse.Namespace) -> int:
+    """Close a gap with the evidence a person brought, on the record."""
+    import os
+    from pathlib import Path
+
+    from pqch.assessor import gaps
+    from pqch.pipeline import signer_from_env
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run, s = gaps.fill(var, args.gap, evidence=args.evidence, by=args.by or os.environ.get("PQCH_OPERATOR", "operator"),
+                       basis=args.basis, signer=signer_from_env())
+    print(f"gap {s['gap']} ({s['kind']}) filled by run {run.id}, event {s['event']}")
+    return 0
+
+
+def _plan_export(args: argparse.Namespace) -> int:
+    """The plan as a register beside the run: one row per step with the owner's facts, grouped into the buckets a later phase is scoped by."""
+    import os
+    from pathlib import Path
+
+    from pqch.planning import write_register
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    scan = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    if not scan or not scan.ledger.exists():
+        raise SystemExit("no scan run")
+    out = write_register(var, scan)
+    if not out:
+        raise SystemExit(f"run {scan.id}: no plan (not a scan of the owned estate, or no assessment on its ledger)")
+    for p in out.values():
+        print(f"{p} ({p.stat().st_size:,} bytes)")
+    return 0
+
+
+def _estate_project(args: argparse.Namespace) -> int:
+    """One CBOM over several runs' ledgers: a scan and its imports, every claim kept."""
+    import json
+    import os
+    from pathlib import Path
+
+    from pqch.cbom import anatomy, project_estate, validate
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    ids = [x for x in args.runs.split(",") if x]
+    if not all(x.isalnum() for x in ids):
+        raise SystemExit("run ids are alphanumeric")
+    bom = project_estate([Run(var, x) for x in ids])
+    errors = validate(bom)
+    if errors:
+        raise SystemExit("the estate CBOM fails CycloneDX 1.6: " + "; ".join(errors[:3]))
+    d = anatomy.document(bom)
+    text = json.dumps(bom, indent=1, sort_keys=True)
+    if args.out:
+        Path(args.out).write_text(text)
+    else:
+        print(text)
+    print(f"estate over {len(ids)} runs: {d['components']} components; {d['claims']['multi']} entries with more than one claim, "
+          f"{d['claims']['dissent']} with dissent, {d['claims']['resolved']} resolved by a person; serial {bom['serialNumber']}",
+          file=__import__("sys").stderr)
+    return 0
+
+
+def _attest(args: argparse.Namespace) -> int:
+    """A supplier's attestation as reported evidence, on a run of its own, matched to the system scans here."""
+    import os
+    from pathlib import Path
+
+    from pqch import attest
+    from pqch.pipeline import signer_from_env
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run, s = attest.record(var, Path(args.document), operator=os.environ.get("PQCH_OPERATOR", "operator"), signer=signer_from_env())
+    if s["duplicate"]:
+        print(f"already recorded: {s['document']['name']} ({s['document']['sha256'][:19]}…) on run {s['run']}; nothing appended")
+        return 0
+    print(f"{s['supplier']}: {s['products']} product statement(s) recorded as reported evidence, {s['document']['sha256'][:19]}…")
+    for m in s["matches"]:
+        print(f"  matches {m['system']} (scan {m['run']}): {m['agree']} firmware at the attested version, {m['differ']} at another, "
+              f"{m['unseen']} not reported by the server")
+    if not s["matches"]:
+        print("  matches no system scanned here yet; it joins the first scan of that model")
+    print(f"attestation run {run.id}")
+    return 0
+
+
 def _explain_queues(args: argparse.Namespace) -> int:
     import os
     import statistics
@@ -384,19 +516,41 @@ def _change_propose(args: argparse.Namespace) -> int:
 def _change_approve(args: argparse.Namespace) -> int:
     from pqch.migrator import approve, execute
 
+    import os
+
     run = _change_run(args)
     runner, signer = _clients()
-    how = "command line in the harness container" + (f"; {args.via}" if args.via else "")
-    ev = approve(run, args.change_id, by=args.by, authenticated_by=how,
-                 signer=signer, deny=args.deny)
+    separation = os.environ.get("PQCH_SEPARATION_OF_DUTIES") == "1"
+    if separation and not args.single_operator:
+        raise SystemExit("this deployment separates duties: the command line approves only in single-operator mode "
+                         "(--single-operator), which labels the approval as such; the apply is then `pqch change apply`")
+    how = ("command line in the harness container" + ("; single-operator mode" if args.single_operator else "")
+           + (f"; {args.via}" if args.via else ""))
+    ev = approve(run, args.change_id, by=args.by, authenticated_by=how, signer=signer, deny=args.deny,
+                 role="approver" if args.single_operator else None)
     print(f"{ev['type']} by {args.by} at {ev['ts']} (event {ev['id']})")
-    if args.deny or args.no_execute:
+    if args.deny or args.no_execute or separation:
+        if separation and not args.deny:
+            print("approved; apply it as a second step: pqch change apply " + args.change_id)
         return 0
     out = execute(run, runner, signer, args.change_id, close=not args.keep_open)
     for k in ("verdict", "durable"):
         p = out[k]["payload"]
         print(f"{k:<8} {p['status']:<22} meets intent {p['meets_intent']}  durable {p['durable']}"
               f"  container {str(p['binding']['container_id'])[:12]}  {'; '.join(p['reasons'])}")
+    return _change_status(args)
+
+
+def _change_apply(args: argparse.Namespace) -> int:
+    """Apply an approved change through the runner, as a step of its own (ADR-0008)."""
+    from pqch.migrator import execute
+
+    run = _change_run(args)
+    runner, signer = _clients()
+    out = execute(run, runner, signer, args.change_id, close=not args.keep_open)
+    for k in ("verdict", "durable"):
+        p = out[k]["payload"]
+        print(f"{k:<8} {p['status']:<22} meets intent {p['meets_intent']}  durable {p['durable']}")
     return _change_status(args)
 
 
@@ -703,7 +857,14 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--deny", action="store_true")
     ap.add_argument("--no-execute", action="store_true")
     ap.add_argument("--keep-open", action="store_true", help="leave the run open for further checks")
+    ap.add_argument("--single-operator", action="store_true",
+                    help="label the approval as single-operator mode: one person proposes and approves (required when PQCH_SEPARATION_OF_DUTIES=1)")
     ap.set_defaults(func=_change_approve)
+    aa = chs.add_parser("apply", help="apply an approved change through the runner, as its own step")
+    aa.add_argument("change_id")
+    aa.add_argument("--run")
+    aa.add_argument("--keep-open", action="store_true")
+    aa.set_defaults(func=_change_apply)
     rh = chs.add_parser("rehearse", help="prove a proposal on a copy of the service in the twin, before approval")
     rh.add_argument("change_id")
     rh.add_argument("--run")
@@ -745,11 +906,19 @@ def build_parser() -> argparse.ArgumentParser:
     im.add_argument("--key", help="an answer key to score against (the mini-agency's: agency/answer-key.yaml)")
     im.set_defaults(func=_import)
 
+    at = sub.add_parser("attest", help="a supplier's attestation (pqch.attestation/1) as reported evidence, joined to the hosts it names by model and version")
+    at.add_argument("document", help="the attestation, YAML or JSON (the shape: agency/attestations/example-supplier.yaml)")
+    at.set_defaults(func=_attest)
+
     es = sub.add_parser("estate", help="the owned estate").add_subparsers(dest="sub", required=True)
     er = es.add_parser("reset", help="put the mini-agency back to its starting state (agency/baseline/), through the runner, on the record")
     er.add_argument("--as", dest="by", required=True, help="who asks for the reset")
     er.add_argument("--via", help="how the request reached the command line, when someone else typed it")
     er.set_defaults(func=_estate_reset)
+    ep = es.add_parser("project", help="one CBOM over several runs (a scan and its imports), every claim kept, the one in force by the grade of its evidence")
+    ep.add_argument("--runs", required=True, help="comma-separated run ids, in order")
+    ep.add_argument("--out", help="write the document here (default: stdout)")
+    ep.set_defaults(func=_estate_project)
 
     ak = sub.add_parser("ask", help="Ask the CBOM").add_subparsers(dest="sub", required=True)
     ar = ak.add_parser("record", help="answer the example questions once against a scan run and keep the answers beside it, for a static copy of the page")
@@ -760,6 +929,30 @@ def build_parser() -> argparse.ArgumentParser:
     dr = dm.add_parser("record", help="narrate each plan row once and keep the lines beside the run, for a static copy of the stage")
     dr.add_argument("--run", help="the scan run (default: the latest scan)")
     dr.set_defaults(func=_demo_record)
+
+    rt = sub.add_parser("retention", help="destroy old runs' artefacts on the record; the ledgers stay").add_subparsers(dest="sub", required=True)
+    ra = rt.add_parser("apply", help="runs older than the period lose their raw outputs and documents; each loss is an artefact.destroyed event")
+    ra.add_argument("--days", type=int, help="the retention period (default: PQCH_RETENTION_DAYS)")
+    ra.add_argument("--basis", default="the deployment's retention period", help="why, in words")
+    ra.add_argument("--by", help="who runs it (default: PQCH_OPERATOR)")
+    ra.add_argument("--dry-run", action="store_true")
+    ra.set_defaults(func=_retention_apply)
+
+    gp = sub.add_parser("gap", help="what no tool could see: the gap-fill queue").add_subparsers(dest="sub", required=True)
+    gl = gp.add_parser("list", help="the open gaps of a run, with what would fill each, and coverage per asset class")
+    gl.add_argument("--run", help="the run (default: the latest scan)")
+    gl.set_defaults(func=_gap_list)
+    gf = gp.add_parser("fill", help="close a gap with evidence brought by hand: a run on this deployment, or run:event")
+    gf.add_argument("gap", help="the gap id, from `pqch gap list`")
+    gf.add_argument("--evidence", required=True, help="RUN or RUN:EVENT that holds the evidence (an attestation run, an import, a later scan)")
+    gf.add_argument("--basis", required=True, help="why this evidence fills the gap, in words")
+    gf.add_argument("--by", help="who vouches for it (default: PQCH_OPERATOR)")
+    gf.set_defaults(func=_gap_fill)
+
+    pl = sub.add_parser("plan", help="the plan the CBOM makes").add_subparsers(dest="sub", required=True)
+    px = pl.add_parser("export", help="write register.csv and register.json beside a scan run: one row per step with the owner's facts, grouped into the next phase's buckets")
+    px.add_argument("--run", help="the scan run (default: the latest scan)")
+    px.set_defaults(func=_plan_export)
 
     pk = sub.add_parser("package", help="a change package for each item blocked on its supplier: why no configuration change can do it, with the evidence, and what would unblock it")
     pk.add_argument("--run", help="the scan run (default: the latest scan)")

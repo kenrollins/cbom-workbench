@@ -18,6 +18,7 @@ KNOWN = {
     "pqch.finding/1": "finding.json",
     "pqch.event/1": "event.json",
     "pqch.checkpoint/1": "checkpoint.json",
+    "pqch.attestation/1": "attestation.json",
 }
 
 

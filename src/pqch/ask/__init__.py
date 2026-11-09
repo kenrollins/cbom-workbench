@@ -86,7 +86,7 @@ class Index:
         self.by_ref = {p["ref"]: p for p in self.passages}
         self.parents: dict[str, list[str]] = {}
         for d in bom.get("dependencies", []):
-            for child in d["dependsOn"]:
+            for child in d.get("dependsOn", []):
                 self.parents.setdefault(child, []).append(d["ref"])
         key = hashlib.sha256(json.dumps([p["text"] for p in self.passages]).encode(), usedforsecurity=False).hexdigest()
         tier = seam.config["tiers"].get("embed") or {}

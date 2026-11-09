@@ -118,6 +118,37 @@ def pack(root: str | Path, system: dict, prefix: str = "") -> bytes:
     return buf.getvalue()
 
 
+def remote_pack(system: dict, prefix: str = "", *, ssh: str = "ssh", timeout: int = 300) -> bytes:
+    """The same archive, packed on a remote system over SSH: the packer's own source is sent to the
+    remote's python3 on stdin, the system's definition as its argument, and the tar comes back on
+    stdout. Nothing is installed on the remote and nothing is written to it; the remote reads as the
+    user SSH logs in as, and the manifest's `read_as_uid` says which. Host-key checking is strict
+    against the scope's known_hosts file; a host not in it is refused."""
+    import inspect
+    import subprocess
+
+    via = system["via"]
+    src = "\n".join([
+        "import io, json, os, sys, tarfile",
+        "from pathlib import Path",
+        f"MANIFEST = {MANIFEST!r}", f"MAX_FILE = {MAX_FILE!r}", f"EFIVARS = {EFIVARS!r}", f"DMI = {DMI!r}",
+        inspect.getsource(pack),
+        "root = os.environ.get('PQCH_REMOTE_ROOT', '/')",
+        "sys.stdout.buffer.write(pack(root, json.loads(sys.argv[1]), prefix=sys.argv[2]))",
+    ])
+    cmd = [ssh, "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=yes", "-o", f"UserKnownHostsFile={via['known_hosts']}"]
+    if via.get("port"):
+        cmd += ["-p", str(via["port"])]
+    if via.get("identity"):
+        cmd += ["-i", via["identity"], "-o", "IdentitiesOnly=yes"]
+    remote = {k: v for k, v in system.items() if k != "via"}
+    cmd += [f"{via['user']}@{via['host']}", via.get("python", "python3"), "-", json.dumps(remote), prefix]
+    res = subprocess.run(cmd, input=src.encode(), capture_output=True, timeout=timeout)
+    if res.returncode != 0:
+        raise RuntimeError(f"ssh to {via['user']}@{via['host']} failed ({res.returncode}): {res.stderr.decode(errors='replace')[-500:]}")
+    return res.stdout
+
+
 # --------------------------------------------------------------- the file reader
 def files_scan(directory: str) -> dict:
     root = Path(directory)

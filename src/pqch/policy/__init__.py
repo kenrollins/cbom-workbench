@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import re
 from datetime import date
+from functools import cache
 from pathlib import Path
 
 import yaml
@@ -101,3 +102,44 @@ def vulnerability(pack: dict, family: str, role: str) -> tuple[bool | None, str]
 def sensitive_through(as_of: date, lifetime_years: int) -> int:
     """The last year data handled on `as_of` stays mission-sensitive. Computed."""
     return as_of.year + lifetime_years
+
+
+# Classical security strength by key size, SP 800-57 Part 1 Rev. 5 Table 2: the IR 8547 rows apply at or
+# above 112 bits (128 for EdDSA); below that, SP 800-131A Rev. 2 disallows the key already.
+_FF_RSA = ((15360, 256), (7680, 192), (3072, 128), (2048, 112))
+_EC = ((512, 256), (384, 192), (256, 128), (224, 112))
+
+
+def classical_strength(fn: str, name: str, family: str, params: dict | None) -> int | None:
+    """Bits of classical security a quantum-vulnerable asset provides, from its key size, or None when
+    the finding does not carry one. Computed, not measured: the table is SP 800-57's."""
+    params = params or {}
+    bits = params.get("key_bits")
+    if family in ("rsa-sig", "rsa-kex", "finite-field-dh", "mqv"):
+        if bits is None:
+            m = re.search(r"(?:DH|ffdhe)-?(\d{3,5})$", name)
+            bits = int(m.group(1)) if m else None
+        if bits is None:
+            return None
+        return next((s for k, s in _FF_RSA if bits >= k), 80 if bits >= 1024 else 0)
+    if name in ("Ed25519", "Ed448"):
+        return 128 if name == "Ed25519" else 224
+    if family in ("ecdh", "ecdsa"):
+        if bits is None:
+            m = re.search(r"(?:secp|P-|brainpoolP|X)(\d{3})", name) or re.search(r"(?:secp|P-|brainpoolP)(\d{3})", str(params.get("curve") or ""))
+            bits = int(m.group(1)) if m else None
+            if bits is None and name in ("X25519", "X448"):
+                bits = 255 if name == "X25519" else 448
+        if bits is None:
+            return None
+        return next((s for k, s in _EC if bits >= k), 0)
+    return None
+
+
+@cache
+def algorithm_ids() -> dict:
+    """policy/algorithm-ids.yaml: object identifiers and NIST categories a consumer judges by."""
+    doc = yaml.safe_load((ROOT / "policy" / "algorithm-ids.yaml").read_text())
+    if doc.get("schema") != "pqch.algorithm-ids/1":
+        raise ValueError("policy/algorithm-ids.yaml: expected schema pqch.algorithm-ids/1")
+    return doc

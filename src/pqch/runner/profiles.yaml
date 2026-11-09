@@ -85,6 +85,21 @@ image-files:
   args: [pqch, image-files, /scan/image.tar]
   output: {stdout: true, ext: json}
 
+# The image's software bill of materials (M9/M10): Syft over the same saved image, with no network, so
+# each cryptographic asset can be linked to the library that provides it. The output is Syft's own
+# CycloneDX; the normalizer keeps the libraries that provide cryptography as an `sbom.observed` fact.
+image-sbom:
+  layer: host
+  tool: syft
+  version: "1.33.0"
+  image: anchore/syft@sha256:f94e5d9fce1f2278491a8e3a63bd5f6ddb81fdfdbb8bf7a1637565c1d5344357
+  network: none
+  budget_s: 600
+  mem_limit: 1g
+  input: image-archive
+  args: [docker-archive:/scan/image.tar, -o, cyclonedx-json, -q]
+  output: {stdout: true, ext: json}
+
 # ---- Verifier probes (M0A). No model; pqch.verifier/1.
 
 # One TLS handshake offering only the named groups, from the runner's own image

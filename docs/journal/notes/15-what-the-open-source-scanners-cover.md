@@ -213,6 +213,23 @@ Three times testssl.sh looked wrong and the reference was wrong instead
 ([lesson 10](../lessons/10-a-group-is-accepted-when-it-is-negotiated.md)): a
 comparison of scanners is only as good as its reference probe.
 
+## The SBOM beside the CBOM
+
+An image's software bill of materials answers a question the three crypto layers do not: which
+library provides the cryptography a listener does. Syft (1.33.0, pinned by digest) runs in the
+runner over the same saved image as the other host readers, with no network, and its CycloneDX
+output is kept on the ledger as an `sbom.observed` fact: the package count and the libraries that
+provide cryptography (OpenSSL, libssl, GnuTLS, NSS, the JDK's providers and their kind), by name,
+version, package URL and licence. No finding comes from it. A library present is a capability, not
+an asset in use; the rule `link/library/1` links each asset a service's listener negotiates or
+serves to the library its image carries, preferring the one the capability snapshot names for that
+service's software and otherwise linking every candidate and saying so, and the CBOM carries the
+library as a `library` component with CycloneDX 1.6's `provides` relation and `pqch:in-use` true
+only where something observed is provided. That is the answer to the owner who already runs SBOM
+tooling and asks whether it can be extended rather than replaced: the SBOM is one more reader, its
+output joined to the wire's by a rule, and what it cannot say (which library served the handshake,
+when two are present) is marked rather than guessed.
+
 ## Other open-source tools, tried and not adopted
 
 Three more free tools were tried on the same terms — pinned image, run on the

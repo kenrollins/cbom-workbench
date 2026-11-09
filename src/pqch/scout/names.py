@@ -109,7 +109,9 @@ def key_family(name: str) -> str:
 
 
 def algorithm_name(name: str) -> str:
-    return HASHES.get(name, name)
+    """A tool's spelling of an algorithm to the standard name: a hash, a TLS group or an SSH key
+    exchange by any spelling the tables know; anything else passes through unchanged."""
+    return HASHES.get(name) or TLS_GROUPS.get(name) or SSH_KEX.get(name) or name
 
 
 # testssl.sh names a TLS 1.2 finite-field group by the RFC that defines it, or only by its size.

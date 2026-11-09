@@ -60,13 +60,41 @@ def document(bom: dict) -> dict:
     by_kind = Counter(kind_of(c) for c in comps)
     by_asset = Counter(c.get("cryptoProperties", {}).get("assetType") for c in comps if c["type"] == "cryptographic-asset"
                        and _props(c).get("pqch:layer"))
+    multi = sum(1 for c in comps if "pqch:claims" in _props(c))
+    dissent = sum(1 for c in comps if "pqch:dissent" in _props(c))
+    resolved = sum(1 for c in comps if "pqch:resolved" in _props(c))
+    runs = meta.get("pqch:runs")
     return {"spec": f"{bom['bomFormat']} {bom['specVersion']}", "serial": bom["serialNumber"],
+            "compatibility": compatibility(bom),
+            "claims": {"multi": multi, "dissent": dissent, "resolved": resolved,
+                       "grades": dict(Counter(_props(c).get("pqch:grade") for c in comps if _props(c).get("pqch:grade")))},
+            "runs": json.loads(runs) if runs else None,
             "timestamp": bom["metadata"]["timestamp"],
             "tools": [f"{t['name']} {t['version']}" for t in bom["metadata"]["tools"]["components"]],
             "meta": [{"name": k, "value": v, **fields()["metadata"].get(k, {})} for k, v in meta.items()],
             "components": len(comps), "by_kind": dict(by_kind), "by_asset_type": {k or "—": v for k, v in by_asset.items()},
             "dependencies": len(bom.get("dependencies", [])),
-            "edges": sum(len(d["dependsOn"]) for d in bom.get("dependencies", []))}
+            "edges": sum(len(d.get("dependsOn", [])) for d in bom.get("dependencies", []))}
+
+
+def compatibility(bom: dict) -> dict | None:
+    """Every entry's status under the pack that governs it, counted: all entries, and those in use. None
+    when no entry carries the judgement (a run from before the rule)."""
+    rows = []
+    for c in bom.get("components", []):
+        p = _props(c)
+        if "pqch:compatibility" not in p:
+            continue
+        v = json.loads(p["pqch:compatibility"])
+        rows.append((v["pack"], v["status"], v["provisional"], p.get("pqch:in-use") != "false"))
+    if not rows:
+        return None
+    statuses = ("compatible", "not-compatible", "unknown", "outside-pack")
+    out = {"packs": sorted({r[0] for r in rows}), "provisional": any(r[2] for r in rows), "entries": len(rows),
+           "all": {s: sum(1 for r in rows if r[1] == s) for s in statuses},
+           "in_use": {s: sum(1 for r in rows if r[1] == s and r[3]) for s in statuses}}
+    out["by_pack"] = {pk: {s: sum(1 for r in rows if r[0] == pk and r[1] == s) for s in statuses} for pk in out["packs"]}
+    return out
 
 
 def entries(bom: dict) -> list[dict]:
@@ -78,7 +106,7 @@ def entries(bom: dict) -> list[dict]:
 
 def default_ref(bom: dict) -> str | None:
     """An entry with a long chain: a certificate the wire served whose key is a file in an image."""
-    dep = {d["ref"]: d["dependsOn"] for d in bom.get("dependencies", [])}
+    dep = {d["ref"]: d.get("dependsOn", []) for d in bom.get("dependencies", [])}
     for c in bom.get("components", []):
         p = _props(c)
         if p.get("pqch:layer") == "wire" and p.get("pqch:asset-type") == "certificate" and dep.get(c["bom-ref"]):
@@ -178,7 +206,7 @@ def component(bom: dict, events: list[dict], ref: str) -> dict | None:
         rows.append({"field": name, "origin": "pqch: extension", "value": shown, "meaning": info.get("meaning", ""),
                      "from": info.get("from", ""), "evidence": evidence_for(name, "pqch") if name in F["pqch"] else []})
 
-    deps = {d["ref"]: d["dependsOn"] for d in bom.get("dependencies", [])}
+    deps = {d["ref"]: d.get("dependsOn", []) for d in bom.get("dependencies", [])}
     names = {c["bom-ref"]: (kind_of(c), label_of(c)) for c in bom.get("components", [])}
     evid = {c["bom-ref"]: set((_props(c).get("pqch:evidence") or "").split(",")) for c in bom.get("components", [])}
 

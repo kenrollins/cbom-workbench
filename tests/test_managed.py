@@ -300,3 +300,91 @@ def test_without_the_transition_pack_the_items_are_as_before(slice_run, tmp_path
                    cmvp_path=CMVP, as_of=date(2026, 10, 20))
     c = [e["payload"]["classification"] for e in rule(slice_run, "queue/m-26-15/1")]
     assert c and all("deadline_set_by" not in x and "deprecated_after" not in x for x in c)
+
+
+# ---- M10: every entry tagged under the pack that governs it
+
+def test_every_entry_carries_a_status_and_unknown_is_never_folded_into_a_verdict(slice_run):
+    counts = prepared(slice_run)
+    events = ev(slice_run)
+    fps = {e["payload"]["fingerprint"] for e in events if e["type"] == "finding.observed"}
+    tagged = {e["payload"]["subject"]["fingerprint"]: e["payload"] for e in rule(slice_run, "compatibility/entry/1")}
+    assert set(tagged) == fps                                   # one judgement per entry, none skipped
+    by_status = {}
+    for p in tagged.values():
+        by_status.setdefault(p["classification"]["status"], set()).add(p["classification"]["name"])
+    assert by_status["compatible"] == {"X25519MLKEM768"}
+    assert {"RSA", "ECDSA", "DH-1024", "X25519", "Ed25519", "sntrup761x25519"} <= by_status["not-compatible"]
+    assert by_status["outside-pack"] <= {"SHA-1", "SHA-256", "SSH 2.0"}   # the memo names no hash or protocol
+    assert by_status["unknown"] == {"unknown"}                      # an unopened key: nothing to judge
+    assert all(p["classification"]["provisional"] is False and p["classification"]["pack"] == "m-26-15" for p in tagged.values())
+    assert counts["compatibility"] == {"m-26-15": {s: len([p for p in tagged.values() if p["classification"]["status"] == s])
+                                                   for s in ("not-compatible", "compatible", "outside-pack", "unknown")}}
+    # The judgement names its inputs: the findings folded into the entry, and the service link where there is one.
+    one = next(p for p in rule(slice_run, "compatibility/entry/1") if p["payload"]["classification"]["service"])
+    assert len(one["inputs"]) >= 2
+
+
+@pytest.mark.parametrize("asset,status,why", [
+    ({"type": "certificate", "role": "signature", "name": "RSA", "parameters": {"key_bits": 2048}}, "not-compatible", "RSA"),
+    ({"type": "related-crypto-material", "role": "other", "name": "ML-DSA-65", "parameters": {}}, "compatible", "FIPS 204"),
+    ({"type": "related-crypto-material", "role": "other", "name": "generic-api-key", "parameters": {}}, "unknown", "names no algorithm"),
+    ({"type": "algorithm", "role": "encryption", "name": "RSA", "parameters": {}}, "not-compatible", "RSA Key Establishment"),
+    ({"type": "algorithm", "role": "hash", "name": "SHA-256", "parameters": {}}, "outside-pack", "asymmetric algorithms only"),
+    ({"type": "protocol", "role": "other", "name": "TLS 1.2", "parameters": {}}, "outside-pack", "protocol version"),
+])
+def test_the_memos_compatibility_follows_its_resistant_and_vulnerable_families(asset, status, why):
+    c = managed.entry_compatibility(load_pack(PACK), load_families(FAM), {"asset": asset})
+    assert c["status"] == status and why in c["basis"]
+
+
+@pytest.mark.parametrize("asset,status,why", [
+    ({"type": "algorithm", "role": "key-establishment", "name": "ML-KEM-1024", "parameters": {}}, "compatible", "names for key-establishment"),
+    ({"type": "algorithm", "role": "key-establishment", "name": "X25519MLKEM768", "parameters": {}}, "not-compatible", "ML-KEM-1024"),
+    ({"type": "algorithm", "role": "key-establishment", "name": "SecP384r1MLKEM1024", "parameters": {}}, "unknown", "does not place"),
+    ({"type": "related-crypto-material", "role": "other", "name": "ML-DSA-65", "parameters": {}}, "not-compatible", "ML-DSA-87"),
+    ({"type": "algorithm", "role": "hash", "name": "SHA-256", "parameters": {}}, "not-compatible", "SHA-384, SHA-512"),
+    ({"type": "algorithm", "role": "mac", "name": "HMAC", "parameters": {}}, "outside-pack", "names no algorithm for mac"),
+])
+def test_cnsa_names_one_algorithm_per_function_and_leaves_a_hybrid_unsettled(asset, status, why):
+    c = managed.entry_compatibility(load_pack("policy/packs/cnsa-2.0.yaml"), load_families(FAM), {"asset": asset})
+    assert c["status"] == status and why in c["basis"]
+
+
+def test_a_national_security_systems_entries_are_judged_under_cnsa_and_marked_provisional(slice_run, tmp_path):
+    ctx = yaml.safe_load(Path("agency/context.yaml").read_text())
+    ctx["services"]["portal"]["national_security_system"] = True
+    (tmp_path / "ctx.yaml").write_text(yaml.safe_dump(ctx))
+    counts = prepared(slice_run, context=tmp_path / "ctx.yaml")
+    portal = [e["payload"]["classification"] for e in rule(slice_run, "compatibility/entry/1")
+              if e["payload"]["classification"]["service"] == "portal"]
+    assert portal and all(c["pack"] == "cnsa-2.0" and c["provisional"] is True for c in portal)
+    assert {"X25519", "SHA-256"} <= {c["name"] for c in portal if c["status"] == "not-compatible"}   # SHA-256 is not the suite's hash
+    others = [e["payload"]["classification"] for e in rule(slice_run, "compatibility/entry/1")
+              if e["payload"]["classification"]["service"] not in (None, "portal")]
+    assert others and all(c["pack"] == "m-26-15" and c["provisional"] is False for c in others)
+    assert set(counts["compatibility"]) == {"m-26-15", "cnsa-2.0"}
+
+
+def test_the_cbom_and_the_inventory_carry_the_status(slice_run):
+    from pqch.cbom import anatomy, tables
+
+    prepared(slice_run)
+    slice_run.close()
+    events = ev(slice_run)
+    wb = build_all(events)["workbench"]
+    tagged = {c["bom-ref"]: json.loads(p["value"]) for c in wb["components"] for p in c.get("properties", [])
+              if p["name"] == "pqch:compatibility"}
+    assets = [c for c in wb["components"] if c["type"] == "cryptographic-asset" and any(p["name"] == "pqch:fingerprint" for p in c["properties"])]
+    assert set(tagged) == {c["bom-ref"] for c in assets}
+    assert set(tagged[assets[0]["bom-ref"]]) == {"status", "pack", "provisional", "basis", "event"}
+    d = anatomy.compatibility(wb)
+    assert d["entries"] == len(assets) and sum(d["all"].values()) == d["entries"] and d["in_use"]["compatible"] <= d["all"]["compatible"]
+    assert d["in_use"]["not-compatible"] < d["all"]["not-compatible"]       # the retired certificate is not in use
+    assert d["packs"] == ["m-26-15"] and d["provisional"] is False
+    t = tables.rebuild(events, tables.load("policy/projections/agency-inventory.yaml"))
+    col = t["columns"].index("compatibility")
+    assert {r[col] for r in t["rows"]} <= {"compatible", "not-compatible", "unknown", "outside-pack"} and t["rows"]
+    for name, bom in build_all(events).items():
+        if name.startswith("baseline"):
+            assert not any(p["name"] == "pqch:compatibility" for c in bom["components"] for p in c.get("properties", []))

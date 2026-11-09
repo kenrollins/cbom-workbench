@@ -280,9 +280,12 @@ def plan_page(request: Request, estate: str = "mini-agency", assume: str = "", r
         if run is not None and (not run.isalnum() or _run_kind(run) != "scan-system"):
             raise HTTPException(404)
         sr = Run(VAR, run) if run else Run.latest(VAR, "scan-system")
+        from pqch import attest
+
         plan = planning.system_build(sr, assume=assumed,
                                      pack_path=Path(os.environ.get("PQCH_PACKS", "policy/packs")) / "m-26-15.yaml",
-                                     cnsa_path=Path(os.environ.get("PQCH_PACKS", "policy/packs")) / "cnsa-2.0.yaml") \
+                                     cnsa_path=Path(os.environ.get("PQCH_PACKS", "policy/packs")) / "cnsa-2.0.yaml",
+                                     attestation=attest.for_system(VAR, list(sr.ledger.events()))) \
             if sr and sr.ledger.exists() else None
         return templates.TemplateResponse(request, "plan.html", {"plan": plan, "estate": "system", "sheet": None, "sheet_rows": [],
                                                                  "system_run": sr.id if plan else None})
@@ -298,6 +301,27 @@ def plan_page(request: Request, estate: str = "mini-agency", assume: str = "", r
     return templates.TemplateResponse(request, "plan.html", {"plan": plan, "estate": "mini-agency", "sheet": sheet, "sheet_rows": SHEET})
 
 
+@app.get("/estate/cbom.json")
+def estate_cbom(request: Request, runs: str = ""):
+    """One CBOM over the named runs (M9's estate projection), computed now; lab runs only to a lab viewer."""
+    from fastapi.responses import JSONResponse
+
+    from pqch.cbom import project_estate
+
+    ids = [x for x in runs.split(",") if x]
+    if not ids or len(ids) > 32 or not all(x.isalnum() for x in ids):
+        raise HTTPException(404)
+    for x in ids:
+        _refuse_lab_run(request, x)
+        if not Run(VAR, x).ledger.exists():
+            raise HTTPException(404)
+    try:
+        bom = project_estate([Run(VAR, x) for x in ids])
+    except ValueError:
+        raise HTTPException(409) from None
+    return JSONResponse(bom)
+
+
 @app.get("/imports")
 def imports(request: Request):
     """Bring your own scanner: every imported CBOM, placed and scored beside the workbench's own."""
@@ -306,7 +330,49 @@ def imports(request: Request):
     r = Run.latest(VAR, "scan")
     own = run_view(r) if r and r.ledger.exists() else {}
     score = (own.get("score") or {}).get("columns") or {}
-    return templates.TemplateResponse(request, "imports.html", {"imports": imports_view(VAR), "own": score, "own_run": own.get("run")})
+    combined = _combined(r, imports_view(VAR)) if r and r.ledger.exists() else None
+    return templates.TemplateResponse(request, "imports.html", {"imports": imports_view(VAR), "own": score, "own_run": own.get("run"),
+                                                                "combined": combined})
+
+
+def _combined(scan: Run, imports: list[dict]) -> dict | None:
+    """The scan and every import of the same estate projected as one document (M9): the entries, how
+    many carry more than one claim, how many dissent, and the score of the combined document against
+    the key the scan committed, where it has one."""
+    from pqch.cbom import anatomy, project_estate
+    from pqch.ledger import verify
+    from pqch.score import score_bom
+    from pqch.watch import _estate_key
+
+    events = list(scan.ledger.events())
+    if not verify(events).ok:
+        return None
+    mine = _estate_key(events[0]["payload"]["scope"])
+    runs = [scan]
+    for i in imports:
+        if i.get("broken"):
+            continue
+        ir = Run(VAR, i["run"])
+        first = next(ir.ledger.events(), None)
+        if first and _estate_key(first["payload"]["scope"]) == mine:
+            runs.append(ir)
+    if len(runs) < 2:
+        return None
+    try:
+        bom = project_estate(runs)
+    except ValueError:
+        return None
+    d = anatomy.document(bom)
+    key_ev = next((e for e in events if e["type"] == "key.committed"), None)
+    key_path = Path(key_ev["payload"]["path"]) if key_ev and Path(key_ev["payload"].get("path", "")).is_file() else None
+    sc = None
+    if key_path:
+        import yaml
+
+        sc = score_bom(bom, yaml.safe_load(key_path.read_text()))
+    return {"runs": [p["run"] for p in d["runs"]], "components": d["components"], "claims": d["claims"],
+            "score": sc and {k: {x: v[x] for x in ("present", "covered", "out_of_reach", "false_positives", "scanned")}
+                             for k, v in sc["layers"].items()}}
 
 
 @app.get("/packages")
@@ -333,6 +399,7 @@ def resolve(request: Request, change: str | None = None, busy: str | None = None
     cview = change_view(cr, signer_from_env(), _runner_log(), _runner_jobs) if cr and cr.ledger.exists() else {}
     return templates.TemplateResponse(request, "resolve.html", {"c": cview, "change": change_state.snapshot(),
                                                                 "who": identity(request), "hardware": HARDWARE,
+                                                                "separation": SEPARATION, "approver_group": APPROVER_GROUP,
                                                                 "busy": bool(busy)})
 
 
@@ -410,6 +477,14 @@ def cbom_page(request: Request, run: str | None = None, ref: str | None = None):
                    "estate_run": (Run.latest(VAR, "scan").id if events[0]["payload"].get("kind") == "scan-code"
                                   and Run.latest(VAR, "scan") else None)}
     system = Run.latest(VAR, "scan-system") if lab_viewer(request) else None
+    if ctx.get("kind") == "scan-system":
+        from pqch import attest
+
+        ctx["attested"] = attest.for_system(VAR, events)
+    if ctx.get("d"):
+        from pqch.assessor import gaps
+
+        ctx["gaps"] = gaps.queue(VAR, events)
     ctx["switch"] = {"estate": estate.id if estate and estate.ledger.exists() else None,
                      "lab": lab.id if lab and lab.ledger.exists() else None,
                      "system": system.id if system and system.ledger.exists() else None, "on": r.id if r else None,
@@ -489,6 +564,35 @@ def ask_page(request: Request, q: str | None = None, run: str | None = None):
         except Exception as e:  # an engine down, a timeout: shown as such, never as an answer
             ctx["unavailable"] = f"{type(e).__name__}: {e}"[:300]
     return templates.TemplateResponse(request, "ask.html", ctx)
+
+
+@app.get("/runs/{run_id}/register.{fmt}")
+def register_file(request: Request, run_id: str, fmt: str):
+    """The plan as a register, computed now from the run and the change runs since: CSV or JSON."""
+    from fastapi.responses import JSONResponse, PlainTextResponse
+
+    from pqch import planning
+
+    if not run_id.isalnum() or fmt not in ("csv", "json"):
+        raise HTTPException(404)
+    _refuse_lab_run(request, run_id)
+    r = Run(VAR, run_id)
+    if not r.ledger.exists():
+        raise HTTPException(404)
+    kind = _run_kind(run_id)
+    if kind == "scan-system":
+        if not lab_viewer(request):
+            raise HTTPException(404)
+        plan = planning.system_build(r)
+    else:
+        plan = planning.build(VAR, r, snapshots_dir=Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots")))
+    if not plan:
+        raise HTTPException(404)
+    reg = planning.register(plan, list(r.ledger.events()))
+    if fmt == "json":
+        return JSONResponse(reg)
+    return PlainTextResponse(planning.register_csv(reg), media_type="text/csv",
+                             headers={"Content-Disposition": f'attachment; filename="{run_id}-register.csv"'})
 
 
 @app.get("/runs/{run_id}/projection/{name}.csv")
@@ -617,6 +721,14 @@ OPERATOR = os.environ.get("PQCH_OPERATOR", "").strip() or None
 # connection from one of them; from anywhere else it is a string anyone can type. Empty,
 # the default, means the page cannot approve at all and approvals come from the command line.
 TRUSTED_PROXIES = {a.strip() for a in os.environ.get("PQCH_TRUSTED_PROXIES", "").split(",") if a.strip()}
+# ADR-0008: the front door's groups header, read on the same connection as the sign-on; the group an
+# approver must be in (empty: anyone signed on may approve, as before); and separation of duties, under
+# which an approval is one request and the apply another, and the runner refuses self-approval.
+GROUPS_HEADER = os.environ.get("PQCH_GROUPS_HEADER", "X-Forwarded-Groups")
+APPROVER_GROUP = os.environ.get("PQCH_APPROVER_GROUP", "").strip() or None
+SEPARATION = os.environ.get("PQCH_SEPARATION_OF_DUTIES") == "1"
+MARKING = os.environ.get("PQCH_MARKING", "").strip() or None
+templates.env.globals["marking"] = MARKING
 change_state = ScanState()
 
 
@@ -663,6 +775,24 @@ def _who(request: Request) -> str:
     if not who:
         raise HTTPException(403, "an approval needs the front door's sign-on, on a connection from the front door")
     return who
+
+
+def groups_of(request: Request) -> list[str]:
+    """The groups the front door says the signed-on person is in, on a connection from the front door."""
+    peer = request.client.host if request.client else None
+    if peer not in TRUSTED_PROXIES:
+        return []
+    return sorted({g.strip() for g in (request.headers.get(GROUPS_HEADER) or "").replace(";", ",").split(",") if g.strip()})
+
+
+def _approver(request: Request) -> tuple[str, list[str]]:
+    """Who approves and the groups it rests on; refused when the deployment names an approver group the
+    person is not in (ADR-0008)."""
+    who = _who(request)
+    groups = groups_of(request)
+    if APPROVER_GROUP and APPROVER_GROUP not in groups:
+        raise HTTPException(403, f"approving needs the {APPROVER_GROUP} group; the front door lists {', '.join(groups) or 'none'} for {who}")
+    return who, groups
 
 
 def _change_thread(fn) -> None:
@@ -731,15 +861,32 @@ def approve_change(request: Request, run_id: str, change_id: str):
 
     if not run_id.isalnum() or not change_id.isalnum():
         raise HTTPException(404)
-    who = _who(request)
+    who, groups = _approver(request)
     run = Run(VAR, run_id)
 
     def go():
         signer = signer_from_env()
-        approve(run, change_id, by=who, signer=signer,
-                authenticated_by=SIGN_ON)
-        execute(run, RunnerClient(SOCKET), signer, change_id)
+        approve(run, change_id, by=who, signer=signer, authenticated_by=SIGN_ON,
+                role="approver" if (APPROVER_GROUP or SEPARATION) else None, groups=groups or None)
+        if not SEPARATION:
+            execute(run, RunnerClient(SOCKET), signer, change_id)
     _start_change(go)
+    return RedirectResponse("/resolve", status_code=303)
+
+
+@app.post("/changes/{run_id}/{change_id}/apply")
+def apply_change(request: Request, run_id: str, change_id: str):
+    """Under separation of duties the apply is its own request, after the approval is on the ledger under a
+    signed checkpoint; the runner reads that ledger itself and refuses what it does not find (ADR-0008)."""
+    from pqch.migrator import execute
+    from pqch.pipeline import signer_from_env
+    from pqch.runner.client import RunnerClient
+
+    if not run_id.isalnum() or not change_id.isalnum():
+        raise HTTPException(404)
+    _who(request)
+    run = Run(VAR, run_id)
+    _start_change(lambda: execute(run, RunnerClient(SOCKET), signer_from_env(), change_id))
     return RedirectResponse("/resolve", status_code=303)
 
 

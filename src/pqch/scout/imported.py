@@ -136,7 +136,8 @@ def run_import(var: Path, docs: list[tuple[Path, str | None]], scope: dict, *, r
                 if not p:
                     continue
                 layer, subject = p
-                c = collectors.setdefault(layer, _Collector(job, layer, subject_digest=image_digest if layer == "host" else None))
+                c = collectors.setdefault(layer, _Collector(job, layer, subject_digest=image_digest if layer == "host" else None,
+                                                            grade="reported"))
                 params = dict(a[3])
                 if layer == "code":
                     params["line_text"] = occ.get("additionalContext", "")

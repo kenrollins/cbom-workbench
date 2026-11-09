@@ -70,7 +70,7 @@ def table(bom: dict, d: dict) -> tuple[list[str], list[list]]:
     comps = {c["bom-ref"]: c for c in bom.get("components", [])}
     parents: dict[str, list[str]] = {}
     for dep in bom.get("dependencies", []):
-        for child in dep["dependsOn"]:
+        for child in dep.get("dependsOn", []):
             parents.setdefault(child, []).append(dep["ref"])
 
     def service_of(ref: str) -> dict | None:

@@ -67,7 +67,7 @@ def test_everything_read_from_the_unserved_certificate_is_marked_not_in_use(slic
     import json
     bom = json.loads((slice_run.dir / "workbench.cdx.json").read_text())
     at_decoy = [{p["name"]: p["value"] for p in c["properties"]} for c in bom["components"]
-                if "portal-2019.crt" in c["evidence"]["occurrences"][0]["location"]]
+                if "portal-2019.crt" in (c.get("evidence") or {"occurrences": [{"location": ""}]})["occurrences"][0]["location"]]
     assert len(at_decoy) > 1 and {p["pqch:in-use"] for p in at_decoy} == {"false"}
 
 

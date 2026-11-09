@@ -119,10 +119,26 @@ clocks, and the plan has to say which is which. A management controller is a ser
 same board; it belongs in the inventory with its own listeners and certificates. And an inventory read
 without privileges should say what it could not read, rather than present a partial picture as whole.
 
+## Reading a server the runner is not on
+
+The runner packs a server's scoped paths under its own root, which is how the first server was read:
+its paths mounted read-only into the runner. A server elsewhere carries a route in the scope,
+`via: {kind: ssh, host, user, known_hosts}`, and the runner sends the packer's own source to that
+host's `python3` over SSH and reads the same archive back. Nothing is installed on the remote and
+nothing is written to it; the manifest's `read_as_uid` is the SSH user's, so an unprivileged read
+says so as it does locally. Host-key checking is strict against the scope's `known_hosts` file, which
+the operator supplies: a host not in it is refused, never accepted on first use. One scope may list
+many systems, each with its own route, and `pqch scan-system` reads them in turn; each controller in
+the scope is read through the runner as before. A supplier's statement about the model joins each
+server's read by model and firmware version ([note
+23](23-what-a-suppliers-attestation-can-stand-in-for.md)), and the modules it names are looked up
+in the dated CMVP snapshot for their status and whether ML-KEM and ML-DSA are among their approved
+algorithms.
+
 ## Scope
 
-One server, read once, on the host the runner runs on; a remote server's files need a transport the
-runner does not have yet (ADR-0005). The controller reader's resource paths are Dell iDRAC 9's; other
+One server read on the host the runner runs on; the SSH route is tested against a stand-in `ssh`
+that runs the packer locally, not yet against a second real server. The controller reader's resource paths are Dell iDRAC 9's; other
 controllers serve Redfish under other paths. The Secure Boot reader parses X.509 and SHA-256 entries;
 other signature types are listed by GUID. The plan's rules are written for this kind of server and
 will grow with the next.

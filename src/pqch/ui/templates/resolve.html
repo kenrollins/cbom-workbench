@@ -57,6 +57,10 @@
     {% elif not ch.approvals %}
       {% if who %}<form method="post" action="/changes/{{ c.run }}/{{ ch.change_id }}/approve"><button type="submit" {% if change.running %}disabled{% endif %}>Approve as {{ who }}</button></form>
       {% else %}<p class="note">Waiting for approval. Approving needs the lab's sign-on; this request carried none.</p>{% endif %}
+      {% if approver_group %}<p class="note">Approving needs the <code>{{ approver_group }}</code> group from the front door; the approval records the groups it rested on.</p>{% endif %}
+    {% elif separation and ch.approvals and ch.approvals[-1].type == 'approval.granted' and not ch.actions %}
+      {% if who %}<form method="post" action="/changes/{{ c.run }}/{{ ch.change_id }}/apply"><button type="submit" {% if change.running %}disabled{% endif %}>Apply, as a second request</button></form>{% endif %}
+      <p class="note">Separation of duties: the approval is on the ledger; the apply is a request of its own, and the runner refuses it if the approver is the one who asked for the change or the approval carries no approver role.</p>
     {% endif %}
     {% for a in ch.actions %}<p class="rule">{{ a.type }} at {{ a.ts }}: container <code>{{ a.payload.containers[0].before[:12] }}</code> → <code>{{ (a.payload.containers[0].after or '')[:12] }}</code>, image <code>{{ (a.payload.containers[0].image_digest or '')[:19] }}…</code>
       {% if a.in_runner_log is true %}<span class="good">matches the runner's own log</span>{% elif a.in_runner_log is false %}<span class="bad">not in the runner's own log</span>{% else %}<span class="dim">runner log unreachable</span>{% endif %}</p>{% endfor %}

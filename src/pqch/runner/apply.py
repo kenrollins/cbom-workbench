@@ -93,6 +93,18 @@ class Applier:
         if not approvals:
             raise Refused(409, f"change {change_id} has no approval")
         approval = approvals[0]
+        if os.environ.get("PQCH_SEPARATION_OF_DUTIES") == "1":
+            # ADR-0008: the one who asked for the change does not approve it, and an approval counts
+            # only with the approver role recorded on it. The requester is whoever recorded the policy
+            # (`policy.changed`) or proposed the change as a person; a rule's proposal has no requester.
+            who = approval["payload"].get("by")
+            requesters = {e["payload"].get("by") for e in events if e["type"] == "policy.changed"} | \
+                {e["actor"]["id"] for e in proposed if e["actor"]["kind"] == "human"}
+            requesters.discard(None)
+            if who in requesters:
+                raise Refused(403, f"change {change_id} was requested and approved by the same person ({who}); separation of duties refuses it")
+            if approval["payload"].get("role") != "approver":
+                raise Refused(403, f"the approval of {change_id} carries no approver role; this deployment requires one")
         covered = [e for e in events if e["type"] == "checkpoint.signed"
                    and e["payload"]["through_seq"] >= approval["seq"]]
         if not covered:
@@ -108,6 +120,7 @@ class Applier:
             raise Refused(403, "the scope is not an owned estate; changes are handed off, never applied")
         from pqch import scope as scope_mod
         why = scope_mod.authorization_refusal(scope, now=self.runner._now(),
+                                              require_roe=os.environ.get("PQCH_REQUIRE_ROE") == "1",
                                               required=os.environ.get("PQCH_REQUIRE_AUTHORIZATION") == "1")
         if why:
             raise Refused(403, why)
@@ -393,6 +406,7 @@ class Applier:
             raise Refused(403, "the scope is not an owned estate; it cannot be reset")
         from pqch import scope as scope_mod
         why = scope_mod.authorization_refusal(scope, now=self.runner._now(),
+                                              require_roe=os.environ.get("PQCH_REQUIRE_ROE") == "1",
                                               required=os.environ.get("PQCH_REQUIRE_AUTHORIZATION") == "1")
         if why:                                       # a reset is a change to the estate like any other
             raise Refused(403, why)

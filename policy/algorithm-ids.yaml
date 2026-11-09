@@ -1,0 +1,55 @@
+# What a consumer of the CBOM needs to judge an algorithm on its own (M6): the object identifier
+# the X.509 world names it by, and NIST's security strength category for a post-quantum parameter
+# set. Data; each line says where it comes from. A name not here gets no oid and no category, never a
+# guess. Classical strength by key size is computed from SP 800-57 Part 1 Rev. 5 Table 2
+# (pqch.policy.classical_strength), not listed here.
+schema: pqch.algorithm-ids/1
+# NIST security strength categories, FIPS 203 Table 2 (ML-KEM) and FIPS 204 Table 1 (ML-DSA): 1, 3, 5
+# for ML-KEM-512/768/1024; 2, 3, 5 for ML-DSA-44/65/87. A hybrid takes its ML-KEM part's category.
+nist_quantum_security_level:
+  ML-KEM-512: 1
+  ML-KEM-768: 3
+  ML-KEM-1024: 5
+  X25519MLKEM768: 3
+  SecP256r1MLKEM768: 3
+  SecP384r1MLKEM1024: 5
+  ML-DSA-44: 2
+  ML-DSA-65: 3
+  ML-DSA-87: 5
+# Object identifiers. Signature algorithms as certificates name them (RFC 8017 §A.2.4 for RSA with
+# SHA-2 and RFC 3279 for SHA-1; RFC 5758 §3.2 for ECDSA with SHA-2; NIST CSOR for ML-DSA, FIPS 204
+# §... the csor arc 2.16.840.1.101.3.4.3.17/18/19). Public-key algorithms as SubjectPublicKeyInfo
+# names them (RFC 3279 §2.3.1 rsaEncryption, RFC 5480 §2.1.1 id-ecPublicKey, RFC 8410 §3 Ed25519 and
+# Ed448, FIPS 204 for ML-DSA; the named curves RFC 5480 §2.1.1.1 and SEC 2).
+oid:
+  sha256WithRSAEncryption: 1.2.840.113549.1.1.11
+  sha384WithRSAEncryption: 1.2.840.113549.1.1.12
+  sha512WithRSAEncryption: 1.2.840.113549.1.1.13
+  sha1WithRSAEncryption: 1.2.840.113549.1.1.5
+  ecdsa-with-SHA256: 1.2.840.10045.4.3.2
+  ecdsa-with-SHA384: 1.2.840.10045.4.3.3
+  ecdsa-with-SHA512: 1.2.840.10045.4.3.4
+  ML-DSA-44: 2.16.840.1.101.3.4.3.17
+  ML-DSA-65: 2.16.840.1.101.3.4.3.18
+  ML-DSA-87: 2.16.840.1.101.3.4.3.19
+  RSA: 1.2.840.113549.1.1.1
+  ECDSA: 1.2.840.10045.2.1
+  Ed25519: 1.3.101.112
+  Ed448: 1.3.101.113
+  P-256: 1.2.840.10045.3.1.7
+  P-384: 1.3.132.0.34
+  P-521: 1.3.132.0.35
+  ML-KEM-512: 2.16.840.1.101.3.4.4.1
+  ML-KEM-768: 2.16.840.1.101.3.4.4.2
+  ML-KEM-1024: 2.16.840.1.101.3.4.4.3
+# testssl.sh's and theia's spellings of a certificate's signature algorithm to the X.509 name above.
+signature_names:
+  "SHA256 with RSA": sha256WithRSAEncryption
+  "SHA384 with RSA": sha384WithRSAEncryption
+  "SHA1 with RSA": sha1WithRSAEncryption
+  "ECDSA with SHA256": ecdsa-with-SHA256
+  "ECDSA with SHA384": ecdsa-with-SHA384
+  SHA256-RSA: sha256WithRSAEncryption
+  SHA1-RSA: sha1WithRSAEncryption
+  ECDSA-SHA256: ecdsa-with-SHA256
+  ECDSA-SHA384: ecdsa-with-SHA384

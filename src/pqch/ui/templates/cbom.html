@@ -47,11 +47,62 @@
       <div class="s">{{ d.dependencies }} components list what they depend on: service → listener → asset → file</div></div>
     <div class="receipt"><div class="k">Made by</div><div class="n">{{ d.tools|length }}<small>tools</small></div>
       <div class="s">{{ d.tools|join(', ') }}</div></div>
+    {% if d.claims and d.claims.grades %}<div class="receipt"><div class="k">Claims kept</div><div class="n">{{ d.claims.multi }}<small>entries with more than one</small></div>
+      <div class="s">{{ d.claims.dissent }} with a parameter the claims disagree on, shown, not resolved; {{ d.claims.resolved }} set by a person. By the evidence in force: {% for g, n in d.claims.grades|dictsort %}{{ n }} {{ g }}{{ ', ' if not loop.last }}{% endfor %}</div></div>{% endif %}
   </div>
+  {% if d.runs %}<p class="note">An estate projection: one document over {{ d.runs|length }} runs, each pinned by its ledger's head: {% for r in d.runs %}<code>{{ r.run }}</code> ({{ r.kind }}, head <code>{{ r.head[:12] }}…</code>){{ '; ' if not loop.last }}{% endfor %}. Same runs in, same document out.</p>{% endif %}
+  {% if d.compatibility %}{% set cp = d.compatibility %}
+  <h3>Every entry, tagged under the pack that governs it</h3>
+  <p class="lede">Each cryptographic asset carries its status under the policy pack that governs its service ({{ cp.packs|join(' and ') }}): <strong>compatible</strong>, <strong>not compatible</strong>, <strong>unknown</strong> where the algorithm is not identified or the pack does not place the name, and <strong>outside the pack</strong> where the pack says nothing of that kind of entry. Unknown is a count of its own, never folded into a verdict. Rule <code>compatibility/entry/1</code>; the basis is on each entry below.{% if cp.provisional %} <span class="bad">Provisional:</span> a pack here was not read first-hand, and every status it yields says so until it is.{% endif %}</p>
+  <div class="receipts">
+    <div class="receipt"><div class="k">Compatible</div><div class="n">{{ cp.in_use.compatible }}<small>in use</small></div><div class="s">{{ cp.all.compatible }} of {{ cp.entries }} entries counting those not in use</div></div>
+    <div class="receipt"><div class="k">Not compatible</div><div class="n">{{ cp.in_use['not-compatible'] }}<small>in use</small></div><div class="s">{{ cp.all['not-compatible'] }} in all: these are the migration's work</div></div>
+    <div class="receipt"><div class="k">Unknown</div><div class="n">{{ cp.in_use.unknown }}<small>in use</small></div><div class="s">{{ cp.all.unknown }} in all: nothing can be judged from the evidence; a gap to fill, not a pass</div></div>
+    <div class="receipt"><div class="k">Outside the pack</div><div class="n">{{ cp.in_use['outside-pack'] }}<small>in use</small></div><div class="s">{{ cp.all['outside-pack'] }} in all: symmetric algorithms, hashes and protocol versions the pack does not speak to</div></div>
+  </div>{% endif %}
   <details class="why"><summary>What the standard settles, and what it leaves open</summary><p>CycloneDX 1.6 (ECMA-424) defines the asset types and their fields: an algorithm's primitive and parameter set, a certificate's subject, issuer and validity, a key's type and size, a protocol's type; where each was found; and what depends on what. It does not say who owns an asset, which policy queue it is in, whether a file in an image is actually served, or what observation an entry rests on. Those go in properties under a namespace the producer chooses — here <code>pqch:</code>. What a federal CBOM must contain is not yet settled either: CISA and NIST publish the minimum elements by 2027-03-19. <a href="/site/notes/01-what-is-a-cbom/">What is a CBOM, and what is in one?</a></p></details>
   <table class="files"><thead><tr><th>Document property</th><th>Value</th><th>What it is</th></tr></thead><tbody>
   {% for m in d.meta %}<tr><td><code>{{ m.name }}</code></td><td class="mono small">{{ m.value[:40] }}{% if m.value|length > 40 %}…{% endif %}</td><td class="dim small">{{ m.meaning }}</td></tr>{% endfor %}
   </tbody></table>
+</section>
+
+{% if kind == 'scan-system' %}
+<section id="attested">
+  <h2><span class="step">2b</span> What the supplier attests, beside what the server showed</h2>
+  {% if attested %}
+  <p class="lede">{{ attested.supplier }}'s statement of {{ attested.issued }} names this model ({{ attested.vendor }} {{ attested.model }}). It was brought in as a document and recorded as <strong>reported</strong> evidence on run <a href="/walkthrough?run={{ attested.run }}"><code>{{ attested.run }}</code></a>: it is not in the CBOM above, which holds only what the server showed, and where the two differ the difference is shown, not resolved. {% if attested.illustrative %}<span class="bad">Illustrative: this statement is a worked example, not the supplier's own.</span>{% endif %}{% if attested.reference %} <span class="dim">Reference: {{ attested.reference }}.</span>{% endif %}</p>
+  <table class="files"><thead><tr><th>Firmware</th><th>The server reports</th><th>The statement is about</th><th>Signed with</th><th>Post-quantum route</th><th>Supportability</th></tr></thead><tbody>
+  {% for fw in attested.firmware %}<tr>
+    <td><strong>{{ fw.name }}</strong></td>
+    <td class="mono small">{% if fw.observed_version %}{{ fw.observed_version }}{% else %}<span class="dim">not reported</span>{% endif %}</td>
+    <td class="mono small">{{ fw.attested_version }} {% if fw.agrees %}<span class="good">same version</span>{% elif fw.agrees is sameas false %}<span class="bad">differs</span>{% endif %}</td>
+    <td class="small">{% if fw.signing %}{{ fw.signing.algorithm }}{% if fw.signing.key_bits %}-{{ fw.signing.key_bits }}{% endif %}{% if fw.signing.hash %} / {{ fw.signing.hash }}{% endif %}{% else %}<span class="dim">not stated</span>{% endif %}</td>
+    <td class="small">{% if fw.post_quantum %}{{ fw.post_quantum.algorithms|join(', ') }}{% if fw.post_quantum.version %} in {{ fw.post_quantum.version }}{% endif %}, {{ fw.post_quantum.available or 'no date given' }}{% else %}<span class="dim">none stated</span>{% endif %}</td>
+    <td class="small"><strong>{{ fw.supportability }}</strong>{% if fw.statement %}<br><span class="dim">{{ fw.statement }}</span>{% endif %}</td>
+  </tr>{% endfor %}
+  {% if attested.not_attested %}<tr><td colspan="6" class="dim small">The server reports {{ attested.not_attested|length }} firmware{{ 's' if attested.not_attested|length != 1 }} the statement does not name: {{ attested.not_attested|join(', ') }}. Each is a gap the supplier has to fill.</td></tr>{% endif %}
+  </tbody></table>
+  {% if attested.crypto_modules %}<p class="note">Modules the statement names: {% for m in attested.crypto_modules %}<strong>{{ m.name }}</strong>{% if m.where %} ({{ m.where }}){% endif %}{% if m.algorithms %}: {{ m.algorithms|join(', ') }}{% endif %}{% set v = m.cmvp %}{% if v.state == 'found' %} — CMVP certificate {{ m.cmvp_certificate }} ({{ v.module }}, {{ v.standard }}, {{ v.status }}{% if v.sunset %} to {{ v.sunset }}{% endif %}; ML-KEM {{ 'approved' if v.approved_ml_kem else 'not approved' }}, ML-DSA {{ 'approved' if v.approved_ml_dsa else 'not approved' }}; snapshot of {{ v.taken_at[:10] }}{% if not v.name_matches %}; <span class="bad">the certificate names a different module</span>{% endif %}){% elif v.state == 'not-validated' %} — <span class="bad">no CMVP certificate</span>{% else %} — certificate {{ m.cmvp_certificate }}: {{ v.basis }}{% endif %}{{ '; ' if not loop.last }}{% endfor %}.{% if attested.tpm %} TPM {{ attested.tpm.version }}{% if attested.tpm.vendor %} by {{ attested.tpm.vendor }}{% endif %}{% if attested.tpm.hash_algorithms %}, {{ attested.tpm.hash_algorithms|join(', ') }}{% endif %}.{% endif %}</p>{% endif %}
+  {% else %}
+  <p class="note">No supplier's statement names this model yet. The hardware half of an inventory, the algorithm a firmware is signed with, the modules a controller carries, whether the installed version has a route to post-quantum algorithms, is the supplier's to attest: <code>pqch attest</code> brings a <code>pqch.attestation/1</code> document in as reported evidence and joins it here by model and version (the shape: <code>agency/attestations/example-supplier.yaml</code>).</p>
+  {% endif %}
+</section>
+{% endif %}
+
+<section id="gaps">
+  <h2><span class="step">2c</span> What no tool could see</h2>
+  {% if gaps %}
+  <p class="lede">A discovery leaves gaps, and a coverage figure hides them. Here each is on the ledger as its own event (rule <code>{{ gaps.rule }}</code>): what the scan could not read, reach or identify, in which asset class, why, and what would fill it. A person closes one with <code>pqch gap fill</code>, citing the evidence brought; the gap keeps its id across scans, so a filled gap stays filled. {{ gaps.open|length }} open, {{ gaps.filled|length }} filled.</p>
+  <div class="receipts">
+    {% for c in gaps.classes %}<div class="receipt"><div class="k">{{ c.class }}</div><div class="n">{{ c.coverage }}<small>% reached</small></div><div class="s">{{ c.reached }} of {{ c.total }}; {{ c.gaps }} gap{{ 's' if c.gaps != 1 }} open</div></div>{% endfor %}
+  </div>
+  {% if gaps.open %}<table class="files"><thead><tr><th>Gap</th><th>Class</th><th>Where</th><th>Why it is a gap</th><th>What fills it</th></tr></thead><tbody>
+  {% for g in gaps.open %}<tr><td class="mono small">{{ g.gap[:12] }}<br><span class="dim">{{ g.kind }}</span></td><td class="small">{{ g.asset_class }}</td>
+    <td class="mono small">{% if g.subject.kind == 'endpoint' %}{{ g.subject.host }}:{{ g.subject.port }}{% elif g.subject.kind == 'file' %}{{ g.subject.image or g.subject.host }}:{{ g.subject.path }}{% elif g.subject.kind == 'platform' %}{{ g.subject.host }} {{ g.subject.component }}{% elif g.subject.kind == 'service' %}{{ g.subject.name }}{% elif g.subject.kind == 'device' %}{{ g.subject.vendor }} {{ g.subject.model }}{% elif g.subject.kind == 'firmware' %}{{ g.subject.system }} {{ g.subject.name }}{% else %}{{ g.subject|tojson }}{% endif %}</td>
+    <td class="small">{{ g.reason }}</td><td class="small dim">{{ g.fills }}</td></tr>{% endfor %}
+  </tbody></table>{% else %}<p class="note">No gap is open on this run.</p>{% endif %}
+  {% if gaps.filled %}<p class="note">Filled: {% for g in gaps.filled %}<code>{{ g.gap[:12] }}</code> ({{ g.kind }}) by {{ g.filled.by }} on {{ g.filled.ts[:10] }}, citing run <code>{{ g.filled.evidence.run }}</code>{% if g.filled.evidence.event %} event <code>{{ g.filled.evidence.event }}</code>{% endif %}: {{ g.filled.basis }}{{ '; ' if not loop.last }}{% endfor %}.</p>{% endif %}
+  {% else %}<p class="note">This run was assessed before the gap rule existed; its next scan records what no tool could see, gap by gap, and the coverage per asset class is counted from that.</p>{% endif %}
 </section>
 
 <section id="entry">

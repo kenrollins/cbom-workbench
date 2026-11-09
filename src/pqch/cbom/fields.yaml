@@ -20,7 +20,19 @@ cyclonedx:
   cryptoProperties.certificateProperties.certificateFormat: {meaning: "X.509 here.", from: finding}
   cryptoProperties.relatedCryptoMaterialProperties.type: {meaning: "What kind of key material: private-key, public-key, key and others.", from: finding}
   cryptoProperties.relatedCryptoMaterialProperties.size: {meaning: "The key's size in bits.", from: finding}
-  cryptoProperties.protocolProperties.type: {meaning: "The protocol a listener speaks: tls, ssh, or other.", from: finding}
+  cryptoProperties.protocolProperties.type: {meaning: "The protocol a listener speaks: tls (a PostgreSQL listener that negotiates TLS included), ssh, or other.", from: finding}
+  cryptoProperties.protocolProperties.version: {meaning: "The highest protocol version the listener accepted (TLS), or the SSH protocol version from its banner. Every version seen is in pqch:tls-versions.", from: finding}
+  cryptoProperties.protocolProperties.cipherSuites: {meaning: "Every cipher suite the listener accepted, by its IANA name with its hex identifier, across the versions it offers (testssl.sh's per-suite results).", from: finding}
+  cryptoProperties.protocolProperties.cryptoRefArray: {meaning: "A reference to every cryptographic asset seen on this listener: the groups, signatures and certificates in this document.", from: projection}
+  cryptoProperties.oid: {meaning: "The object identifier the X.509 world names the algorithm by (policy/algorithm-ids.yaml, with its sources).", from: data}
+  cryptoProperties.algorithmProperties.classicalSecurityLevel: {meaning: "Bits of classical security the key size gives, by SP 800-57 Part 1 Rev. 5 Table 2; computed from the finding's key size or curve, absent when neither is known.", from: computed}
+  cryptoProperties.algorithmProperties.nistQuantumSecurityLevel: {meaning: "NIST's security strength category for a post-quantum parameter set (FIPS 203 Table 2, FIPS 204 Table 1); a hybrid takes its ML-KEM part's.", from: data}
+  cryptoProperties.algorithmProperties.cryptoFunctions: {meaning: "What the algorithm is used for here: sign and verify for a certificate's signature algorithm.", from: projection}
+  cryptoProperties.certificateProperties.signatureAlgorithmRef: {meaning: "A reference to the algorithm the certificate was signed with, as a component of this document (alg:signature:…), with its OID.", from: finding}
+  cryptoProperties.certificateProperties.subjectPublicKeyRef: {meaning: "A reference to the certificate's public key as a component of this document (key:spki-sha256:…), which in turn references its algorithm with size or curve.", from: finding}
+  cryptoProperties.relatedCryptoMaterialProperties.id: {meaning: "The key's identity: the SHA-256 of its SubjectPublicKeyInfo.", from: finding}
+  cryptoProperties.relatedCryptoMaterialProperties.algorithmRef: {meaning: "A reference to the key's algorithm as a component of this document, with its size or curve and security levels.", from: finding}
+  cryptoProperties.relatedCryptoMaterialProperties.state: {meaning: "deactivated when the rules found no listener serving the key (pqch:in-use false); the only in-use signal CycloneDX 1.6 has a field for.", from: "rule:in-use/not-served/1"}
   evidence.occurrences: {meaning: "Where the asset was seen: an address and port, or an image and a path.", from: finding}
   dependencies: {meaning: "Not a field of the component: the document's list of what each component depends on. It carries the dependency chain — service, listener, asset, file.", from: rule:link/public-key/1}
 pqch:
@@ -33,7 +45,13 @@ pqch:
   pqch:fingerprint: {meaning: "The SHA-256 of the observation's identity — layer, subject, type, role, name, key. Two scans that see the same thing give the same fingerprint; that is how change is detected.", from: finding}
   pqch:evidence: {meaning: "The ledger events of every observation folded into this entry. Each names its tool, the raw output by path and SHA-256, and an excerpt a person can read.", from: finding}
   pqch:tools: {meaning: "Which tools saw it. An entry two tools agree on is one entry.", from: finding}
+  pqch:grade: {meaning: "The kind of evidence the entry's value in force rests on (policy/precedence.yaml): observed-wire (a handshake or probe), observed-host (a running system's firmware or controller), parsed-file (a certificate, key or configuration parsed), reported (a document someone else produced, such as an imported CBOM).", from: finding}
+  pqch:claims: {meaning: "Present when more than one finding describes this entry: every claim, with its event, tool and grade. All are kept; none is overwritten.", from: finding}
+  pqch:in-force: {meaning: "Which claim the entry's parameters come from and what decided it: the precedence pack (by grade, then the earliest on the ledger), or a person's claim.resolved event.", from: "rule:precedence/1"}
+  pqch:dissent: {meaning: "A parameter two claims give different values for, every value with its grade, tool and event; same_tool marks two values from one tool's own output. Shown, not resolved.", from: finding}
+  pqch:resolved: {meaning: "A field a person set by a claim.resolved event, with the value, the event and the basis; it stands until a resolution.revoked event cites it.", from: human}
   pqch:in-use: {meaning: "Whether it is in use: judged by a rule (a certificate in an image that no listener serves is not) or, on the code layer, by a model's majority of three (the call-site-read role; then pqch:in-use-by says which model). On the wire, true by definition.", from: "rule:in-use/served/1, rule:in-use/not-served/1, model:call-site-read"}
+  pqch:compatibility: {meaning: "The entry's status under the policy pack that governs its service: compatible, not-compatible, unknown (the algorithm is not identified, or the pack does not place the name; never folded into a verdict) or outside-pack (the pack says nothing of this kind of entry), with the basis, the pack and the judging event. provisional is true when the pack was not read first-hand (CNSA 2.0 from secondary sources).", from: "rule:compatibility/entry/1"}
   pqch:in-use-rule: {meaning: "Which rule made the in-use judgement.", from: rule}
   pqch:in-use-by: {meaning: "Present only when a model made the in-use judgement: the model, its tier and role, the engine the config declares for its tier (vLLM, a NIM, ollama; absent when the config names none), the upstream the endpoint reported (served_by, when it does) and the hardware it ran on, from the ledger's actor.", from: model:call-site-read}
   pqch:in-use-agreement: {meaning: "How many of the model's repeated calls agreed with the judgement recorded, as 'k of n'.", from: model:call-site-read}
@@ -41,7 +59,7 @@ pqch:
   pqch:conflict: {meaning: "When two findings about this asset disagreed, which layer a rule held to be in force, and why.", from: rule:conflict/resolve/1}
   pqch:family: {meaning: "The algorithm's family in the memo's table: ecdh, rsa-sig, ml-kem and so on.", from: rule:quantum/vulnerable/1}
   pqch:quantum-vulnerable: {meaning: "Whether OMB M-26-15's table (Appendix A §2, or its footnote 13) makes it quantum-vulnerable.", from: rule:quantum/vulnerable/1}
-  pqch:kind: {meaning: "Which kind of component the workbench made it: listener, service or image.", from: projection}
+  pqch:kind: {meaning: "Which kind of component the workbench made it: listener, service, image, library (from the image's SBOM), system, firmware, or referenced (a component a reference field points at).", from: projection}
   pqch:posture: {meaning: "A listener's posture: classical, mixed (post-quantum key establishment, classical authentication) or pq.", from: rule:posture/kex-auth/1}
   pqch:service: {meaning: "The service that serves the listener or runs the image, joined by the runner's record of the container it found.", from: rule:link/service/1}
   pqch:service-evidence: {meaning: "The link event behind that join.", from: rule:link/service/1}
@@ -51,6 +69,12 @@ pqch:
   pqch:high-value-asset: {meaning: "Whether it is a High Value Asset (OMB M-19-03).", from: supplied}
   pqch:supplied: {meaning: "Every fact on this component that a person typed in, with the event and who supplied it. None of them counts as coverage.", from: supplied}
   pqch:owner: {meaning: "Who the migration item is assigned to.", from: supplied}
+  pqch:system: {meaning: "The system of record the service belongs to, as the agency's inventory names it.", from: supplied}
+  pqch:interface: {meaning: "The interface the service serves: who connects, over what.", from: supplied}
+  pqch:mission-thread: {meaning: "The mission thread the service carries: what stops when it does.", from: supplied}
+  pqch:classification: {meaning: "The enclave's classification level (unclassified, cui, confidential, secret, top-secret).", from: supplied}
+  pqch:vendor-path: {meaning: "The owner's note of the vendor's route for software nothing configurable can move: an update, a replacement, no statement.", from: supplied}
+  pqch:cost-to-fix: {meaning: "The owner's estimate for the fix, as amount, currency and the basis the number rests on. Typed in; never computed.", from: supplied}
   pqch:priority: {meaning: "Whether M-26-15 §3.C.2 prioritizes the service, and by which criteria.", from: rule:priority/m-26-15/1}
   pqch:migration: {meaning: "One item per function — key establishment, signature — with its state, queue, deadline and blockers.", from: "rule:queue/m-26-15/1, rule:blocker/supplier/1, rule:blocker/validated-module/1"}
   pqch:queue: {meaning: "The earliest queue among the open items.", from: rule:queue/m-26-15/1}
@@ -59,9 +83,35 @@ pqch:
   pqch:deprecated-after: {meaning: "The date after which NIST IR 8547 deprecates the open items' quantum-vulnerable algorithms (Tables 2 and 4): use past it is a risk accepted, not compliance.", from: rule:queue/m-26-15/1}
   pqch:state: {meaning: "open while any item is open; met when none is.", from: rule:queue/m-26-15/1}
   pqch:image: {meaning: "The image reference with its digest.", from: finding}
+  pqch:tls-versions: {meaning: "Every TLS or SSL version the listener accepted a cipher suite with.", from: finding}
+  pqch:tls-signature-schemes: {meaning: "The signature schemes the listener offered for TLS 1.2 and 1.3 handshakes, as testssl.sh lists them.", from: finding}
+  pqch:tls-groups: {meaning: "The key-exchange groups the listener accepts, by standard name. CycloneDX 1.6 has no field for the group a TLS server selects, so it is a property (ADR-0007); the same list is written under the consumers' name Supported Groups.", from: finding}
+  Supported Groups: {meaning: "The same key-exchange groups under the name the policy engines the workbench feeds read (ADR-0007). Not a pqch: field.", from: finding}
+  pqch:ssh-software: {meaning: "The SSH server's software from its banner.", from: finding}
+  pqch:ssh-key-exchange: {meaning: "The key-exchange algorithms the SSH server offers, as it spells them; the standard has no field for them (ADR-0007).", from: finding}
+  pqch:ssh-host-key: {meaning: "The host-key algorithms the SSH server offers, as it spells them.", from: finding}
+  pqch:ssh-encryption: {meaning: "The encryption algorithms the SSH server offers.", from: finding}
+  pqch:ssh-mac: {meaning: "The MAC algorithms the SSH server offers.", from: finding}
+  Key Exchange Algorithm: {meaning: "The SSH key-exchange list under the consumers' name (ADR-0007).", from: finding}
+  Host Key Algorithm: {meaning: "The SSH host-key list under the consumers' name (ADR-0007).", from: finding}
+  Encryption Algorithm: {meaning: "The SSH encryption list under the consumers' name (ADR-0007).", from: finding}
+  pqch:signature-algorithm: {meaning: "The X.509 name of the algorithm the certificate was signed with (sha256WithRSAEncryption, ecdsa-with-SHA384, ML-DSA-65).", from: finding}
+  Signature Algorithm: {meaning: "The same, under the consumers' name (ADR-0007).", from: finding}
+  Subject Public Key Algorithm: {meaning: "The certificate's key algorithm with its size or curve (RSA-2048, ECDSA-P-256), under the consumers' name (ADR-0007).", from: finding}
+  pqch:capability: {meaning: "On a library from the image's SBOM: present. A library present is a capability, not an asset in use; pqch:in-use is true only where the rule linked it to something a listener negotiates or serves, else unknown.", from: "rule:link/library/1"}
+  pqch:provides-count: {meaning: "How many of the document's cryptographic assets this library provides, as the dependencies' provides relation lists them.", from: "rule:link/library/1"}
+  pqch:provides-evidence: {meaning: "The link events behind the provides relation.", from: "rule:link/library/1"}
+  pqch:provides-candidates: {meaning: "Present when the image carries more than one cryptography-providing library and the capability snapshot does not name the service's: how many were linked as candidates. Which one served the handshake is not observed.", from: "rule:link/library/1"}
+  pqch:sbom-event: {meaning: "The sbom.observed event the library comes from: the image's SBOM by Syft, its hash and package count.", from: finding}
+  pqch:package-type: {meaning: "The package ecosystem the SBOM found the library in (apk, deb, python, java-archive, go-module).", from: finding}
+  pqch:referenced-as: {meaning: "On a component that exists because a reference field points at it (an algorithm, a signature algorithm, a public key): what it was referenced as. It carries no layer and is not an observation of its own.", from: projection}
+  pqch:spki-sha256: {meaning: "On a referenced public key: the SHA-256 of its SubjectPublicKeyInfo.", from: finding}
 metadata:
   pqch:projection: {meaning: "Which projection of the ledger this document is: the workbench, or a baseline of scanners alone."}
   pqch:run: {meaning: "The run whose ledger it was built from."}
   pqch:ledger-head: {meaning: "The hash of the ledger's last event. Rebuild from the same ledger and the document is the same, byte for byte."}
   pqch:ledger-seq: {meaning: "How many events the ledger held."}
   pqch:scope-hash: {meaning: "The hash of the scope the run was allowed to touch."}
+  pqch:runs: {meaning: "On an estate projection: every run it was built over, each pinned by its ledger's head hash and sequence."}
+  pqch:marking: {meaning: "The deployment's marking (PQCH_MARKING, for example CUI), written onto every document the run writes and every page it serves; absent where no marking is set."}
+  pqch:consumer-copy: {meaning: "On the consumer copy: how many entries the rules judged not in use were left out, and why."}

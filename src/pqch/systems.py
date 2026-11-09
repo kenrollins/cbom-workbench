@@ -284,7 +284,11 @@ def hosts(var: Path) -> list[dict]:
                  ("files", any(x["profile"] in ("system-files", "system-theia") for x in scans)),
                  ("firmware", any(x["profile"] == "system-firmware" for x in scans)),
                  ("controller", any(x["profile"] == "controller-redfish" for x in scans))]
+        from pqch import attest
+
+        att = attest.for_system(var, events)
         out.append({"name": name, "run": run_id, "model": device.get("model"), "vendor": device.get("vendor"),
+                    "attestation": attest.summary_line(att), "attested": att and {k: att[k] for k in ("supplier", "issued", "illustrative", "run")},
                     "addresses": system.get("addresses", []),
                     "controller": {"host": ctl.get("host"), "model": ctl.get("model"), "firmware": ctl.get("firmware_version")} if ctl else None,
                     "parts": [k for k, v in parts if v], "findings": sum(1 for e in events if e["type"] == "finding.observed"),

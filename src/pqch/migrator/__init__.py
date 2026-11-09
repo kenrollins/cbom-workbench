@@ -172,14 +172,22 @@ def rehearse(run: Run, client, signer, change_id: str, *, hardware: str = "unlab
     return ev
 
 
-def approve(run: Run, change_id: str, *, by: str, authenticated_by: str, signer, deny: bool = False) -> dict:
+def approve(run: Run, change_id: str, *, by: str, authenticated_by: str, signer, deny: bool = False,
+            role: str | None = None, groups: list[str] | None = None) -> dict:
+    """Record a person's approval (or denial). `role` is the role the deployment granted them for it
+    (`approver`) and `groups` the identity provider's groups it rested on (ADR-0008); both are facts on
+    the event, so the runner can refuse an approval without the role, and a reader can see why it had it."""
     if not by or not authenticated_by:
         raise PermissionError("an approval needs who approved and how they were authenticated")
     prop = _proposal(run, change_id)
     # A signature just before the approval and one just after: the signer's bracket on when it was written.
     run.checkpoint(signer)
-    ev = run.ledger.append("approval.denied" if deny else "approval.granted", {"kind": "human", "id": by},
-                           {"change_id": change_id, "by": by, "authenticated_by": authenticated_by},
+    payload = {"change_id": change_id, "by": by, "authenticated_by": authenticated_by}
+    if role:
+        payload["role"] = role
+    if groups is not None:
+        payload["groups"] = sorted(groups)
+    ev = run.ledger.append("approval.denied" if deny else "approval.granted", {"kind": "human", "id": by}, payload,
                            inputs=[prop["id"]])
     run.checkpoint(signer)
     return ev

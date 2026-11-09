@@ -83,6 +83,7 @@
       <div><div class="n">{{ plan.order|selectattr('wave', 'equalto', 'supplier')|list|length }}</div><div class="s">that wait for the vendor</div></div>
       <div><div class="n">{{ plan.waiting }}</div><div class="s">steps that wait for another first</div></div>
     </div>
+    {% if plan.attestation %}{% set at = plan.attestation %}<p class="s">The supplier's statement ({{ at.supplier }}, {{ at.issued }}{% if at.illustrative %}; <span class="bad">illustrative</span>{% endif %}) names {{ at.named }} firmware{{ 's' if at.named != 1 }}: {{ at.by_supportability.update }} with an update route, {{ at.by_supportability.replace }} to replace, {{ at.by_supportability['end-of-life'] }} past support, {{ at.by_supportability['no-statement'] }} with no statement; {{ at.agree }} at the attested version, {{ at.differ }} at another, {{ at.not_attested }} the server reports and the statement does not name. Reported evidence, beside the scan, never in its CBOM (<a href="/cbom?run={{ plan.run }}#attested">compared firmware by firmware</a>).</p>{% else %}<p class="s">No supplier's statement names this model: what the vendor ships, and when, is asked for in the steps below and recorded when it arrives (<code>pqch attest</code>).</p>{% endif %}
   </div>
 </div>
 {% if plan and plan.assumed %}{% include "_whatif.html" %}{% endif %}
@@ -113,6 +114,7 @@
   {% for t in plan.traps %}<tr><td class="dim">{{ t.sheet }}</td><td>{{ t.cbom }}</td></tr>{% endfor %}
   </tbody></table>
 </section>
+{% set handoff_step = 3 %}{% include "_handoff.html" %}
 {% else %}
 <p class="orient">Moving an estate to post-quantum cryptography is not a list of changes. A certificate authority's root has to move before the certificates it issued; software that cannot take the new algorithms has to be replaced before anything that depends on it; a service is offered the new key exchange before it is required, and only once its clients can follow. None of that is in a list of systems. All of it is in the CBOM — which certificate was issued by which authority, which key sits on which listener, which build a service runs, what each listener accepts — and so the order can be computed, not guessed. That ability to plan the next change, and the one after, from the record is what crypto agility rests on.
   <span class="ai">The plan is computed by rules from scan <a href="/walkthrough?run={{ plan.run }}"><code>{{ plan.run }}</code></a> and the change runs since, every time this page is shown. No model orders it.</span></p>
@@ -133,6 +135,7 @@
       <div><div class="n">{{ plan.waiting }}</div><div class="s">steps that must wait for another step first</div></div>
       <div><div class="n">{{ plan.done }}</div><div class="s">done since the scan, by a change that landed</div></div>
     </div>
+    {% if plan.compatibility %}{% set cp = plan.compatibility %}<p class="s">Every entry tagged under {{ cp.packs|join(' and ') }}: {{ cp['not-compatible'] }} not compatible, {{ cp.compatible }} compatible, {{ cp.unknown }} unknown, {{ cp['outside-pack'] }} outside the pack{% if cp.provisional %} (provisional: a pack not read first-hand){% endif %}.</p>{% endif %}
   </div>
 </div>
 
@@ -191,6 +194,7 @@
     <td class="small">{% if s.kind == 'replace' %}<a href="{{ s.resolve }}">change package →</a>{% elif s.state == 'done' %}done{% if s.resolve %} · <a href="{{ s.resolve }}">the proof →</a>{% endif %}{% elif s.status == 'blocked' %}<span class="dim">after the replacement</span>{% elif s.resolve %}<a class="cta {{ 'primary' if s.id == plan.first_open }}" href="{{ s.resolve }}">Carry out this step →</a>{% endif %}</td></tr>{% endfor %}
   </tbody></table>
 </section>
+{% set handoff_step = 5 %}{% include "_handoff.html" %}
 {% endif %}
 </main>
 <script src="/static/vendor/d3.v7.min.js"></script>

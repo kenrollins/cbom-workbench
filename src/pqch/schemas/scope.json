@@ -318,6 +318,47 @@
       "type": "string",
       "pattern": "^/[^\\s]*$",
       "description": "A directory of CA certificates the system trusts, reported as a count, not as components"
+     },
+     "via": {
+      "description": "How the runner reaches the system's files when they are not mounted under its own root: over SSH, with the packer sent to the remote python3 and the archive read back. The identity file and the known-hosts file are paths inside the runner (mounted read-only); host-key checking is strict, so a host not in known_hosts is refused, never accepted on first use.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "kind",
+       "host",
+       "user",
+       "known_hosts"
+      ],
+      "properties": {
+       "kind": {
+        "const": "ssh"
+       },
+       "host": {
+        "type": "string",
+        "minLength": 1
+       },
+       "user": {
+        "type": "string",
+        "minLength": 1
+       },
+       "port": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535
+       },
+       "identity": {
+        "type": "string",
+        "pattern": "^/[^\\s]*$"
+       },
+       "known_hosts": {
+        "type": "string",
+        "pattern": "^/[^\\s]*$"
+       },
+       "python": {
+        "type": "string",
+        "default": "python3"
+       }
+      }
      }
     }
    }

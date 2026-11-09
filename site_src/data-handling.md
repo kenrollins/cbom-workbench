@@ -29,6 +29,28 @@ output as root and the app reads it as the operator's uid. Turn it on where ever
 runs as one uid. The estate's rendered configuration (`agency/generated/`) is not under `var/` and
 keeps its mode: the estate's own services read it.
 
+## Marking, retention, roles
+
+Three settings turn the deployment's handling rules into facts the workbench enforces or shows:
+
+- **Marking.** `PQCH_MARKING` (for example `CUI`) puts a banner on every page the app serves,
+  writes `pqch:marking` into every document a run writes (the CBOMs, the consumer copy) and adds a
+  `marking` column to the register. A marking is applied at creation, as 32 CFR 2002.20 asks; the
+  projection itself stays a function of the ledger, and the marking is added where the file is written.
+- **Retention.** `pqch retention apply --days N` (or `PQCH_RETENTION_DAYS`) deletes the raw scanner
+  output and the written documents of every run older than the period and records each deletion as
+  an `artefact.destroyed` event in a run of kind `retention`, with the person and the basis. The
+  ledgers stay: they are the record. `--dry-run` lists what would go.
+- **Roles and separation of duties** (ADR-0008). `PQCH_APPROVER_GROUP` names the identity
+  provider's group an approver must be in, read from the front door's groups header
+  (`PQCH_GROUPS_HEADER`, default `X-Forwarded-Groups`) on a trusted connection; every approval
+  records the role and groups it rested on. `PQCH_SEPARATION_OF_DUTIES=1` makes the runner refuse an
+  apply approved by the person who asked for the change, or approved without the role, and splits
+  the page's approve and apply into two requests; the command line then approves only in a labelled
+  single-operator mode.
+- **Rules of engagement.** `PQCH_REQUIRE_ROE=1` on the runner refuses a scope whose authorization
+  does not name the signed rules-of-engagement document by hash (`rules_of_engagement_sha256`).
+
 ## What is kept
 
 | Artefact | Sensitivity | Where | Mode with `PQCH_VAR_PRIVATE=1` | Kept | Destroyed by |

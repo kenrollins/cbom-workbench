@@ -15,6 +15,8 @@ import base64
 import json
 from collections.abc import Callable
 
+import yaml
+
 from pqch.common import hash_object, ulid
 from pqch.scout import names
 from pqch.scout.keys import parse_certificate_pem, spki_sha256_from_der, ssh_fingerprint_from_spki
@@ -27,6 +29,28 @@ def fingerprint(layer: str, subject: dict, asset: dict) -> str:
     return hash_object({"layer": layer, "subject": subject, "type": asset["type"],
                         "role": asset["role"], "name": asset["name"],
                         "identity": asset.get("identity")})
+
+
+_PRECEDENCE: dict | None = None
+
+
+def precedence() -> dict:
+    """policy/precedence.yaml: the grades in order and each tool's grade (M9)."""
+    global _PRECEDENCE
+    if _PRECEDENCE is None:
+        from pqch.policy import ROOT
+
+        doc = yaml.safe_load((ROOT / "policy" / "precedence.yaml").read_text())
+        if doc.get("schema") != "pqch.precedence/1":
+            raise ValueError("policy/precedence.yaml: expected schema pqch.precedence/1")
+        _PRECEDENCE = doc
+    return _PRECEDENCE
+
+
+def grade_of(tool: str, layer: str) -> str:
+    """The kind of evidence a tool's finding is, from the precedence pack, else by its layer."""
+    p = precedence()
+    return p["tools"].get(tool) or p["by_layer"].get(layer) or "parsed-file"
 
 
 def identity_of(parameters: dict) -> str | None:
@@ -48,10 +72,11 @@ class _Collector:
     otherwise the identity-less entries fold together.
     """
 
-    def __init__(self, job: dict, layer: str, *, subject_digest: str | None = None):
+    def __init__(self, job: dict, layer: str, *, subject_digest: str | None = None, grade: str | None = None):
         self.job = job
         self.layer = layer
         self.subject_digest = subject_digest
+        self.grade = grade or grade_of(job["tool"], layer)
         self.groups: dict[str, dict[str | None, dict]] = {}
 
     def add(self, subject: dict, type_: str, role: str, name: str, parameters: dict, excerpt: str) -> None:
@@ -60,13 +85,13 @@ class _Collector:
         entries = self.groups.setdefault(group, {})
         if ident in entries:
             f = entries[ident]
-            _merge(f["asset"]["parameters"], parameters)
+            _merge(f["asset"]["parameters"], parameters, f["asset"])
             if excerpt not in f["evidence"]["excerpt"]:
                 f["evidence"]["excerpt"] = (f["evidence"]["excerpt"] + "; " + excerpt)[:400]
             return
         job = self.job
         source = {"tool": job["tool"], "version": job["version"], "image_digest": job["image_digest"],
-                  "profile": job["profile"]}
+                  "profile": job["profile"], "grade": self.grade}
         if self.subject_digest:
             source["subject_digest"] = self.subject_digest
         entries[ident] = {
@@ -86,7 +111,7 @@ class _Collector:
             named = [k for k in entries if k is not None]
             if None in entries and len(named) == 1:
                 anon, f = entries.pop(None), entries[named[0]]
-                _merge(f["asset"]["parameters"], anon["asset"]["parameters"])
+                _merge(f["asset"]["parameters"], anon["asset"]["parameters"], f["asset"])
                 f["evidence"]["excerpt"] = (f["evidence"]["excerpt"] + "; " + anon["evidence"]["excerpt"])[:400]
             for ident, f in entries.items():
                 if ident is not None:
@@ -96,14 +121,20 @@ class _Collector:
         return out
 
 
-def _merge(into: dict, new: dict) -> None:
+def _merge(into: dict, new: dict, asset: dict | None = None) -> None:
+    """Fold a second report of the same entry into the first. A list is a set of names and unions; a
+    scalar that disagrees is kept as it was and the disagreement recorded in `asset.dissent`, never
+    turned into a list of both (M9: no silent resolution, and no field changes type)."""
     for k, v in new.items():
         if k not in into:
             into[k] = v
         elif isinstance(into[k], list) and isinstance(v, list):
             into[k] = sorted(set(into[k]) | set(v))
-        elif into[k] != v and not isinstance(into[k], (dict, list)):
-            into[k] = sorted({str(into[k]), str(v)})
+        elif into[k] != v and not isinstance(into[k], (dict, list)) and not isinstance(v, (dict, list)):
+            if asset is not None:
+                seen = asset.setdefault("dissent", {}).setdefault(k, [str(into[k])])
+                if str(v) not in seen:
+                    seen.append(str(v))
 
 
 def _endpoint_subject(job: dict, protocol: str) -> dict:
@@ -123,8 +154,12 @@ def testssl(raw: bytes, job: dict) -> list[dict]:
     c = _Collector(job, "wire")
     by_id = {e["id"]: e for e in entries}
     versions: dict[str, list[str]] = {}
+    suites: dict[str, list[dict]] = {}
+    schemes: dict[str, list[str]] = {}
     for e in entries:
         eid, text = e["id"], (e.get("finding") or "").strip()
+        if eid in ("FS_TLS13_sig_algs", "FS_TLS12_sig_algs") and text and not text.lower().startswith(("no ", "not ")):
+            schemes["TLS 1.3" if "13" in eid else "TLS 1.2"] = text.split()
         if eid == "DH_groups":
             if not text or text.lower().startswith(("no ", "not ")):
                 continue
@@ -145,10 +180,15 @@ def testssl(raw: bytes, job: dict) -> list[dict]:
             c.add(subject, "algorithm", "key-establishment", "RSA",
                   {"mode": "key-transport", "tls_versions": [parts[0]], "suites": [parts[-1]]},
                   f"{eid}: {parts[0]} {parts[-1]}")
-        elif eid.startswith("cipher-") and text.split()[:1] and text.split()[0].startswith(("TLSv1", "SSLv")):
+        if eid.startswith("cipher-") and text.split()[:1] and text.split()[0].startswith(("TLSv1", "SSLv")):
             # Every accepted suite names its protocol version first; the versions a listener
-            # offers are the set of them. M-26-15 §4 sets a date for TLS 1.3 support.
-            versions.setdefault(text.split()[0], []).append(eid)
+            # offers are the set of them. M-26-15 §4 sets a date for TLS 1.3 support. The suite
+            # itself (IANA name, hex id, OpenSSL name) goes on the version's protocol entry, where
+            # CycloneDX's protocolProperties.cipherSuites wants it.
+            parts = text.split()
+            versions.setdefault(parts[0], []).append(eid)
+            code = eid.rsplit("_x", 1)[-1] if "_x" in eid else parts[1].lstrip("x")
+            suites.setdefault(parts[0], []).append({"name": parts[-1], "id": "0x" + code.rjust(4, "0"), "openssl": parts[2] if len(parts) > 2 else None})
         if eid == "cert" or eid.startswith("cert <"):
             suffix = eid[4:]
             info = parse_certificate_pem(text)
@@ -159,8 +199,12 @@ def testssl(raw: bytes, job: dict) -> list[dict]:
                   f"cert_keySize: {size}; cert_signatureAlgorithm: {sig}")
     for v, ids in sorted(versions.items()):
         name = v.replace("TLSv", "TLS ").replace("SSLv", "SSL ")
-        c.add(subject, "protocol", "other", name, {"suites_accepted": len(ids)},
-              f"{len(ids)} cipher suites accepted with {v}")
+        params = {"suites_accepted": len(ids),
+                  "cipher_suites": sorted(({k: s[k] for k in ("name", "id", "openssl") if s.get(k)} for s in suites.get(v, [])),
+                                          key=lambda s: s["id"])}
+        if name in schemes:
+            params["signature_schemes"] = schemes[name]
+        c.add(subject, "protocol", "other", name, params, f"{len(ids)} cipher suites accepted with {v}")
     return c.findings()
 
 
@@ -188,6 +232,18 @@ def ssh_audit(raw: bytes, job: dict) -> list[dict]:
         if family in fp_by_family:
             params["ssh_fingerprint_sha256"] = fp_by_family[family]
         c.add(subject, "algorithm", "signature", family, params, f"key: {alg}")
+    # The protocol itself: its version from the banner, and the algorithms CycloneDX has no field
+    # for (encryption, MAC, the kex and host-key lists as the server spells them), kept here for the
+    # listener's properties (ADR-0007).
+    banner = doc.get("banner") or {}
+    if banner.get("protocol") or doc.get("enc") or doc.get("mac"):
+        c.add(subject, "protocol", "other", f"SSH {banner.get('protocol') or '2.0'}",
+              {k: v for k, v in {"software": banner.get("software"),
+                                 "encryption": [x["algorithm"] for x in doc.get("enc", [])],
+                                 "mac": [x["algorithm"] for x in doc.get("mac", [])],
+                                 "key_exchange": [k["algorithm"] for k in doc.get("kex", []) if not names.SSH_KEX_IGNORE.match(k["algorithm"])],
+                                 "host_keys": [k["algorithm"] for k in doc.get("key", [])]}.items() if v},
+              f"banner: {banner.get('raw') or '?'}")
     return c.findings()
 
 
@@ -390,7 +446,48 @@ def postgres_tls_offer(raw: bytes, job: dict) -> list[dict]:
     return c.findings()
 
 
+def syft(raw: bytes, job: dict) -> list[dict]:
+    """An SBOM yields no cryptographic finding of its own: a library present is a capability, not an
+    asset in use. Its facts go on the ledger as `sbom.observed` (sbom_facts)."""
+    return []
+
+
+# Libraries that provide cryptography, by package name (lower-cased, prefix match): the ones a
+# listener's TLS or SSH, or an application's crypto, is served by. Data in code for now; the alias
+# pack (M9) is where it moves.
+CRYPTO_LIBRARIES = ("openssl", "libssl", "libcrypto", "gnutls", "libgnutls", "nss", "libnss", "mbedtls", "wolfssl", "libsodium",
+                    "bouncycastle", "bcprov", "bcpkix", "openssh", "libgcrypt", "nettle", "libnettle", "cryptography", "pyca",
+                    "golang.org/x/crypto", "crypto/tls", "ring", "rustls", "botan", "boringssl", "libressl", "liboqs", "oqs-provider",
+                    "openjdk", "java-", "libk5crypto", "krb5", "libssh", "libssh2", "openvpn", "strongswan", "libreswan", "wireguard")
+
+
+def sbom_facts(raw: bytes, job: dict) -> dict | None:
+    """What an image's SBOM says: how many packages, and which of them provide cryptography (name,
+    version, purl, licences, the package type). Recorded as `sbom.observed`; the CBOM projects the
+    crypto-providing libraries as `library` components and the rules link assets to them."""
+    if job["tool"] != "syft":
+        return None
+    doc = json.loads(raw)
+    comps = [c for c in doc.get("components") or [] if c.get("type") in ("library", "application", "framework", "operating-system")]
+    libs = []
+    for c in comps:
+        name = (c.get("name") or "").lower()
+        purl = c.get("purl") or ""
+        if any(name.startswith(k) or f"/{k}" in purl.lower() for k in CRYPTO_LIBRARIES):
+            libs.append({"name": c.get("name"), "version": c.get("version"), "purl": purl or None,
+                         "type": next((p["value"] for p in c.get("properties") or [] if p.get("name") == "syft:package:type"), None),
+                         "licenses": sorted({(lic.get("license") or {}).get("id") or (lic.get("license") or {}).get("name") or lic.get("expression")
+                                             for lic in c.get("licenses") or [] if lic}) or None})
+    tools = (doc.get("metadata") or {}).get("tools") or {}
+    tool_list = tools.get("components", []) if isinstance(tools, dict) else tools
+    return {"image": job["target"].get("image", "").partition("@")[0], "image_digest": job.get("image_digest"),
+            "document_sha256": job.get("raw_sha256"), "spec_version": doc.get("specVersion"),
+            "tool": {"name": (tool_list[0] if tool_list else {}).get("name"), "version": (tool_list[0] if tool_list else {}).get("version")},
+            "packages": len(comps), "crypto_libraries": sorted(libs, key=lambda x: (x["name"] or "", x["version"] or ""))}
+
+
 NORMALIZERS: dict[str, Callable[[bytes, dict], list[dict]]] = {
+    "syft": syft,
     "pqch-postgres-tls-offer": postgres_tls_offer,
     "testssl.sh": testssl,
     "ssh-audit": ssh_audit,

@@ -269,3 +269,29 @@ def test_the_applier_requires_the_deployments_checkpoint_algorithm(setup, monkey
         applier.authorize(run.id, cid)
     monkeypatch.setenv("PQCH_CHECKPOINT_ALG", "ML-DSA-65")
     applier.authorize(run.id, cid)
+
+
+# ---- ADR-0008: separation of duties, a setting the runner enforces
+
+def test_under_separation_the_requester_cannot_approve_and_an_approval_needs_the_role(setup, monkeypatch):
+    monkeypatch.setenv("PQCH_SEPARATION_OF_DUTIES", "1")
+    run, cid, signer, applier = setup()                     # proposed by "ken" (policy.changed by ken)
+    approve(run, cid, by="ken", authenticated_by="front door", signer=signer, role="approver", groups=["pqc-approvers"])
+    with pytest.raises(Refused, match="same person"):
+        applier.authorize(run.id, cid)
+    run2, cid2, signer2, applier2 = setup()
+    approve(run2, cid2, by="alice", authenticated_by="front door", signer=signer2)          # no role recorded
+    with pytest.raises(Refused, match="no approver role"):
+        applier2.authorize(run2.id, cid2)
+    run3, cid3, signer3, applier3 = setup()
+    ev = approve(run3, cid3, by="alice", authenticated_by="front door", signer=signer3, role="approver", groups=["pqc-approvers", "staff"])
+    assert ev["payload"]["role"] == "approver" and ev["payload"]["groups"] == ["pqc-approvers", "staff"]
+    _, _, approval = applier3.authorize(run3.id, cid3)
+    assert approval["payload"]["by"] == "alice"
+
+
+def test_without_the_setting_the_single_owner_loop_is_as_before(setup, monkeypatch):
+    monkeypatch.delenv("PQCH_SEPARATION_OF_DUTIES", raising=False)
+    run, cid, signer, applier = setup()
+    approve(run, cid, by="ken", authenticated_by="test", signer=signer)
+    assert applier.authorize(run.id, cid)[2]["payload"].get("role") is None

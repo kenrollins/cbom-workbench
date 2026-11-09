@@ -23,6 +23,14 @@ the overview and is rewritten as the project advances.
 | 15 | What do the open-source scanners cover, and what is built on top? | enumerated |
 | 16 | What does a CBOM make possible once it exists? | all |
 | 17 | How does a CBOM become a migration plan, and why can't a list of systems? | managed |
+| 18 | What is the workbench built from, why each part, and what would an enterprise run in its place? | all |
+| 19 | How is a question to the CBOM answered, and how is the answer checked without asking a model? | structured |
+| 20 | How is one server inventoried as an estate, below its operating system as well as on the wire, and planned from its CBOM? | structured |
+| 21 | What does a federal authorization ask of a CBOM tool itself, and where does the workbench stand? | all |
+| 22 | What does "compatible" mean for one CBOM entry, and what cannot be told from the evidence? | managed |
+| 24 | What does a later phase need from a discovery phase, field by field, and where does each field come from? | managed |
+| 25 | How much of an estate's cryptography can a tool reach, by asset class, and how is the rest kept from disappearing into a coverage figure? | enumerated |
+| 26 | What does a discovery-and-planning phase ask of a CBOM tool, and what does this one answer, measured? | all |
 
 ## Planned
 
@@ -34,7 +42,3 @@ the overview and is rewritten as the project advances.
 | 10 | Why is a validated module a separate clock from an algorithm? | managed |
 | 11 | What changes for national security systems under CNSA 2.0? | managed |
 | 14 | What does each step up in models or hardware change, by measurement? | all |
-| 18 | What is the workbench built from, why each part, and what would an enterprise run in its place? | all |
-| 19 | How is a question to the CBOM answered, and how is the answer checked without asking a model? | structured |
-| 20 | How is one server inventoried as an estate, below its operating system as well as on the wire, and planned from its CBOM? | structured |
-| 21 | What does a federal authorization ask of a CBOM tool itself, and where does the workbench stand? | all |

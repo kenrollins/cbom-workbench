@@ -42,6 +42,9 @@ ACTORS = {
     "verdict.issued": {"verifier"}, "queue.enqueued": {"controller"}, "queue.drained": {"controller"},
     "engine.swapped": {"controller"}, "checkpoint.signed": {"controller"}, "trace.completed": {"model"},
     "config.observed": {"scanner"},
+    "attestation.recorded": {"human"},
+    "claim.resolved": {"human"}, "resolution.revoked": {"human"},
+    "gap.recorded": {"rule"}, "gap.filled": {"human"}, "sbom.observed": {"scanner"}, "artefact.destroyed": {"human"},
 }
 
 

@@ -43,7 +43,8 @@ def test_rules_mark_the_unserved_certificate_and_postures(slice_run):
     bom = project(_structured(slice_run))
     by_loc = {}
     for c in bom["components"]:
-        by_loc.setdefault(c["evidence"]["occurrences"][0]["location"], []).append(c)
+        if c.get("evidence"):
+            by_loc.setdefault(c["evidence"]["occurrences"][0]["location"], []).append(c)
     unserved = [c for loc, cs in by_loc.items() if loc.endswith("/etc/ssl/legacy/portal-2019.crt") for c in cs
                 if c["cryptoProperties"]["assetType"] == "certificate"]
     assert [props(c)["pqch:in-use"] for c in unserved] == ["false"]

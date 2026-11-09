@@ -31,6 +31,9 @@ columns:
   - {name: location, from: asset.evidence.occurrences.0.location}
   - {name: quantum_vulnerable, from: asset.pqch:quantum-vulnerable}
   - {name: family, from: asset.pqch:family}
+  - {name: compatibility, from: asset.pqch:compatibility.status}
+  - {name: compatibility_pack, from: asset.pqch:compatibility.pack}
+  - {name: compatibility_provisional, from: asset.pqch:compatibility.provisional}
   - {name: migration_state, from: item.state}
   - {name: queue, from: item.queue}
   - {name: deadline, from: item.deadline}

@@ -1601,6 +1601,169 @@ def sketch_65_two_writers_three_readers() -> None:
     p.save(SKETCHES / "65-two-writers-three-readers.svg")
 
 
+def sketch_22_four_statuses() -> None:
+    """Note 22: the four statuses an entry can land in under a policy pack, with the slice's counts under
+    M-26-15 (47 entries: 2, 39, 1, 5; in use 2, 34, 1, 4), and the CNSA 2.0 column stamped provisional."""
+    p = Page(1000, 560, seed=22, title="Four statuses for one entry")
+    p.text(500, 44, "Every entry lands in one of four boxes under the pack that governs it", 30, INK, "middle")
+    cols = [(30, "compatible", ["the family is one the pack", "calls resistant, or the name", "is one it lists for the function"], "2", "2 in use", BALLPOINT),
+            (270, "not compatible", ["the table or footnote 13", "makes it vulnerable, or the pack", "names another algorithm"], "39", "34 in use", STAMP),
+            (510, "unknown", ["the entry names no algorithm", "a table places, or the pack", "does not place the name"], "1", "1 in use", BALLPOINT),
+            (750, "outside the pack", ["a hash, a symmetric algorithm", "or a protocol version the pack", "says nothing about"], "5", "4 in use", PENCIL)]
+    for x, title, lines, n, sub, color in cols:
+        p.box(x, 100, 220, 230, INK, 2.2, fill=PAPER)
+        p.text(x + 110, 136, title, 23, color, "middle")
+        for k, ln in enumerate(lines):
+            p.text(x + 110, 172 + 22 * k, ln, 14.5, PENCIL, "middle")
+        p.text(x + 110, 282, n, 44, color, "middle")
+        p.text(x + 110, 312, sub, 15, PENCIL, "middle")
+    p.text(500, 372, "the slice's 47 entries under OMB M-26-15, measured 2026-11-09; unknown is a count, never a pass", 16, BALLPOINT, "middle")
+    # The second pack: the same entry, another answer, and the stamp.
+    p.text(60, 430, "under CNSA 2.0 the same X25519MLKEM768 is not compatible (ML-KEM-1024 only) and SHA-256 is too (SHA-384, SHA-512);", 15, PENCIL)
+    p.text(60, 452, "SecP384r1MLKEM1024 is unknown, a hybrid the summaries do not place", 15, PENCIL)
+    p.stamp(820, 470, "PROVISIONAL", 34)
+    p.text(820, 512, "the pack is not read first-hand", 14, STAMP, "middle")
+    p.save(SKETCHES / "22-four-statuses.svg")
+
+
+def sketch_23_observed_and_reported() -> None:
+    """Note 23: observed (what the server showed) and reported (what the supplier states), joined by model
+    and firmware version; the example's four outcomes, one each; the right column never crosses over."""
+    p = Page(1000, 600, seed=23, title="Observed and reported, joined by model and version")
+    p.text(500, 44, "What the server showed, what the supplier states, and the join between them", 29, INK, "middle")
+    p.box(40, 90, 360, 290, INK, 2.2, fill=PAPER)
+    p.text(220, 126, "observed", 24, BALLPOINT, "middle")
+    p.text(220, 150, "the readers, on this server", 14, PENCIL, "middle")
+    for k, ln in enumerate(["firmware names and versions (Redfish)", "Secure Boot databases: PK, KEK, db, dbx",
+                            "the TPM's banks", "the controller's TLS, SSH, settings", "the listeners, asked directly",
+                            "the host's own key files"]):
+        p.text(64, 190 + 28 * k, ln, 16, INK)
+    p.box(600, 90, 360, 290, PENCIL, 2.2, fill=PAPER, dash=True)
+    p.text(780, 126, "reported", 24, STAMP, "middle")
+    p.text(780, 150, "the supplier, about the model", 14, PENCIL, "middle")
+    for k, ln in enumerate(["what signs each firmware image", "the modules inside, and their CMVP numbers",
+                            "the post-quantum roadmap: algorithms,", "version, date or none",
+                            "one word: update, replace,", "end-of-life, no-statement"]):
+        p.text(624, 190 + 28 * k, ln, 16, INK)
+    # The join.
+    p.arrow([(400, 235), (600, 235)], BALLPOINT, 2.4)
+    p.arrow([(600, 255), (400, 255)], BALLPOINT, 2.4)
+    p.text(500, 220, "joined by", 14, PENCIL, "middle")
+    p.text(500, 290, "model + firmware version", 17, BALLPOINT, "middle")
+    p.cross(500, 330, 14, STAMP, 3.0)
+    p.text(500, 362, "never crosses: reported stays reported", 14, STAMP, "middle")
+    # The four outcomes.
+    p.text(60, 430, "the example's four outcomes, one firmware each:", 16, PENCIL)
+    outs = [("same version", "1", BALLPOINT), ("another version", "1", STAMP), ("named, not reported", "1", PENCIL),
+            ("reported, not named", "1", PENCIL)]
+    for k, (label, n, color) in enumerate(outs):
+        x = 70 + 230 * k
+        p.box(x, 455, 200, 90, INK, 2.0, fill=PAPER)
+        p.text(x + 100, 490, n, 34, color, "middle")
+        p.text(x + 100, 528, label, 15, PENCIL, "middle")
+    p.text(500, 580, "shown side by side, every disagreement visible; the server's CBOM holds the left column only", 15, BALLPOINT, "middle")
+    p.save(SKETCHES / "23-observed-and-reported.svg")
+
+
+def sketch_68_two_claims_one_entry() -> None:
+    """Lesson 68: two claims on one entry; the better-graded claim in force, the other kept as dissent; the
+    list of both and the silent overwrite crossed out; a person's resolution as a stamp over the rule."""
+    p = Page(1000, 600, seed=68, title="Two claims, one entry")
+    p.text(500, 44, "Two sources, one entry: keep both claims, put one in force, show the dissent", 28, INK, "middle")
+    # The entry.
+    p.box(370, 110, 260, 130, INK, 2.4, fill=PAPER)
+    p.text(500, 140, "one entry", 20, INK, "middle")
+    p.text(500, 166, "certificate on 172.16.106.10:443", 13, PENCIL, "middle")
+    p.text(500, 200, "not_after: 2029-01-05", 18, BALLPOINT, "middle")
+    p.text(500, 224, "in force by precedence/1", 12, PENCIL, "middle")
+    # The claims.
+    p.slip(40, 120, ["claim · observed-wire", "testssl.sh, event 01M…", "not_after 2029-01-05"], 15, BALLPOINT)
+    p.slip(720, 120, ["claim · reported", "other-scanner's CBOM", "not_after 2027-01-01"], 15, STAMP)
+    p.arrow([(290, 170), (370, 170)], BALLPOINT, 2.6)
+    p.line(720, 170, 630, 170, PENCIL, 1.8, dash=True)
+    p.text(675, 160, "kept", 12, PENCIL, "middle")
+    # The dissent slip.
+    p.slip(380, 262, ["dissent · not_after", "2029-01-05  observed-wire  testssl.sh", "2027-01-01  reported  other-scanner"], 14, INK)
+    # The two wrong answers.
+    p.text(60, 390, "not this:", 16, PENCIL)
+    p.box(60, 405, 300, 70, PENCIL, 2.0, fill=PAPER, dash=True)
+    p.text(210, 433, 'not_after: ["2027-01-01", "2029-01-05"]', 15, PENCIL, "middle")
+    p.text(210, 458, "a list of both: the type changed, nothing said", 12, PENCIL, "middle")
+    p.line(80, 415, 340, 465, STAMP, 2.6, opacity=0.6)
+    p.box(640, 405, 300, 70, PENCIL, 2.0, fill=PAPER, dash=True)
+    p.text(790, 433, "not_after: 2027-01-01", 15, PENCIL, "middle")
+    p.text(790, 458, "the last import wins: the scan's value lost", 12, PENCIL, "middle")
+    p.line(660, 415, 920, 465, STAMP, 2.6, opacity=0.6)
+    # The person's resolution.
+    p.stamp(500, 520, "RESOLVED", 30)
+    p.text(500, 560, "a person's claim.resolved event sets the field over the rule; resolution.revoked lifts it", 13, STAMP, "middle")
+    p.save(SKETCHES / "68-two-claims-one-entry.svg")
+
+
+def sketch_24_register_three_sources() -> None:
+    """Note 24: the register's columns by where they come from (owner in ballpoint, rules in ink, plan in
+    pencil), the three buckets above it, and the stamp: nothing estimated here."""
+    p = Page(1000, 600, seed=24, title="The register, by source")
+    p.text(500, 44, "The hand-off: one row per step, every column from the owner, the rules or the plan", 27, INK, "middle")
+    # The buckets.
+    for k, (label, sub) in enumerate((("identity, PKI, signing", "the CA's root, the reissues, the retire"),
+                                      ("infrastructure, data protection", "offer, then require, the hybrid; TLS 1.3"),
+                                      ("applications, mission", "replace the appliance that cannot"))):
+        x = 60 + 300 * k
+        p.box(x, 80, 270, 78, INK, 2.0, fill=PAPER)
+        p.text(x + 135, 110, label, 17, INK, "middle")
+        p.text(x + 135, 138, sub, 13, PENCIL, "middle")
+    p.text(500, 182, "policy/buckets.yaml, version 1: by the step's id, then its kind; an unplaced step is counted, never hidden", 13, PENCIL, "middle")
+    # The table.
+    p.box(60, 210, 880, 250, INK, 2.2, fill=PAPER)
+    cols = [("from the owner", BALLPOINT, ["system", "interface", "mission thread", "owner", "classification",
+                                              "impact, lifetime", "vendor path", "cost + basis"]),
+            ("from the rules", INK, ["priority, criteria", "deadline", "what set it", "sensitive through", "blocked on supplier", "compatibility"]),
+            ("from the plan", PENCIL, ["step, title, why", "bucket", "wave", "state", "waits for", "entries by fingerprint"])]
+    for k, (head, color, items) in enumerate(cols):
+        x = 90 + 290 * k
+        p.text(x, 244, head, 19, color)
+        p.line(x, 252, x + 240, 252, color, 1.6)
+        for i, it in enumerate(items):
+            p.text(x, 280 + 22 * i, it, 14.5, color)
+    p.line(350, 225, 350, 445, PENCIL, 1.2, dash=True)
+    p.line(640, 225, 640, 445, PENCIL, 1.2, dash=True)
+    p.text(500, 492, "the slice: one service costed (40,000 USD, planted, its basis in the row), three not; the sum says so", 14, PENCIL, "middle")
+    p.stamp(500, 545, "NOTHING ESTIMATED HERE", 26)
+    p.save(SKETCHES / "24-register-three-sources.svg")
+
+
+def sketch_25_gaps_as_a_queue() -> None:
+    """Note 25: gaps as slips under each asset class rather than a percentage; one slip enlarged and
+    filled by evidence a person brought; the id holds across scans."""
+    p = Page(1000, 620, seed=25, title="Gaps as a queue")
+    p.text(500, 44, "What no tool could see: a slip per gap under its asset class, not a percentage", 27, INK, "middle")
+    # The slice's three classes with a count (tests/test_gaps.py), and the synthetic server's firmware class
+    # once the supplier's statement is in; a class with nothing to count is not drawn.
+    classes = [("listeners", "4 of 4", 0), ("entries", "46 of 47", 1), ("services", "4 of 4", 0), ("firmware*", "2 of 3", 1)]
+    for k, (name, n, gaps) in enumerate(classes):
+        x = 90 + 220 * k
+        p.box(x, 80, 140, 70, INK, 2.0, fill=PAPER)
+        p.text(x + 70, 106, name, 16, INK, "middle")
+        p.text(x + 70, 134, n, 15, BALLPOINT, "middle")
+        for g in range(gaps):
+            p.box(x + 18 + 6 * g, 160 + 10 * g, 100, 26, STAMP if g == 0 else PENCIL, 1.4, fill=PAPER)
+        if gaps:
+            p.text(x + 70, 178 + 10 * (gaps - 1), f"{gaps} gap{'s' if gaps != 1 else ''}", 12, STAMP, "middle")
+    # One slip enlarged.
+    p.slip(70, 270, ["gap 4261f0a3…  · key file not opened · key files", "pqch-agency/legacy:/etc/ssl/private/app.key",
+                     "the reader could not open it (PermissionError);", "its algorithm and size are not known",
+                     "fills: a privileged read-only read, or the owner's", "statement of the key's algorithm and size"], 15, INK)
+    # The evidence and the fill.
+    p.slip(640, 280, ["evidence", "run 01M…  event 01M…", "the owner's statement:", "RSA-3072, from the CA's records"], 15, BALLPOINT)
+    p.arrow([(640, 330), (470, 330)], BALLPOINT, 2.4)
+    p.stamp(300, 455, "FILLED", 34)
+    p.text(300, 492, "by ken, 2026-11-09, citing the run and event; the basis in words", 13, STAMP, "middle")
+    p.text(500, 560, "the id is the hash of kind and subject: the next scan's same gap is already filled; coverage moves only by evidence", 14, PENCIL, "middle")
+    p.text(500, 590, "the slice's listeners, entries and services; *the synthetic server's firmware once the supplier's statement is in (3 gaps before)", 13, PENCIL, "middle")
+    p.save(SKETCHES / "25-gaps-as-a-queue.svg")
+
+
 def sketch_67_recording_record_notes() -> None:
     """Lesson 67: what a public copy of a running system may be made of. Three boxes with the cost of a new
     feature in each; the facsimile crossed out with its cost. Counts from the lesson: 11 pages rendered

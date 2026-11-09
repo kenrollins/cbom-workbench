@@ -62,13 +62,14 @@ def test_an_unbound_listener_gets_no_service_link_and_the_chain_says_so(tmp_path
 def test_supplied_facts_are_human_links_labelled_supplied_with_the_file_as_evidence(slice_run):
     structure(slice_run, POLICY)
     counts = chains.supply(slice_run, "agency/context.yaml", author="owner")
-    assert counts["supplied"] == 24 and counts["services_without_context"] == []
+    assert counts["supplied"] == 24 + 4 * 4 + 2 and counts["services_without_context"] == []   # 4 engagement facts each; the SFTP appliance's vendor path and cost
     digest = sha256_hex(Path("agency/context.yaml").read_bytes())
     for e in links(slice_run, status="supplied"):
         assert e["actor"] == {"kind": "human", "id": "owner"}
         assert e["evidence"] == [{"ref": "agency/context.yaml", "sha256": digest}]
         assert e["payload"]["kind"] in ("mission-function", "data-lifetime", "high-value-asset", "fips199-impact",
-                                        "owner", "national-security-system")
+                                        "owner", "national-security-system", "system", "interface", "mission-thread",
+                                        "classification", "vendor-path", "cost-to-fix")
     # Only services the scope names: the context file knows eight, the slice has four.
     assert {e["payload"]["from"]["name"] for e in links(slice_run, status="supplied")} == {"api", "bastion", "portal", "sftp-legacy"}
 
@@ -94,7 +95,8 @@ def test_the_cbom_carries_the_chain_and_labels_every_supplied_fact(slice_run):
     props = {p["name"]: p["value"] for p in svc["portal"]["properties"]}
     assert props["pqch:mission-function"] == "benefits enrollment" and props["pqch:data-lifetime-years"] == "10"
     assert {s["name"] for s in json.loads(props["pqch:supplied"])} == {
-        "mission-function", "data-lifetime", "high-value-asset", "fips199-impact", "owner", "national-security-system"}
+        "mission-function", "data-lifetime", "high-value-asset", "fips199-impact", "owner", "national-security-system",
+        "system", "interface", "mission-thread", "classification"}
     deps = {d["ref"]: d["dependsOn"] for d in wb["dependencies"]}
     assert deps["svc:portal"] == ["listener:172.16.106.10:443", "img:pqch-agency/portal"]
     assert deps["img:pqch-agency/portal"] and all(r.startswith("fp:") for r in deps["img:pqch-agency/portal"])
@@ -126,7 +128,7 @@ def test_the_score_counts_supplied_facts_apart_from_coverage_and_flags_an_unlabe
 def test_each_finding_class_names_its_verifier_and_the_cbom_carries_it(slice_run):
     structure(slice_run, POLICY)
     counts = verifiers.classes(slice_run, verifiers.load_verifiers("policy/verifiers.yaml"))
-    assert counts["classes"] == 8 and counts["without_verifier"] > 0
+    assert counts["classes"] == 9 and counts["without_verifier"] > 0      # the ninth: the SSH listeners' protocol entry (M6)
     rows = {(e["payload"]["subject"]["layer"], e["payload"]["subject"]["type"], e["payload"]["subject"]["role"]):
             e["payload"]["classification"]["verifiable_by"]
             for e in events(slice_run) if e["payload"].get("rule_id") == "verifier/class/1"}
@@ -138,7 +140,7 @@ def test_each_finding_class_names_its_verifier_and_the_cbom_carries_it(slice_run
     kinds = {p["value"] for c in wb["components"] for p in c.get("properties", []) if p["name"] == "pqch:verifiable-by"}
     assert kinds == {"wire-kex", "cert-parse", "none"}
     r = score_bom(wb, __import__("yaml").safe_load(KEY.read_text()))
-    assert r["verifiers"]["none"] == 29 and r["verifiers"]["wire-kex"] == 14
+    assert r["verifiers"]["none"] == 31 and r["verifiers"]["wire-kex"] == 14     # 31: the two SSH protocol entries have no verifier (M6)
 
 
 def test_a_file_no_listener_serves_is_a_conflict_the_wire_wins(slice_run):

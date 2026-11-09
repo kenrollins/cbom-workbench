@@ -79,7 +79,7 @@ extra:
   demo_mode: !ENV [PQCH_DEMO_MODE, "live"]
   lab: !ENV [PQCH_SITE_LAB, "true"]
   # First entry → latest entry, written by tools/build_site.py from the journal's frontmatter dates.
-  journal_span: "Oct 4 → Nov 8, 2026"   # >>> generated
+  journal_span: "Oct 4 → Nov 9, 2026"   # >>> generated
 
 nav:
   # The demo's pages are in the header, which every page shares; this is the reading beside them.
@@ -102,6 +102,8 @@ nav:
       - "04 \u2014 One deployment, in the lab; the bundle is a feature, not a target": adr/0004-one-deployment-in-the-lab.md
       - "05 \u2014 A server is an estate \u2014 its listeners, its files, its firmware and its controller, recorded and replayable": adr/0005-a-server-is-an-estate.md
       - "06 \u2014 The public site is a recording, a record and notes, never a facsimile of the running workbench": adr/0006-the-public-site-is-a-recording-a-record-and-notes.md
+      - "07 \u2014 Where CycloneDX 1.6 has no field, write the fact twice: under the workbench's name and under the name the consumers read": adr/0007-property-names-where-cyclonedx-has-no-field.md
+      - "08 \u2014 Who may act, and how the ledger shows it": adr/0008-who-may-act-and-how-the-ledger-shows-it.md
   - Technical notes:
       - Overview: notes/index.md
       - "00 \u2014 What is the CBOM workbench, and what has it shown so far?": notes/00-what-the-cbom-workbench-is.md
@@ -120,6 +122,11 @@ nav:
       - "19 \u2014 How is a question to the CBOM answered, and how is the answer checked without asking a model?": notes/19-how-a-question-to-the-cbom-is-answered-and-checked.md
       - "20 \u2014 How is one server inventoried as an estate, below its operating system as well as on the wire, and planned from its CBOM?": notes/20-how-a-server-is-inventoried-and-planned-as-an-estate.md
       - "21 \u2014 What does a federal authorization ask of a CBOM tool itself, and where does the workbench stand?": notes/21-what-a-federal-authorization-asks-of-a-cbom-tool-itself.md
+      - "22 \u2014 What does \"compatible\" mean for one CBOM entry, and what cannot be told from the evidence?": notes/22-what-compatible-means-entry-by-entry.md
+      - "23 \u2014 What can a supplier's attestation stand in for in a CBOM, and what can it not?": notes/23-what-a-suppliers-attestation-can-stand-in-for.md
+      - "24 \u2014 What does a later phase need from a discovery phase, field by field, and where does each field come from?": notes/24-what-a-later-phase-needs-from-a-discovery-phase.md
+      - "25 \u2014 How much of an estate's cryptography can a tool reach, by asset class, and how is the rest kept from disappearing into a coverage figure?": notes/25-how-much-of-an-estates-cryptography-a-tool-can-reach.md
+      - "26 \u2014 What does a discovery-and-planning phase ask of a CBOM tool, and what does this one answer, measured?": notes/26-what-a-discovery-and-planning-phase-asks-of-a-cbom-tool.md
   - Lessons:
       - Overview: lessons/index.md
       - "01 \u2014 When verifying that a post-quantum key exchange is required, offer every classical group, not the ones the server was configured with": lessons/01-refuse-every-classical-group.md
@@ -187,6 +194,7 @@ nav:
       - "65 \u2014 Before making a shared directory's files private, list every process that reads them and the user each runs as": lessons/65-before-tightening-a-file-mode-find-every-reader.md
       - "66 \u2014 Pinning a self-signed certificate by making it the only trust anchor still checks its dates; an expired management-controller certificate fails the pin": lessons/66-pinning-through-openssl-checks-the-anchors-dates.md
       - "67 \u2014 Publish a running system as a recording, a record and notes; never as a static copy of its pages with the buttons disabled": lessons/67-publish-a-recording-a-record-and-notes-not-a-facsimile.md
+      - "68 \u2014 When two sources describe one asset, keep every claim, put one in force by the grade of its evidence, and show the rest as dissent; never fold two values into a list": lessons/68-keep-every-claim-and-name-the-one-in-force.md
   # <<< end generated
   - Sources: sources.md
   - About: about.md

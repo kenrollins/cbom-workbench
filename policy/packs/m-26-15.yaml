@@ -124,3 +124,13 @@ replace:
 enforce:
   section: "Appendix A, 5"
   quote: "To avoid downgrade attacks, ensure that devices can be configured to use only acceptable algorithms."
+
+# Compatibility, entry by entry (`compatibility/entry/1`). The memo says what is quantum-resistant
+# (Appendix A §1: FIPS 203, 204 and 205, and a hybrid with one of them, above) and what is
+# quantum-vulnerable (§2's table and footnote 13). An asymmetric entry is compatible when its
+# family is one the memo calls resistant, and not compatible when the table or footnote 13 makes
+# it vulnerable. The memo names no symmetric algorithm or hash as acceptable or not, so such an
+# entry is outside this pack, and is said to be.
+compatible:
+  section: "Appendix A, 1 and 2"
+  basis: resistant-families

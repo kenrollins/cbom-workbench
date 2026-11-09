@@ -28,7 +28,7 @@ WIRE_PROFILES = {"tls": "tls-targeted", "ssh": "ssh-targeted", "postgres": "tls-
 # certificate and in-use rules treat as a TLS listener.
 TLS_PROTOCOLS = ("tls", "postgres")
 # Per scoped image: cbomkit-theia as the candidate generator, then the harness's own reader.
-HOST_PROFILES = ("image-theia", "image-files")
+HOST_PROFILES = ("image-theia", "image-files", "image-sbom")
 RUNNER_ACTOR = {"kind": "runner", "id": "pqch-runner"}
 
 
@@ -93,6 +93,12 @@ def record(run: Run, job: dict, *, replayed_from: dict | None = None) -> dict:
         facts = platform_facts(read_raw(run.var, job), job)
         if facts:
             run.ledger.append("platform.observed", {"kind": "scanner", "id": job["tool"]}, facts, inputs=[scan_ev["id"]],
+                              evidence=[{"ref": job["raw"], "sha256": job["raw_sha256"]}])
+        from pqch.scout.normalize import sbom_facts
+
+        sbom = sbom_facts(read_raw(run.var, job), job)
+        if sbom:
+            run.ledger.append("sbom.observed", {"kind": "scanner", "id": job["tool"]}, sbom, inputs=[scan_ev["id"]],
                               evidence=[{"ref": job["raw"], "sha256": job["raw_sha256"]}])
     return {"profile": job["profile"], "target": job["target"], "status": job["status"],
             "duration_ms": job["duration_ms"], "findings": len(findings),

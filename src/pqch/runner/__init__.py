@@ -94,6 +94,17 @@ class Runner:
         self.system_root = os.environ.get("PQCH_SYSTEM_ROOT", "/host")
         self.controller_secrets = os.environ.get("PQCH_CONTROLLER_SECRETS") or None
 
+    def system_archive(self, sysdef: dict) -> bytes:
+        """A system's scoped paths as an archive: packed under the runner's own root (the host's paths
+        mounted read-only), or on the remote system over SSH when the scope's `via` says so. The
+        reader containers see the same archive either way."""
+        from pqch.scout import system as system_mod
+
+        via = sysdef.get("via") or {}
+        if via.get("kind") == "ssh":
+            return system_mod.remote_pack(sysdef, prefix="scan/root/")
+        return system_mod.pack(self.system_root, sysdef, prefix="scan/root/")
+
     def resolve(self, ref: str) -> str:
         """Where to fetch a digest-pinned image: from the bundle's registry when there is one."""
         if not self.registry:
@@ -135,6 +146,7 @@ class Runner:
             raise Refused(409, f"scope hash {scope_hash[:12]} is not the scope the runner holds ({held[:12]})")
         # Who authorized it, for which system and until when (FR-13): outside the window, nothing runs.
         why = scope_mod.authorization_refusal(scope, now=self._now(),
+                                              require_roe=os.environ.get("PQCH_REQUIRE_ROE") == "1",
                                               required=os.environ.get("PQCH_REQUIRE_AUTHORIZATION") == "1")
         if why:
             raise Refused(403, why)
@@ -203,9 +215,10 @@ class Runner:
             if prof.get("input") == "image-archive":
                 self._put_image(client, container, resolved["image"])
             elif prof.get("input") == "system-archive":
-                from pqch.scout import system as system_mod
                 sysdef = next(x for x in _scope.get("systems", []) if x["name"] == resolved["system"])
-                container.put_archive("/", system_mod.pack(self.system_root, sysdef, prefix="scan/root/"))
+                container.put_archive("/", self.system_archive(sysdef))
+                if (sysdef.get("via") or {}).get("kind") == "ssh":
+                    meta["read_via"] = f"ssh {sysdef['via']['user']}@{sysdef['via']['host']}"
             elif prof.get("input") == "controller-credentials":
                 self._put_credentials(container, resolved["controller"])
             container.start()

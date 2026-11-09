@@ -118,3 +118,8 @@ a.skip:focus { left: 8px; }
 :focus-visible { outline: 2px solid var(--accent, #007aa8); outline-offset: 2px; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
                    clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* The deployment's marking (PQCH_MARKING, e.g. CUI): a banner at the top of every page, as 32 CFR 2002.20
+   asks of a page that carries controlled information, in the stamp's red on the page's own ground. */
+.marking { position: sticky; top: 0; z-index: 50; text-align: center; font: 700 12px/1.9 var(--mono); letter-spacing: .18em;
+           text-transform: uppercase; color: #fff; background: #8a1c0f; }
