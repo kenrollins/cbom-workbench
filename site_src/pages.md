@@ -5,7 +5,7 @@ title: Page by page
 # The workbench, page by page
 
 <!-- Screenshots captured by tools/screenshots.py from the lab's recorded mini-agency runs, at 1440 px wide,
-     light scheme; recapture them when a page changes. Captions describe; every number is on the page itself. -->
+     in the dark scheme the workbench shows by default; recapture them when a page changes. Captions describe; every number is on the page itself. -->
 
 The published copy of this project is a recording, a record and these notes (ADR-0006): the
 [stage](/) plays eight beats recorded from one run, [inside the CBOM](/cbom) opens that run's

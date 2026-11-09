@@ -64,9 +64,13 @@ What each step up in models or hardware changes is a measured row on the
 
 ## Decisions
 
-Three decisions everything else rests on, each with its record in the
-repository: the ledger is the system of record and the CBOM a projection of it
-(ADR-0001); one deployment in the lab, with the bundle as a feature and every
-model the lab holds in scope by measurement (ADR-0004, superseding ADR-0002); and
-the harness changes only an estate it built, handing off a change package
-anywhere else (ADR-0003).
+Three decisions everything else rests on, each with its architecture decision record (ADR) under
+[Decisions](adr/index.md): the ledger is the system of record and the CBOM a projection of it
+([ADR-0001](adr/0001-the-ledger-is-the-system-of-record.md)); one deployment in the lab, with the
+bundle as a feature and every model the lab holds in scope by measurement
+([ADR-0004](adr/0004-one-deployment-in-the-lab.md), superseding ADR-0002); and the harness changes
+only an estate it built, handing off a change package anywhere else
+([ADR-0003](adr/0003-deployment-shapes.md)). Two more followed: a server is an estate of its own
+([ADR-0005](adr/0005-a-server-is-an-estate.md)), and the public copy of this project is a recording,
+a record and notes, never a facsimile
+([ADR-0006](adr/0006-the-public-site-is-a-recording-a-record-and-notes.md)).

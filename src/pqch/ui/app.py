@@ -120,8 +120,9 @@ templates.env.globals["journal_span"] = _journal_span()
 # Set for the static build published on GitHub Pages (tools/build_public.py).
 PUBLIC = os.environ.get("PQCH_PUBLIC") == "1"
 templates.env.globals["public"] = PUBLIC
-# "A real network" is a tab only where there is one: a capture or an external scan in the run store.
-# On a box with neither (the demo box, 2026-11-04) the header shows Hosts alone.
+# "The lab" is a tab only where there is one: a capture or an external scan in the run store. On a box
+# with neither (the demo box, 2026-11-04) the tab is absent. Hosts has no tab of its own: the estate
+# switcher on the CBOM, plan and overview pages reaches it (2026-11-09).
 templates.env.globals["lab_shown"] = lambda: bool(Run.latest(VAR, "capture") or Run.latest(VAR, "scan-external"))
 # The lab portal's address(es), allowed to read the VLAN-level summary (/lab/estate.json) and
 # nothing else of the lab. Empty means only a signed-on viewer through the front door may.

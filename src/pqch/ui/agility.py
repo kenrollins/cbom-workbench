@@ -466,7 +466,7 @@ def lab(var: Path, capture: dict | None, scan_view: dict | None, house: dict | N
     from pqch import planning
     plan = planning.lab_build(capture, house) if capture and house else None
     d = {
-        "estate": "lab", "title": "A real network",
+        "estate": "lab", "title": "The lab",
         "about": "The owner's own lab, every VLAN, under the owner's written authorization. Nothing here is planted and there is no answer key.",
         "run": cv.get("run"), "scan_run": sv.get("run"), "span": span,
         "boxes": {

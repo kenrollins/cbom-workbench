@@ -6,7 +6,7 @@
 Run with a Python that has Playwright (on the authoring host, the system python3). The pages are served
 by the app itself from a curated workspace holding only the mini-agency's runs (tools/build_public.py's
 curate), in the live mode a reader of the lab would see, so a screenshot shows the working page and
-nothing from the lab. Each page is captured once at the given width, the viewport's height, light scheme.
+nothing from the lab. Each page is captured once at the given width, the viewport's height, in the dark scheme the workbench shows by default.
 """
 
 from __future__ import annotations
@@ -64,7 +64,7 @@ def capture(var: Path, out: Path, width: int, python: str) -> list[Path]:
                 browser = p.chromium.launch()
                 for path, (name, height) in PAGES.items():
                     page = browser.new_page(viewport={"width": width, "height": height}, reduced_motion="reduce",
-                                            color_scheme="light", device_scale_factor=1)
+                                            color_scheme="dark", device_scale_factor=1)
                     r = page.goto(f"http://127.0.0.1:{port}{path}", wait_until="networkidle")
                     if r is None or r.status != 200:
                         raise SystemExit(f"{path}: {r and r.status}")

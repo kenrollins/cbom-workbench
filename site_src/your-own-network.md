@@ -164,7 +164,7 @@ networks:
 docker compose -f compose.yaml -f compose.local.yaml -f compose.ext.yaml exec -T app pqch scan-external
 ```
 
-Each listener gets one job; the run is a ledger of its own, signed, and the page's **A real network**
+Each listener gets one job; the run is a ledger of its own, signed, and the page's **The lab**
 tab, the CBOM page's second estate and the plan's second estate read from it.
 
 ## 5. Optionally, capture passively

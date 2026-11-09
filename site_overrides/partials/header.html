@@ -4,8 +4,9 @@
     box — the kraft cover of the little brown book — on the right, with the span of the entries written
     under its label in ballpoint (extra.journal_span). Only the page below is the book. The demo's
     links come from extra.demo_base: "/" in the lab, where the app serves the demo beside the site at
-    /site/; the Pages path in a public build. "Demo", "Hosts" and the notes' "Ask" appear only where the lab
-    is (extra.lab); "A real network" is left out, as the app leaves it out until the lab has a capture. mkdocs-material's own tools — the drawer on a narrow screen, the index toggle,
+    /site/; the Pages path in a public build. "Demo" and the notes' "Ask" appear only where the lab
+    is (extra.lab); "The lab" is left out, as the app leaves it out until the lab has a capture. Hosts has no
+    tab: the estate switcher on the CBOM, plan and overview pages is the way to the estates. mkdocs-material's own tools — the drawer on a narrow screen, the index toggle,
     search — sit in the brand row beside the repository link. -#}
 {%- set demo = config.extra.demo_base or "/" -%}
 {%- set here = page.url if page else "" -%}
@@ -33,7 +34,6 @@
       <a href="{{ demo }}walkthrough">Walkthrough</a>
       <a href="{{ demo }}cbom">Inside the CBOM</a>
       <a href="{{ demo }}plan">The plan</a>
-      <a href="{{ demo }}hosts">Hosts</a>
       {% else %}<a href="{{ demo }}" class="stage">Demo</a>
       <a href="{{ demo }}cbom">Inside the CBOM</a>{% endif %}
       <a href="{{ demo }}ask">Ask the CBOM</a>
@@ -44,6 +44,7 @@
       <a href="{{ 'how-it-works/' | url }}" class="{{ 'on' if here.startswith('how-it-works') or here.startswith('architecture') or here.startswith('hardware') or here.startswith('demo') or here.startswith('your-own-network') }}">How it works</a>
       {% if config.extra.lab != "true" %}<a href="{{ 'pages/' | url }}" class="{{ 'on' if here.startswith('pages') }}">Page by page</a>
       <a href="{{ 'record/' | url }}" class="{{ 'on' if here.startswith('record') }}">The record</a>{% endif %}
+      <a href="{{ 'adr/' | url }}" class="{{ 'on' if here.startswith('adr') }}" title="Architecture decision records">Decisions</a>
       <a href="{{ 'notes/' | url }}" class="{{ 'on' if here.startswith('notes') }}">Notes</a>
       <a href="{{ 'lessons/' | url }}" class="{{ 'on' if here.startswith('lessons') }}">Lessons</a>
       <a href="{{ 'sources/' | url }}" class="{{ 'on' if here.startswith('sources') }}">Sources</a>

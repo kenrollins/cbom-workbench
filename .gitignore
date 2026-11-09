@@ -27,6 +27,7 @@ targets/
 site/
 site_src/notes/
 site_src/lessons/
+site_src/adr/
 site_src/img/
 site_src/sources.md
 site_src/stylesheets/fonts/
