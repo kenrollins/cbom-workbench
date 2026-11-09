@@ -1603,7 +1603,7 @@ def sketch_65_two_writers_three_readers() -> None:
 
 def sketch_22_four_statuses() -> None:
     """Note 22: the four statuses an entry can land in under a policy pack, with the slice's counts under
-    M-26-15 (47 entries: 2, 39, 1, 5; in use 2, 34, 1, 4), and the CNSA 2.0 column stamped provisional."""
+    M-26-15 (47 entries: 2, 39, 1, 5; in use 2, 34, 1, 4), and the CNSA 2.0 answers from the FAQ read first-hand."""
     p = Page(1000, 560, seed=22, title="Four statuses for one entry")
     p.text(500, 44, "Every entry lands in one of four boxes under the pack that governs it", 30, INK, "middle")
     cols = [(30, "compatible", ["the family is one the pack", "calls resistant, or the name", "is one it lists for the function"], "2", "2 in use", BALLPOINT),
@@ -1620,9 +1620,8 @@ def sketch_22_four_statuses() -> None:
     p.text(500, 372, "the slice's 47 entries under OMB M-26-15, measured 2026-11-09; unknown is a count, never a pass", 16, BALLPOINT, "middle")
     # The second pack: the same entry, another answer, and the stamp.
     p.text(60, 430, "under CNSA 2.0 the same X25519MLKEM768 is not compatible (ML-KEM-1024 only) and SHA-256 is too (SHA-384, SHA-512);", 15, PENCIL)
-    p.text(60, 452, "SecP384r1MLKEM1024 is unknown, a hybrid the summaries do not place", 15, PENCIL)
-    p.stamp(820, 470, "PROVISIONAL", 34)
-    p.text(820, 512, "the pack is not read first-hand", 14, STAMP, "middle")
+    p.text(60, 452, "SecP384r1MLKEM1024 is unknown: a hybrid is compliant only where NSA identified one, and none is for TLS", 15, PENCIL)
+    p.text(60, 490, "CNSA 2.0 FAQ Ver. 2.2 (October 2026), read first-hand 2026-11-09, every quote checked against its text; no status is provisional", 14, BALLPOINT)
     p.save(SKETCHES / "22-four-statuses.svg")
 
 
@@ -1762,6 +1761,35 @@ def sketch_25_gaps_as_a_queue() -> None:
     p.text(500, 560, "the id is the hash of kind and subject: the next scan's same gap is already filled; coverage moves only by evidence", 14, PENCIL, "middle")
     p.text(500, 590, "the slice's listeners, entries and services; *the synthetic server's firmware once the supplier's statement is in (3 gaps before)", 13, PENCIL, "middle")
     p.save(SKETCHES / "25-gaps-as-a-queue.svg")
+
+
+def sketch_69_summaries_against_the_primary() -> None:
+    """Lesson 69: the CNSA 2.0 timeline as two secondary summaries gave it (five equipment categories, dates
+    2025 to 2033) beside what the primary FAQ Ver. 2.2 gives (three dates for all of NSS)."""
+    p = Page(1000, 560, seed=69, title="The summaries against the primary")
+    p.text(500, 44, "A pack written from summaries carries a table the primary had already replaced", 28, INK, "middle")
+    p.box(40, 90, 430, 400, INK, 2.2, fill=PAPER)
+    p.text(255, 124, "two secondary summaries (2022, undated)", 18, PENCIL, "middle")
+    rows = [("software and firmware signing", "exclusive by 2030"), ("browsers, servers, cloud", "prefer 2025, exclusive 2033"),
+            ("networking equipment", "exclusive by 2030"), ("operating systems", "prefer 2027, exclusive 2033"),
+            ("niche equipment", "prefer 2030, exclusive 2033")]
+    for k, (a, b) in enumerate(rows):
+        y = 170 + 46 * k
+        p.text(70, y, a, 15, PENCIL)
+        p.text(70, y + 20, b, 14, PENCIL)
+    p.line(40, 90, 470, 490, STAMP, 2.0)
+    p.text(255, 460, "verified: false, no deadline applied", 14, STAMP, "middle")
+    p.box(530, 90, 430, 400, INK, 2.2, fill=PAPER)
+    p.text(745, 124, "the FAQ, Ver. 2.2, October 2026, read 2026-11-09", 18, BALLPOINT, "middle")
+    for k, (a, b) in enumerate([("2027-01-01", "required in all new acquisitions for NSS"),
+                                ("2030-12-31", "what cannot support CNSA 2.0 phased out"),
+                                ("2031-12-31", "CNSA 2.0 algorithms mandated for use")]):
+        y = 190 + 80 * k
+        p.text(560, y, a, 26, BALLPOINT)
+        p.text(560, y + 28, b, 14.5, INK)
+    p.text(745, 460, "one clock for all of NSS; every quote checked by the loader", 14, BALLPOINT, "middle")
+    p.text(500, 530, "so: a pack from secondaries is marked unverified and sets no date; the primary is read before any date is applied", 15, PENCIL, "middle")
+    p.save(SKETCHES / "69-summaries-against-the-primary.svg")
 
 
 def sketch_67_recording_record_notes() -> None:

@@ -799,7 +799,10 @@ def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Pat
     pack = yaml.safe_load(Path(pack_path).read_text())
     q = {x["id"]: x for x in pack["queues"]}
     cnsa = yaml.safe_load(Path(cnsa_path).read_text()) if Path(cnsa_path).is_file() else {}
-    fw_sign = next((x for x in (cnsa.get("timeline") or cnsa.get("dates") or []) if "firmware" in str(x.get("category", ""))), None)
+    # CNSA 2.0's dates for a firmware-signing root (FAQ Ver. 2.2, Timeframe): no new NSS product with a non-QR
+    # burned-in root of trust from 2027, and equipment that cannot support the suite phased out by 2030-12-31.
+    cnsa_dates = {d["id"]: d for d in ((cnsa.get("timeline") or {}).get("dates") or []) if isinstance(d, dict)}
+    fw_sign = cnsa_dates.get("phase-out") if cnsa.get("verified") else None
     remaining = str(q["remaining-2035"]["deadline"])
     ir_path = Path(pack_path).with_name("ir-8547.yaml")
     ir = (yaml.safe_load(ir_path.read_text()) or {}).get("transition", {}) if ir_path.is_file() else {}
@@ -999,15 +1002,16 @@ def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Pat
              and p["asset"]["name"] in ("RSA", "ECDSA") and not p["asset"]["parameters"].get("revoked")]
     if roots:
         longest = max((_latest_date(sbc[x]["asset"]["parameters"].get("not_after")) for x in roots), default="")
-        fw_due = f"{fw_sign.get('exclusive_by')}" if fw_sign else None
+        fw_due = str(fw_sign["by"]) if fw_sign else None
         bios_att = _attested_line(attestation, lambda r: r["name"].upper() == "BIOS")
         step("supplier:signing", kind="supplier", service="firmware", wave="supplier", due=fw_due or sig_pri,
              depends_on=["fw:ca2023"] if "fw:ca2023" in steps else [],
              title="A post-quantum firmware-signing root, and a way to rotate the platform key, KEK and db, from the vendor",
              why=f"every key the boot chain trusts is RSA or ECDSA ({len(roots)} certificates, valid to {longest}); a firmware "
                  "signature is checked for the life of the hardware, so the root has to change before the hardware retires"
-                 + (f"; CNSA 2.0 sets {fw_sign['exclusive_by']} for software and firmware signing in national security systems"
-                    f"{' (the pack marks that date unverified)' if fw_sign.get('verified') is False else ''}" if fw_sign else "")
+                 + (f"; CNSA 2.0 phases out equipment that cannot support the suite by {fw_sign['by']} in national security "
+                    f"systems, and from {cnsa_dates['root-of-trust']['by'].year} no new product there may carry a burned-in "
+                    "root of trust on a quantum-vulnerable primitive" if fw_sign and "root-of-trust" in cnsa_dates else "")
                  + (f". {bios_att[0]}" if bios_att else ""), attested=bios_att[1] if bios_att else None,
              fields=["the Secure Boot databases' certificates and keys", "the quantum-vulnerable table"], entries=[ref(x) for x in roots])
         deps.append({"kind": "firmware-trust", "id": "dep:bootchain", "name": f"The BIOS ({bios.get('version', '?')}) and its trust databases",

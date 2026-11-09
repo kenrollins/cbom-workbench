@@ -18,8 +18,8 @@ claims:
     provenance: "cited: OMB M-26-15 Appendix A §6, read first-hand 2026-10-03"
   - text: "NIST IR 8547, finalized 2026-10-27, deprecates every quantum-vulnerable signature and key-establishment scheme at or above 112 bits of classical strength (EdDSA at or above 128) after 2030 and disallows it under NIST standards after 2035, at any key size."
     provenance: "cited: NIST IR 8547 (final) Tables 2 and 4 and §4.1.1, read first-hand 2026-11-06, PDF sha256 3049cdfd…"
-  - text: "CNSA 2.0 requires new national security system acquisitions to be compliant from 2027-01-01."
-    provenance: "secondary: summaries of the NSA CNSA 2.0 FAQ that agree with one another; NSA's site refused the primary document on 2026-10-05 and 2026-10-20, so it was not read first-hand"
+  - text: "CNSA 2.0 requires its algorithms in all new national security system acquisitions from 2027-01-01, the phase-out of equipment and services that cannot support them by 2030-12-31, and their use by 2031-12-31."
+    provenance: "cited: NSA, CNSA 2.0 and Quantum Computing FAQ, Ver. 2.2 (October 2026), Timeframe, read first-hand 2026-11-09 from the PDF with sha256 bc430341…; policy/sources/cnsa-2.0-faq.txt"
 reuse: [whitepaper, talk, customer-question]
 ---
 
@@ -42,7 +42,8 @@ appearing, and the risk that an inventory built to one shape is measured
 against another — is the reason this project keeps every finding with its
 evidence on a ledger and treats the CBOM as a projection of that record.
 National security systems are on a separate clock, CNSA 2.0, with new
-acquisitions compliant from 2027-01-01.
+acquisitions compliant from 2027-01-01, what cannot support the suite phased
+out by 2030-12-31 and the suite mandated by 2031-12-31.
 
 ## The concept
 
@@ -70,7 +71,7 @@ dates apply to; everything else is Phase 5.
 | 2026-06-22 | EO 14412 signed | EO 14412 | — |
 | 2026-10-22 | Each agency's PQC Migration Plan due to OMB and ONCD (passed) | M-26-15 §1 | The plan names an inventory approach before the inventory exists |
 | 2026–2027 | Phase 1: strategy, planning and discovery — inventory, assessment, governance, accountable officials | M-26-15 §3.D | The inventory is built in this window |
-| 2027-01-01 | New national security system acquisitions CNSA 2.0 compliant | NSA CNSA 2.0 FAQ, through secondary summaries; the primary refused the download on 2026-10-05 and 2026-10-20 and was not read | A separate clock for a separate community |
+| 2027-01-01 | New national security system acquisitions CNSA 2.0 compliant | NSA CNSA 2.0 FAQ Ver. 2.2, Timeframe, read first-hand 2026-11-09 | A separate clock for a separate community: the suite is mandated for national security systems by 2031-12-31 |
 | **2027-03-19** | **CISA and NIST publish the minimum elements of a CBOM** | EO 14412 (270 days) | Until then, "a CBOM" means CycloneDX 1.6 plus whatever an agency or vendor adds; after it, an inventory is measured against a published list |
 | 2027–2028 | Phase 2: pilots and early migration of prioritized systems | M-26-15 §3.D | The inventory must say what first: owners, deadlines, blockers |
 | 2028–2030 | Phase 3: prioritized migration of key establishment | M-26-15 §3.D | The first queue |
@@ -157,10 +158,10 @@ with nothing to pilot.
 ## Scope
 
 Covered: the dates and requirements in EO 14412 and OMB M-26-15 as they bear
-on a cryptographic inventory, and CNSA 2.0's acquisition date. M-26-15 was
-read first-hand (again on 2026-10-20, from the PDF with sha256 515af704…).
-CNSA 2.0 was not: NSA's site refused its FAQ and advisory on 2026-10-05 and
-2026-10-20, and its date here is from secondary summaries that agree. EO 14412 was read through a summarizing tool on 2026-10-03;
+on a cryptographic inventory, and CNSA 2.0's three dates. M-26-15 was
+read first-hand (again on 2026-10-20, from the PDF with sha256 515af704…), and
+so was the CNSA 2.0 FAQ (Ver. 2.2, on 2026-11-09, sha256 bc430341…) after NSA's
+site had refused it to the harness three times. EO 14412 was read through a summarizing tool on 2026-10-03;
 its quotations in the repository's facts table should be checked against the
 published order before they are reused in anything public.
 
@@ -176,7 +177,9 @@ beyond Phase 5; national security systems in any detail
 - OMB M-26-15, *Execution of the Migration to Post-Quantum Cryptography*
   (2026-06-24) — §1 the plan, §3.D the phases, §4 TLS 1.3, Appendix A §6 the
   central CBOM and its three evidence sources.
-- NSA, CNSA 2.0 FAQ — the national security system dates; not read first-hand (refused twice), the date taken from secondary summaries.
+- NSA, *Commercial National Security Algorithm Suite 2.0 and Quantum Computing
+  FAQ*, Ver. 2.2 (October 2026) — the national security system dates, in the
+  Timeframe section; read first-hand 2026-11-09.
 - NIST IR 8547, *Transition to Post-Quantum Cryptography Standards*
   (final, 2026-10-27) — the 2030 deprecation and 2035 disallowance of every
   quantum-vulnerable family, Tables 2 and 4.

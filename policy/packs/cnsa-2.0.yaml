@@ -1,44 +1,128 @@
-# NSA's Commercial National Security Algorithm Suite 2.0, as data — NOT READ FIRST-HAND.
+# NSA's Commercial National Security Algorithm Suite 2.0, as data — read first-hand 2026-11-09.
 #
-# NSA's site refused the download on 2026-10-05 and again on 2026-10-20 (HTTP 403 for both the
-# FAQ and the advisory). The dates below are from secondary summaries that agree with one
-# another; every entry is `verified: false`, and the assessor applies none of them as a
-# deadline. The pack is here so the scope rule is real: CNSA 2.0 governs national security
-# systems, M-26-15 does not (M-26-15 §3.B), and a service is placed under one or the other by
-# the owner's `national_security_system` fact. No service of the mini-agency is one.
+# Two documents: the Cybersecurity Information Sheet "Commercial National Security Algorithm
+# Suite 2.0 and Quantum Computing Frequently Asked Questions" (U/OO/6072712-26, October 2026,
+# Ver. 2.2), which carries the suite's table, the transition dates and NSA's position on hybrids,
+# and the Cybersecurity Advisory "Announcing the Commercial National Security Algorithm Suite 2.0"
+# (PP-22-1338, September 2022, Ver. 1.0). The FAQ is the later and the governing text; every quote
+# below is checked against policy/sources/cnsa-2.0-faq.txt by the loader. NSA's site refused both
+# downloads to the harness on 2026-10-05, 2026-10-20 and 2026-11-07 (HTTP 403); the owner fetched
+# them in a browser on 2026-11-09 and their hashes are recorded here.
+#
+# Scope: CNSA 2.0 governs national security systems, M-26-15 does not (M-26-15 §3.B); a service is
+# placed under one or the other by the owner's `national_security_system` fact. No service of the
+# mini-agency is one.
+#
+# What the primary text changed against the secondary summaries the pack was first written from
+# (2026-10-20): the per-category table (software signing exclusive by 2030, browsers and servers
+# preferred 2025 and exclusive 2033, and so on) is not in Ver. 2.2; the FAQ now gives three dates
+# for all of NSS: 2027-01-01 for new acquisitions, 2030-12-31 for phasing out what cannot support
+# the suite, 2031-12-31 for the mandate. SHA3-384 and SHA3-512 are allowed for a hardware's
+# internal integrity checks only. A hybrid is compliant only where NSA identified it (IKEv2 is the
+# example given); no TLS hybrid is identified, so `SecP384r1MLKEM1024` stays unsettled.
 schema: pqch.policy-pack/1
 id: cnsa-2.0
-title: "NSA CNSA 2.0 (secondary sources; primary not read)"
+title: "NSA CNSA 2.0 (FAQ Ver. 2.2, October 2026; advisory Ver. 1.0, September 2022)"
+dated: 2026-10-01
 source:
   url: https://media.defense.gov/2022/Sep/07/2003071836/-1/-1/0/CSI_CNSA_2.0_FAQ_.PDF
-  read_first_hand: false
-  refused: ["2026-10-05", "2026-10-20"]
-  secondary:
-    - https://www.entrust.com/blog/2022/10/nsa-announces-new-post-quantum-resistant-algorithm-suite-2-0-and-transition-timetable
-    - https://www.encryptionconsulting.com/education-center/what-is-cnsa-2-0/
+  pdf_sha256: bc430341c4ae2ca9af723dc4425a05f2d6dfc8e401bf36c3827e17b01362c60d
+  text: policy/sources/cnsa-2.0-faq.txt
+  read_first_hand: 2026-11-09
+  version: "U/OO/6072712-26 | PP-26-3194 | October 2026 Ver. 2.2"
+  refused: ["2026-10-05", "2026-10-20", "2026-11-07"]
+  also:
+    - title: "Announcing the Commercial National Security Algorithm Suite 2.0"
+      url: https://media.defense.gov/2022/Sep/07/2003071834/-1/-1/0/CSA_CNSA_2.0_ALGORITHMS_.PDF
+      pdf_sha256: 5abe0a74a66d146b6e617ffad981ecf35bd608714aa8d1441c8f444e9c322c55
+      text: policy/sources/cnsa-2.0-advisory.txt
+      version: "PP-22-1338 | SEP 2022 Ver. 1.0"
 applies_to:
   national_security_system: true
-verified: false
-timeline:
-  - {category: "software and firmware signing", exclusive_by: 2030, verified: false}
-  - {category: "web browsers, servers and cloud services", prefer_by: 2025, exclusive_by: 2033, verified: false}
-  - {category: "traditional networking equipment", exclusive_by: 2030, verified: false}
-  - {category: "operating systems", prefer_by: 2027, exclusive_by: 2033, verified: false}
-  - {category: "niche equipment", prefer_by: 2030, exclusive_by: 2033, verified: false}
-  - {category: "new NSS acquisitions compliant", by: 2027-01-01, verified: false}
+verified: true
 
-# Compatibility, entry by entry (`compatibility/entry/1`), as the secondary sources state the suite:
-# one algorithm per function, at one parameter set. NOT READ FIRST-HAND: every status this block
-# yields is marked provisional until the primary documents are read and the names checked against
-# them. A name in `unsettled` is one the summaries do not place (a hybrid whose ML-KEM part is the
-# suite's): its status is unknown, not a verdict either way.
+# The dates, as the FAQ's Timeframe section gives them. All of NSS; no per-category table.
+timeline:
+  section: "Timeframe"
+  dates:
+    - id: new-acquisitions
+      by: 2027-01-01
+      what: "CNSA 2.0 algorithms required in all new acquisitions for NSS"
+      quote: >-
+        CNSSP 15 states that by January 1, 2027, CNSA 2.0 algorithms will be required in all
+        new acquisitions for NSS
+    - id: phase-out
+      by: 2030-12-31
+      what: "equipment and services that cannot support CNSA 2.0 phased out; equipment transitions complete"
+      quote: >-
+        By December 31, 2030, all NSS equipment and services that cannot support CNSA 2.0
+        must be phased out unless otherwise granted an exception
+    - id: mandate
+      by: 2031-12-31
+      what: "CNSA 2.0 algorithms mandated for use"
+      quote: >-
+        By December 31, 2031, CNSA 2.0 algorithms are mandated for use, unless otherwise
+        noted, to achieve full QR for NSS
+    - id: root-of-trust
+      by: 2027-01-01
+      what: "no new NSS product with a burned-in root of trust on a non-QR primitive"
+      quote: >-
+        Starting in 2027, no new
+        product for NSS should have a burned-in root of trust relying on a non-QR primitive
+
+# Compatibility, entry by entry (`compatibility/entry/1`): one algorithm per function at one
+# parameter set, from the FAQ's table "Commercial National Security Algorithm Suite 2.0".
 compatible:
-  section: "the suite's table (secondary sources)"
+  section: "Table: Commercial National Security Algorithm Suite 2.0"
   basis: named-algorithms
-  verified: false
+  verified: true
+  quote: >-
+    Use 256-bit keys for all ... classification levels ... ML-KEM-1024 for all ...
+    classification levels ... ML-DSA-87 for all ... classification levels ...
+    Use SHA-384 or SHA-512 ... for all classification levels
   names:
     key-establishment: [ML-KEM-1024]
     signature: [ML-DSA-87, LMS, XMSS]
     encryption: [AES-256]
     hash: [SHA-384, SHA-512]
+  # "Algorithms Allowed in Specific Applications": LMS and XMSS sign firmware and software only;
+  # SHA3-384 and SHA3-512 serve a hardware's internal integrity checks only. Listed here so the
+  # rule can say why they are compatible in one place and not another; the rule does not yet
+  # know an entry's application, so a SHA-3 hash on the wire is not compatible.
+  specific:
+    signature:
+      names: [LMS, XMSS]
+      application: "digitally signing firmware and software"
+      quote: >-
+        Leighton-Micali Signature ... (LMS) & Xtended Merkle ... digitally signing firmware ... NIST SP 800-208 ...
+        Signature Scheme (XMSS) ... and software
+    hash:
+      names: [SHA3-384, SHA3-512]
+      application: "internal hardware integrity checks, such as secure boot"
+      quote: >-
+        SHA3-384 or SHA3-512 may also be used
+        as part of a system's integrity-checking process, such as secure boot
+  # A hybrid is compliant only where NSA identified it; the FAQ identifies one for IKEv2 and none
+  # for TLS. A TLS hybrid whose ML-KEM part is the suite's is therefore unknown, not a verdict.
   unsettled: [SecP384r1MLKEM1024]
+  hybrids:
+    section: "Hybrids and composites"
+    quote: >-
+      where NSA worked with SDO and provided public guidance on hybrid use, only the
+      hybrid solution identified by NSA would be considered "CNSA 2.0 compliant."
+    identified:
+      - protocol: ikev2
+        quote: >-
+          NSA's CNSA 2.0 Profile of this solution will continue using
+          CNSA 1.0 key establishment algorithms but fortified by key establishment using
+          ML-KEM-1024 from CNSA 2.0
+  not_in_suite:
+    quote: >-
+      Only ML-KEM and ML-DSA are in CNSA 2.0
+    hash_ml_dsa:
+      quote: "Is HashML-DSA, also known as the pre-hash mode of ML-DSA, allowed in ... A: Not at the present time"
+    slh_dsa:
+      quote: >-
+        While SLH-DSA is hash-based, it is not part of CNSA and is not approved for any
+    fn_dsa:
+      quote: "NSA agrees with NIST: ML-DSA is preferred"

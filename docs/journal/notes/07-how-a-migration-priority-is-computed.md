@@ -205,8 +205,9 @@ beside *migration*.
 Covered: the eight-service mini-agency, its planted owner's facts, M-26-15 read
 first-hand, the capability of each image's runtime measured on 2026-10-20, and
 NIST's CMVP active certificates matching OpenSSL, Java, Erlang and OpenSSH on
-the same day. Not covered: CNSA 2.0, whose primary documents NSA's site refused
-twice; it is carried unverified and governs no service here. Not examined: the
+the same day. Not covered: CNSA 2.0's dates as a queue; its pack is read
+first-hand (the FAQ Ver. 2.2, 2026-11-09) but governs no service here, and the
+queue rule is the memo's. Not examined: the
 validated software version on each certificate (in each Security Policy, not
 read), modules in process, products in CISA's product-category list (§3.C.4),
 client-side support, and whether a supplier's next release adds what is

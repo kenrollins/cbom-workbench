@@ -45,9 +45,27 @@ def test_every_quote_in_the_pack_is_the_memos_own_words():
     assert check_quotes(bad, text) == ["$.queues[0].quote: 'Agencies must migrate key establishment by 2029'"]
 
 
+def test_the_cnsa_pack_is_read_first_hand_and_every_quote_is_the_faqs_own_words():
+    pack = load_pack("policy/packs/cnsa-2.0.yaml")
+    assert pack["verified"] is True and pack["source"]["read_first_hand"] == date(2026, 11, 9)
+    assert pack["source"]["pdf_sha256"].startswith("bc430341") and "Ver. 2.2" in pack["source"]["version"]
+    text = Path(pack["source"]["text"]).read_text()
+    assert check_quotes(pack, text) == []
+    assert [d["by"].isoformat() for d in pack["timeline"]["dates"]][:3] == ["2027-01-01", "2030-12-31", "2031-12-31"]
+    assert pack["compatible"]["names"] == {"key-establishment": ["ML-KEM-1024"], "signature": ["ML-DSA-87", "LMS", "XMSS"],
+                                           "encryption": ["AES-256"], "hash": ["SHA-384", "SHA-512"]}
+    assert pack["compatible"]["unsettled"] == ["SecP384r1MLKEM1024"]        # no TLS hybrid is NSA-identified
+    bad = copy.deepcopy(pack)
+    bad["timeline"]["dates"][2]["quote"] = "By December 31, 2033, CNSA 2.0 algorithms are mandated for use"
+    assert [b.split(":")[0] for b in check_quotes(bad, text)] == ["$.timeline.dates[2].quote"]
+
+
 def test_a_pack_not_read_first_hand_must_say_unverified(tmp_path):
-    assert load_pack("policy/packs/cnsa-2.0.yaml")["verified"] is False
     doc = yaml.safe_load(Path("policy/packs/cnsa-2.0.yaml").read_text())
+    doc["source"] = {"url": doc["source"]["url"], "read_first_hand": False}
+    doc["verified"] = False
+    (tmp_path / "p.yaml").write_text(yaml.safe_dump(doc))
+    assert load_pack(tmp_path / "p.yaml")["verified"] is False
     doc.pop("verified")
     (tmp_path / "p.yaml").write_text(yaml.safe_dump(doc))
     with pytest.raises(ValueError, match="verified: false"):
@@ -351,14 +369,16 @@ def test_cnsa_names_one_algorithm_per_function_and_leaves_a_hybrid_unsettled(ass
     assert c["status"] == status and why in c["basis"]
 
 
-def test_a_national_security_systems_entries_are_judged_under_cnsa_and_marked_provisional(slice_run, tmp_path):
+def test_a_national_security_systems_entries_are_judged_under_cnsa_and_are_not_provisional(slice_run, tmp_path):
     ctx = yaml.safe_load(Path("agency/context.yaml").read_text())
     ctx["services"]["portal"]["national_security_system"] = True
     (tmp_path / "ctx.yaml").write_text(yaml.safe_dump(ctx))
     counts = prepared(slice_run, context=tmp_path / "ctx.yaml")
     portal = [e["payload"]["classification"] for e in rule(slice_run, "compatibility/entry/1")
               if e["payload"]["classification"]["service"] == "portal"]
-    assert portal and all(c["pack"] == "cnsa-2.0" and c["provisional"] is True for c in portal)
+    assert portal and all(c["pack"] == "cnsa-2.0" and c["provisional"] is False for c in portal)   # the FAQ is read first-hand
+    scope = next(e for e in rule(slice_run, "pack/scope/1") if e["payload"]["subject"]["name"] == "portal")
+    assert "2027-01-01" in scope["payload"]["basis"] and "2031-12-31" in scope["payload"]["basis"] and "not verified" not in scope["payload"]["basis"]
     assert {"X25519", "SHA-256"} <= {c["name"] for c in portal if c["status"] == "not-compatible"}   # SHA-256 is not the suite's hash
     others = [e["payload"]["classification"] for e in rule(slice_run, "compatibility/entry/1")
               if e["payload"]["classification"]["service"] not in (None, "portal")]

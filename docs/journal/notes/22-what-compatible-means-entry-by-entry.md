@@ -6,7 +6,7 @@ date: 2026-11-09
 audience: [leader, architect, engineer]
 tags: [policy, cbom, managed, cnsa]
 rung: managed
-one_line: "Every entry in the CBOM carries one of four statuses under the policy pack that governs its service — compatible, not compatible, unknown, outside the pack — judged by a rule from the pack's own table and the entry's algorithm, with unknown counted on its own so that a gap in the evidence is never reported as a pass, and every status from a pack not read first-hand marked provisional."
+one_line: "Every entry in the CBOM carries one of four statuses under the policy pack that governs its service — compatible, not compatible, unknown, outside the pack — judged by a rule from the pack's own table and the entry's algorithm, with unknown counted on its own so that a gap in the evidence is never reported as a pass, and every status from a pack not read first-hand marked provisional; both packs shipped are read first-hand, so none is."
 claims:
   - text: "On the four-service slice of the mini-agency (47 entries), the rule tags 2 compatible, 39 not compatible, 1 unknown and 5 outside the pack under OMB M-26-15; counting entries in use only, 2, 34, 1 and 4."
     provenance: "measured 2026-11-09 on x86_64 from the slice's recorded scanner output (tests/fixtures), rule compatibility/entry/1 at the commit that introduced it; tests/test_managed.py reproduces the counts"
@@ -14,8 +14,8 @@ claims:
     provenance: "measured, same run; the entries' bases are on the CBOM page"
   - text: "OMB M-26-15 names what is quantum-resistant (FIPS 203 ML-KEM, FIPS 204 ML-DSA, FIPS 205 SLH-DSA, and a hybrid in which both parts must be broken) and what is quantum-vulnerable (its Appendix A table and footnote 13); it names no symmetric algorithm or hash as acceptable or not."
     provenance: "cited: OMB M-26-15 Appendix A §1, §2 and footnote 13, read first-hand 2026-10-20 (policy/packs/m-26-15.yaml quotes it)"
-  - text: "CNSA 2.0, as secondary sources state it, names one algorithm per function: ML-KEM-1024, ML-DSA-87, LMS and XMSS for firmware signing, AES-256, and SHA-384 or SHA-512; the primary documents were refused to this project on 2026-10-05 and 2026-10-20, so every status under that pack is provisional."
-    provenance: "secondary: the summaries named in policy/packs/cnsa-2.0.yaml; the pack says verified: false and the rule carries that into each status"
+  - text: "CNSA 2.0 names one algorithm per function at one parameter set: ML-KEM-1024 for key establishment, ML-DSA-87 for signatures in any use case, LMS and XMSS for signing firmware and software only, AES-256, and SHA-384 or SHA-512; SHA3-384 and SHA3-512 for a hardware's internal integrity checks only; and a hybrid is compliant only where NSA identified one, which it has for IKEv2 and not for TLS."
+    provenance: "cited: NSA, CNSA 2.0 and Quantum Computing FAQ, Ver. 2.2 (October 2026), the suite's table and the Hybrids and composites section, read first-hand 2026-11-09 from the PDF with sha256 bc430341…; policy/sources/cnsa-2.0-faq.txt, every quote in policy/packs/cnsa-2.0.yaml checked against it by the loader"
 reuse: [whitepaper, talk, customer-question]
 ---
 
@@ -42,7 +42,7 @@ pack's own words, and whether it is provisional. The CBOM carries it as the
 the CBOM page and the plan as four counts.
 
 <figure class="sketch" markdown>
-![Four boxes an entry can land in under a policy pack. Compatible: the algorithm's family is one the pack calls resistant, or its name is one the pack lists for that function. Not compatible: the pack's table or footnote makes it vulnerable, or the pack names another algorithm for the function. Unknown: the entry names no algorithm a table places, or the pack does not place the name; counted on its own. Outside the pack: a hash, a symmetric algorithm or a protocol version the pack says nothing about. The slice's counts beside each: 2, 39, 1, 5; in use 2, 34, 1, 4. A stamp across the CNSA 2.0 column reads provisional.](../img/sketches/22-four-statuses.svg)
+![Four boxes an entry can land in under a policy pack. Compatible: the algorithm's family is one the pack calls resistant, or its name is one the pack lists for that function. Not compatible: the pack's table or footnote makes it vulnerable, or the pack names another algorithm for the function. Unknown: the entry names no algorithm a table places, or the pack does not place the name; counted on its own. Outside the pack: a hash, a symmetric algorithm or a protocol version the pack says nothing about. The slice's counts beside each: 2, 39, 1, 5; in use 2, 34, 1, 4. Below, what the same entries are under CNSA 2.0, read first-hand from the FAQ.](../img/sketches/22-four-statuses.svg)
 <figcaption>Four statuses, and the slice's 47 entries sorted into them under M-26-15; unknown is a count, not a pass.</figcaption>
 </figure>
 
@@ -75,14 +75,20 @@ ML-KEM-1024 is compatible for key establishment and ML-KEM-768 is not, so the
 hybrid `X25519MLKEM768` that M-26-15 accepts is not compatible under CNSA 2.0,
 and ML-DSA-65 is not where ML-DSA-87 is required. SHA-256 is not compatible
 where the suite names SHA-384 and SHA-512. A hybrid whose post-quantum part is
-the suite's own (`SecP384r1MLKEM1024`) is one the summaries do not place; the
-pack lists it as unsettled and the rule says unknown, a count and not a verdict.
-Every one of these statuses is **provisional**: the pack was built from
-secondary sources because NSA's site refused the primary documents to this
-project twice, the pack says `verified: false`, and the rule copies that into
-each judgement's basis and into the page's heading. When the documents are read
-first-hand the pack is corrected, the flag drops, and the next assessment of the
-same ledger gives the final statuses; the ledger's events are not rewritten.
+the suite's own (`SecP384r1MLKEM1024`) is unknown, a count and not a verdict:
+the FAQ says a hybrid is compliant only where NSA identified one, names one for
+IKEv2 and none for TLS, so the pack lists it as unsettled. LMS and XMSS are in
+the suite for signing firmware and software only, and SHA3-384 and SHA3-512 for
+a hardware's internal integrity checks only; the rule does not yet know an
+entry's application, so it takes the table's general-purpose names and the pack
+carries the two application-bound lists for the day it does. The pack was read
+first-hand from the FAQ (Ver. 2.2, October 2026) on 2026-11-09, after NSA's site
+had refused the download to the harness three times; every quote in it is
+checked against the FAQ's text by the loader, and no status is provisional. A
+pack that is not read first-hand says `verified: false`, and the rule copies
+that into each judgement's basis and into the page's heading until it is; when
+such a pack is corrected the next assessment of the same ledger gives the final
+statuses, and the ledger's events are not rewritten.
 
 **Why unknown is a state and not a default.** The slice has one entry the rule
 cannot judge: a private key file the reader could not open, whose algorithm is
@@ -134,9 +140,10 @@ commit that introduced the rule; `tests/test_managed.py` reproduces the counts.
   the IR 8547 key-size check lives in the queue rule ([note
   07](07-how-a-migration-priority-is-computed.md)), and a 1024-bit RSA key is
   not compatible for the same reason a 4096-bit one is.
-- Under CNSA 2.0 every status is provisional until the primary documents are
-  read first-hand; the pack's `verified: false` is the whole of the project's
-  claim about that suite.
+- Under CNSA 2.0 the rule does not know an entry's application, so an LMS or
+  XMSS signature or a SHA-3 hash is judged by the table's general-purpose
+  names; the FAQ's two application-bound allowances are in the pack and not yet
+  in the rule.
 - A pack read first-hand (M-26-15, IR 8547) is checked quote by quote against
   its source text when it loads; the compatibility block adds no quote of its
   own and rests on the resistant and vulnerable lists the pack already carries.

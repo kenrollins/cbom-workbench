@@ -4,7 +4,8 @@
 source text it names: every `quote` is split at "..." and each part, with whitespace and
 hyphenation normalized, must occur in the text in that order. A pack read from a source not
 read first-hand (`read_first_hand: false`) carries no text to check against and must say
-`verified: false`; the assessor applies no deadline from it.
+`verified: false`; the assessor applies no deadline from it. Both packs shipped (OMB M-26-15 and
+NSA's CNSA 2.0 FAQ Ver. 2.2) are read first-hand and quote-checked.
 """
 
 from __future__ import annotations

@@ -300,8 +300,8 @@ ledgers, the plan's narration recorded once, and the hardware named as the runs 
   its status under the pack that governs its service, compatible, not
   compatible, unknown or outside the pack, judged by a rule from the pack's own
   table; on the four-service slice, 2, 39, 1 and 5 under M-26-15. A gap in the
-  evidence is a number of its own, never a pass, and a status from a pack not
-  read first-hand says it is provisional
+  evidence is a number of its own, never a pass; both packs, M-26-15 and the
+  CNSA 2.0 FAQ, are read first-hand and quote-checked
   ([note 22](22-what-compatible-means-entry-by-entry.md)).
 - **A supplier's statement is evidence of its own grade.** What signs a
   firmware, which modules a controller carries and whether the installed

@@ -45,7 +45,7 @@ instruments, each one checkable.
 |---|---|---|---|
 | Where the CBOM lives and who maintains it | A signed, append-only ledger is the record; the CBOM is a projection rebuilt from it; approvals, resolutions and fills are events on it ([note 12](12-what-an-auditable-record-contains.md)) | 897 events, 313 components, same ledger same document | one deployment, one owner's ledger; roles by setting (ADR-0008) |
 | Discovery across the asset classes | Wire, host, code and platform readers; the SBOM beside them; any tool's CBOM imported and scored ([note 15](15-what-the-open-source-scanners-cover.md)) | 35 of 35 keyed wire items; 8 images' SBOMs, 43 crypto libraries, 13 in use | HSMs and crypto modules by attestation only; the code layer one repository |
-| Every entry tagged against the governing policy | `compatibility/entry/1`: compatible, not compatible, unknown, outside the pack, provisional under a pack not read first-hand ([note 22](22-what-compatible-means-entry-by-entry.md)) | 8 / 183 / 11 / 19; in use 8 / 173 / 11 / 17 | CNSA 2.0 provisional until the primary documents are read |
+| Every entry tagged against the governing policy | `compatibility/entry/1`: compatible, not compatible, unknown, outside the pack, provisional under a pack not read first-hand ([note 22](22-what-compatible-means-entry-by-entry.md)) | 8 / 183 / 11 / 19; in use 8 / 173 / 11 / 17 | The rule does not yet know an entry's application (LMS and XMSS, SHA-3) |
 | Vendor supportability on the hardware | A supplier's attestation as reported evidence, joined by model and firmware version, never a finding; modules looked up in the CMVP snapshot ([note 23](23-what-a-suppliers-attestation-can-stand-in-for.md)) | an illustrative statement; the lab's server has none recorded | no real supplier's statement yet |
 | The dependency map | The plan's shared dependencies: the certificate authority, the library build, the shared key, the client trust anchor ([note 17](17-how-a-cbom-becomes-a-migration-plan.md)) | 25 steps, 4 shared dependencies | the lab's and a server's plans have their own rules |
 | System, interface, mission thread, owner, classification per item | Owner-supplied facts, labelled supplied, on the service component and every register row ([note 24](24-what-a-later-phase-needs-from-a-discovery-phase.md)) | 8 services with all four; none invented | typed in; the owner's inventory is the source |
@@ -101,9 +101,9 @@ same.
   The lab's own estate and its server are read the same way; their numbers
   are the owner's and stay off the public copy.
 - Four answers are complete in mechanism and waiting on an outside party for
-  their proof: a real supplier's statement, the CNSA 2.0 primary documents, a
-  commercial engine to re-upload into, and a second real server for the SSH
-  route.
+  their proof: a real supplier's statement, a commercial engine to re-upload
+  into, and a second real server for the SSH route. The CNSA 2.0 primary
+  documents were read on 2026-11-09 and the pack rewritten from them.
 - The workbench is not the tool such a phase would accredit; it is the method
   and the record shown working, with every number traceable to an event. The
   gaps between that and an accreditation are the federal readiness rows in

@@ -80,3 +80,4 @@ day it was learned.
 | 66 | Pinning a self-signed certificate by making it the only trust anchor still checks its dates; an expired management-controller certificate fails the pin | all |
 | 67 | Publish a running system as a recording, a record and notes; never as a static copy of its pages with the buttons disabled | all |
 | 68 | When two sources describe one asset, keep every claim, put one in force by the grade of its evidence, and show the rest as dissent; never fold two values into a list | structured |
+| 69 | A policy pack written from secondary summaries is marked unverified and applies no date; the primary is read, hashed and quote-checked before any of its dates or names counts | managed |

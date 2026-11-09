@@ -195,6 +195,7 @@ nav:
       - "66 \u2014 Pinning a self-signed certificate by making it the only trust anchor still checks its dates; an expired management-controller certificate fails the pin": lessons/66-pinning-through-openssl-checks-the-anchors-dates.md
       - "67 \u2014 Publish a running system as a recording, a record and notes; never as a static copy of its pages with the buttons disabled": lessons/67-publish-a-recording-a-record-and-notes-not-a-facsimile.md
       - "68 \u2014 When two sources describe one asset, keep every claim, put one in force by the grade of its evidence, and show the rest as dissent; never fold two values into a list": lessons/68-keep-every-claim-and-name-the-one-in-force.md
+      - "69 \u2014 A policy pack written from secondary summaries is marked unverified and applies no date; the primary is read, hashed and quote-checked before any of its dates or names counts": lessons/69-read-the-primary-before-a-date-is-applied.md
   # <<< end generated
   - Sources: sources.md
   - About: about.md

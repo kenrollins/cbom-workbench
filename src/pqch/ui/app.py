@@ -36,7 +36,7 @@ SHEET = [
 CLOCK = [
     {"date": "2026-06-22", "label": "EO 14412 signed", "source": "Executive Order 14412"},
     {"date": "2026-10-22", "label": "agency PQC migration plans due", "source": "OMB M-26-15 §1, 120 days"},
-    {"date": "2027-01-01", "label": "new NSS acquisitions CNSA 2.0", "source": "NSA CNSA 2.0 FAQ, through secondary summaries; the primary was not read"},
+    {"date": "2027-01-01", "label": "new NSS acquisitions CNSA 2.0", "source": "NSA CNSA 2.0 FAQ Ver. 2.2, Timeframe, read first-hand 2026-11-09"},
     {"date": "2027-03-19", "label": "CBOM minimum elements published by CISA and NIST", "source": "EO 14412, 270 days", "key": True},
     {"date": "2030-01-02", "label": "TLS 1.3 everywhere", "source": "OMB M-26-15 §4"},
     {"date": "2030-12-31", "label": "PQ key establishment, prioritized systems", "source": "EO 14412; M-26-15 phase 3"},

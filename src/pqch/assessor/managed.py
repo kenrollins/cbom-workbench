@@ -7,7 +7,8 @@ inputs, the pack and the section of the memo it rests on.
   quantum-vulnerable. Every finding of that name is an input.
 - `pack/scope/1` — per service: which pack governs it, from the owner's
   `national-security-system` fact (M-26-15 does not govern a national security system; CNSA 2.0
-  does). A pack with `verified: false` governs but sets no deadline.
+  does). A pack with `verified: false` governs but sets no deadline; CNSA 2.0, read first-hand
+  on 2026-11-09, names its own dates in the basis.
 - `priority/m-26-15/1` — per service: which of §3.C.2's criteria hold, from the owner's supplied
   facts; the supplied links are the inputs.
 - `queue/m-26-15/1` — per service and function (key establishment, signature): the vulnerable
@@ -29,7 +30,8 @@ inputs, the pack and the section of the memo it rests on.
   that governs the service it belongs to — `compatible`, `not-compatible`, `unknown` or
   `outside-pack` — with the rule it rested on. `unknown` is a state, never folded into either
   verdict: the entry's algorithm is not identified, or the pack does not place the name. A status
-  from a pack not read first-hand is `provisional`.
+  from a pack not read first-hand is `provisional` (none is, since the CNSA 2.0 FAQ was read
+  first-hand on 2026-11-09; the flag stays for the next pack).
 """
 
 from __future__ import annotations
@@ -75,6 +77,17 @@ def algorithm_role(families: dict, finding: dict) -> str | None:
     if a["role"] == "encryption" and a["name"] in (families.get("key-establishment") or {}):
         return "key-establishment"
     return a["role"]
+
+
+def _nss_basis(nss_pack: dict | None) -> str:
+    """Why a national security system has no M-26-15 queue item: CNSA 2.0 governs it, with its own dates
+    when the pack is read first-hand and none when it is not."""
+    head = "the owner marks it a national security system; CNSA 2.0 governs it (M-26-15 §3.B excludes it)"
+    if not nss_pack or not nss_pack.get("verified"):
+        return head + ", and that pack is not verified, so no deadline is set"
+    dates = (nss_pack.get("timeline") or {}).get("dates") or []
+    return head + "; its dates are the suite's, not the memo's: " + ", ".join(
+        f"{d['by']} {d['what']}" for d in dates if d["id"] in ("new-acquisitions", "phase-out", "mandate"))
 
 
 def entry_compatibility(pack: dict, families: dict, finding: dict) -> dict:
@@ -215,8 +228,7 @@ def assess(run: Run, *, pack_path: str | Path, families_path: str | Path, capabi
         run.ledger.append("assessment.made", _actor("pack/scope/1"), {
             "subject": {"kind": "service", "name": svc}, "rule_id": "pack/scope/1",
             "classification": {"pack": governs, "national_security_system": bool(nss)},
-            "basis": ("the owner marks it a national security system; CNSA 2.0 governs it, and that pack is not "
-                      "verified, so no deadline is set" if nss else
+            "basis": (_nss_basis(packs.get("cnsa-2.0")) if nss else
                       "not a national security system, so M-26-15 governs it (§3.B)"),
         }, inputs=[f["national-security-system"][1]] if "national-security-system" in f else [])
         if nss:
