@@ -81,3 +81,6 @@ day it was learned.
 | 67 | Publish a running system as a recording, a record and notes; never as a static copy of its pages with the buttons disabled | all |
 | 68 | When two sources describe one asset, keep every claim, put one in force by the grade of its evidence, and show the rest as dissent; never fold two values into a list | structured |
 | 69 | A policy pack written from secondary summaries is marked unverified and applies no date; the primary is read, hashed and quote-checked before any of its dates or names counts | managed |
+| 70 | A number shown on two pages is computed in one place; a page that counts a rule's events and a page that counts the document's entries will disagree | structured |
+| 71 | An automated keyboard pass counts only the controls that are shown; a control inside a closed disclosure is reached through its summary, and a page that takes focus on load is walked from where it starts | all |
+| 72 | A recorded model answer belongs to the scan it was asked about; a build that shows a newer scan stops until the answers are recorded again | all |

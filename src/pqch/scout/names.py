@@ -1,4 +1,4 @@
-"""Tool spellings to standard names (agency/answer-key.yaml, "Names").
+"""Tool spellings to standard names (agency/answer-key.yaml, "Names"), read from the alias pack.
 
 A name the table does not know is passed through unchanged. An algorithm the
 tool did not state is never inferred: a key theia reports only as
@@ -9,41 +9,33 @@ from __future__ import annotations
 
 import re
 
-TLS_GROUPS = {
-    "prime256v1": "secp256r1",
-    "secp256r1": "secp256r1",
-    "P-256": "secp256r1",
-    "secp384r1": "secp384r1",
-    "P-384": "secp384r1",
-    "secp521r1": "secp521r1",
-    "P-521": "secp521r1",
-    "X25519": "X25519",
-    "x25519": "X25519",
-    "X448": "X448",
-    "X25519MLKEM768": "X25519MLKEM768",
-    "SecP256r1MLKEM768": "SecP256r1MLKEM768",
-    "SecP384r1MLKEM1024": "SecP384r1MLKEM1024",
-    "x448": "X448",
-    "MLKEM512": "ML-KEM-512",
-    "MLKEM768": "ML-KEM-768",
-    "MLKEM1024": "ML-KEM-1024",
-}
+import hashlib
+from pathlib import Path
 
-# IANA TLS supported-group ids, as a capture sees them, to standard names. Draft and
-# vendor ids are named by their draft name; a GREASE value (0x?a?a) is dropped by the caller.
-TLS_GROUP_IDS = {
-    1: "sect163k1", 2: "sect163r1", 3: "sect163r2", 4: "sect193r1", 5: "sect193r2", 6: "sect233k1",
-    7: "sect233r1", 8: "sect239k1", 9: "sect283k1", 10: "sect283r1", 11: "sect409k1", 12: "sect409r1",
-    13: "sect571k1", 14: "sect571r1", 15: "secp160k1", 16: "secp160r1", 17: "secp160r2", 18: "secp192k1",
-    19: "secp192r1", 20: "secp224k1", 21: "secp224r1", 22: "secp256k1", 23: "secp256r1", 24: "secp384r1",
-    25: "secp521r1", 26: "brainpoolP256r1", 27: "brainpoolP384r1", 28: "brainpoolP512r1", 29: "X25519",
-    30: "X448", 31: "brainpoolP256r1tls13", 32: "brainpoolP384r1tls13", 33: "brainpoolP512r1tls13",
-    256: "ffdhe2048", 257: "ffdhe3072", 258: "ffdhe4096", 259: "ffdhe6144", 260: "ffdhe8192",
-    512: "ML-KEM-512", 513: "ML-KEM-768", 514: "ML-KEM-1024",
-    4587: "SecP256r1MLKEM768", 4588: "X25519MLKEM768", 4589: "SecP384r1MLKEM1024",
-    25497: "X25519Kyber768Draft00", 25498: "X25519Kyber512Draft00",
-}
-TLS_VERSION_IDS = {0x0300: "SSL 3.0", 0x0301: "TLS 1.0", 0x0302: "TLS 1.1", 0x0303: "TLS 1.2", 0x0304: "TLS 1.3"}
+import yaml
+
+# The tables are data (aliases.yaml beside this file, `pqch.alias-pack/1`), loaded once. The module
+# keeps the names callers use; nothing here maps a spelling the pack does not hold.
+PACK_PATH = Path(__file__).with_name("aliases.yaml")
+_raw = PACK_PATH.read_bytes()
+_pack = yaml.safe_load(_raw)
+if _pack.get("schema") != "pqch.alias-pack/1":
+    raise ValueError(f"{PACK_PATH}: expected schema pqch.alias-pack/1")
+PACK = {"schema": _pack["schema"], "version": _pack["version"], "sha256": hashlib.sha256(_raw).hexdigest()}
+_t = _pack["tables"]
+TLS_GROUPS: dict[str, str] = _t["tls_groups"]
+# IANA TLS supported-group ids, as a capture sees them; a GREASE value (0x?a?a) is dropped by the caller.
+TLS_GROUP_IDS: dict[int, str] = {int(k): v for k, v in _t["tls_group_ids"].items()}
+TLS_VERSION_IDS: dict[int, str] = {int(k): v for k, v in _t["tls_version_ids"].items()}
+SSH_KEX: dict[str, str] = _t["ssh_kex"]
+SSH_HOSTKEY: dict[str, str] = _t["ssh_hostkey"]
+SSH_HOSTKEY_CURVE: dict[str, str] = _t["ssh_hostkey_curve"]
+HASHES: dict[str, str] = _t["hashes"]
+
+
+def provenance() -> dict:
+    """The alias pack that named a run's findings: its schema, version and the file's hash."""
+    return dict(PACK)
 
 
 def is_grease(n: int) -> bool:
@@ -55,49 +47,8 @@ def tls_group(n: int) -> str:
     return TLS_GROUP_IDS.get(n, f"group-{n}")
 
 
-SSH_KEX = {
-    "curve25519-sha256": "X25519",
-    "curve25519-sha256@libssh.org": "X25519",
-    "ecdh-sha2-nistp256": "secp256r1",
-    "ecdh-sha2-nistp384": "secp384r1",
-    "ecdh-sha2-nistp521": "secp521r1",
-    "mlkem768x25519-sha256": "X25519MLKEM768",
-    "mlkem768nistp256-sha256": "SecP256r1MLKEM768",
-    "mlkem1024nistp384-sha384": "SecP384r1MLKEM1024",
-    "sntrup761x25519-sha512": "sntrup761x25519",
-    "sntrup761x25519-sha512@openssh.com": "sntrup761x25519",
-    "diffie-hellman-group1-sha1": "DH-1024",
-    "diffie-hellman-group14-sha1": "DH-2048",
-    "diffie-hellman-group14-sha256": "DH-2048",
-    "diffie-hellman-group16-sha512": "DH-4096",
-    "diffie-hellman-group18-sha512": "DH-8192",
-    "diffie-hellman-group-exchange-sha1": "DH-GEX",
-    "diffie-hellman-group-exchange-sha256": "DH-GEX",
-}
-
 # Pseudo-algorithms SSH lists among key exchanges that negotiate nothing.
 SSH_KEX_IGNORE = re.compile(r"^(ext-info-[cs]|kex-strict-[cs]-v00@openssh\.com)$")
-
-SSH_HOSTKEY = {
-    "ssh-rsa": "RSA",
-    "rsa-sha2-256": "RSA",
-    "rsa-sha2-512": "RSA",
-    "ssh-dss": "DSA",
-    "ecdsa-sha2-nistp256": "ECDSA",
-    "ecdsa-sha2-nistp384": "ECDSA",
-    "ecdsa-sha2-nistp521": "ECDSA",
-    "ssh-ed25519": "Ed25519",
-    "ssh-ed448": "Ed448",
-}
-
-SSH_HOSTKEY_CURVE = {
-    "ecdsa-sha2-nistp256": "P-256",
-    "ecdsa-sha2-nistp384": "P-384",
-    "ecdsa-sha2-nistp521": "P-521",
-}
-
-HASHES = {"SHA1": "SHA-1", "SHA256": "SHA-256", "SHA384": "SHA-384", "SHA512": "SHA-512", "MD5": "MD5"}
-
 
 def key_family(name: str) -> str:
     """theia's key names (`RSA-2048`, `ECDSA`, `private-key`) to a key algorithm family."""

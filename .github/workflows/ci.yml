@@ -32,3 +32,5 @@ jobs:
         run: |
           uv run --with mkdocs-material python tools/build_site.py
           uv run --with mkdocs-material mkdocs build --strict
+      - name: No internal link of the built site is broken
+        run: uv run python tools/check_links.py site

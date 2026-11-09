@@ -335,14 +335,16 @@ def build(var: Path, scan: Run, snapshots_dir: str | Path = "policy/snapshots", 
 
 
 def _compatibility_counts(events: list[dict]) -> dict | None:
-    """The entries' statuses under their packs (`compatibility/entry/1`), counted for the plan's header;
-    None for a run from before the rule."""
-    rows = [e["payload"]["classification"] for e in events
-            if e["type"] == "assessment.made" and e["payload"].get("rule_id") == "compatibility/entry/1"]
-    if not rows:
+    """The entries' statuses under their packs (`compatibility/entry/1`), counted for the plan's header from
+    the CBOM the same events project, so the plan and the CBOM page give one number: the rule judges each
+    fingerprint, and several fingerprints can fold onto one entry. None for a run from before the rule."""
+    from pqch import cbom
+    from pqch.cbom import anatomy
+
+    c = anatomy.compatibility(cbom.project(events))
+    if not c:
         return None
-    return {s: sum(1 for r in rows if r["status"] == s) for s in ("compatible", "not-compatible", "unknown", "outside-pack")} | {
-        "provisional": any(r["provisional"] for r in rows), "packs": sorted({r["pack"] for r in rows})}
+    return dict(c["all"]) | {"provisional": c["provisional"], "packs": c["packs"], "entries": c["entries"]}
 
 
 def _settle(steps: dict, assume: frozenset) -> list[str]:

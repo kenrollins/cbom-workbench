@@ -109,6 +109,15 @@ def entry_compatibility(pack: dict, families: dict, finding: dict) -> dict:
         if name in (comp.get("unsettled") or []):
             return {"status": "unknown", "algorithm_role": role, "family": fam,
                     "basis": f"the pack does not place {name}: a hybrid whose ML-KEM part is the suite's; no verdict either way"}
+        sp = (comp.get("specific") or {}).get(role) or {}
+        if name in (sp.get("names") or []):
+            # Allowed in one application only: the platform layer is a system's firmware and controller.
+            if finding.get("layer") == "platform":
+                return {"status": "compatible", "algorithm_role": role, "family": fam,
+                        "basis": f"{name} is allowed for {sp['application']}, and the entry is in a system's firmware"}
+            return {"status": sp.get("elsewhere", "unknown"), "algorithm_role": role, "family": fam,
+                    "basis": f"{name} is allowed only for {sp['application']}; this entry is on the {finding.get('layer')} layer"
+                             + (", and the evidence does not say what it signs" if sp.get("elsewhere", "unknown") == "unknown" else "")}
         if role in names:
             ok = name in names[role]
             return {"status": "compatible" if ok else "not-compatible", "algorithm_role": role, "family": fam,

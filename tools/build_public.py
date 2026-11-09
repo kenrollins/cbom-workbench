@@ -139,6 +139,12 @@ def render(work: Path, out: Path, base: str, span: str = "") -> dict[str, str]:
         import pqch.ui.app as ui
         c = TestClient(ui.app)
     scan = (work / "runs" / "LATEST_SCAN").read_text().strip()
+    # The copy has no model to call, so what a model said is shown from recordings made for this scan. A new
+    # scan has none until they are recorded; without this check the stage publishes "no answer was recorded".
+    missing = [cmd for kind, cmd in (("ask", "pqch ask record"), ("demo", "pqch demo record")) if not (work / kind / f"{scan}.json").is_file()]
+    if missing and not os.environ.get("PQCH_PUBLIC_WITHOUT_RECORDINGS"):
+        raise SystemExit(f"the scan this copy shows ({scan}) has no recorded model output: run {' and '.join(missing)} in the deployment first, "
+                         "or set PQCH_PUBLIC_WITHOUT_RECORDINGS=1 to publish the stage without them")
     pages = dict(PUBLIC_PAGES)
     html = {}
     for url, path in pages.items():

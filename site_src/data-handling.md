@@ -50,6 +50,13 @@ Three settings turn the deployment's handling rules into facts the workbench enf
   single-operator mode.
 - **Rules of engagement.** `PQCH_REQUIRE_ROE=1` on the runner refuses a scope whose authorization
   does not name the signed rules-of-engagement document by hash (`rules_of_engagement_sha256`).
+- **Logs for a collector.** The ledger of every run is JSON lines already. `PQCH_ACCESS_LOG` names a
+  file the app appends one line to per request (`pqch.access/1`): the time, the signed-on name, the
+  path, the status, how long it took, whether it was a download of a ledger, a CBOM, a register or a
+  plan, and the marking. Shipping that file to a collector is the deployment's job.
+- **The clock.** Every `run.started` records what the kernel says of the host's clock (`clock`):
+  synchronized or not, and the error it estimates, read with a call that changes nothing. An
+  unsynchronized clock is recorded, not refused.
 
 ## What is kept
 
@@ -91,6 +98,8 @@ Three settings turn the deployment's handling rules into facts the workbench enf
 
 ## Where this stops
 
-Retention is by hand: nothing is removed on a schedule, and removing a file records no event. A
-retention setting with an `artefact.destroyed` event that keeps the hash of what went, and marking
-of pages and exports, are written down and not built.
+Retention runs when an operator runs it: nothing is removed on a schedule. Removing a file by hand,
+outside `pqch retention apply`, records no event. The access log is a file; sending it to a
+collector, and an alert on what it holds, are the deployment's. Accessibility was tested by rule
+and by an automated keyboard pass, not by a person with a screen reader (`docs/ACCESSIBILITY.md` in
+the repository).

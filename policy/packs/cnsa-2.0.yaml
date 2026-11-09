@@ -82,23 +82,27 @@ compatible:
     Use SHA-384 or SHA-512 ... for all classification levels
   names:
     key-establishment: [ML-KEM-1024]
-    signature: [ML-DSA-87, LMS, XMSS]
+    signature: [ML-DSA-87]
     encryption: [AES-256]
     hash: [SHA-384, SHA-512]
   # "Algorithms Allowed in Specific Applications": LMS and XMSS sign firmware and software only;
-  # SHA3-384 and SHA3-512 serve a hardware's internal integrity checks only. Listed here so the
-  # rule can say why they are compatible in one place and not another; the rule does not yet
-  # know an entry's application, so a SHA-3 hash on the wire is not compatible.
+  # SHA3-384 and SHA3-512 serve a hardware's internal integrity checks only. The rule reads the
+  # entry's layer: on the platform layer (a system's firmware, its Secure Boot databases, its
+  # controller) the name is compatible; anywhere else the status is `elsewhere`. A signing key
+  # in a file may sign software, which the evidence does not say, so LMS and XMSS are unknown
+  # there; SHA-3 is for hardware internals only, so on the wire or in a file it is not compatible.
   specific:
     signature:
       names: [LMS, XMSS]
       application: "digitally signing firmware and software"
+      elsewhere: unknown
       quote: >-
         Leighton-Micali Signature ... (LMS) & Xtended Merkle ... digitally signing firmware ... NIST SP 800-208 ...
         Signature Scheme (XMSS) ... and software
     hash:
       names: [SHA3-384, SHA3-512]
       application: "internal hardware integrity checks, such as secure boot"
+      elsewhere: not-compatible
       quote: >-
         SHA3-384 or SHA3-512 may also be used
         as part of a system's integrity-checking process, such as secure boot

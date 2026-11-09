@@ -25,14 +25,31 @@ is its public summary.
 - **Models by measurement:** six roles, each with a floor written before the run; a role goes to a model
   only when one reached it.
 
+- **A discovery-and-planning engagement, end to end:** every CBOM entry tagged compatible, not
+  compatible, unknown or outside the pack under the policy that governs its service (OMB M-26-15, or
+  NSA's CNSA 2.0 for a national security system, both read first-hand and checked quote by quote);
+  a supplier's attestation as reported evidence beside what the server itself showed; the owner's
+  facts and a risk register exported for the next phase; what no tool could see as a queue with
+  coverage per asset class; a software bill of materials linked to the CBOM.
+- **Many sources, one record:** every finding a graded claim, the best-graded one in force, the rest
+  shown as dissent; another tool's CBOM folded in without duplicates; the fields other tools read.
+- **The offline bundle and the kit:** the workbench, its test agency and its scanners loaded on one
+  NVIDIA GB10-class box with no network, with local models for the roles they earned.
+- **Ask the CBOM:** questions about the estate and the plan answered by a local model with citations
+  the rules check.
+- **Handling:** roles and separation of duties, marking, retention on the record, an access log and
+  the host clock's state, an accessibility test report.
+
 ## Next
 
 - **When must each step start?** Lead times per replacement and upgrade, so the plan becomes a
   schedule: the latest start for every step, and which are already at risk.
-- **A plan to take to a meeting:** an export of the ranked steps, dependencies, deadlines and reasons.
-- **The full agency:** every service the policy covers changed, re-scanned and timed.
+- **The full agency:** every service the policy covers changed, re-scanned and timed in one run.
 - **A held-out variant of the test estate,** scored once, so the method is not tuned to its own key.
-- **The offline bundle:** everything needed to run the workbench on a host with no network, rehearsed
-  from an empty machine.
-- **Ask the CBOM** (research): questions about the estate and the plan answered by a model and checked
-  against the rules.
+- **A fleet of servers:** the SSH route and a live controller read against real second and third
+  servers; a real supplier's statement in place of the worked example.
+- **Proof in another tool:** the workbench's CBOM loaded into a commercial inventory product, with
+  the planted weaknesses reported there.
+- **An Accessibility Conformance Report:** the keyboard and screen-reader tests a person must do.
+- **One record from several scanners:** a whole signed ledger carried from a detached unit to a
+  central workbench and verified there, beyond today's recordings of a server scan.

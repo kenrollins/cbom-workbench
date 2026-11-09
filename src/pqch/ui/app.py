@@ -7,9 +7,12 @@ over its Unix socket.
 
 from __future__ import annotations
 
+import json
 import os
 import threading
+import time
 import traceback
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -742,6 +745,39 @@ def identity(request: Request) -> str | None:
     if peer not in TRUSTED_PROXIES:
         return None
     return request.headers.get(IDENTITY_HEADER) or OPERATOR or None
+
+
+# One JSON line per request for a collector (FR-12), when PQCH_ACCESS_LOG names a file: who, what, the
+# answer and how long, with a download of a ledger, a CBOM, a register or a plan marked as one. The
+# ledger is already JSON lines; this is the half it does not hold, who read what.
+ACCESS_LOG = os.environ.get("PQCH_ACCESS_LOG", "").strip() or None
+_DOWNLOAD = (".json", ".jsonl", ".csv", ".pub", ".sig", ".tar", ".zip")
+
+
+def access_record(request: Request, status: int, ms: float) -> dict:
+    path = request.url.path
+    return {"schema": "pqch.access/1", "ts": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z",
+            "who": identity(request), "peer": request.client.host if request.client else None,
+            "method": request.method, "path": path, "query": request.url.query or None, "status": status,
+            "ms": round(ms, 1), "download": path.endswith(_DOWNLOAD) and not path.startswith("/static/"),
+            "marking": MARKING}
+
+
+if ACCESS_LOG:
+    @app.middleware("http")
+    async def _access_log(request: Request, call_next):
+        t0 = time.monotonic()
+        status = 500
+        try:
+            response = await call_next(request)
+            status = response.status_code
+            return response
+        finally:
+            try:
+                with open(ACCESS_LOG, "a") as fh:
+                    fh.write(json.dumps(access_record(request, status, (time.monotonic() - t0) * 1000)) + "\n")
+            except OSError:
+                pass        # a full or missing log volume must not take the pages down
 
 
 def same_origin(request: Request) -> None:

@@ -168,3 +168,26 @@ def test_the_imports_page_shows_the_combined_document_and_the_route_serves_it(sl
         assert c.get("/estate/cbom.json", params={"runs": "nope;rm"}).status_code == 404
         page = c.get("/cbom", params={"run": slice_run.id}).text
         assert "Claims kept" not in page or "entries with more than one" in page
+
+
+def test_the_alias_tables_are_a_versioned_pack_and_a_run_records_which_named_it(tmp_path):
+    import hashlib
+
+    import yaml as _yaml
+
+    from pqch import scope as scope_mod
+    from pqch.run import Run
+    from pqch.scout import names
+
+    doc = _yaml.safe_load(names.PACK_PATH.read_text())
+    assert doc["schema"] == "pqch.alias-pack/1" and doc["version"] == names.PACK["version"] >= 1
+    assert names.PACK["sha256"] == hashlib.sha256(names.PACK_PATH.read_bytes()).hexdigest()
+    # Three tools' spellings of one group fold to one name; an unknown spelling passes through, never guessed.
+    assert {names.TLS_GROUPS["prime256v1"], names.TLS_GROUPS["P-256"], names.SSH_KEX["ecdh-sha2-nistp256"], names.tls_group(23)} == {"secp256r1"}
+    assert names.SSH_KEX["mlkem768x25519-sha256"] == names.tls_group(4588) == "X25519MLKEM768"
+    assert names.algorithm_name("some-new-kex") == "some-new-kex" and names.tls_group(60000) == "group-60000"
+    scope = {"schema": "pqch.scope/1", "id": "01M40W6W873YWJMWPKGMK3YBMN", "estate": "external", "owned": False,
+             "authorized_by": "owner", "endpoints": [{"host": "10.0.0.5", "port": 443, "transport": "tcp", "protocol": "tls"}],
+             "images": [], "sources": [], "reach": {"kind": "local"}}
+    run = Run.start(tmp_path / "var", scope, runner_scope_hash=scope_mod.scope_hash(scope), profile="tls-targeted", kind="scan-external")
+    assert next(iter(run.ledger.events()))["payload"]["aliases"] == names.PACK

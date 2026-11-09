@@ -29,11 +29,26 @@ def _base_path() -> str:
     of the repository does not silently turn this checker into noise.
     """
     cfg = (Path(__file__).resolve().parents[1] / "mkdocs.yml").read_text()
-    m = re.search(r"^site_url:\s*(\S+)", cfg, re.M)
+    # Either a plain URL or mkdocs' `!ENV [NAME, "default"]` form, where the variable wins when set.
+    m = re.search(r"^site_url:\s*(.+)$", cfg, re.M)
     if not m:
         return "/"
-    path = re.sub(r"^https?://[^/]+", "", m.group(1).strip())
+    value = m.group(1).strip()
+    env = re.match(r'!ENV\s*\[\s*(\w+)\s*,\s*"([^"]*)"\s*\]', value)
+    if env:
+        import os
+        value = os.environ.get(env.group(1)) or env.group(2)
+    path = re.sub(r"^https?://[^/]+", "", value)
     return path if path.endswith("/") else path + "/"
+
+
+def _app_routes() -> set[str]:
+    """The paths the workbench itself serves (the header's Live tabs point at them). They are not pages
+    of this site, so a link to one is not checked here; the application's own tests cover them."""
+    app = Path(__file__).resolve().parents[1] / "src" / "pqch" / "ui" / "app.py"
+    if not app.is_file():
+        return set()
+    return {m.rstrip("/") or "/" for m in re.findall(r'@app\.(?:get|post)\("(/[^"{]*)', app.read_text())}
 
 
 def main() -> int:
@@ -43,6 +58,7 @@ def main() -> int:
         return 2
 
     base = _base_path()
+    routes = _app_routes()
     broken: list[str] = []
     pages = 0
     for page in site.rglob("*.html"):
@@ -52,7 +68,11 @@ def main() -> int:
             if not href or href.startswith(SKIP):
                 continue
             if href.startswith("/"):
+                if (href.rstrip("/") or "/") in routes:
+                    continue
                 rel = href[len(base):] if href.startswith(base) else href.lstrip("/")
+                # The lab and the public copy both serve this site under <base>site/.
+                rel = rel[len("site/"):] if rel.startswith("site/") else rel
                 target = site / rel
             else:
                 target = page.parent / href

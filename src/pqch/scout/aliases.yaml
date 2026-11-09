@@ -1,0 +1,126 @@
+# Tool spellings to standard names, as data: `pqch.alias-pack/1`.
+#
+# Every scanner spells an algorithm its own way (testssl.sh says prime256v1, OpenSSH says
+# ecdh-sha2-nistp256, a capture sees the IANA group id 23, an imported CBOM says P-256). The
+# normalizer maps each spelling to one standard name through these tables and nothing else, so
+# two tools' findings about one algorithm fold onto one CBOM entry. A spelling no table knows
+# passes through unchanged and shows up as an entry of its own, which is how a missing alias is
+# found. A change to a table is a change to this file with `version` raised; a run records the
+# version and the file's hash in `run.started`, so an inventory says which table named it.
+#
+# Standard names are the answer key's (agency/answer-key.yaml, "Names"): IANA's TLS group names,
+# FIPS names for the post-quantum algorithms (ML-KEM-768), and the hybrid names of the TLS
+# drafts. Group ids are IANA TLS Supported Groups; a draft or vendor id is named by its draft.
+schema: pqch.alias-pack/1
+version: 1
+dated: '2026-11-09'
+tables:
+  tls_groups:
+    prime256v1: secp256r1
+    secp256r1: secp256r1
+    P-256: secp256r1
+    secp384r1: secp384r1
+    P-384: secp384r1
+    secp521r1: secp521r1
+    P-521: secp521r1
+    X25519: X25519
+    x25519: X25519
+    X448: X448
+    X25519MLKEM768: X25519MLKEM768
+    SecP256r1MLKEM768: SecP256r1MLKEM768
+    SecP384r1MLKEM1024: SecP384r1MLKEM1024
+    x448: X448
+    MLKEM512: ML-KEM-512
+    MLKEM768: ML-KEM-768
+    MLKEM1024: ML-KEM-1024
+  tls_group_ids:
+    1: sect163k1
+    2: sect163r1
+    3: sect163r2
+    4: sect193r1
+    5: sect193r2
+    6: sect233k1
+    7: sect233r1
+    8: sect239k1
+    9: sect283k1
+    10: sect283r1
+    11: sect409k1
+    12: sect409r1
+    13: sect571k1
+    14: sect571r1
+    15: secp160k1
+    16: secp160r1
+    17: secp160r2
+    18: secp192k1
+    19: secp192r1
+    20: secp224k1
+    21: secp224r1
+    22: secp256k1
+    23: secp256r1
+    24: secp384r1
+    25: secp521r1
+    26: brainpoolP256r1
+    27: brainpoolP384r1
+    28: brainpoolP512r1
+    29: X25519
+    30: X448
+    31: brainpoolP256r1tls13
+    32: brainpoolP384r1tls13
+    33: brainpoolP512r1tls13
+    256: ffdhe2048
+    257: ffdhe3072
+    258: ffdhe4096
+    259: ffdhe6144
+    260: ffdhe8192
+    512: ML-KEM-512
+    513: ML-KEM-768
+    514: ML-KEM-1024
+    4587: SecP256r1MLKEM768
+    4588: X25519MLKEM768
+    4589: SecP384r1MLKEM1024
+    25497: X25519Kyber768Draft00
+    25498: X25519Kyber512Draft00
+  tls_version_ids:
+    768: SSL 3.0
+    769: TLS 1.0
+    770: TLS 1.1
+    771: TLS 1.2
+    772: TLS 1.3
+  ssh_kex:
+    curve25519-sha256: X25519
+    curve25519-sha256@libssh.org: X25519
+    ecdh-sha2-nistp256: secp256r1
+    ecdh-sha2-nistp384: secp384r1
+    ecdh-sha2-nistp521: secp521r1
+    mlkem768x25519-sha256: X25519MLKEM768
+    mlkem768nistp256-sha256: SecP256r1MLKEM768
+    mlkem1024nistp384-sha384: SecP384r1MLKEM1024
+    sntrup761x25519-sha512: sntrup761x25519
+    sntrup761x25519-sha512@openssh.com: sntrup761x25519
+    diffie-hellman-group1-sha1: DH-1024
+    diffie-hellman-group14-sha1: DH-2048
+    diffie-hellman-group14-sha256: DH-2048
+    diffie-hellman-group16-sha512: DH-4096
+    diffie-hellman-group18-sha512: DH-8192
+    diffie-hellman-group-exchange-sha1: DH-GEX
+    diffie-hellman-group-exchange-sha256: DH-GEX
+  ssh_hostkey:
+    ssh-rsa: RSA
+    rsa-sha2-256: RSA
+    rsa-sha2-512: RSA
+    ssh-dss: DSA
+    ecdsa-sha2-nistp256: ECDSA
+    ecdsa-sha2-nistp384: ECDSA
+    ecdsa-sha2-nistp521: ECDSA
+    ssh-ed25519: Ed25519
+    ssh-ed448: Ed448
+  ssh_hostkey_curve:
+    ecdsa-sha2-nistp256: P-256
+    ecdsa-sha2-nistp384: P-384
+    ecdsa-sha2-nistp521: P-521
+  hashes:
+    SHA1: SHA-1
+    SHA256: SHA-256
+    SHA384: SHA-384
+    SHA512: SHA-512
+    MD5: MD5

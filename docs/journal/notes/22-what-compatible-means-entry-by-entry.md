@@ -79,9 +79,11 @@ the suite's own (`SecP384r1MLKEM1024`) is unknown, a count and not a verdict:
 the FAQ says a hybrid is compliant only where NSA identified one, names one for
 IKEv2 and none for TLS, so the pack lists it as unsettled. LMS and XMSS are in
 the suite for signing firmware and software only, and SHA3-384 and SHA3-512 for
-a hardware's internal integrity checks only; the rule does not yet know an
-entry's application, so it takes the table's general-purpose names and the pack
-carries the two application-bound lists for the day it does. The pack was read
+a hardware's internal integrity checks only. The rule reads where the entry is:
+on the platform layer (a system's firmware, its Secure Boot databases, its
+management controller) those names are compatible; a SHA-3 hash on the wire or
+in a file is not compatible; and an LMS or XMSS key in a file is unknown,
+because the evidence does not say what the key signs. The pack was read
 first-hand from the FAQ (Ver. 2.2, October 2026) on 2026-11-09, after NSA's site
 had refused the download to the harness three times; every quote in it is
 checked against the FAQ's text by the loader, and no status is provisional. A
@@ -140,10 +142,11 @@ commit that introduced the rule; `tests/test_managed.py` reproduces the counts.
   the IR 8547 key-size check lives in the queue rule ([note
   07](07-how-a-migration-priority-is-computed.md)), and a 1024-bit RSA key is
   not compatible for the same reason a 4096-bit one is.
-- Under CNSA 2.0 the rule does not know an entry's application, so an LMS or
-  XMSS signature or a SHA-3 hash is judged by the table's general-purpose
-  names; the FAQ's two application-bound allowances are in the pack and not yet
-  in the rule.
+- Under CNSA 2.0 an entry's application is read from its layer and nothing
+  finer: a firmware entry counts as firmware signing or a hardware integrity
+  check, and an LMS or XMSS key outside firmware is unknown until someone says
+  what it signs. No LMS, XMSS or SHA-3 entry exists in the mini-agency, so the
+  rule is tested on constructed entries, not measured on a scan.
 - A pack read first-hand (M-26-15, IR 8547) is checked quote by quote against
   its source text when it loads; the compatibility block adds no quote of its
   own and rests on the resistant and vulnerable lists the pack already carries.

@@ -52,7 +52,7 @@ def test_the_cnsa_pack_is_read_first_hand_and_every_quote_is_the_faqs_own_words(
     text = Path(pack["source"]["text"]).read_text()
     assert check_quotes(pack, text) == []
     assert [d["by"].isoformat() for d in pack["timeline"]["dates"]][:3] == ["2027-01-01", "2030-12-31", "2031-12-31"]
-    assert pack["compatible"]["names"] == {"key-establishment": ["ML-KEM-1024"], "signature": ["ML-DSA-87", "LMS", "XMSS"],
+    assert pack["compatible"]["names"] == {"key-establishment": ["ML-KEM-1024"], "signature": ["ML-DSA-87"],
                                            "encryption": ["AES-256"], "hash": ["SHA-384", "SHA-512"]}
     assert pack["compatible"]["unsettled"] == ["SecP384r1MLKEM1024"]        # no TLS hybrid is NSA-identified
     bad = copy.deepcopy(pack)
@@ -408,3 +408,33 @@ def test_the_cbom_and_the_inventory_carry_the_status(slice_run):
     for name, bom in build_all(events).items():
         if name.startswith("baseline"):
             assert not any(p["name"] == "pqch:compatibility" for c in bom["components"] for p in c.get("properties", []))
+
+
+def test_an_algorithm_cnsa_allows_in_one_application_is_judged_by_where_the_entry_is():
+    pack = load_pack("policy/packs/cnsa-2.0.yaml")
+    fam = load_families(FAM)
+
+    def f(layer, role, name, typ="algorithm"):
+        return {"layer": layer, "asset": {"type": typ, "role": role, "name": name, "parameters": {}}}
+
+    got = {(layer, name): managed.entry_compatibility(pack, fam, f(layer, role, name))
+           for layer in ("platform", "host", "wire") for role, name in (("signature", "LMS"), ("signature", "XMSS"), ("hash", "SHA3-384"))}
+    assert {got[("platform", n)]["status"] for n in ("LMS", "XMSS", "SHA3-384")} == {"compatible"}
+    assert "signing firmware and software" in got[("platform", "LMS")]["basis"]
+    assert got[("host", "LMS")]["status"] == "unknown" and "does not say what it signs" in got[("host", "LMS")]["basis"]
+    assert got[("wire", "SHA3-384")]["status"] == "not-compatible" and "internal hardware integrity" in got[("wire", "SHA3-384")]["basis"]
+    assert managed.entry_compatibility(pack, fam, f("wire", "signature", "ML-DSA-87"))["status"] == "compatible"
+    assert managed.entry_compatibility(pack, fam, f("platform", "hash", "SHA-256"))["status"] == "not-compatible"
+
+
+def test_the_plan_and_the_cbom_page_count_the_same_entries(slice_run):
+    from pqch import cbom, planning
+    from pqch.cbom import anatomy
+
+    prepared(slice_run)
+    events = ev(slice_run)
+    page = anatomy.compatibility(cbom.project(events))
+    plan = planning._compatibility_counts(events)
+    assert {s: plan[s] for s in page["all"]} == page["all"] and plan["entries"] == page["entries"]
+    judged = len(rule(slice_run, "compatibility/entry/1"))
+    assert judged >= page["entries"]        # the rule judges each fingerprint; several can fold onto one entry

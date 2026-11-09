@@ -20,7 +20,7 @@
 @media (prefers-color-scheme: light) {
   :root { --bg: #f6f7f9; --bg2: #e9edf2; --card: #ffffff; --line: #d8dee7; --line2: #c3ccd8;
           --fg: #111722; --fg2: #2a3340; --dim: #5d6773; --faint: #9aa4b1; --accent: #007aa8;
-          --accent-glow: rgba(0,122,168,.25); --good: #157a62; --warn: #8a6a12; --bad: #b2392e; --classical: #5f6a78;
+          --accent-glow: rgba(0,122,168,.25); --good: #157a62; --warn: #7a5c0f; --bad: #b2392e; --classical: #5f6a78;
           color-scheme: light; }
 }
 * { box-sizing: border-box; }

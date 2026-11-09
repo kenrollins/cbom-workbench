@@ -1763,6 +1763,36 @@ def sketch_25_gaps_as_a_queue() -> None:
     p.save(SKETCHES / "25-gaps-as-a-queue.svg")
 
 
+def sketch_70_judgements_fold_onto_entries() -> None:
+    """Lesson 70: the compatibility rule's 227 judgements (189 not compatible) fold onto the document's 221
+    entries (183 not compatible); the plan page read the first, the CBOM page the second."""
+    p = Page(1000, 520, seed=70, title="Judgements fold onto entries")
+    p.text(500, 44, "A rule judges each observation; the document holds each asset once", 30, INK, "middle")
+    p.box(60, 100, 340, 250, INK, 2.2, fill=PAPER)
+    p.text(230, 136, "the rule's judgements", 22, BALLPOINT, "middle")
+    p.text(230, 160, "one per observation, on the ledger", 14.5, PENCIL, "middle")
+    p.text(230, 236, "227", 60, BALLPOINT, "middle")
+    p.text(230, 286, "189 not compatible", 22, STAMP, "middle")
+    p.text(230, 326, "the plan page counted these", 14.5, PENCIL, "middle")
+    p.box(600, 100, 340, 250, INK, 2.2, fill=PAPER)
+    p.text(770, 136, "the document's entries", 22, BALLPOINT, "middle")
+    p.text(770, 160, "one per asset, in the CBOM", 14.5, PENCIL, "middle")
+    p.text(770, 236, "221", 60, BALLPOINT, "middle")
+    p.text(770, 286, "183 not compatible", 22, STAMP, "middle")
+    p.text(770, 326, "the CBOM page counted these", 14.5, PENCIL, "middle")
+    p.line(410, 225, 588, 225, INK, 2.4)
+    p.line(588, 225, 572, 215, INK, 2.4)
+    p.line(588, 225, 572, 235, INK, 2.4)
+    p.text(500, 205, "fold", 20, INK, "middle")
+    p.text(500, 252, "same asset, one entry", 14, PENCIL, "middle")
+    p.text(500, 272, "6 judgements join", 14, PENCIL, "middle")
+    p.text(500, 290, "an entry already there", 14, PENCIL, "middle")
+    p.text(500, 410, "one label, two numbers: both true, and a reader who sees both trusts neither", 17, BALLPOINT, "middle")
+    p.text(500, 446, "so: every page reads the figure from the document, through one function, and a test holds them equal", 15, PENCIL, "middle")
+    p.text(500, 484, "the mini-agency's scan of 2026-11-09", 13, PENCIL, "middle")
+    p.save(SKETCHES / "70-judgements-fold-onto-entries.svg")
+
+
 def sketch_69_summaries_against_the_primary() -> None:
     """Lesson 69: the CNSA 2.0 timeline as two secondary summaries gave it (five equipment categories, dates
     2025 to 2033) beside what the primary FAQ Ver. 2.2 gives (three dates for all of NSS)."""

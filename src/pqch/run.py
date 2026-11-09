@@ -4,12 +4,19 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pqch import cryptoinfo, varmode
+from pqch import clock, cryptoinfo, varmode
 from pqch import scope as scope_mod
 from pqch.common import sha256_hex, ulid
 from pqch.ledger import Ledger
 
 SCHEMAS_IN_USE = ["pqch.event/1", "pqch.finding/1", "pqch.scope/1", "pqch.checkpoint/1", "pqch.verifier/1"]
+
+
+def _aliases() -> dict:
+    """The alias pack that will name this run's findings. Imported here: the scout package imports this module."""
+    from pqch.scout import names
+
+    return names.provenance()
 
 
 class Run:
@@ -31,7 +38,8 @@ class Run:
             "run.started",
             {"kind": "runner", "id": runner_id},
             {"run": run.id, "scope": scope, "scope_hash": ours, "profile": profile,
-             "schemas": SCHEMAS_IN_USE, "kind": kind, "crypto": cryptoinfo.provenance()},
+             "schemas": SCHEMAS_IN_USE, "kind": kind, "crypto": cryptoinfo.provenance(),
+             "clock": clock.time_source(), "aliases": _aliases()},
         )
         for latest in ("LATEST", f"LATEST_{kind.upper()}"):
             (run.var / "runs" / latest).write_text(run.id + "\n")
@@ -50,7 +58,8 @@ class Run:
             "run.started",
             {"kind": "runner", "id": sensor_id},
             {"run": run.id, "scope": scope, "scope_hash": scope_mod.scope_hash(scope), "profile": "capture",
-             "schemas": SCHEMAS_IN_USE, "kind": "capture", "crypto": cryptoinfo.provenance()},
+             "schemas": SCHEMAS_IN_USE, "kind": "capture", "crypto": cryptoinfo.provenance(),
+             "clock": clock.time_source(), "aliases": _aliases()},
         )
         (run.var / "runs" / "LATEST_CAPTURE").write_text(run.id + "\n")
         varmode.private(run.var / "runs" / "LATEST_CAPTURE")

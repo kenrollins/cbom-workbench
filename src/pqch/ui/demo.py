@@ -326,15 +326,41 @@ def payload(var: Path, sheet: list[dict], *, snapshots_dir: Path, hardware: str,
     return out
 
 
+CRITERIA_WORDS = {"high-impact": "a high-impact system", "high-value-asset": "a High Value Asset",
+                  "sensitive-in-2030": "data still sensitive in 2030"}
+KEX_WORDS = {"pq": "already post-quantum only", "mixed": "a hybrid group offered, classical still accepted", "classical": "classical only"}
+
+
+def narration_facts(row: dict) -> dict:
+    """A plan row as facts a model cannot misread: each label says what its value is. The stage and the
+    recorder send short keys (`blocked`, `secret_until`, `kex`); a model given those said a service that is
+    already post-quantum "will implement" it, and turned the year its data stays secret into a deadline for
+    the thing its supplier blocks."""
+    kex = str(row.get("kex") or "")
+    blocked = row.get("blocked") if row.get("blocked") not in (None, "", "nothing") else None
+    done = kex == "pq" and not blocked and not row.get("title")
+    facts = {"rank": row.get("rank"), "service": row.get("service"), "mission": row.get("mission"),
+             "ranked_by_the_memo_for": ", ".join(CRITERIA_WORDS.get(c.strip(), c.strip()) for c in str(row.get("why") or "").split(",") if c.strip())
+                                       or "nothing: the memo does not prioritize it",
+             "its_data_must_stay_secret_until_year": row.get("secret_until"),
+             "key_exchange_today": "/".join(KEX_WORDS.get(k, k) for k in kex.split("/")) if kex else None,
+             "waits_on_its_supplier_for": blocked or "nothing",
+             "next_step": row.get("title") or ("none: every migration item is already met" if done else "none listed in this row"),
+             "step_due": row.get("due")}
+    return {k: v for k, v in facts.items() if v is not None}
+
+
 def narrate(kind: str, row: dict, *, purpose: str = "demo-narration") -> dict:
     """One spoken line for a plan row, from the fast tier with reasoning off, timed and labelled.
     The line is colour, not a decision: the row's order and facts come from the rules."""
     from pqch.inference import complete
-    facts = {k: row.get(k) for k in ("service", "mission", "why", "secret_until", "kex", "blocked", "rank", "title", "due") if row.get(k) is not None}
+    facts = narration_facts(row)
     messages = [
         {"role": "system", "content": "/no_think\nYou narrate one row of a post-quantum migration plan for a federal agency, "
-                                      "on stage, in one plain sentence of at most 28 words. State only the facts given; "
-                                      "no advice, no hedging, no preamble, no quotation marks."},
+                                      "on stage, in one plain sentence of at most 30 words. Say the service, what it is for and "
+                                      "its rank, then its next step and why it is ranked there. If next_step says none, say what "
+                                      "its key exchange is today instead. Use only the facts given, each as its label says. "
+                                      "No advice, no hedging, no preamble, no quotation marks."},
         {"role": "user", "content": f"Row ({kind}): {json.dumps(facts)}"},
     ]
     t0 = time.perf_counter()
