@@ -1,6 +1,7 @@
 /* The stage. One document from /api/demo, drawn beat by beat with d3; every number on screen is
    that document's. Keys: → ← 1–8 F S N L ↑ ↓ ?. Nothing here decides anything: the scan is the
-   page's own /scan, the narration is one timed model call per row, the proof is the ledger's. */
+   page's own /scan, the narration is one timed model call per row, the proof is the ledger's.
+   Hardware is named once, as where this copy's runs were recorded; the beats are about the approach. */
 (function () {
   "use strict";
   const stage = document.getElementById("stage");
@@ -136,20 +137,10 @@
   const C = {accent: "#00a3cc", red: "#e2543f", green: "#35d07f", fg: "#e8edf3", dim: "#8a97a8", nv: "#76b900"};
   function roundRect(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
 
-  // why a standalone box: the GB10 inside a sealed perimeter, its six jobs around it
-  const CAPS = [
-    ["scan the network", "Scanners in containers probe every listener on the wire, from this box.", "in"],
-    ["read hosts whole", "A server's files, firmware and management controller, read as one estate.", "in"],
-    ["build the CBOM", "Every component and dependency, projected from evidence on a signed ledger.", "out"],
-    ["analyze with a local model", STATIC ? "A model the owner runs narrates, drafts and answers; it never decides a finding." : "Nemotron on this GPU narrates, drafts and answers; it never decides a finding.", "out"],
-    ["compute the plan", "What comes first, by rules, from the owner's own facts.", "out"],
-    ["prove each change", "Approved by a person, applied by the runner, verified by re-scan; the models, the data and the record never leave the box.", "out"],
-  ];
-  let heroAnim = null, storyTimers = [];
+  let storyTimers = [];
   function why() {
     storyTimers.forEach(clearTimeout); storyTimers = [];
     story(SNAP ? Number(new URLSearchParams(location.search).get("mv") || 3) : 0);
-    hero();
   }
   // the story: the gap, the chain, the plan — the same dots, organized, top to bottom
   function story(stopAt) {
@@ -165,7 +156,7 @@
       seen.forEach(id => { if (!owner.has(id)) owner.set(id, s); }); });
     const colOf = n => n.kind === "listener" || n.kind === "image" ? 2 : (n.kind === "related-crypto-material" && n.layer === "host") ? 4 : 3;
     const comps = D.cbom.nodes.filter(n => n.kind !== "service").map(n => ({...n, svc: owner.get(n.id) || null, col: colOf(n)}));
-    const bands = {A: [0, H * 0.26], B: [H * 0.28, H * 0.62], C: [H * 0.64, H]};
+    const bands = {A: [0, H * 0.29], B: [H * 0.31, H * 0.62], C: [H * 0.64, H]};
     const lanes = rank.slice(0, 8), T0 = stopAt ? 0 : 1;
     const band = (k, y, label) => { svg.append("line").attr("class", "band-line").attr("x1", 0).attr("x2", W).attr("y1", y - 6).attr("y2", y - 6);
       return svg.append("text").attr("class", "band-k").attr("id", "bk-" + k).attr("x", 0).attr("y", y + 8).text(label); };
@@ -203,7 +194,7 @@
       .text(d => (d.name || "").replace(/172\.16\.106\./, ".")).attr("opacity", 0);
     const bLab = svg.append("text").attr("class", "mark").attr("x", W - 4).attr("y", b1 - 2).attr("text-anchor", "end").attr("opacity", 0).text(`${fmt(c.links)} dependencies, each from evidence on the ledger`);
     // ── band C: the plan
-    const [c0, c1] = bands.C; band("C", c0 + 6, "3 · the plan: rules order the same components into steps, from the record; the local model drafts each change and explains it");
+    const [c0, c1] = bands.C; band("C", c0 + 6, "3 · the plan: rules order the same components into steps, from the record, in the order the dependencies allow");
     const L = 118, laneH = (c1 - c0 - 46) / lanes.length, top = c0 + 36, waves = ["now", "2030", "2031"], wx = w => L + (W - L - 20) * ({now: 0.16, "2030": 0.5, "2031": 0.84}[w] || 0.5);
     waves.forEach(w => svg.append("text").attr("class", "col-k").attr("x", wx(w)).attr("y", c0 + 30).attr("text-anchor", "middle").text(w === "now" ? "now" : "by " + w));
     const order = (P.order || []).filter(s => s.service && lanes.includes(s.service)).map(s => ({...s}));
@@ -215,7 +206,7 @@
     const perSvc = new Map(); comps.forEach(d => { const li = lanes.indexOf(d.svc); if (li < 0) { d.cx2 = L + 10 + rnd() * (W - L - 40); d.cy2 = c1 - 8; d.none = true; return; }
       const room = Math.min(120, wx("now") - 54 - L - 20); d.cx2 = L + 8 + rnd() * room; d.cy2 = top + li * laneH + 5 + rnd() * (laneH - 12); d.none = !order.some(x => x.service === d.svc); });
     const boxes = svg.append("g").selectAll("g").data(order).join("g").attr("transform", d => `translate(${d.x},${d.y})`).attr("opacity", 0);
-    boxes.append("rect").attr("x", -54).attr("y", -10).attr("width", 108).attr("height", 20).attr("rx", 3).attr("fill", "rgba(12,17,23,.9)")
+    boxes.append("rect").attr("x", -54).attr("y", -8).attr("width", 108).attr("height", 17).attr("rx", 3).attr("class", "story-step")
       .attr("stroke", d => d.state === "ready" ? "#00a3cc" : "rgba(196,207,221,.45)").attr("stroke-width", 1.2).attr("stroke-dasharray", d => d.state === "ready" ? null : "3 3");
     boxes.append("text").attr("class", "mark").attr("text-anchor", "middle").attr("y", 4).style("font-size", "10px").text(d => word(d));
     lanes.forEach((s, i) => { if (!order.some(x => x.service === s)) svg.append("text").attr("class", "mark dim").attr("id", "none-" + i).attr("x", W - 10).attr("y", top + i * laneH + laneH / 2 + 4).attr("text-anchor", "end").attr("fill", "#35d07f").attr("opacity", 0).text("nothing open · every item met"); });
@@ -223,7 +214,7 @@
     const dp = svg.append("g").selectAll("path").data(deps).join("path").attr("fill", "none").attr("stroke", "rgba(0,163,204,.7)").attr("stroke-width", 1.2)
       .attr("d", d => { const x0 = d.from.x + 54, x1 = d.to.x - 54, m = (x0 + x1) / 2; return `M${x0},${d.from.y} C${m},${d.from.y} ${m},${d.to.y} ${x1},${d.to.y}`; });
     const cLab = svg.append("text").attr("class", "mark").attr("x", W - 4).attr("y", c1 - 2).attr("text-anchor", "end").attr("opacity", 0)
-      .text(`${(P.order || []).length} steps in three waves · ${deps.length} dependencies · ordered by rules, drafted and explained by the local model`);
+      .text(`${(P.order || []).length} steps in three waves · ${deps.length} dependencies · ordered by rules, the same every run`);
     // ── the dots, drawn last so they ride above the lines
     const ghostA = svg.append("g").selectAll("circle").data(comps).join("circle").attr("r", 2.2).attr("fill", d => d.qv ? "#e2543f" : "rgba(196,207,221,.7)").attr("cx", d => d.ax).attr("cy", d => d.ay).attr("opacity", 0);
     const ghostB = svg.append("g").selectAll("circle").data(comps).join("circle").attr("r", 2.2).attr("fill", d => d.qv ? "#e2543f" : "rgba(196,207,221,.7)").attr("cx", d => d.bx).attr("cy", d => d.by).attr("opacity", 0);
@@ -233,14 +224,14 @@
     const say = html => { sel("story-p").innerHTML = html; };
     const sayA = `An inventory of systems is not an inventory of cryptography. Each row stands alone: nothing says what depends on what, or when it last changed, while the estate under it keeps moving. <em>The wire and the files hold ${fmt(c.components)} components, ${fmt(c.quantum_vulnerable)} of them quantum-vulnerable.</em>`;
     const sayB = `The CBOM is the same components with their dependencies: which service runs which listener, what each negotiates, which file each key sits in. <em>Every link from evidence on a signed ledger, so a model can be asked about it and checked against it.</em>`;
-    const sayC = `Organized, they are a plan: each component to its service, each service to a lane, each lane to the steps that move it, in the order the dependencies allow. <em>${(P.order || []).length} steps: rules put them in order from the record, so the order is the same every run; the local model ${STATIC ? "in the lab" : "on this box"} drafts each change and explains the plan in the owner's words.</em>`;
+    const sayC = `Organized, they are a plan: each component to its service, each service to a lane, each lane to the steps that move it, in the order the dependencies allow. <em>${(P.order || []).length} steps: rules put them in order from the record, so the order is the same every run; a change is proposed by a rule or a model, approved by a person, and proved on the wire.</em>`;
     if (stopAt) {   // a still: the state after band A, B or C
       dots.attr("opacity", .9); aLab.attr("opacity", 1); bandOn("A"); say(sayA);
       if (stopAt >= 2) { ghostA.attr("opacity", .22); dots.attr("cx", d => d.bx).attr("cy", d => d.by); lk.attr("opacity", 1); sg.attr("opacity", 1); ll.attr("opacity", 1); bLab.attr("opacity", 1); bandOn("B"); say(sayB); }
       if (stopAt >= 3) { ghostB.attr("opacity", .22); dots.attr("cx", d => d.cx2).attr("cy", d => d.cy2).attr("opacity", .85); lk.attr("opacity", .25); boxes.attr("opacity", 1); svg.selectAll("[id^=none-]").attr("opacity", 1); cLab.attr("opacity", 1); bandOn("C"); say(sayC); }
       return;
     }
-    // live: A at once, B after 6 s, C after 13 s; the earlier bands stay, so the page reads top to bottom
+    // live: A at once, B after 7 s, C after 14 s; the earlier bands stay, so the page reads top to bottom
     bandOn("A"); say(sayA);
     dots.transition().delay((d, i) => 400 + i * 5).duration(500).attr("opacity", .9);
     aLab.transition().delay(2200).attr("opacity", 1);
@@ -249,113 +240,55 @@
       dots.transition().delay((d, i) => i * 4).duration(1200).ease(d3.easeCubicInOut).attr("cx", d => d.bx).attr("cy", d => d.by);
       lk.attr("stroke-dasharray", function () { const l = this.getTotalLength(); return `${l} ${l}`; }).attr("stroke-dashoffset", function () { return this.getTotalLength(); }).attr("opacity", 1)
         .transition().delay((d, i) => 1300 + i * 6).duration(600).attr("stroke-dashoffset", 0).on("end", function () { d3.select(this).attr("stroke-dasharray", null); });
-      ll.transition().delay(1400).duration(500).attr("opacity", 1); bLab.transition().delay(3200).attr("opacity", 1); }, 6000));
+      ll.transition().delay(1400).duration(500).attr("opacity", 1); bLab.transition().delay(3200).attr("opacity", 1); }, 7000));
     storyTimers.push(setTimeout(() => { if (names[at] !== "why") return; bandOn("C"); say(sayC);
       lk.transition().duration(800).attr("opacity", .25); ghostB.transition().delay(600).duration(800).attr("opacity", .22);
       dots.transition().delay((d, i) => i * 4).duration(1300).ease(d3.easeCubicInOut).attr("cx", d => d.cx2).attr("cy", d => d.cy2).attr("opacity", .85);
       boxes.transition().delay(2300).duration(500).attr("opacity", 1); svg.selectAll("[id^=none-]").transition().delay(2300).attr("opacity", 1);
       dp.attr("stroke-dasharray", function () { const l = this.getTotalLength(); return `${l} ${l}`; }).attr("stroke-dashoffset", function () { return this.getTotalLength(); })
         .transition().delay((d, i) => 2900 + i * 120).duration(700).attr("stroke-dashoffset", 0);
-      cLab.transition().delay(4200).attr("opacity", 1); }, 13000));
+      cLab.transition().delay(4200).attr("opacity", 1); }, 14000));
   }
 
-  // the figure: the GB10 inside a sealed perimeter, its six jobs around it
-  function hero() {
-    if (heroAnim) cancelAnimationFrame(heroAnim);
-    const {ctx, W, H} = canvas("hero-canvas");
-    const cx = W * 0.5, cy = H * 0.52, RX = Math.min(W * 0.36, 430), RY = Math.min(H * 0.5 - 64, RX * 0.74), bw = 304, bh = 122;
-    const sats = CAPS.map((cap, i) => { const a = -Math.PI / 2 + i * Math.PI * 2 / CAPS.length; return {cap, a, x: cx + Math.cos(a) * RX, y: cy + Math.sin(a) * RY, lit: SNAP ? 1 : 0}; });
-    let typed = "", typedFor = -1, cycleAt = 0, cycleT = 0;
-    const parts = []; for (let i = 0; i < 260; i++) parts.push({s: i % CAPS.length, t: Math.random(), v: 0.15 + Math.random() * 0.2, o: (Math.random() - 0.5) * 18});
-    const orbit = d3.range(40).map(i => ({a: Math.random() * Math.PI * 2, v: 0.25 + Math.random() * 0.2}));
-    const t0 = performance.now(); const NC = CAPS.length; let litUpTo = SNAP ? NC : 0, last = t0;
-    const caption = sel("hero-caption");
-    const frame = now => {
-      if (now - last < 30 && !SNAP) { heroAnim = requestAnimationFrame(frame); return; }
-      const dt = Math.min(0.05, (now - last) / 1000); last = now;
-      const el = (now - t0) / 1000;
-      if (!SNAP) litUpTo = Math.min(NC, Math.floor(el / 2.6) + 1);
-      const sealed = litUpTo >= NC;
-      ctx.clearRect(0, 0, W, H);
-      ctx.save(); ctx.translate(cx, cy);
-      ctx.setLineDash([14, 10]); ctx.lineDashOffset = SNAP ? 0 : -el * 18; ctx.lineWidth = sealed ? 2.5 : 1.5; ctx.strokeStyle = sealed ? `rgba(0,163,204,${0.6 + 0.3 * Math.sin(el * 3)})` : "rgba(0,163,204,.45)";
-      ctx.beginPath(); ctx.ellipse(0, 0, RX + 46, RY + 44, 0, 0, Math.PI * 2); ctx.stroke();
-      ctx.setLineDash([]); ctx.strokeStyle = "rgba(0,163,204,.12)"; ctx.beginPath(); ctx.ellipse(0, 0, RX + 58, RY + 56, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
-      if (sealed) orbit.forEach(o => { o.a += o.v * dt * (SNAP ? 0 : 1); ctx.fillStyle = "rgba(0,163,204,.85)"; ctx.beginPath(); ctx.arc(cx + Math.cos(o.a) * (RX + 46), cy + Math.sin(o.a) * (RY + 44), 1.8, 0, Math.PI * 2); ctx.fill(); });
-      ctx.font = "600 10px JetBrains Mono, monospace"; ctx.fillStyle = "rgba(0,163,204,.85)"; ctx.textAlign = "center";
-      ctx.fillText(sealed ? "AIR-GAPPED  ·  NOTHING LEAVES THE BOX" : "ONE DESKTOP BOX", cx, cy - RY - 62);
-      // after the sweep, the caption cycles through the eight jobs, and the one being told pulses
-      if (sealed && !SNAP) { cycleT += dt; if (cycleT > 5.5) { cycleT = 0; cycleAt = (cycleAt + 1) % NC; } }
-      const focus = sealed ? cycleAt : Math.max(0, Math.min(NC - 1, litUpTo - 1));
-      sats.forEach((s, i) => {
-        const on = i < litUpTo; s.lit += ((on ? 1 : 0) - s.lit) * Math.min(1, dt * 4);
-        if (s.cap[2] === "ring") return;
-        ctx.strokeStyle = `rgba(0,163,204,${0.08 + 0.3 * s.lit})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(s.x, s.y); ctx.stroke();
-      });
-      parts.forEach(p => {
-        const s = sats[p.s]; if (s.lit < 0.2) return;
-        p.t += p.v * dt * (SNAP ? 0 : 1); if (p.t > 1) p.t -= 1;
-        const dir = s.cap[2] === "in" ? p.t : 1 - p.t;
-        const x = s.x + (cx - s.x) * dir, y = s.y + (cy - s.y) * dir, nx = -(cy - s.y), ny = (cx - s.x), L = Math.hypot(nx, ny) || 1;
-        ctx.fillStyle = s.cap[2] === "in" ? `rgba(0,163,204,${0.9 * s.lit})` : `rgba(53,208,127,${0.9 * s.lit})`;
-        ctx.beginPath(); ctx.arc(x + nx / L * p.o * 0.3, y + ny / L * p.o * 0.3, 1.8, 0, Math.PI * 2); ctx.fill();
-      });
-      sats.forEach((s, i) => {
-        const pulse = i === focus ? 1 + 0.12 * Math.sin(el * 4) : 1;
-        ctx.beginPath(); ctx.arc(s.x, s.y, 22 * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(0,163,204,${0.08 + 0.3 * s.lit + (i === focus ? 0.2 : 0)})`; ctx.fill();
-        ctx.lineWidth = i === focus ? 2.5 : 1.5; ctx.strokeStyle = `rgba(0,163,204,${0.35 + 0.65 * s.lit})`; ctx.stroke();
-        if (s.lit > 0.5) { ctx.lineWidth = i === focus ? 10 : 7; ctx.strokeStyle = `rgba(0,163,204,${0.14 * s.lit})`; ctx.stroke(); ctx.lineWidth = i === focus ? 2.5 : 1.5; }
-        ctx.fillStyle = `rgba(232,237,243,${0.45 + 0.55 * s.lit})`; ctx.font = `${s.lit > 0.5 ? 600 : 500} 13px Inter, sans-serif`;
-        ctx.textAlign = "center"; ctx.fillText(s.cap[0], s.x, s.y + (s.y < cy ? -32 : 42));
-      });
-      ctx.save(); for (let k = 3; k >= 1; k--) { roundRect(ctx, cx - bw / 2 - k * 6, cy - bh / 2 - k * 6, bw + k * 12, bh + k * 12, 6 + k * 3); ctx.fillStyle = `rgba(0,163,204,${0.05 * (4 - k)})`; ctx.fill(); }
-      roundRect(ctx, cx - bw / 2, cy - bh / 2, bw, bh, 6); ctx.fillStyle = "#0e1620"; ctx.fill(); ctx.restore();
-      roundRect(ctx, cx - bw / 2, cy - bh / 2, bw, bh, 6); ctx.lineWidth = 2; ctx.strokeStyle = C.accent; ctx.stroke();
-      ctx.textAlign = "center"; ctx.fillStyle = C.fg; ctx.font = "500 19px EB Garamond, serif"; ctx.fillText("Dell Pro Max GB10", cx, cy - 24);
-      ctx.fillStyle = C.dim; ctx.font = "400 11px Inter, sans-serif"; ctx.fillText("Grace CPU · Blackwell GPU · 128 GB unified memory", cx, cy - 4);
-      ctx.fillStyle = C.nv; ctx.font = "600 10px JetBrains Mono, monospace"; ctx.fillText("NEMOTRON · NeMo RETRIEVER · CUDA 13", cx, cy + 18);
-      ctx.fillStyle = C.accent; ctx.fillText("SIGNED LEDGERS · REPLAYABLE RECORDINGS", cx, cy + 36);
-      const cur = sats[focus];
-      if (SNAP) caption.innerHTML = `<b>${esc(cur.cap[0])}</b> — ${esc(cur.cap[1])}`;
-      else { if (typedFor !== focus) { typedFor = focus; typed = ""; } if (typed.length < cur.cap[1].length) typed = cur.cap[1].slice(0, typed.length + 1);
-        caption.innerHTML = `<b>${esc(cur.cap[0])}</b> — ${esc(typed)}<span class="cur"></span>`; }
-      if (names[at] === "why" && !SNAP && !document.hidden) heroAnim = requestAnimationFrame(frame);
-    };
-    frame(performance.now());
-  }
-
-  // the architecture: five layers, one box
+  // how it fits together: the layers of the approach, hardware-neutral, and the ledger beside every one
   let archTimers = [];
   function arch() {
     archTimers.forEach(clearTimeout); archTimers = [];
-    const E = D.engine || {}, T = E.tiers || {}, live = E.live || {}, c = (D.cbom || {}).counts || {}, sc = D.scan || {};
-    const fastHw = (T.fast || {}).hardware || "", embedHw = (T.embed || {}).hardware || "";
-    const ver = (s, re) => { const m = (s || "").match(re); return m ? m[0] : ""; };
-    const box = (b, s, o) => `<div class="box ${o && o.live ? "live" : ""}" data-k="${o && o.k || ""}"><b>${esc(b)}${o && o.nv ? '<span class="nv">NVIDIA</span>' : ""}${o && o.live ? '<span class="lv">LIVE</span>' : ""}</b>${s ? `<span>${s}</span>` : ""}</div>`;
+    const E = D.engine || {}, T = E.tiers || {}, R = E.roles || {}, c = (D.cbom || {}).counts || {}, sc = D.scan || {}, Pf = D.policy || {}, P = D.plan || {};
+    const comp = Pf.compatibility || null, gaps = Pf.gaps || null, packs = Pf.packs || [];
+    const box = (b, s, o) => `<div class="box ${o && o.live ? "live" : ""}" data-k="${o && o.k || ""}"><b>${esc(b)}${o && o.live ? '<span class="lv">LIVE</span>' : ""}</b>${s ? `<span>${s}</span>` : ""}</div>`;
+    const tierLabel = t => { const h = (T[t] || {}).hardware || ""; return h ? esc(h.replace(/^[^(]*\(/, "").replace(/\)$/, "")) : "bound in config"; };
+    const roleWords = {"ask-cbom": "answer a question", "call-site-read": "read a call site", "classify-algorithm": "name an algorithm", "trace-to-cause": "trace a finding to its line",
+                       "change-plan": "propose a change", "demo-narration": "narrate the plan", "explain-queue": "explain a queue item", "reconcile": "reconcile conflicts", "embed": "embed an entry"};
+    const roles = Object.entries(R).map(([r, v]) => `${esc(roleWords[r] || r.replace(/-/g, " "))} <code>${esc(v.tier)}</code>`).join(" · ");
+    const packTitles = packs.map(p => esc((p.title || p.id).split(",")[0].split(" (")[0])).join(" · ");
     const bands = [
-      ["L5 · Outputs", "what leaves the ledger as a projection, and the people's part", "rgba(53,208,127,.6)", "rgba(53,208,127,.05)", [
+      ["L5 · What comes out", "projections of the ledger, never edited; and the people's part", "rgba(53,208,127,.6)", "rgba(53,208,127,.05)", [
         box("CBOM", `${fmt(c.components)} components · ${fmt(c.quantum_vulnerable)} quantum-vulnerable · CycloneDX 1.6`, {k: "cbom"}),
-        box("Plan", `${fmt(((D.plan || {}).order || []).length)} steps, ordered by rules from the memo's criteria`, {k: "plan"}),
-        box("Changes proved on the wire", `${((D.change || {}).changes || []).filter(x => x.landed).length} landed · approved by a person · verified twice`, {k: "changes"}),
-        box("Ask the CBOM", "answers from retrieved entries, every citation checked", {k: "ask"}), box("This stage", STATIC ? `every number from the recorded runs (${esc(D.hardware)})` : "every number read live", {k: "stage"})]],
-      ["L4 · Workbench", "three services and two runners, each with one job; scanners as containers", "rgba(0,163,204,.6)", "rgba(0,163,204,.05)", [
-        box("app", "FastAPI, server-rendered, the only public leg", {k: "app"}), box("runner", "holds the Docker socket; starts every scanner as a container, by digest", {k: "runner"}),
-        box("signer", "ML-DSA-65 checkpoints; the key where nothing else reads it", {k: "signer"}), box("system runner", "reads this box's listeners, files and firmware", {k: "sysrunner"}),
-        box("inference seam", "tiers fast · deliberate · embed; a role moves to a model only by measurement", {k: "seam"}),
+        box("Register and plan", `${Pf.register_rows != null ? fmt(Pf.register_rows) + " rows · " : ""}${fmt((P.order || []).length)} steps in order, with the owner's facts beside each`, {k: "plan"}),
+        box("Changes proved on the wire", `${((D.change || {}).changes || []).filter(x => x.landed).length} landed · approved by a person · probed twice`, {k: "changes"}),
+        box("Ask the CBOM", "answers from retrieved entries, every citation checked", {k: "ask"}),
+        box("Gap queue", gaps ? `${fmt(gaps.open)} open · ${fmt(gaps.filled)} filled: what the scan could not reach, named` : "what the scan could not reach, named", {k: "gaps"}),
+        box("This stage", STATIC ? `every number from the recorded runs (${esc(D.hardware)})` : "every number read live", {k: "stage"})]],
+      ["L4 · Judgement", "rules over the evidence; a model only where interpretation is needed; nothing applies without an approval", "rgba(229,163,58,.6)", "rgba(229,163,58,.05)", [
+        box("Policy packs, as data", `${packTitles || "the memo, the transition standard, the NSS suite"} · each quote checked against its source text`, {k: "packs"}),
+        box("Rules", comp ? `each entry under its pack: ${fmt(comp.compatible)} compatible · ${fmt(comp["not-compatible"])} not · ${fmt(comp.unknown)} unknown` : "posture, quantum-vulnerable, compatibility per entry, deadline, priority", {k: "rules"}),
+        box("Claims and grades", "wire over file over statement; a conflict is kept, not resolved by a model", {k: "claims"}),
+        box("Supplier statements", `${Pf.attestations ? fmt(Pf.attestations) + " recorded · " : Pf.attestations === 0 ? "none for this estate yet · " : ""}reported beside observed, never merged`, {k: "attest"}),
+        box("The owner's facts", "mission, impact, data lifetime: supplied, never computed", {k: "owner"}),
+        box("Verifier", "paired probes: new-only succeeds, old-only is refused; no model", {k: "verifier"})]],
+      ["L3 · The harness", "three services and two runners, each with one job; scanners as containers", "rgba(0,163,204,.6)", "rgba(0,163,204,.05)", [
+        box("app", "server-rendered pages; the only public leg; the one writer to the ledger", {k: "app"}), box("runner", "holds the Docker socket; starts every scanner as a container, by digest, inside the scope file", {k: "runner"}),
+        box("signer", "ML-DSA-65 checkpoints; the key where nothing else reads it", {k: "signer"}), box("system runner", "reads a host whole: listeners, files, firmware, controller", {k: "sysrunner"}),
+        box("inference seam", "tiers fast · deliberate · embed; which model serves a tier is config, never code", {k: "seam"}),
         box("scanners", (D.scanners || []).map(s => `<code>${esc(s.tool)} ${esc(s.version || "")}</code>`).join(" "), {k: "scanners"})]],
-      ["L3 · Models", "served on the GPU, NVFP4 weights, offline", "rgba(118,185,0,.6)", "rgba(118,185,0,.05)", [
-        box("Nemotron 3.5 Lightning 30B-A3B", `${esc(ver(fastHw, /NVFP4[^,)]*/) || "NVFP4")} · tiers fast and deliberate · reasoning on or off per role`, {nv: 1, k: "llm"}),
-        box("vLLM", `${esc(ver(fastHw, /vLLM [0-9.]+/) || "vLLM")} on the Blackwell GPU · OpenAI-compatible · ${esc(ver(fastHw, /0\.[0-9]+ share/) || "")}`, {k: "vllm"}),
-        box("NeMo Retriever embed NIM", `${esc(ver(embedHw, /llama-nemotron-embed[^ )]*( [0-9.]+)?/) || "llama-nemotron-embed-1b-v2")} · retrieval for Ask`, {nv: 1, k: "embed"}),
-        box("The index", "a cosine over the CBOM's entries, in the app; then two hops up its dependencies, by rule", {k: "index"}),
-        live.models ? box("the engine, now", `serving <code>${esc(live.models.join(", "))}</code> · ${fmt(live.ms)} ms round trip`, {live: 1, k: "engine"}) : ""]],
-      ["L2 · Platform", "containers with the GPU through CDI; a read-only registry; nothing fetched", "rgba(196,207,221,.5)", "rgba(196,207,221,.04)", [
-        box("Ubuntu 24.04 aarch64", "kernel 7.0 nvidia", {k: "os"}), box("CUDA 13", "", {nv: 1, k: "cuda"}), box("NVIDIA Container Toolkit", "CDI: <code>nvidia.com/gpu=all</code>", {nv: 1, k: "cdi"}),
-        box("Docker Engine 29", "every scanner and service a container", {k: "docker"}), box("Image registry on the box", "<code>127.0.0.1:15000</code>, read-only, images by digest", {k: "registry"})]],
-      ["L1 · Hardware", "one desktop box; the same stack scales without changing shape", "rgba(229,163,58,.6)", "rgba(229,163,58,.05)", [
-        box("Dell Pro Max GB10", "Grace: 20 Arm cores · 128 GB unified memory · ConnectX-7", {k: "gb10"}), box("Blackwell GPU", "NVFP4 tensor cores · shares the unified memory", {nv: 1, k: "gpu"}),
-        box("GB10 → two GB10s → GB300 → PowerEdge XE → AI factory", "the scale story", {k: "scale"})]],
+      ["L2 · Models, by role", "a role moves to a model only by measurement against a floor written first", "rgba(118,185,0,.6)", "rgba(118,185,0,.05)", [
+        box("fast tier", tierLabel("fast"), {k: "fast"}), box("deliberate tier", tierLabel("deliberate"), {k: "deliberate"}), box("embed tier", tierLabel("embed"), {k: "embed"}),
+        box("The roles", roles || "narrate, propose, trace, answer, name", {k: "roles"}),
+        box("What a model never does", "decide a finding, a verdict or an approval", {k: "never"})]],
+      ["L1 · Where it runs", "any host with Docker; images by digest; one measured host is named on every event", "rgba(196,207,221,.5)", "rgba(196,207,221,.04)", [
+        box("This copy", `recorded on <code>${esc(D.hardware)}</code>`, {k: "where"}), box("An offline bundle", "its own image registry and local models; nothing fetched", {k: "bundle"}),
+        box("One option: an isolated scanner", "the whole kit on one desktop GPU box, network cut, on a segment; run once, in the field notes", {k: "isolated"})]],
     ];
     const el = sel("arch"); el.innerHTML = "";
     bands.forEach(([h, sub, bc, bb, boxes], k) => {
@@ -366,32 +299,35 @@
     });
     // the substrate stands beside every layer: whatever any of them does becomes an event here first
     const sub = document.createElement("div"); sub.className = "band substrate";
-    sub.innerHTML = `<h3>The event substrate<small>one signed JSONL ledger per run, beside every layer: the authoritative record, not a log</small></h3><div class="boxes">` +
-      box("Hash-chained events", `${fmt(sc.events)} on the latest scan · every finding, assessment, approval, verdict`, {k: "events"}) + box("Checkpoints signed with ML-DSA-65", "by the signer, key id on every page", {k: "ckpt"}) +
-      box("Projections", "the CBOM, the plan, every page: rebuilt from the events, never edited", {k: "proj"}) + box("Replayable", "a recording replays into a new signed run on any box", {k: "replay"}) +
+    sub.innerHTML = `<h3>The record<small>one signed JSONL ledger per run, beside every layer: the system of record, not a log</small></h3><div class="boxes">` +
+      box("Hash-chained events", `${fmt(sc.events)} on the latest scan · every finding, judgement, approval, verdict, model call`, {k: "events"}) + box("Checkpoints signed with ML-DSA-65", "by the signer, key id on every page", {k: "ckpt"}) +
+      box("Projections", "the CBOM, the register, the plan, every page: rebuilt from the events, never edited", {k: "proj"}) + box("Replayable", "a recording replays into a new signed run on any host; this copy is one", {k: "replay"}) +
       `</div><div class="tape" id="tape"><div class="tape-k">the ledger, as it is written</div></div>`;
     el.appendChild(sub); if (SNAP) sub.classList.add("in"); else archTimers.push(setTimeout(() => sub.classList.add("in"), 200));
+    el.style.zoom = ""; const room = window.innerHeight - el.getBoundingClientRect().top - 64, need = el.scrollHeight;
+    if (need > room && room > 300) el.style.zoom = String(Math.max(0.62, room / need));   // every layer on one screen
     const cap = document.createElement("div"); cap.className = "jcap"; cap.id = "jcap";
     const svg = d3.select(el).append("svg").attr("class", "journey");
-    // three journeys through the layers, each a real path through the stack; the stops are the boxes above
+    // five journeys through the layers, each a real path; the stops are the boxes above
     const J = [
-      ["A scan: from the runner to the CBOM", [["runner", "The runner starts a scanner."], ["registry", "Its image comes by digest from the box's own registry; nothing is fetched."], ["docker", "It runs as a container on the target network."],
-        ["scanners", "The scanner probes a listener on the wire."], ["events", "The finding is appended, hash-chained to the one before.", 1], ["signer", "The signer checkpoints the chain."],
-        ["ckpt", "An ML-DSA-65 signature, key id on every page.", 1], ["proj", "The CBOM is rebuilt from the events."], ["cbom", "The CBOM says what the wire said."]]],
-      ["A question: from Ask to the GPU and back", [["ask", "A question, in the owner's words."], ["seam", "The seam picks the tier; which model serves it is config, not code."], ["embed", "The embed NIM turns the question into a vector."],
-        ["index", "The nearest CBOM entries come back, and the chain above each, by rule."], ["vllm", "The fast tier answers from them, thinking off, citing them."], ["gpu", "NVFP4 weights on the Blackwell GPU, in unified memory."],
-        ["engine", "The answer comes back through the one seam."], ["ask", "Every citation is checked against the entries the model was shown."], ["events", "The answer and its check go on the ledger.", 1]]],
-      ["A change: approved by a person, proved on the wire", [["plan", "A step is drafted; a person reads it."], ["changes", "They approve it, in their name."], ["events", "The approval is an event before anything moves.", 1],
-        ["runner", "The runner applies the change."], ["scanners", "Then it probes twice: new-only succeeds, old-only is refused."], ["events", "The verdict is an event; a model never decides it.", 1],
+      ["A scan: from the runner to the CBOM", [["runner", "The runner starts a scanner, inside the scope file."], ["bundle", "Its image comes by digest from the bundle's own registry; nothing is fetched."],
+        ["scanners", "The scanner probes a listener on the wire, or reads an image's files."], ["events", "The finding is appended, hash-chained to the one before.", 1], ["signer", "The signer checkpoints the chain."],
+        ["ckpt", "An ML-DSA-65 signature, key id on every page.", 1], ["proj", "The CBOM is rebuilt from the events."], ["cbom", "The CBOM says what the wire and the files said."]]],
+      ["A policy: from the memo's text to a tag on every entry", [["packs", "A pack holds the memo's dates and lists as quotes; the loader checks each against the source text."], ["rules", "A rule reads each entry under its pack: compatible, not, unknown, or outside the pack."],
+        ["events", "Each judgement is an event, with the rule and the quote it rests on.", 1], ["proj", "The CBOM entry carries the tag; the plan and the CBOM page count from one projection."],
+        ["plan", "The register has the tags per service; the plan orders the steps from them."], ["gaps", "What the rule could not judge stays open, named."]]],
+      ["A supplier's statement: reported beside observed", [["attest", "A supplier's statement is recorded as its own signed run."], ["claims", "Its rows are claims with a grade below the wire's and the files'; never merged into them."],
+        ["events", "The match to what the scan observed is an event.", 1], ["plan", "A step that waits on the supplier says so, with the statement's date."], ["owner", "The owner's facts set what that wait costs."]]],
+      ["A change: approved by a person, proved on the wire", [["plan", "A step is proposed, by a rule or a model; a person reads it."], ["changes", "They approve it, in their name."], ["events", "The approval is an event before anything moves.", 1],
+        ["runner", "The runner applies the change."], ["verifier", "Two probes: new-only succeeds, old-only is refused."], ["events", "The verdict is an event; a model never decides it.", 1],
         ["ckpt", "Signed."], ["plan", "The plan turns the step done, because the wire said so."]]],
-      ["A host read whole", [["sysrunner", "The system runner reads this box: listeners, files, firmware, the management controller."], ["os", "Under /host, read-only."],
-        ["events", "Each key, certificate and cipher becomes an event.", 1], ["signer", "Checkpointed by its own signer."], ["ckpt", "Key id on every page.", 1], ["proj", "The host's page is a projection."], ["stage", "This stage reads it live."]]],
-      ["A replay on another box", [["replay", "A recording from one box."], ["runner", "It replays into the runner here."], ["events", "A new run, a new chain, the same findings.", 1],
-        ["signer", "Signed by this box's key."], ["ckpt", "Verified end to end.", 1], ["proj", "The CBOM rebuilt."], ["cbom", "The same CBOM, provably."]]],
+      ["A question: from Ask to a model and back", [["ask", "A question, in the owner's words."], ["seam", "The seam picks the tier; which model serves it is config, not code."], ["embed", "The embed tier turns the question into a vector."],
+        ["proj", "The nearest CBOM entries come back, and the chain above each, by rule."], ["deliberate", "The model answers from them, citing them."], ["never", "It decides nothing; it reads."],
+        ["ask", "Every citation is checked against the ledger."], ["events", "The answer and its check go on the ledger.", 1]]],
     ];
     // the activities, as buttons: the stage cycles through them; a click starts one from the top
     const btns = document.createElement("div"); btns.className = "jbtns";
-    J.forEach(([title], j) => { const b = document.createElement("button"); b.type = "button"; b.textContent = title.split(":")[0].replace(/ on another box| read whole/, m => m); b.title = title;
+    J.forEach(([title], j) => { const b = document.createElement("button"); b.type = "button"; b.textContent = title.split(":")[0]; b.title = title;
       b.addEventListener("click", ev => { ev.preventDefault(); archTimers.forEach(clearTimeout); archTimers = []; svg.selectAll("*").interrupt(); run(j); }); btns.appendChild(b); });
     const acts = sel("arch-acts"); acts.innerHTML = ""; acts.appendChild(btns); acts.appendChild(cap);
     const pos = node => { let x = 0, y = 0, n = node; while (n && n !== el) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; } return {x: x + node.offsetWidth / 2, y: y + node.offsetHeight / 2}; };
@@ -519,7 +455,10 @@
       .text(d => `${(d.name || "").split(" ")[1] || d.name} · ${(d.protocol || "").toLowerCase()}`);
     const ge = svg.append("g").selectAll("g").data(ents).join("g").attr("class", "ch-ent").attr("transform", d => `translate(${d.x},${d.y})`);
     ge.append("circle").attr("r", 3.6).attr("fill", d => col(d)).attr("class", "ch-dot"); ge.append("text").attr("class", "ch-mono small").attr("x", 9).attr("y", 3.5).attr("fill", d => col(d)).text(d => d.name);
-    svg.append("text").attr("class", "mark dim").attr("x", W - 12).attr("y", H - 10).attr("text-anchor", "end").text(`${ents.filter(e => e.qv).length} quantum-vulnerable · ${ents.filter(e => e.pq).length} post-quantum · ${ents.length} entries on ${lis.length} listeners`);
+    const lg = svg.append("text").attr("class", "mark dim").attr("x", W - 12).attr("y", H - 10).attr("text-anchor", "end");
+    lg.append("tspan").attr("fill", "#e2543f").text("● ").append("tspan").attr("fill", null).text(`${ents.filter(e => e.qv).length} quantum-vulnerable   `);
+    lg.append("tspan").attr("fill", "#35d07f").text("● ").append("tspan").attr("fill", null).text(`${ents.filter(e => e.pq).length} post-quantum   `);
+    lg.append("tspan").attr("fill", "rgba(196,207,221,.7)").text("● ").append("tspan").attr("fill", null).text(`${ents.filter(e => !e.qv && !e.pq).length} neither   ·   ${ents.length} entries on ${lis.length} listeners`);
     CH = {svg, svcs, lis, ents, S, L, Ent, gs, gl, ge, sl, el2};
     // hover isolates a service's or a listener's chain; click holds it
     const iso = (svcId, lId) => { svg.classed("iso", !!(svcId || lId));
@@ -878,35 +817,6 @@
   }
 
   // the stack, from the silicon up
-  function stack() {
-    const E = D.engine || {}, T = E.tiers || {}, live = E.live || {};
-    const ver = (s, re) => { const m = (s || "").match(re); return m ? m[0] : null; };
-    const fastHw = (T.fast || {}).hardware || "", embedHw = (T.embed || {}).hardware || "";
-    const li = (a, b, m, lv) => `<li>${esc(a)}${b ? ` <code>${esc(b)}</code>` : ""}${m ? ` <span class="m">${esc(m)}</span>` : ""}${lv ? `<span class="live">live</span>` : ""}</li>`;
-    const hosts = Array.isArray(D.hosts) ? D.hosts : [];
-    const sc = D.scan || {}, c = (D.cbom || {}).counts || {}, P = D.plan || {}, ch = (D.change || {}).changes || [];
-    const layers = [
-      ["Hardware", "stated from the spec sheet; the labels below are measured", [li(stage.dataset.spec), li("recorded on every event as", D.hardware)]],
-      ["Runtime", "containers with the GPU through CDI; nothing leaves the box", [li("Docker Engine", "CDI nvidia.com/gpu=all"), li("vLLM", ver(fastHw, /vLLM [0-9.]+/) || "vLLM"), li("NVFP4 weights", ver(fastHw, /NVFP4[^,)]*/) || ""),
-          li("NeMo Retriever embed NIM", ver(embedHw, /NIM [^)]*/) || ""), li("a read-only image registry on the box", "127.0.0.1:15000")]],
-      ["Models, by role", "a role moves to a model only by measurement (spike S3)", Object.entries(T).map(([k, t]) => li(`${k} tier`, t.model, (t.hardware || "").split(";")[1] ? (t.hardware || "").split(";")[1].replace(/\)$/, "").trim() : ""))
-          .concat(live.models ? [li("the engine says it serves", live.models.join(", "), `${fmt(live.ms)} ms round trip`, true)] : [])],
-      ["The workbench", "three services and two runners, each with one job", [li("app", "FastAPI, server-rendered, the only public leg"), li("runner", "holds the Docker socket; starts every scanner as a container"),
-          li("signer", "ML-DSA-65 checkpoints, key where nothing else reads it"), li("system runner", "reads this box's files and firmware"), li("scanners", (D.scanners || []).map(s => `${s.tool} ${s.version || ""}`.trim()).join(" · "))]],
-      ["Estates", "the planted one with an answer key; real servers read whole", [li("mini-agency", `${c.services} services · ${c.listeners} listeners`, "scored against the answer key")]
-          .concat(hosts.map(h => li(h.name, (h.addresses || []).join(", "), `${fmt(h.findings)} findings · ${(h.parts || []).join(", ")}${h.this_machine ? " · this machine" : ""}${h.recorded ? " · replayed from a recording" : ""}`)))],
-      ["What comes out", "the ledger is the record; the CBOM and the plan are projections of it", [li("ledger", `${fmt(sc.events)} events`, "hash-chained, checkpointed, signed"), li("CBOM", `${fmt(c.components)} components`, `${fmt(c.quantum_vulnerable)} quantum-vulnerable · ${fmt(c.post_quantum)} post-quantum`),
-          li("plan", `${fmt((P.order || []).length)} steps`, `${fmt((P.order || []).filter(s => s.status === "landed").length)} landed`), li("changes proved on the wire", `${ch.filter(x => x.landed).length}`, "approved by a person, verified by probes, twice")]],
-    ];
-    const el = sel("layers-stack"); el.innerHTML = "";
-    layers.reverse().forEach(([h, sub, items], k) => {
-      const d = document.createElement("div"); d.className = "layer";
-      d.innerHTML = `<h3>${esc(h)}<small>${esc(sub)}</small></h3><ul>${items.join("")}</ul>`;
-      el.appendChild(d);
-      if (SNAP) d.classList.add("in"); else setTimeout(() => d.classList.add("in"), 250 + (layers.length - k) * 260);
-    });
-  }
-
   // one change, proved: the ledger's own sequence, with its own timings
   let proofTimers = [];
   function change(live) {
@@ -1070,7 +980,7 @@
     const E = D.engine || {}, Tm = E.tiers || {}, emb = (Tm.embed || {}).model || "the embed NIM", mdl = (Tm[((E.roles || {})["ask-cbom"] || {}).tier || "deliberate"] || {}).model || "the model";
     box.innerHTML = `<div class="pipeline">` +
       `<div class="pstage on" id="st-retrieve"><b>1 · retrieve</b><span>${esc(emb)}: the entries nearest the question, from the CBOM</span></div>` +
-      `<div class="pstage" id="st-reason"><b>2 · reason</b><span>${esc(mdl)}${STATIC ? ", recorded" : ` on the Blackwell GPU, thinking ${((E.roles || {})["ask-cbom"] || {}).reasoning ? "on" : "off, by measurement"}`}</span></div>` +
+      `<div class="pstage" id="st-reason"><b>2 · reason</b><span>${esc(mdl)}${STATIC ? ", recorded" : ` on the box's GPU, thinking ${((E.roles || {})["ask-cbom"] || {}).reasoning ? "on" : "off, by measurement"}`}</span></div>` +
       `<div class="pstage" id="st-check"><b>3 · check</b><span>every cited event looked up on the ledger; an absent one fails the answer</span></div></div>` +
       `<div class="thinking"><span class="t">0.0 s</span>${STATIC ? `an answer recorded ${esc((ST().ask_recorded_at || "").slice(0, 10))}, its citations checked when this copy was built` : "on this box, nothing leaves it"}</div>` +
       `<div class="qlist">${ASK.map((x, i) => `<span class="${x === q ? "on" : ""}">${esc(x)}</span>`).join("")}</div>`;
@@ -1094,8 +1004,8 @@
         (ans ? `<div class="answer">${esc(ans.textContent.trim()).replace(/(listener:[^\s,)]+|svc:[a-z-]+|0[0-9A-Z]{25})/g, "<code>$1</code>")}</div>` : `<div class="answer">${esc(na || "No answer.")}</div>`) +
         `<div class="verdict ${good ? "ok" : "bad"}">${esc(verdict || (na ? "Not answered." : ""))}</div>` +
         (cites.length ? `<div class="cites">${cites.map(c => `<span class="${c.ok ? "ok" : "bad"}">${esc(c.ev)} ${c.ok ? "✓ on the ledger" : "✗"}</span>`).join("")}</div>` : "") +
-        `<div class="who">answered in ${((Date.now() - t0) / 1000).toFixed(1)} s · ${esc(model.replace(/\. Retrieval:.*$/, ""))}</div></div>` +
-        `<div class="shown"><b>what the model was shown</b>${shown.map(x => `<span>${esc(x.name)}${x.score ? ` <i>${x.score}</i>` : ""}</span>`).join("")}</div></div>` +
+        `<div class="who">${STATIC ? "" : `answered in ${((Date.now() - t0) / 1000).toFixed(1)} s · `}${esc(model.replace(/\. Retrieval:.*$/, ""))}</div></div>` +
+        `<div class="shown"><b>what the model was shown</b>${shown.filter(x => x.score == null || Number(x.score) > 0).map(x => `<span>${esc(x.name)}${x.score ? ` <i>${x.score}</i>` : ""}</span>`).join("")}</div></div>` +
         `<div class="qlist">${ASK.map(x => `<span class="${x === q ? "on" : ""}">${esc(x)}</span>`).join("")}</div>`;
       wireChips(box);
     }).catch(e => { if (e.name === "AbortError" && ac !== askAbort) return;   // dropped on purpose for a newer question
@@ -1143,9 +1053,7 @@
       `<div><i>projection</i><b>The CBOM, the plan and every page are rebuilt from the events</b>so the estate can be shown as of any event, and a recording replays into a new signed run on any box</div>` +
       `</div>` +
       (hist ? `<div class="hist"><span class="k">the history of changes, in order, from the ledger</span><ul>${hist}</ul></div>` : "");
-    const tiers = [["one GB10", "this demo: one estate, scanned, planned and changed on a desktop box"], ["two GB10s", "linked over ConnectX-7: the 120B model with long context across both"],
-      ["Pro Max GB300", "the larger model resident, more estates in parallel"], ["PowerEdge XE", "many estates and many investigators at once; one queue today"], ["an AI factory", "the agency's whole estate, continuously"]];
-    sel("scale-record").innerHTML = (STATIC ? `<p class="m">This copy's runs were recorded on <b>${esc(D.hardware)}</b>; the stack drawn is the kit as it runs on one GB10.</p>` : "") + `<div class="k">The same stack scales without changing shape</div><div class="tiers">${tiers.map(([n, d], i) => `<div class="tier${i === 0 ? " here" : ""}"><b>${esc(n)}</b><span>${esc(d)}</span></div>${i < tiers.length - 1 ? '<span class="arr">→</span>' : ""}`).join("")}</div>` +
-      `<p class="m">What does not change: the containers by digest, the one inference seam, the ledger and its signatures. What changes: which model serves each tier, and how many estates run at once. Only the first tier is measured; the rest is the same images on more hardware, to be measured as it is reached.</p>`;
+    sel("scale-record").innerHTML = `<p class="m">${STATIC ? `This copy's runs were recorded on <b>${esc(D.hardware)}</b>. ` : ""}What does not change from one host to another: the containers by digest, the one inference seam, the ledger and its signatures. ` +
+      `What changes: which model serves each tier, measured on each. The same kit has run on one desktop GPU box with the network cut, as an isolated scanner: one option among the deployments, in the field notes.</p>`;
   }
 })();

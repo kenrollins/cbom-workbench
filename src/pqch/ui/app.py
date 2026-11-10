@@ -1034,8 +1034,8 @@ def demo_page(request: Request, snap: str | None = None, inline_data: str | None
         "inline": inline, "snap": bool(snap), "wait": wait, "plan": plan, "v": v,
         "outcome": os.environ.get("PQCH_MISSION_OUTCOME",
                                   "We need to know what cryptography every system depends on, and what to change first, "
-                                  "so that the agency meets the post-quantum deadlines — measured by every planted weakness found, "
-                                  "and every change proved on the wire."),
+                                  "so that the agency meets the post-quantum deadlines. The approach: evidence onto a signed record, "
+                                  "rules to judge it, a person to approve, a re-scan to prove."),
         "hardware": static_hw or os.environ.get("PQCH_HARDWARE", "unlabelled"), "operator": os.environ.get("PQCH_OPERATOR", "the operator"),
         "static": PUBLIC})
 

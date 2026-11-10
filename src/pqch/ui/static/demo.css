@@ -6,7 +6,7 @@
 .stage-body.fullscreen header.site { display: none; }
 main.stage { position: relative; min-height: calc(100vh - 60px); padding: 0 32px 64px; max-width: none; }
 .stage-loading { color: var(--dim); font: 400 15px/1.5 var(--sans); padding: 48px 0; }
-.beat { display: none; min-height: calc(100vh - 140px); animation: beat-in .6s ease-out both; }
+.beat { display: none; min-height: calc(100vh - 140px); padding-bottom: 44px; animation: beat-in .6s ease-out both; }
 .beat.on { display: block; }
 @keyframes beat-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 .beat .kicker { font: 600 12px/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 22px 0 10px; }
@@ -215,28 +215,22 @@ figure.planmap.stage-plan { margin: 0; max-height: min(66vh, 720px); overflow: h
 
 .jserr { position: fixed; left: 32px; top: 80px; z-index: 9; background: #e2543f; color: #fff; padding: 8px 12px; font: 500 13px/1.4 var(--mono); }
 
-/* the hero: why a standalone box */
 .beat h1.outcome.small { font-size: clamp(20px, 2.1vw, 30px); margin: 8px 0 10px; max-width: 1500px; }
-.hero { position: relative; height: min(58vh, 640px); }
-.hero canvas { width: 100%; height: 100%; display: block; }
-.hero-caption { position: absolute; left: 0; bottom: 6px; font: 400 clamp(15px, 1.4vw, 21px)/1.4 var(--serif); color: var(--fg); max-width: 640px; }
-.hero-caption b { color: var(--accent); font-weight: 500; }
 .bignums.tight { margin: 8px 0 0; gap: 34px; }
 .bignums.tight .n { font-size: clamp(30px, 3vw, 48px); }
 .bignums.tight .arrow { font-size: 28px; padding-bottom: 20px; }
 
-/* the architecture: five bands, one box */
-.arch { display: grid; grid-template-columns: 1fr 320px; gap: 6px 14px; max-width: 1700px; position: relative; }
-.arch .band { display: grid; grid-template-columns: 210px 1fr; gap: 16px; align-items: start; padding: 9px 14px; border: 1px solid var(--bc, rgba(0,163,204,.3)); background: var(--bb, rgba(0,163,204,.05)); opacity: 0; transform: translateY(14px); transition: opacity .5s, transform .5s; position: relative; grid-column: 1; }
+/* how it fits together: five bands and the record beside them */
+.arch { display: grid; grid-template-columns: 1fr 270px; gap: 6px 12px; max-width: 1700px; position: relative; transform-origin: 0 0; }
+.arch .band { display: grid; grid-template-columns: 150px 1fr; gap: 10px; align-items: start; padding: 6px 12px; border: 1px solid var(--bc, rgba(0,163,204,.3)); background: var(--bb, rgba(0,163,204,.05)); opacity: 0; transform: translateY(14px); transition: opacity .5s, transform .5s; position: relative; grid-column: 1; }
 .arch .band.in { opacity: 1; transform: none; }
 .arch .band h3 { margin: 0; font: 600 12px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--bc, var(--accent)); }
 .arch .band h3 small { display: block; letter-spacing: 0; text-transform: none; font: 400 11.5px/1.4 var(--sans); color: var(--dim); margin-top: 3px; }
-.arch .boxes { display: flex; flex-wrap: wrap; gap: 8px; }
-.arch .box { border: 1px solid rgba(255,255,255,.14); background: rgba(12,17,23,.55); padding: 6px 10px; min-width: 150px; max-width: 330px; transition: border-color .35s, box-shadow .35s, background .35s; }
-.arch .box[data-k="scanners"] { max-width: 520px; }
-.arch .box b { display: block; font: 600 13px/1.3 var(--sans); color: var(--fg); }
-.arch .box b .nv { font: 600 9px/1 var(--mono); letter-spacing: .12em; color: #76b900; border: 1px solid rgba(118,185,0,.5); padding: 2px 4px; margin-left: 6px; vertical-align: 2px; }
-.arch .box span { display: block; font: 400 11.5px/1.4 var(--sans); color: var(--dim); margin-top: 2px; }
+.arch .boxes { display: flex; flex-wrap: wrap; gap: 6px; }
+.arch .box { border: 1px solid rgba(255,255,255,.14); background: rgba(12,17,23,.55); padding: 4px 9px; min-width: 140px; max-width: 320px; transition: border-color .35s, box-shadow .35s, background .35s; }
+.arch .box[data-k="scanners"], .arch .box[data-k="roles"] { max-width: 400px; }
+.arch .box b { display: block; font: 600 12.5px/1.3 var(--sans); color: var(--fg); }
+.arch .box span { display: block; font: 400 11px/1.35 var(--sans); color: var(--dim); margin-top: 1px; }
 .arch .box span code { font: 500 11px/1 var(--mono); color: var(--fg2); }
 .arch .box.live { border-color: rgba(53,208,127,.5); }
 .arch .box .lv { color: #35d07f; font: 600 9px/1 var(--mono); letter-spacing: .1em; margin-left: 6px; }
@@ -334,9 +328,8 @@ svg.iso .ch-svc, svg.iso .ch-lis, svg.iso .ch-ent { opacity: .22; } svg.iso .ch-
 .ask .answer { margin-top: 0; }
 
 /* the opening */
-.beat h1.open-title { font: 500 clamp(30px, 3.4vw, 54px)/1.12 var(--serif); color: var(--fg); margin: 26px 0 10px; max-width: 1500px; }
-.open-outcome { font: 400 clamp(15px, 1.35vw, 20px)/1.4 var(--sans); color: var(--fg2); max-width: 1300px; margin: 0 0 16px; }
-.open-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 28px; align-items: start; }
+.beat h1.open-title { font: 500 clamp(28px, 2.9vw, 46px)/1.1 var(--serif); color: var(--fg); margin: 18px 0 8px; max-width: 1500px; }
+.open-outcome { font: 400 clamp(15px, 1.2vw, 18px)/1.35 var(--sans); color: var(--fg2); max-width: 1400px; margin: 0 0 10px; }
 .story { display: grid; gap: 10px; }
 .mv { border-left: 2px solid rgba(0,163,204,.35); padding: 4px 0 6px 16px; opacity: .18; transition: opacity .6s; }
 .mv.on { opacity: 1; border-left-color: var(--accent); }
@@ -344,9 +337,6 @@ svg.iso .ch-svc, svg.iso .ch-lis, svg.iso .ch-ent { opacity: .22; } svg.iso .ch-
 .mv-svg { width: 100%; height: 118px; display: block; }
 .mv p { margin: 4px 0 0; font: 400 clamp(14px, 1.2vw, 17px)/1.4 var(--sans); color: var(--fg); max-width: 720px; }
 .mv p em { color: var(--dim); font-style: normal; }
-.hero { height: auto; }
-.hero canvas { height: min(54vh, 600px); }
-.hero-caption { position: static; margin-top: 6px; max-width: none; text-align: center; min-height: 48px; }
 .tl-axis-o text { font: 500 11px/1 var(--mono); fill: var(--dim); } .tl-axis-o line, .tl-axis-o path { stroke: rgba(255,255,255,.18); }
 .mark { font: 600 11px/1 var(--mono); fill: var(--fg); } .mark.red { fill: #e2543f; } .mark.dim { fill: var(--dim); font-weight: 500; }
 .countdown { font: 500 22px/1 var(--serif); fill: var(--fg); }
@@ -366,18 +356,14 @@ svg.iso .ch-svc, svg.iso .ch-lis, svg.iso .ch-ent { opacity: .22; } svg.iso .ch-
 .sheet-row line { stroke: rgba(255,255,255,.14); }
 .sheet-head { font: 600 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; fill: var(--dim); }
 .countdown { font: 500 15px/1 var(--sans); fill: var(--fg); }
-.hero canvas { height: min(56vh, 620px); }
-.hero-caption { min-height: 56px; text-align: left; padding: 0 12px; }
-.hero-caption .cur { display: inline-block; min-width: 10px; border-right: 2px solid var(--accent); animation: blink 1s steps(1) infinite; margin-left: 2px; }
 
 #agile-svg { height: 300px; }
 
 /* the opening as one story, top to bottom */
-.open-grid { grid-template-columns: 1.35fr 0.65fr; }
-#story-svg { width: 100%; height: min(72vh, 780px); display: block; }
-#story-p { margin: 6px 0 0; font: 400 clamp(14px, 1.15vw, 17px)/1.4 var(--serif); color: var(--fg); min-height: 44px; }
+#story-svg { width: 100%; height: clamp(440px, calc(100vh - 440px), 780px); display: block; }
+#story-p { margin: 4px 0 0; font: 400 clamp(14px, 1.1vw, 17px)/1.35 var(--serif); color: var(--fg); min-height: 40px; max-width: 1360px; }
 #story-p em { color: var(--fg2); font-style: normal; }
-.hero canvas { height: min(44vh, 470px); }
+.story-step { fill: var(--bg); }
 .band-k { font: 600 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; fill: var(--dim); }
 .band-k.on { fill: var(--accent); }
 .band-line { stroke: rgba(255,255,255,.08); }
@@ -450,5 +436,5 @@ svg.iso .ch-svc, svg.iso .ch-lis, svg.iso .ch-ent { opacity: .22; } svg.iso .ch-
 .scale .arr { align-self: center; color: var(--accent); font: 500 20px/1 var(--sans); }
 .scale .m { margin: 0; font: 400 12px/1.5 var(--sans); color: var(--dim); }
 /* the static copy says what it is, once, under the outcome */
-.static-note { font: 400 13px/1.45 var(--sans); color: var(--fg2); max-width: 1100px; margin: -8px 0 14px; padding: 6px 10px; border-left: 3px solid rgba(229,163,58,.7); background: rgba(229,163,58,.06); }
+.static-note { font: 400 12.5px/1.4 var(--sans); color: var(--fg2); max-width: 1400px; margin: -4px 0 10px; padding: 4px 10px; border-left: 3px solid rgba(229,163,58,.7); background: rgba(229,163,58,.06); }
 .static-note b { color: var(--fg); font-weight: 600; }

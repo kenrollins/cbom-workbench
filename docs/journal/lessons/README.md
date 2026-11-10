@@ -84,3 +84,4 @@ day it was learned.
 | 70 | A number shown on two pages is computed in one place; a page that counts a rule's events and a page that counts the document's entries will disagree | structured |
 | 71 | An automated keyboard pass counts only the controls that are shown; a control inside a closed disclosure is reached through its summary, and a page that takes focus on load is walked from where it starts | all |
 | 72 | A recorded model answer belongs to the scan it was asked about; a build that shows a newer scan stops until the answers are recorded again | all |
+| 73 | A demonstration written around one machine goes stale the day the machine leaves; name hardware once, as where a run was recorded, and build the beats on the approach | all |

@@ -162,6 +162,52 @@ def _before(var: Path, scan_run: str | None, address: str | None) -> dict | None
     return {"run": scan_run, "posture": props.get("pqch:posture"), "kex": kex, "protocols": sorted(set(protos))}
 
 
+def policy_facts(var: Path, scan: Run, events: list[dict]) -> dict:
+    """What the architecture beat says about judgement, as counts: the packs the rules read and whether
+    their quotes were checked against the source, the entries' compatibility under them, the gaps the
+    scan recorded and how many were filled, and how many supplier statements this deployment holds.
+    Counts only, never a name or an address: the public copy carries this document whole. A part that
+    cannot be read is left null and the reason kept, so the page shows words instead of a wrong number."""
+    out: dict = {"packs": [], "compatibility": None, "gaps": None, "attestations": None, "register_rows": None, "unread": []}
+
+    def part(name, fn):
+        try:
+            out[name] = fn()
+        except Exception as e:  # a run from before a rule, a missing pack directory: the box says so in words
+            out["unread"].append(f"{name}: {type(e).__name__}")
+
+    def packs():
+        import yaml
+        rows = []
+        for f in sorted(Path("policy/packs").glob("*.yaml")):
+            d = yaml.safe_load(f.read_text()) or {}
+            rows.append({"id": f.stem, "title": d.get("title") or f.stem, "verified": bool(d.get("verified"))})
+        return rows
+
+    def compatibility():
+        from pqch import planning
+        return planning._compatibility_counts(events)
+
+    def gaps():
+        from pqch.assessor import gaps as g
+        q = g.queue(var, events)
+        return q and {"open": len(q["open"]), "filled": len(q["filled"]), "recorded": q["recorded"],
+                      "classes": [{"class": c["class"], "reached": c["reached"], "gaps": c["gaps"]} for c in q["classes"]]}
+
+    def attestations():
+        from pqch import attest
+        return len(attest.recorded(var))
+
+    def register_rows():
+        from pqch import planning
+        plan = planning.build(var, scan)
+        return len(planning.register(plan, events).get("rows") or []) if plan else None
+
+    for name, fn in (("packs", packs), ("compatibility", compatibility), ("gaps", gaps), ("attestations", attestations), ("register_rows", register_rows)):
+        part(name, fn)
+    return out
+
+
 def _plain(v):
     """A verification result as plain JSON: its own to_dict, else its dataclass fields, else as is."""
     import dataclasses
@@ -292,6 +338,7 @@ def payload(var: Path, sheet: list[dict], *, snapshots_dir: Path, hardware: str,
         except Exception as e:
             out["plan"] = {"error": str(e)[:200]}
         out["record"] = _ledger(scan)
+        out["policy"] = policy_facts(var, scan, events)
     change = Run.latest(var, "change")
     if change and change.ledger.exists():
         out["change"] = {"run": change.id, "changes": _changes(change), "record": _ledger(change, last=40)}

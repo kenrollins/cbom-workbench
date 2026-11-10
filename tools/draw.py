@@ -1432,38 +1432,40 @@ def sketch_63_a_static_copy_shows_a_recorded_call() -> None:
 
 
 def sketch_arch_five_layers() -> None:
-    """The architecture page: the kit on one GB10, five layers from the silicon to what leaves the
-    ledger, and the ledger standing beside every one of them. The same layers as the stage's beat 2
-    (src/pqch/ui/static/demo.js, arch()), each box checked against the code and kit/inference.yaml
-    on 2026-11-05: retrieval for Ask is the embed NIM and a cosine over a cached index in the app,
-    then two hops up the CBOM's dependencies by rule; no vector database, no reranker."""
+    """The architecture page: five layers of the approach, hardware-neutral, and the ledger standing
+    beside every one of them. The same layers as the stage's beat 2 (src/pqch/ui/static/demo.js,
+    arch()), each box checked against the code on 2026-11-10: the packs are policy/packs/*.yaml, the
+    compatibility rule is compatibility/entry/1, the gap queue is assessor/gaps.py, the roles and
+    tiers are config/inference.example.yaml. Hardware is named once, as where a copy was recorded."""
     LAYERS = [
-        ("L5", "outputs", "projections, and the people's part", [
-            ("the CBOM", "CycloneDX 1.6"), ("the plan", "ordered by rules"), ("changes", "approved by a person"),
-            ("Ask the CBOM", "citations checked"), ("the pages", "read live")]),
-        ("L4", "workbench", "services and runners, one job each", [
-            ("app", "FastAPI, the only door"), ("runner", "holds the Docker socket"), ("signer", "no network"),
-            ("system runner", "reads this host"), ("the seam", "tiers set in config"),
+        ("L5", "what comes out", "projections, and the people's part", [
+            ("the CBOM", "CycloneDX 1.6"), ("register and plan", "steps in order, facts beside"),
+            ("changes", "approved, probed twice"), ("Ask the CBOM", "citations checked"),
+            ("gap queue", "what was not reached, named")]),
+        ("L4", "judgement", "rules over the evidence", [
+            ("policy packs", "data; quotes checked"), ("rules", "status per entry"),
+            ("claims and grades", "wire over file over statement"), ("supplier statements", "never merged"),
+            ("the owner's facts", "supplied, never computed"), ("verifier", "paired probes; no model")]),
+        ("L3", "the harness", "one job each", [
+            ("app", "the only door; the one writer"), ("runner", "holds the Docker socket"),
+            ("signer", "no network"), ("system runner", "reads a host whole"), ("the seam", "tiers set in config"),
             ("scanners", "containers, by digest")]),
-        ("L3", "models", "on the GPU, offline", [
-            ("Nemotron 3.5 Lightning", "30B-A3B, NVFP4"), ("vLLM", "OpenAI-compatible"),
-            ("embed NIM", "llama-nemotron-embed-1b-v2"), ("the index", "cosine in the app, then rules")]),
-        ("L2", "platform", "nothing fetched", [
-            ("Ubuntu 24.04", "aarch64"), ("CUDA 13", ""), ("Container Toolkit", "the GPU through CDI"),
-            ("Docker Engine", "every service a container"), ("registry on the box", "read-only, by digest")]),
-        ("L1", "hardware", "one desktop box", [
-            ("Dell Pro Max GB10", "20 Arm cores · 128 GB unified"), ("Blackwell GPU", "shares that memory"),
-            ("and up", "two GB10s, then GB300, XE, an AI factory")]),
+        ("L2", "models, by role", "measured against a floor first", [
+            ("fast tier", "narrate, name, propose"), ("deliberate tier", "trace, reconcile, answer"),
+            ("embed tier", "retrieval for Ask"), ("never", "a finding, a verdict, an approval")]),
+        ("L1", "where it runs", "any host with Docker", [
+            ("images by digest", "an offline bundle; nothing fetched"), ("one host named", "on every event, as recorded"),
+            ("one option", "an isolated scanner on a desktop GPU box")]),
     ]
-    LEDGER = [("hash-chained events", "every finding, approval, verdict"),
+    LEDGER = [("hash-chained events", "every finding, judgement, approval, verdict"),
               ("signed checkpoints", "ML-DSA-65, key id on each page"),
               ("projections", "rebuilt from events, never edited"),
-              ("replayable", "a recording replays on any box")]
+              ("replayable", "a recording replays on any host")]
 
     W, H = 1500, 1040
-    p = Page(W, H, seed=33, title="Five layers on one GB10, and the ledger beside every one")
-    p.text(40, 56, "Five layers on one box, and the ledger beside every one.", 38, INK)
-    p.text(40, 88, "Whatever a layer does is an event on the ledger first; the CBOM, the plan and the pages are rebuilt from it.", 21, PENCIL)
+    p = Page(W, H, seed=33, title="Five layers of the approach, and the ledger beside every one")
+    p.text(40, 56, "Five layers, and the ledger beside every one.", 38, INK)
+    p.text(40, 88, "Whatever a layer does is an event on the ledger first; the CBOM, the register, the plan and the pages are rebuilt from it.", 21, PENCIL)
 
     top, band_h, gap = 122, 158, 14
     left, label_w, right_edge = 40, 190, 1150
@@ -1505,7 +1507,7 @@ def sketch_arch_five_layers() -> None:
     # the point: the record comes before every projection
     y0 = ly + 150
     p.ring(lx + lw / 2, y0 - 8, measure("hash-chained events", 24) / 2 + 16, 21)
-    p.text(40, H - 20, "the kit on one Dell Pro Max GB10; the lab runs the same layers on an x86_64 server, its models behind one seam", 20, PENCIL)
+    p.text(40, H - 20, "the same layers on an x86_64 server with its models behind one seam, and once on a desktop GPU box with the network cut", 20, PENCIL)
     p.save(SKETCHES / "arch-five-layers.svg")
 
 
