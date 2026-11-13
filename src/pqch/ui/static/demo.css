@@ -328,8 +328,8 @@ svg.iso .ch-svc, svg.iso .ch-lis, svg.iso .ch-ent { opacity: .22; } svg.iso .ch-
 .ask .answer { margin-top: 0; }
 
 /* the opening */
-.beat h1.open-title { font: 500 clamp(28px, 2.9vw, 46px)/1.1 var(--serif); color: var(--fg); margin: 18px 0 8px; max-width: 1500px; }
-.open-outcome { font: 400 clamp(15px, 1.2vw, 18px)/1.35 var(--sans); color: var(--fg2); max-width: 1400px; margin: 0 0 10px; }
+.beat h1.open-title { font: 500 clamp(26px, 2.3vw, 38px)/1.1 var(--serif); color: var(--fg); margin: 14px 0 6px; max-width: 1500px; }
+.open-outcome { font: 400 clamp(14px, 1.05vw, 16.5px)/1.35 var(--sans); color: var(--fg2); max-width: 1300px; margin: 0 0 10px; }
 .story { display: grid; gap: 10px; }
 .mv { border-left: 2px solid rgba(0,163,204,.35); padding: 4px 0 6px 16px; opacity: .18; transition: opacity .6s; }
 .mv.on { opacity: 1; border-left-color: var(--accent); }
@@ -360,8 +360,8 @@ svg.iso .ch-svc, svg.iso .ch-lis, svg.iso .ch-ent { opacity: .22; } svg.iso .ch-
 #agile-svg { height: 300px; }
 
 /* the opening as one story, top to bottom */
-#story-svg { width: 100%; height: clamp(440px, calc(100vh - 440px), 780px); display: block; }
-#story-p { margin: 4px 0 0; font: 400 clamp(14px, 1.1vw, 17px)/1.35 var(--serif); color: var(--fg); min-height: 40px; max-width: 1360px; }
+#story-svg { width: 100%; height: 560px; display: block; }   /* the script sets the height from the screen */
+#story-p { margin: 4px 0 0; font: 400 clamp(13.5px, 1vw, 15.5px)/1.35 var(--serif); color: var(--fg); min-height: 40px; max-width: 1360px; }
 #story-p em { color: var(--fg2); font-style: normal; }
 .story-step { fill: var(--bg); }
 .band-k { font: 600 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; fill: var(--dim); }
@@ -371,7 +371,7 @@ svg.iso .ch-svc, svg.iso .ch-lis, svg.iso .ch-ent { opacity: .22; } svg.iso .ch-
 .chain-link { fill: none; stroke: rgba(0,163,204,.35); stroke-width: .8; }
 .chain-link.thin { stroke: rgba(196,207,221,.12); }
 .node-label { font: 500 10.5px/1 var(--mono); fill: var(--fg2); }
-.node-label.svc { font: 600 12px/1 var(--sans); fill: var(--fg); }
+.node-label.svc { font: 600 11.5px/1 var(--sans); fill: var(--fg); }
 
 /* inside the CBOM: the figure beside the entry it points at */
 .cbom-grid { display: grid; grid-template-columns: 1fr 460px; gap: 18px; align-items: start; }
@@ -436,5 +436,5 @@ svg.iso .ch-svc, svg.iso .ch-lis, svg.iso .ch-ent { opacity: .22; } svg.iso .ch-
 .scale .arr { align-self: center; color: var(--accent); font: 500 20px/1 var(--sans); }
 .scale .m { margin: 0; font: 400 12px/1.5 var(--sans); color: var(--dim); }
 /* the static copy says what it is, once, under the outcome */
-.static-note { font: 400 12.5px/1.4 var(--sans); color: var(--fg2); max-width: 1400px; margin: -4px 0 10px; padding: 4px 10px; border-left: 3px solid rgba(229,163,58,.7); background: rgba(229,163,58,.06); }
+.static-note { font: 400 12px/1.4 var(--sans); color: var(--fg2); max-width: 1300px; margin: -4px 0 10px; padding: 4px 10px; border-left: 3px solid rgba(229,163,58,.7); background: rgba(229,163,58,.06); }
 .static-note b { color: var(--fg); font-weight: 600; }

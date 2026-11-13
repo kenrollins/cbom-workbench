@@ -144,8 +144,10 @@
   }
   // the story: the gap, the chain, the plan — the same dots, organized, top to bottom
   function story(stopAt) {
-    const svg = d3.select("#story-svg"), bb = svg.node().getBoundingClientRect(), W = Math.round(bb.width) || 900, H = Math.round(bb.height) || 760;
-    svg.attr("viewBox", `0 0 ${W} ${H}`).selectAll("*").remove();
+    // the drawing takes the height the screen leaves it: under the heading, above the sentence and the beat bar
+    const svg = d3.select("#story-svg"), bb0 = svg.node().getBoundingClientRect(), W = Math.round(bb0.width) || 900;
+    const H = Math.max(560, Math.min(960, Math.round((window.innerHeight || 900) - bb0.top - 160)));
+    svg.style("height", H + "px").attr("viewBox", `0 0 ${W} ${H}`).selectAll("*").remove();
     const c = (D.cbom || {}).counts || {}, sheet = (D.estate && D.estate.sheet) || [], P = D.plan || {}, rank = (P.ranking || []).map(r => r.service);
     const N = new Map(D.cbom.nodes.map(n => [n.id, n])), out = new Map();
     D.cbom.links.forEach(l => (out.get(l.source) || out.set(l.source, []).get(l.source)).push(l.target));
@@ -156,8 +158,10 @@
       seen.forEach(id => { if (!owner.has(id)) owner.set(id, s); }); });
     const colOf = n => n.kind === "listener" || n.kind === "image" ? 2 : (n.kind === "related-crypto-material" && n.layer === "host") ? 4 : 3;
     const comps = D.cbom.nodes.filter(n => n.kind !== "service").map(n => ({...n, svc: owner.get(n.id) || null, col: colOf(n)}));
-    const bands = {A: [0, H * 0.29], B: [H * 0.31, H * 0.62], C: [H * 0.64, H]};
     const lanes = rank.slice(0, 8), T0 = stopAt ? 0 : 1;
+    // three bands: the sheet takes the height its rows need; the chain and the plan share the rest, the plan a little more for its step boxes
+    const hA = Math.min(H * 0.3, 58 + Math.max(6, sheet.length || 6) * 20 + 26), gap = 16, rest = H - hA - 2 * gap;
+    const bands = {A: [0, hA], B: [hA + gap, hA + gap + rest * 0.45], C: [hA + gap + rest * 0.45 + gap, H]};
     const band = (k, y, label) => { svg.append("line").attr("class", "band-line").attr("x1", 0).attr("x2", W).attr("y1", y - 6).attr("y2", y - 6);
       return svg.append("text").attr("class", "band-k").attr("id", "bk-" + k).attr("x", 0).attr("y", y + 8).text(label); };
     // ── band A: the owner's sheet, and the spatter of what is actually there
@@ -190,12 +194,15 @@
       .attr("d", d => { const m = (d.s.bx + d.t.bx) / 2; return `M${d.s.bx},${d.s.by} C${m},${d.s.by} ${m},${d.t.by} ${d.t.bx},${d.t.by}`; }).attr("opacity", 0);
     const sg = svg.append("g").selectAll("g").data(svcs).join("g").attr("transform", d => `translate(${d.x},${d.y})`).attr("opacity", 0);
     sg.append("circle").attr("r", 6).attr("class", "node-service"); sg.append("text").attr("class", "node-label svc").attr("x", 10).attr("y", 4).text(d => d.name);
-    const lis = comps.filter(d => d.kind === "listener"); const ll = svg.append("g").selectAll("text").data(lis).join("text").attr("class", "node-label").attr("x", d => d.bx + 8).attr("y", d => d.by + 3.5)
+    const lis = comps.filter(d => d.kind === "listener").sort((p, q) => p.by - q.by);
+    lis.forEach((d, i) => { d.ly = i ? Math.max(d.by, lis[i - 1].ly + 12) : d.by; });   // labels at least 12 px apart, nudged down the column
+    const over = lis.length ? lis[lis.length - 1].ly - (b1 - 10) : 0; if (over > 0) lis.forEach(d => { d.ly -= over; });
+    const ll = svg.append("g").selectAll("text").data(lis).join("text").attr("class", "node-label").attr("x", d => d.bx + 10).attr("y", d => d.ly + 3.5)
       .text(d => (d.name || "").replace(/172\.16\.106\./, ".")).attr("opacity", 0);
     const bLab = svg.append("text").attr("class", "mark").attr("x", W - 4).attr("y", b1 - 2).attr("text-anchor", "end").attr("opacity", 0).text(`${fmt(c.links)} dependencies, each from evidence on the ledger`);
     // ── band C: the plan
     const [c0, c1] = bands.C; band("C", c0 + 6, "3 · the plan: rules order the same components into steps, from the record, in the order the dependencies allow");
-    const L = 118, laneH = (c1 - c0 - 46) / lanes.length, top = c0 + 36, waves = ["now", "2030", "2031"], wx = w => L + (W - L - 20) * ({now: 0.16, "2030": 0.5, "2031": 0.84}[w] || 0.5);
+    const L = 118, laneH = (c1 - c0 - 60) / lanes.length, top = c0 + 36, waves = ["now", "2030", "2031"], wx = w => L + (W - L - 20) * ({now: 0.16, "2030": 0.5, "2031": 0.84}[w] || 0.5);
     waves.forEach(w => svg.append("text").attr("class", "col-k").attr("x", wx(w)).attr("y", c0 + 30).attr("text-anchor", "middle").text(w === "now" ? "now" : "by " + w));
     const order = (P.order || []).filter(s => s.service && lanes.includes(s.service)).map(s => ({...s}));
     lanes.forEach((s, i) => { const y = top + i * laneH; svg.append("line").attr("class", "band-line").attr("x1", L - 8).attr("x2", W - 10).attr("y1", y + laneH - 2).attr("y2", y + laneH - 2);
@@ -203,7 +210,7 @@
       waves.forEach(w => { const here = order.filter(x => x.service === s && x.wave === w); here.forEach((x, k) => { x.x = wx(w) + (k - (here.length - 1) / 2) * 118; x.y = y + laneH / 2; }); }); });
     const stepById = new Map(order.map(s => [s.id, s]));
     const word = s => ({replace: "replace", enable: "offer hybrid", require: "require hybrid", reissue: "reissue (ML-DSA)", tls13: "TLS 1.3", ca: "new root", retire: "retire"})[s.kind] || s.kind;
-    const perSvc = new Map(); comps.forEach(d => { const li = lanes.indexOf(d.svc); if (li < 0) { d.cx2 = L + 10 + rnd() * (W - L - 40); d.cy2 = c1 - 8; d.none = true; return; }
+    const perSvc = new Map(); comps.forEach(d => { const li = lanes.indexOf(d.svc); if (li < 0) { d.cx2 = L + 10 + rnd() * (W - L - 640); d.cy2 = c1 - 9; d.none = true; return; }
       const room = Math.min(120, wx("now") - 54 - L - 20); d.cx2 = L + 8 + rnd() * room; d.cy2 = top + li * laneH + 5 + rnd() * (laneH - 12); d.none = !order.some(x => x.service === d.svc); });
     const boxes = svg.append("g").selectAll("g").data(order).join("g").attr("transform", d => `translate(${d.x},${d.y})`).attr("opacity", 0);
     boxes.append("rect").attr("x", -54).attr("y", -8).attr("width", 108).attr("height", 17).attr("rx", 3).attr("class", "story-step")

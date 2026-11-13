@@ -1854,6 +1854,41 @@ def sketch_67_recording_record_notes() -> None:
     p.save(SKETCHES / "67-recording-record-notes.svg")
 
 
+def sketch_74_size_the_drawing_from_the_screen() -> None:
+    """Lesson 74: the opening's drawing at 1813×883. Left, capped by a constant (100vh − 440, at most 780):
+    443 px of drawing, 250 px empty under it, eight services 10 px apart. Right, sized from the screen
+    (the room under the heading, less the sentence and the bar, at least 560): 600 px, the sheet takes its
+    rows' height and the chain and the plan share the rest, eight services 15 px apart."""
+    p = Page(1000, 560, seed=74, title="Size the drawing from the screen")
+    p.text(500, 42, "The same screen, 883 px tall, twice", 28, INK, "middle")
+    # a screen: heading, drawing, sentence, bar; heights to scale (0.5 px per px)
+    def screen(x, w, draw_h, bands, empty, note_color):
+        y0 = 80
+        p.box(x, y0, w, 441, INK, 2.2, fill=PAPER)
+        p.text(x + w / 2, y0 + 30, "heading", 15, PENCIL, "middle")
+        p.line(x + 6, y0 + 56, x + w - 6, y0 + 56, PENCIL, 1.4, dash=True)
+        top = y0 + 60
+        for k, (frac, label, gap) in enumerate(bands):
+            h = draw_h * frac / 2
+            p.box(x + 14, top, w - 28, h, BALLPOINT, 1.8)
+            p.text(x + 24, top + h / 2 + 5, label, 13.5, BALLPOINT)
+            top += h + gap
+        if empty:   # the unused room; the sentence sits under it, against the bar, and is not labelled twice
+            p.text(x + w / 2, top + empty / 4 + 6, "empty", 16, PENCIL, "middle")
+        else:
+            p.text(x + w / 2, top + 20, "the sentence", 14, PENCIL, "middle")
+        p.line(x + 6, y0 + 441 - 28, x + w - 6, y0 + 441 - 28, PENCIL, 1.4, dash=True)
+        p.text(x + w / 2, y0 + 441 - 9, "the beat bar", 13, PENCIL, "middle")
+    screen(60, 380, 443, [(0.29, "the sheet, 129 px", 4), (0.31, "the chain: 8 services, 10 px apart", 4), (0.36, "the plan: 8 lanes, 14 px each", 0)], 250, PENCIL)
+    p.text(250, 60, "capped: 100vh - 440, at most 780", 16, PENCIL, "middle")
+    p.ring(250, 410, 150, 42, STAMP, 2.6)
+    p.text(250, 476, "250 px unused while the labels collide", 16, STAMP, "middle")
+    screen(560, 380, 600, [(0.30, "the sheet: its rows' height, 180 px", 8), (0.315, "the chain: 8 services, 15 px apart", 8), (0.355, "the plan: 8 lanes, 19 px each", 0)], 0, PENCIL)
+    p.text(750, 60, "measured: the room under the heading, less 160", 16, PENCIL, "middle")
+    p.text(500, 548, "the stage's opening beat, headless Chromium at 1813 x 883, 2026-11-13", 13, PENCIL, "middle")
+    p.save(SKETCHES / "74-size-the-drawing-from-the-screen.svg")
+
+
 def _wrap(s: str, n: int) -> list[str]:
     """Words into lines of at most about n characters."""
     out, cur = [], ""

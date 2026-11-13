@@ -79,7 +79,7 @@ extra:
   demo_mode: !ENV [PQCH_DEMO_MODE, "live"]
   lab: !ENV [PQCH_SITE_LAB, "true"]
   # First entry → latest entry, written by tools/build_site.py from the journal's frontmatter dates.
-  journal_span: "Oct 4 → Nov 10, 2026"   # >>> generated
+  journal_span: "Oct 4 → Nov 13, 2026"   # >>> generated
 
 nav:
   # The demo's pages are in the header, which every page shares; this is the reading beside them.
@@ -200,6 +200,7 @@ nav:
       - "71 \u2014 An automated keyboard pass counts only the controls that are shown; a control inside a closed disclosure is reached through its summary, and a page that takes focus on load is walked from where it starts": lessons/71-count-only-the-controls-a-keyboard-is-meant-to-reach.md
       - "72 \u2014 A recorded model answer belongs to the scan it was asked about; a build that shows a newer scan stops until the answers are recorded again": lessons/72-a-recorded-answer-belongs-to-one-scan.md
       - "73 \u2014 A demonstration written around one machine goes stale the day the machine leaves; name hardware once, as where a run was recorded, and build the beats on the approach": lessons/73-name-the-machine-once-as-provenance.md
+      - "74 \u2014 A drawing that must fit one screen takes its height from that screen, and shares it among its rows by what each row needs; a constant cap leaves room unused while the rows collide": lessons/74-size-a-drawing-from-the-screen-not-a-constant.md
   # <<< end generated
   - Sources: sources.md
   - About: about.md

@@ -85,3 +85,4 @@ day it was learned.
 | 71 | An automated keyboard pass counts only the controls that are shown; a control inside a closed disclosure is reached through its summary, and a page that takes focus on load is walked from where it starts | all |
 | 72 | A recorded model answer belongs to the scan it was asked about; a build that shows a newer scan stops until the answers are recorded again | all |
 | 73 | A demonstration written around one machine goes stale the day the machine leaves; name hardware once, as where a run was recorded, and build the beats on the approach | all |
+| 74 | A drawing that must fit one screen takes its height from that screen, and shares it among its rows by what each row needs; a constant cap leaves room unused while the rows collide | all |
