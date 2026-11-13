@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — ask the CBOM</title>
+<link rel="stylesheet" href="/cbom-workbench/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/cbom-workbench/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    
+    <div class="demo-group">
+    <span class="group">Demo<small>snapshot</small></span>
+    <a href="/cbom-workbench/" class=" stage" title="The eight beats on stage, recorded from the lab">Demo</a>
+    
+    
+    <a href="/cbom-workbench/cbom/" class="" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    
+    <a href="/cbom-workbench/ask/" class="on" title="A question answered from the CBOM, citing ledger events, each citation checked">Ask the CBOM</a>
+    
+    <a href="/cbom-workbench/about/" class="" title="What this is, who made it, and the disclaimer in full">About</a>
+    </div>
+    
+    <div class="learn-group fn-box">
+    <span class="group">Field notes<small class="hand">cbom workbench</small></span>
+    <a href="/cbom-workbench/site/how-it-works/">How it works</a>
+    <a href="/cbom-workbench/site/pages/">Page by page</a>
+    <a href="/cbom-workbench/site/record/">The record</a>
+    <a href="/cbom-workbench/site/adr/" title="Architecture decision records">Decisions</a>
+    <a href="/cbom-workbench/site/notes/">Notes</a>
+    <a href="/cbom-workbench/site/lessons/">Lessons</a>
+    <a href="/cbom-workbench/site/sources/">Sources</a>
+    
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner"><strong>Ask the CBOM.</strong> A question in plain words, answered from the inventory's own components and the ledger events behind them. The model sees only the passages retrieved for the question; every event it cites is checked against the ledger by a rule, and the verdict is shown beside it.</div></div>
+
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  var css = document.querySelector('link[rel="stylesheet"][href$="style.css"]');
+  var base = css ? new URL(css.getAttribute("href"), location.href).pathname.replace(/static\/style\.css$/, "") : "/";
+  function what(url) {
+    var u = new URL(url, location.href);
+    if (u.pathname.indexOf(base) === 0) u = new URL(u.pathname.slice(base.length - 1) + u.search + u.hash, location.origin);
+    url = u.href;
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
+    return "Loading…";
+  }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    // A link that stays on the page — an anchor, a what-if, a note that a copy cannot follow — loads nothing.
+    if ((a.getAttribute("href") || "").charAt(0) === "#" || a.hasAttribute("data-whatif") || a.hasAttribute("data-clear") || a.hasAttribute("data-offline")) return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", hide);
+})();
+</script>
+<main id="main">
+<p class="orient">The CBOM is a document a person can read, and a model can read it too. Here the question is embedded, the eight components nearest to it are handed to the model as passages with their evidence event ids, and the typed reply names the components it rests on and the events it cites. <span class="ai">The model never decides whether it cited well: a rule checks each event id against the ledger and against what the model was shown. An id that fails is marked, not hidden. Retrieval and the answer are measured apart (eval/ask), with a floor written before the first run.</span></p>
+
+
+<section>
+<style>
+  .ask-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0 22px; }
+  .ask-flow div { border: 1px solid var(--line2); border-top: 3px solid var(--accent); padding: 10px 12px; background: color-mix(in srgb, var(--accent) 5%, transparent); }
+  .ask-flow div:last-child { border-top-color: var(--good); background: color-mix(in srgb, var(--good) 6%, transparent); }
+  .ask-flow b { display: block; font: 600 11px/1.2 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--accent) 82%, var(--fg)); margin-bottom: 4px; }
+  .ask-flow div:last-child b { color: var(--good); }
+  .ask-flow span { font-size: 13.5px; color: var(--fg2); }
+  form.ask.big { display: flex; gap: 0; margin: 6px 0 14px; }
+  form.ask.big input#q { flex: 1; font-size: 19px; padding: 14px 16px; background: var(--bg2, #111827); color: var(--fg); border: 1px solid var(--accent); border-right: 0; box-shadow: 0 0 0 0 transparent; transition: box-shadow .2s; }
+  form.ask.big input#q:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent); }
+  form.ask.big button { font-size: 16px; font-weight: 700; padding: 0 28px; background: color-mix(in srgb, var(--accent) 78%, #000); color: #fff; border: 1px solid var(--accent); cursor: pointer; }
+  form.ask.big button[disabled] { opacity: .75; cursor: progress; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+  .chips a { font-size: 13.5px; padding: 6px 12px; border: 1px solid var(--line2); border-radius: 16px; color: var(--fg2); text-decoration: none; transition: border-color .15s, color .15s; }
+  .chips a:hover { border-color: var(--accent); color: var(--accent); }
+  @media (max-width: 800px) { .ask-flow { grid-template-columns: 1fr 1fr; } }
+</style>
+<div class="ask-flow" aria-label="How a question is answered">
+  <div><b>1 · Embed</b><span>the question becomes a vector (lab/embed)</span></div>
+  <div><b>2 · Retrieve</b><span>the eight nearest CBOM entries, and the chain above each, by rule</span></div>
+  <div><b>3 · Answer</b><span>lab/reason on the deliberate tier, from those passages only</span></div>
+  <div><b>4 · Check</b><span>every cited event against the ledger: a rule, not a model</span></div>
+</div>
+
+<form class="ask big" onsubmit="return false">
+  <input id="q" value="What signs the certificate on the message queue&#39;s TLS listener?" disabled placeholder="Questions are typed in the running workbench" aria-label="Question">
+  <button type="button" disabled style="opacity:.4;cursor:not-allowed">Ask</button>
+</form>
+<p class="note">This copy has no model to call. Each example below was asked once, on 2026-11-09, by a real call; the answer is kept as it came back, and every citation is checked again against the ledger published here.</p>
+<div class="chips"><a href="/cbom-workbench/ask/1/">Which SSH listener still offers the 1024-bit Diffie-Hellman group?</a><a href="/cbom-workbench/ask/2/">Which listeners already negotiate a hybrid post-quantum key exchange?</a><a href="/cbom-workbench/ask/3/">Does any service present an ML-DSA certificate, and which?</a><a href="/cbom-workbench/ask/4/">Which listeners are still limited to TLS 1.2?</a><a href="/cbom-workbench/ask/5/" style="border-color:var(--accent)">What signs the certificate on the message queue&#39;s TLS listener?</a><a href="/cbom-workbench/ask/6/">Is there a listener on port 8443 that presents an RSA certificate, and which service is it?</a></div>
+
+<p class="note">Role <code>ask-cbom</code> is bound to the <code>deliberate</code> tier (lab/reason, reasoning on); retrieval by <code>embed</code> (lab/embed).</p>
+</section>
+
+
+<section>
+<h2>Answer</h2>
+<p class="answer">The message queue&#39;s TLS listener at 172.16.106.31:5671 (service: queue) relies on an ECDSA certificate, signed using ECDSA+SHA512.</p>
+
+<p class="note">Recorded 2026-11-09: lab/reason on lab-gb10 (vLLM 0.32, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking, 0.62 share beside Lightning), 77389 ms, reasoning on, 1493 completion tokens. Retrieval: lab/embed on lab-gateway.</p>
+
+<h3>Components the answer rests on</h3>
+
+<ul>
+
+  <li><a href="/cbom-workbench/cbom/entry/66/">listener:172.16.106.31:5671</a> — <span class="ok">shown to the model</span></li>
+
+</ul>
+
+
+<h3>Citations, checked</h3>
+
+<table>
+<thead><tr><th>Event</th><th>In the ledger</th><th>Shown to the model</th><th>Verdict</th></tr></thead>
+<tbody>
+
+<tr><td><code>01M6Z47R0YGEW637NXSB48HJXJ</code> <small>assessment.made · posture/kex-auth/1</small></td>
+    <td>yes</td><td>yes</td>
+    <td><span class="ok">passes</span></td></tr>
+
+<tr><td><code>01M6Z47R1JZ2GRA58HGWAZPA33</code> <small>link.asserted · link/service/1</small></td>
+    <td>yes</td><td>yes</td>
+    <td><span class="ok">passes</span></td></tr>
+
+<tr><td><code>01M6Z47RQZ8W5RTS8ZM6BE8SEN</code> <small>assessment.made · deadline/tls13/1</small></td>
+    <td>yes</td><td>yes</td>
+    <td><span class="ok">passes</span></td></tr>
+
+</tbody>
+</table>
+<p class="note">Every citation and component passes the rule.</p>
+
+
+<h3>What the model was shown</h3>
+<ol>
+
+  <li><a href="/cbom-workbench/cbom/entry/67/">listener TLS 172.16.106.32:8443</a> <small>score 0.7195; events 3</small><br><small>listener TLS 172.16.106.32:8443 (bom-ref listener:172.16.106.32:8443). type: cryptographic-asset; bom-ref: listener:172.16.106.32:8443; name: TLS 172.16.106.32:8443; cryptoProperties.assetType: protocol; cryptoProperties.protocolProperties.type: tls; cryptoProperties.protocolProperties.version: 1.2; cryptoProperties.protocolProperties.cipherSuites: [{&#34;name&#34;: &#34;TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256&#34;…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/62/">listener TLS 172.16.106.12:443</a> <small>score 0.719; events 3</small><br><small>listener TLS 172.16.106.12:443 (bom-ref listener:172.16.106.12:443). type: cryptographic-asset; bom-ref: listener:172.16.106.12:443; name: TLS 172.16.106.12:443; cryptoProperties.assetType: protocol; cryptoProperties.protocolProperties.type: tls; cryptoProperties.protocolProperties.version: 1.3; cryptoProperties.protocolProperties.cipherSuites: [{&#34;name&#34;: &#34;TLS_AES_128_GCM_SHA256&#34;, &#34;identifiers&#34;: [&#34;…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/60/">listener TLS 172.16.106.11:443</a> <small>score 0.7152; events 3</small><br><small>listener TLS 172.16.106.11:443 (bom-ref listener:172.16.106.11:443). type: cryptographic-asset; bom-ref: listener:172.16.106.11:443; name: TLS 172.16.106.11:443; cryptoProperties.assetType: protocol; cryptoProperties.protocolProperties.type: tls; cryptoProperties.protocolProperties.version: 1.3; cryptoProperties.protocolProperties.cipherSuites: [{&#34;name&#34;: &#34;TLS_AES_128_GCM_SHA256&#34;, &#34;identifiers&#34;: [&#34;…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/66/">listener TLS 172.16.106.31:5671</a> <small>score 0.7129; events 3</small><br><small>listener TLS 172.16.106.31:5671 (bom-ref listener:172.16.106.31:5671). type: cryptographic-asset; bom-ref: listener:172.16.106.31:5671; name: TLS 172.16.106.31:5671; cryptoProperties.assetType: protocol; cryptoProperties.protocolProperties.type: tls; cryptoProperties.protocolProperties.version: 1.2; cryptoProperties.protocolProperties.cipherSuites: [{&#34;name&#34;: &#34;TLS_ECDHE_ECDSA_WITH_AES_128_CCM&#34;, &#34;id…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/61/">listener TLS 172.16.106.11:8443</a> <small>score 0.7124; events 3</small><br><small>listener TLS 172.16.106.11:8443 (bom-ref listener:172.16.106.11:8443). type: cryptographic-asset; bom-ref: listener:172.16.106.11:8443; name: TLS 172.16.106.11:8443; cryptoProperties.assetType: protocol; cryptoProperties.protocolProperties.type: tls; cryptoProperties.protocolProperties.version: 1.3; cryptoProperties.protocolProperties.cipherSuites: [{&#34;name&#34;: &#34;TLS_AES_128_GCM_SHA256&#34;, &#34;identifiers&#34;…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/59/">listener TLS 172.16.106.10:443</a> <small>score 0.7108; events 3</small><br><small>listener TLS 172.16.106.10:443 (bom-ref listener:172.16.106.10:443). type: cryptographic-asset; bom-ref: listener:172.16.106.10:443; name: TLS 172.16.106.10:443; cryptoProperties.assetType: protocol; cryptoProperties.protocolProperties.type: tls; cryptoProperties.protocolProperties.version: 1.3; cryptoProperties.protocolProperties.cipherSuites: [{&#34;name&#34;: &#34;TLS_AES_128_GCM_SHA256&#34;, &#34;identifiers&#34;: [&#34;…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/30/">host asset RSA certificate · /etc/rmq-tls/retired/queue-2020.crt</a> <small>score 0.6896; events 9</small><br><small>host asset RSA certificate · /etc/rmq-tls/retired/queue-2020.crt (bom-ref fp:d080eca199dec680f1737e3a3fe1be4e406560e0e673faf3f831f9f22997ea17). type: cryptographic-asset; bom-ref: fp:d080eca199dec680f1737e3a3fe1be4e406560e0e673faf3f831f9f22997ea17; name: RSA; cryptoProperties.assetType: certificate; cryptoProperties.certificateProperties.certificateFormat: X.509; cryptoProperties.certificateProper…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/33/">host asset ML-DSA-65 certificate · /etc/nginx/tls/pq-gateway.crt</a> <small>score 0.6843; events 7</small><br><small>host asset ML-DSA-65 certificate · /etc/nginx/tls/pq-gateway.crt (bom-ref fp:e9ff1e25d20e67682c095dedf165237c1d26da4750518a86c8260fe8b7dddab1). type: cryptographic-asset; bom-ref: fp:e9ff1e25d20e67682c095dedf165237c1d26da4750518a86c8260fe8b7dddab1; name: ML-DSA-65; cryptoProperties.assetType: certificate; cryptoProperties.certificateProperties.certificateFormat: X.509; cryptoProperties.certificate…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/70/">service legacy-app</a> <small>score 0.0; events 21</small><br><small>service legacy-app (bom-ref svc:legacy-app). type: application; bom-ref: svc:legacy-app; name: legacy-app; pqch:kind: service; pqch:evidence: 01M6Z47R1EXZ6CB01BQ96C2XFJ,01M6Z47R1RFD28GVPCB8ZN1FQW; pqch:mission-function: case management; pqch:data-lifetime-years: 10; pqch:high-value-asset: false; pqch:system: CASE-LEGACY; pqch:interface: internal HTTPS, case workers; pqch:mission-thread: case manag…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/72/">service pq-gateway</a> <small>score 0.0; events 15</small><br><small>service pq-gateway (bom-ref svc:pq-gateway). type: application; bom-ref: svc:pq-gateway; name: pq-gateway; pqch:kind: service; pqch:evidence: 01M6Z47R1H2HH6YGXTRV21S8QE,01M6Z47R1T3T9BAN30104G0JSH; pqch:mission-function: inter-agency data exchange; pqch:data-lifetime-years: 25; pqch:high-value-asset: true; pqch:system: IAX-GW; pqch:interface: inter-agency HTTPS; pqch:mission-thread: inter-agency da…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/68/">service api</a> <small>score 0.0; events 20</small><br><small>service api (bom-ref svc:api). type: application; bom-ref: svc:api; name: api; pqch:kind: service; pqch:evidence: 01M6Z47R1AHMDETRQ66WCKB3PB,01M6Z47R1CZSA98G0EQGGNC7EF,01M6Z47R1NXBYVAY1GYV78MCBH; pqch:mission-function: partner data exchange; pqch:data-lifetime-years: 10; pqch:high-value-asset: false; pqch:system: PARTNER-API; pqch:interface: partner HTTPS with client certificates; pqch:mission-thr…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/73/">service queue</a> <small>score 0.0; events 19</small><br><small>service queue (bom-ref svc:queue). type: application; bom-ref: svc:queue; name: queue; pqch:kind: service; pqch:evidence: 01M6Z47R1JZ2GRA58HGWAZPA33,01M6Z47R1WKC69AHFGYNW1PYMR; pqch:mission-function: case processing; pqch:data-lifetime-years: 7; pqch:high-value-asset: false; pqch:system: CASE-MQ; pqch:interface: internal AMQP over TLS; pqch:mission-thread: case processing; pqch:classification: cui…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/71/">service portal</a> <small>score 0.0; events 19</small><br><small>service portal (bom-ref svc:portal). type: application; bom-ref: svc:portal; name: portal; pqch:kind: service; pqch:evidence: 01M6Z47R1GQ2HYCQXK09A0VXXZ,01M6Z47R1SRFDZGY8GM3393A9Z; pqch:mission-function: benefits enrollment; pqch:data-lifetime-years: 10; pqch:high-value-asset: false; pqch:system: BEN-PORTAL; pqch:interface: public HTTPS, citizens&#39; browsers; pqch:mission-thread: benefits enrollment…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/39/">image pqch-agency/queue</a> <small>score 0.0; events 1</small><br><small>image pqch-agency/queue (bom-ref img:pqch-agency/queue). type: container; bom-ref: img:pqch-agency/queue; name: pqch-agency/queue; version: sha256:76b9929b7db7be34c6c4db6f5ff24ab6d924a53eece41d95bd88a3f2e3709bcc; pqch:kind: image; pqch:image: pqch-agency/queue@sha256:76b9929b7db7be34c6c4db6f5ff24ab6d924a53eece41d95bd88a3f2e3709bcc; pqch:service: queue; pqch:evidence: 01M6Z47R1WKC69AHFGYNW1PYMR. de…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/28/">wire asset ML-DSA-65 certificate · 172.16.106.12:443</a> <small>score 0.0; events 4</small><br><small>wire asset ML-DSA-65 certificate · 172.16.106.12:443 (bom-ref fp:aa4e26d3b3c8941013432f1bb4419cd2ca563cbc2c038ec0355890b7500db0a3). type: cryptographic-asset; bom-ref: fp:aa4e26d3b3c8941013432f1bb4419cd2ca563cbc2c038ec0355890b7500db0a3; name: ML-DSA-65; cryptoProperties.assetType: certificate; cryptoProperties.certificateProperties.certificateFormat: X.509; cryptoProperties.certificateProperties.s…</small></li>
+
+  <li><a href="/cbom-workbench/cbom/entry/38/">image pqch-agency/pq-gateway</a> <small>score 0.0; events 1</small><br><small>image pqch-agency/pq-gateway (bom-ref img:pqch-agency/pq-gateway). type: container; bom-ref: img:pqch-agency/pq-gateway; name: pqch-agency/pq-gateway; version: sha256:a2ca8a32d690d763829badc254d066adba1e6aed045fdd76d10f14d651613d36; pqch:kind: image; pqch:image: pqch-agency/pq-gateway@sha256:a2ca8a32d690d763829badc254d066adba1e6aed045fdd76d10f14d651613d36; pqch:service: pq-gateway; pqch:evidence: …</small></li>
+
+</ol>
+</section>
+
+
+</main>
+</body>
+</html>

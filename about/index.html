@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cbom-workbench — about</title>
+<link rel="stylesheet" href="/cbom-workbench/static/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0f17'/%3E%3Crect x='3.5' y='3.5' width='9' height='9' fill='none' stroke='%230099CC' stroke-width='2'/%3E%3C/svg%3E">
+</head>
+<body>
+
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/cbom-workbench/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    
+    <div class="demo-group">
+    <span class="group">Demo<small>snapshot</small></span>
+    <a href="/cbom-workbench/" class=" stage" title="The eight beats on stage, recorded from the lab">Demo</a>
+    
+    
+    <a href="/cbom-workbench/cbom/" class="" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    
+    <a href="/cbom-workbench/ask/" class="" title="A question answered from the CBOM, citing ledger events, each citation checked">Ask the CBOM</a>
+    
+    <a href="/cbom-workbench/about/" class="on" title="What this is, who made it, and the disclaimer in full">About</a>
+    </div>
+    
+    <div class="learn-group fn-box">
+    <span class="group">Field notes<small class="hand">cbom workbench</small></span>
+    <a href="/cbom-workbench/site/how-it-works/">How it works</a>
+    <a href="/cbom-workbench/site/pages/">Page by page</a>
+    <a href="/cbom-workbench/site/record/">The record</a>
+    <a href="/cbom-workbench/site/adr/" title="Architecture decision records">Decisions</a>
+    <a href="/cbom-workbench/site/notes/">Notes</a>
+    <a href="/cbom-workbench/site/lessons/">Lessons</a>
+    <a href="/cbom-workbench/site/sources/">Sources</a>
+    
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner"><strong>About.</strong> What this project is, what it is not, and the disclaimer in full.</div></div>
+
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  var css = document.querySelector('link[rel="stylesheet"][href$="style.css"]');
+  var base = css ? new URL(css.getAttribute("href"), location.href).pathname.replace(/static\/style\.css$/, "") : "/";
+  function what(url) {
+    var u = new URL(url, location.href);
+    if (u.pathname.indexOf(base) === 0) u = new URL(u.pathname.slice(base.length - 1) + u.search + u.hash, location.origin);
+    url = u.href;
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
+    return "Loading…";
+  }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    // A link that stays on the page — an anchor, a what-if, a note that a copy cannot follow — loads nothing.
+    if ((a.getAttribute("href") || "").charAt(0) === "#" || a.hasAttribute("data-whatif") || a.hasAttribute("data-clear") || a.hasAttribute("data-offline")) return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", hide);
+})();
+</script>
+<main id="main" class="about">
+<h2>What this project is</h2>
+<p>cbom-workbench is a personal exploration by <strong>Ken Rollins</strong> into one question:
+<strong>what does a fully developed cryptography bill of materials let an organization do?</strong>
+Federal policy now requires the inventory. This project builds one from evidence and then puts it to
+work — prioritizing, detecting change, and carrying out and verifying an algorithm change.</p>
+
+<h2>What this project is not</h2>
+<ul>
+  <li><strong>Not an official Dell product.</strong> There is nothing to buy.</li>
+  <li><strong>Not a Dell reference architecture.</strong> This work has not been produced, endorsed or
+    reviewed through any official Dell channel. Views and findings are the author's own.</li>
+  <li><strong>Not a replacement for commercial discovery platforms.</strong> Those are fielded products
+    that observe live estates. This is an open exploration of what the inventory enables.</li>
+  <li><strong>Not a compliance determination.</strong> Nothing here certifies that a system meets a
+    federal requirement.</li>
+  <li><strong>Not a vulnerability report.</strong> Where public source code is analyzed, the results
+    describe what an inventory reveals.</li>
+</ul>
+
+<h2>Disclaimer</h2>
+<p>This site and the repository it is built from are a personal exploration, published under the
+Apache-2.0 licence. They are not an official Dell product, reference architecture or Dell position,
+and have not been produced, endorsed or reviewed through any official Dell channel. Nothing here is a
+compliance determination, a security assessment of any named system, or a vulnerability disclosure.
+Numbers are measurements on the hardware named beside them.</p>
+
+<p class="foot">How it is built, what it measured and what it learned are in the
+<a href="/cbom-workbench/site/how-it-works/">field notes</a>.</p>
+</main>
+</body>
+</html>

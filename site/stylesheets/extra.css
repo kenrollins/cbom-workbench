@@ -1,0 +1,48 @@
+/* cbom-workbench — what is this site's alone. The look is fieldnotes.css (the little brown book,
+   shared with the lab's other field-notes sites); only this site's components live here. */
+
+/* The header is the demo's (stylesheets/header.css, copied in by tools/build_site.py; the markup in
+   site_overrides/partials/header.html): the same dark band on every page, the field notes box on
+   kraft at the right marking where the reader is. What follows is only what mkdocs-material adds to
+   it — the sticky position, the drawer on a narrow screen, the index toggle, the search box — set
+   in the header's own colours. fieldnotes.css's cover (.fn-cover) is not used here. */
+.md-header.site { position: sticky; top: 0; z-index: 4; height: auto; display: block; transition: none; }
+.md-header.site .tools { display: flex; align-items: center; gap: 2px; color: var(--fg2); flex: 0 0 auto; }
+.md-header.site .tools .md-header__button { color: var(--fg2); margin: 0; padding: .4rem; }
+.md-header.site .tools .md-header__button:hover { color: var(--accent); opacity: 1; }
+.md-header.site .tools .drawer { display: none; }
+@media (max-width: 76.24em) { .md-header.site .tools .drawer { display: inline-block; } }
+.md-header.site .tools .fn-navtoggle { background: none; border: 0; cursor: pointer; }
+.md-header.site .tools .fn-navtoggle svg { width: 20px; height: 20px; fill: currentColor; }
+html.fn-nav-hidden .md-header.site .fn-navtoggle { color: var(--accent); }
+.md-header.site .md-search__form { background: rgba(255,255,255,.08); color: var(--fg); }
+.md-header.site .md-search__form:hover { background: rgba(255,255,255,.14); }
+.md-header.site .md-search__input { color: var(--fg); font-family: var(--sans); }
+.md-header.site .md-search__input::placeholder, .md-header.site .md-search__icon { color: var(--dim); }
+[data-md-toggle="search"]:checked ~ .md-header.site .md-search__form { background: var(--md-default-bg-color); color: var(--fn-text); }
+[data-md-toggle="search"]:checked ~ .md-header.site .md-search__input { color: var(--fn-text); }
+.md-header.site .md-search__output { color: var(--fn-text); }
+
+/* Figures the notes carry (the plan maps, the chain views) are drawn for the app's dark page;
+   on paper they sit in a bordered card. */
+.md-typeset figure.planmap, .md-typeset .figure-dark { background: #0b0f17; border: 1px solid var(--fn-rule); padding: 8px; border-radius: 3px; }
+
+/* ---- the ribbon: a notebook's red page-marker, one per page (site_overrides/main.html) ----------
+   It hangs from under the header at the page's right edge. On a page without one, a stub in pencil
+   peeks out; a click drops it in, red; another pulls it out. The pages holding one are marked with a
+   small ribbon beside their entry in the index and in the Notes and Lessons lists. */
+.md-content { position: relative; }
+.fn-ribbon { position: absolute; top: -1.6rem; right: 1.1rem; width: 24px; height: 96px; padding: 0; border: 0; background: none; cursor: pointer; z-index: 2; overflow: visible; }
+.fn-ribbon svg { width: 24px; height: 96px; display: block; fill: rgba(var(--fn-ink-rgb), .22); filter: drop-shadow(0 2px 2px rgba(0,0,0,.28)); transform: translateY(-66px); transition: transform .2s ease, fill .2s ease; }
+.fn-ribbon:hover svg, .fn-ribbon:focus-visible svg { transform: translateY(-44px); fill: rgba(var(--fn-accent-rgb), .6); }
+.fn-ribbon.on svg { transform: none; fill: var(--fn-accent); }
+.fn-ribbon.on:hover svg, .fn-ribbon.on:focus-visible svg { fill: #a8321a; transform: translateY(-10px); }
+/* What a click does, written beside the ribbon in ballpoint while the pointer is on it. */
+.fn-ribbon .fn-ribbon__say { position: absolute; right: 30px; top: 8px; font: 600 15px/1 var(--fn-hand); color: var(--fn-ballpoint); white-space: nowrap; opacity: 0; transition: opacity .15s; pointer-events: none; }
+.fn-ribbon:hover .fn-ribbon__say, .fn-ribbon:focus-visible .fn-ribbon__say { opacity: 1; }
+.fn-ribbon.on .fn-ribbon__say { top: 30px; }
+.md-typeset h1 { padding-right: 2.6rem; }
+.md-typeset ol.fn-entries > li.ribboned::before { content: ""; position: absolute; left: -2.75em; top: -.25em; width: .5em; height: 1.6em; background: var(--fn-accent); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%); box-shadow: 1px 1px 2px rgba(0,0,0,.25); }
+.md-nav__item.ribboned { position: relative; }
+.md-nav__item.ribboned > .md-nav__link::before { content: ""; position: absolute; left: -.95em; top: .05em; width: .42em; height: 1.25em; background: var(--fn-accent); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%); box-shadow: 1px 1px 2px rgba(0,0,0,.25); }
+.md-nav__item.ribboned > .md-nav__link { position: relative; }
