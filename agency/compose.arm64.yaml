@@ -1,0 +1,26 @@
+# arm64 smoke test of the slice on an x86_64 host, through qemu-user.
+#   docker compose -f agency/compose.yaml -f agency/compose.arm64.yaml build
+#   docker compose -f agency/compose.yaml -f agency/compose.arm64.yaml up -d
+# Same services, addresses and network; arm64 builds under their own tags. The
+# internal CA is built for arm64 first:
+#   docker build --platform linux/arm64 -t pqch-agency/pki:m1-arm64 agency/pki
+# Emulation is a smoke test — it shows the images build, start and answer —
+# not a measurement: timings under qemu say nothing about a GB10.
+services:
+  portal: {platform: linux/arm64, image: "pqch-agency/portal:m0-arm64"}
+  api: {platform: linux/arm64, image: "pqch-agency/api:m0-arm64"}
+  sftp-legacy: {platform: linux/arm64, image: "pqch-agency/sftp-legacy:m0-arm64"}
+  bastion: {platform: linux/arm64, image: "pqch-agency/bastion:m0-arm64"}
+  pq-gateway: {platform: linux/arm64, image: "pqch-agency/pq-gateway:m1-arm64"}
+  records-db:
+    platform: linux/arm64
+    image: "pqch-agency/records-db:m1-arm64"
+    build: {context: records-db, additional_contexts: {pki: docker-image://pqch-agency/pki:m1-arm64}}
+  queue:
+    platform: linux/arm64
+    image: "pqch-agency/queue:m1-arm64"
+    build: {context: queue, additional_contexts: {pki: docker-image://pqch-agency/pki:m1-arm64}}
+  legacy-app:
+    platform: linux/arm64
+    image: "pqch-agency/legacy-app:m1-arm64"
+    build: {context: legacy-app, additional_contexts: {pki: docker-image://pqch-agency/pki:m1-arm64}}

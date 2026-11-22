@@ -1,0 +1,36 @@
+name: CI
+
+# Lint, the tests and the documentation site. The tests need no GPU, no model endpoint, no Docker
+# and no target network. `mkdocs build --strict` fails on a broken link between pages of the site;
+# its links into the demo leave the site and are rewritten by the static build
+# (tools/build_public.py). GitHub Pages is served from the gh-pages branch, which tools/publish.py pushes.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      # Actions pinned by commit, not by a tag that can move (M8, FR-05); the tag they were at, 2026-11-06.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09   # v5
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e   # v6.8.0
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: uv sync --group dev
+      - name: Lint (with ruff's security rules)
+        run: uv run ruff check .
+      - name: Known vulnerabilities in the locked dependencies
+        run: |
+          uv export --frozen --no-dev --no-emit-project --format requirements-txt > /tmp/requirements.txt
+          uvx --from 'pip-audit==2.9.0' pip-audit --disable-pip --require-hashes -r /tmp/requirements.txt
+      - name: Tests
+        run: uv run python -m pytest -p no:warnings
+      - name: Site builds
+        run: |
+          uv run --with mkdocs-material python tools/build_site.py
+          uv run --with mkdocs-material mkdocs build --strict
+      - name: No internal link of the built site is broken
+        run: uv run python tools/check_links.py site

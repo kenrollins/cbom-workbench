@@ -1,0 +1,60 @@
+<!doctype html><meta charset="utf-8">
+<style>
+  body { margin: 0; background: #fff; }
+  svg { display: block; width: 3200px; height: 740px; font-family: "Inter", sans-serif; }
+  .box { fill: #f6f8fb; stroke: #1b2a3a; stroke-width: 2; }
+  .box.model { stroke: #0077a8; stroke-dasharray: 8 5; fill: #eaf5fb; }
+  .box.person { stroke: #b8471f; fill: #fdf1ea; stroke-width: 2.5; }
+  .box.probe { stroke: #1f7a4d; fill: #ebf7f0; }
+  .t { font-size: 27px; font-weight: 700; fill: #0b1a2b; }
+  .s { font-size: 21px; fill: #374151; }
+  .n { font-size: 20px; font-weight: 700; fill: #fff; }
+  .arrow { fill: none; stroke: #1b2a3a; stroke-width: 2.4; marker-end: url(#a); }
+  .ledger { fill: #fff6dc; stroke: #9a6b00; stroke-width: 2; }
+  .lt { font-size: 26px; font-weight: 700; fill: #5a3f00; }
+  .ls { font-size: 21px; fill: #5a3f00; }
+  .down { fill: none; stroke: #9a6b00; stroke-width: 2; stroke-dasharray: 6 5; marker-end: url(#b); }
+  .phase { font-size: 21px; font-weight: 700; letter-spacing: .12em; fill: #0077a8; }
+  .lg { font-size: 21px; fill: #374151; }
+</style>
+<body><svg viewBox="0 0 1600 370" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1b2a3a"/></marker>
+<marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a6b00"/></marker></defs>
+<g transform="scale(0.5)">
+<text class="phase" x="20" y="30">1 · FIND</text><text class="phase" x="1100" y="30">2 · DECIDE</text><text class="phase" x="2710" y="30">3 · PROVE</text>
+<!-- row 1: left to right -->
+<g transform="translate(20,50)"><rect class="box" width="460" height="150" rx="10"/><text class="t" x="24" y="48">Scope</text><text class="s" x="24" y="88">Only the networks and hosts</text><text class="s" x="24" y="120">that the owner authorizes</text></g>
+<path class="arrow" d="M484,125 L530,125"/>
+<g transform="translate(534,50)"><rect class="box" width="500" height="150" rx="10"/><text class="t" x="24" y="48">Scan</text><text class="s" x="24" y="88">Open-source scanners,</text><text class="s" x="24" y="120">each in a container</text></g>
+<path class="arrow" d="M1038,125 L1084,125"/>
+<g transform="translate(1088,50)"><rect class="box" width="500" height="150" rx="10"/><text class="t" x="24" y="48">CBOM</text><text class="s" x="24" y="88">CycloneDX 1.6, built</text><text class="s" x="24" y="120">from the ledger</text></g>
+<path class="arrow" d="M1592,125 L1638,125"/>
+<g transform="translate(1642,50)"><rect class="box" width="500" height="150" rx="10"/><text class="t" x="24" y="48">Plan</text><text class="s" x="24" y="88">Rules set the order</text><text class="s" x="24" y="120">from the owner's facts</text></g>
+<path class="arrow" d="M2146,125 L2192,125"/>
+<g transform="translate(2196,50)"><rect class="box model" width="460" height="150" rx="10"/><text class="t" x="24" y="48">Draft</text><text class="s" x="24" y="88">A local model writes</text><text class="s" x="24" y="120">the config edit</text></g>
+<path class="arrow" d="M2660,125 L2706,125"/>
+<g transform="translate(2710,50)"><rect class="box probe" width="470" height="150" rx="10"/><text class="t" x="24" y="48">Test on a copy</text><text class="s" x="24" y="88">The edit runs on a twin</text><text class="s" x="24" y="120">before approval</text></g>
+<path class="arrow" d="M2945,204 L2945,262"/>
+<!-- row 2: right to left -->
+<g transform="translate(2710,266)"><rect class="box person" width="470" height="150" rx="10"/><text class="t" x="24" y="48">Approve</text><text class="s" x="24" y="88">A person approves,</text><text class="s" x="24" y="120">by name, on the ledger</text></g>
+<path class="arrow" d="M2706,341 L2660,341"/>
+<g transform="translate(2196,266)"><rect class="box" width="460" height="150" rx="10"/><text class="t" x="24" y="48">Apply</text><text class="s" x="24" y="88">The runner applies the</text><text class="s" x="24" y="120">edit and restarts</text></g>
+<path class="arrow" d="M2192,341 L2146,341"/>
+<g transform="translate(1642,266)"><rect class="box probe" width="500" height="150" rx="10"/><text class="t" x="24" y="48">Probe two times</text><text class="s" x="24" y="88">Hybrid client: accepted</text><text class="s" x="24" y="120">Classical client: refused</text></g>
+<path class="arrow" d="M1638,341 L1592,341"/>
+<g transform="translate(1088,266)"><rect class="box probe" width="500" height="150" rx="10"/><text class="t" x="24" y="48">Result</text><text class="s" x="24" y="88">The probes decide.</text><text class="s" x="24" y="120">A model does not.</text></g>
+<path class="arrow" d="M1084,341 L1038,341"/>
+<g transform="translate(534,266)"><rect class="box model" width="500" height="150" rx="10"/><text class="t" x="24" y="48">Ask the CBOM</text><text class="s" x="24" y="88">Answers cite the ledger.</text><text class="s" x="24" y="120">Each citation is checked.</text></g>
+<!-- ledger -->
+<g transform="translate(20,500)"><rect class="ledger" width="3160" height="130" rx="10"/><text class="lt" x="28" y="52">The ledger: one signed record of every step</text><text class="ls" x="28" y="96">Append-only JSONL file · each event holds the hash of the previous event · ML-DSA-65 signatures · all pages are built from it</text></g>
+<path class="down" d="M784,420 L784,494"/><path class="down" d="M1338,420 L1338,494"/><path class="down" d="M1892,420 L1892,494"/><path class="down" d="M2426,420 L2426,494"/><path class="down" d="M2945,420 L2945,494"/>
+<path class="down" d="M270,204 L270,494"/>
+<!-- legend -->
+<g transform="translate(20,690)">
+<rect class="box" width="40" height="28" rx="5"/><text class="lg" x="54" y="22">Rules, scanners or probes decide</text>
+<rect class="box model" x="560" width="40" height="28" rx="5"/><text class="lg" x="614" y="22">A local model writes or explains</text>
+<rect class="box person" x="1110" width="40" height="28" rx="5"/><text class="lg" x="1164" y="22">A person decides</text>
+<rect class="box probe" x="1460" width="40" height="28" rx="5"/><text class="lg" x="1514" y="22">Proof on the network</text>
+<text class="lg" x="2000" y="22">All steps run on one Dell Pro Max GB10, air-gapped.</text>
+</g>
+</g></svg></body>

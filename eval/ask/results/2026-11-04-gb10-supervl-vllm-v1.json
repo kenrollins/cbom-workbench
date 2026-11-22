@@ -1,0 +1,2968 @@
+{
+ "summary": {
+  "run": "01M6J326QNTAFJW3CQNVR2JFPJ",
+  "items": 12,
+  "repeats": 3,
+  "totals": {
+   "retrieval": 9,
+   "phrase": 10,
+   "citations": 10
+  },
+  "floor": {
+   "retrieval": 11,
+   "phrase": 10,
+   "citations": 12
+  },
+  "clears": false,
+  "role_tier": "deliberate",
+  "reasoning": true,
+  "model": "deliberate",
+  "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+  "embed_model": "mxbai-embed-large",
+  "embed_hardware": "DGX Spark GB10 (aarch64; ollama, mxbai-embed-large)",
+  "per_item": {
+   "ask-01": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "fp:611d45fc6a2efcbb0eab177e88a8416d1bfd2a8862fd3dbe7cfec9bdc9629a30"
+    ],
+    "latency_ms": [
+     98706,
+     97895,
+     91044
+    ]
+   },
+   "ask-02": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.30:5432"
+    ],
+    "latency_ms": [
+     240021,
+     221035,
+     216407
+    ]
+   },
+   "ask-03": {
+    "retrieval": false,
+    "phrase": false,
+    "citations": true,
+    "shown": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+     "fp:26578eb2a06d07fbfc3e077630f23b5a75072c16a00cc80d569d11468bb8d510",
+     "fp:7e1c1645da51761c5a406051101dc62e8882f998e861383f499a54b6be7c2000",
+     "fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d",
+     "fp:177484e091f5ec6210a6d7409e81a6193b7df170364541d9f8c7262e3d4ca2bb",
+     "fp:551599cb1b29cf9f5660369aa1ab602c6a634b0c46ff094bd388e9ed47047de4"
+    ],
+    "latency_ms": [
+     110689,
+     100136,
+     106694
+    ]
+   },
+   "ask-04": {
+    "retrieval": false,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+     "fp:8f71feb17dfd89ef17fee70f399bb8a5db43c549a4092d677ef26513c783fb96",
+     "fp:9651ef791b8af12cb96bd653b7c00405204bfa56532f27b8cc7835e335e0d4e0",
+     "fp:6b9f08309a44d419bb54b08afecd2983affca61de809855cf390374d3e532919",
+     "fp:bf53f0621623d0e3117e6b659154adc78578c3c5803896387f0f0b7553d76ef1",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7"
+    ],
+    "latency_ms": [
+     38790,
+     48838,
+     56557
+    ]
+   },
+   "ask-05": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.30:5432",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "fp:54ff62bf9522f3295a6f0b6777c88a5f6bb1ae2311ac9b522af08c27cd6aae0c",
+     "fp:999b749838e92cbfabd261c052275a5ba9fd9cd9f1a2da83c9f93e4722c13fc2"
+    ],
+    "latency_ms": [
+     45145,
+     36867,
+     29886
+    ]
+   },
+   "ask-06": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.30:5432",
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22"
+    ],
+    "latency_ms": [
+     66503,
+     59323,
+     58304
+    ]
+   },
+   "ask-07": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.10:443",
+     "fp:c1269ddfa3057d933edaef7a9ae2d47f6d97a158bbd7ea794bc529e11013ee1a",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a"
+    ],
+    "latency_ms": [
+     176444,
+     196167,
+     203109
+    ]
+   },
+   "ask-08": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "img:127.0.0.1:15000/pqch-agency/sftp-legacy",
+     "listener:172.16.106.32:8443",
+     "fp:a30676fc7cbf956f316b3c739bf44d006bb89f13b6b9fdc50e91c1fbd2832f8e",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443"
+    ],
+    "latency_ms": [
+     25926,
+     21530,
+     20970
+    ]
+   },
+   "ask-09": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "svc:api",
+     "img:127.0.0.1:15000/pqch-agency/api",
+     "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+     "listener:172.16.106.11:443",
+     "img:127.0.0.1:15000/pqch-agency/legacy-app",
+     "listener:172.16.106.32:8443",
+     "fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd",
+     "fp:9bd5d7b24c9990918032d0c8b10a88b7a9566467ef3d95854d39f8aad4cb89e1"
+    ],
+    "latency_ms": [
+     126621,
+     128162
+    ]
+   },
+   "ask-10": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.30:5432"
+    ],
+    "latency_ms": [
+     30695,
+     27962,
+     28132
+    ]
+   },
+   "ask-11": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "listener:172.16.106.21:22",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+     "fp:9651ef791b8af12cb96bd653b7c00405204bfa56532f27b8cc7835e335e0d4e0",
+     "fp:6b9f08309a44d419bb54b08afecd2983affca61de809855cf390374d3e532919",
+     "listener:172.16.106.31:5671"
+    ],
+    "latency_ms": [
+     32634,
+     32170,
+     34205
+    ]
+   },
+   "ask-12": {
+    "retrieval": false,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.20:22",
+     "fp:7a56e3e235a03e7cb25c680364b80af495ca782c3a13b807d75bfc3fce265d2d"
+    ],
+    "latency_ms": [
+     34451,
+     27331,
+     34478
+    ]
+   }
+  }
+ },
+ "records": [
+  {
+   "id": "ask-01",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener is listener:172.16.106.20:22 (SSH 172.16.106.20:22), which depends on the DH-1024 algorithm (diffie-hellman-group1-sha1) at 172.16.106.20:22.",
+    "components": [
+     "listener:172.16.106.20:22",
+     "fp:611d45fc6a2efcbb0eab177e88a8416d1bfd2a8862fd3dbe7cfec9bdc9629a30"
+    ],
+    "citations": [
+     "01M6J35Z7MFEDJ3Z775FSDWVH1",
+     "01M6J35Z9E2BXE3V6QB0GDKD3X",
+     "01M6J32BF2J4MAYZHJDDC5ZDFY",
+     "01M6J35ZM5X4V07SW3GR664T1W",
+     "01M6J35ZPHFB93A49GWKTNPBAT"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z7MFEDJ3Z775FSDWVH1",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J32BF2J4MAYZHJDDC5ZDFY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "ssh-audit",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZM5X4V07SW3GR664T1W",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZPHFB93A49GWKTNPBAT",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     },
+     {
+      "ref": "fp:611d45fc6a2efcbb0eab177e88a8416d1bfd2a8862fd3dbe7cfec9bdc9629a30",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 98706
+  },
+  {
+   "id": "ask-01",
+   "repeat": 1,
+   "reply": {
+    "answer": "The SSH listener listener:172.16.106.20:22 (SSH 172.16.106.20:22) still offers the 1024-bit Diffie-Hellman group (DH-1024 / diffie-hellman-group1-sha1), as evidenced by its dependency on the DH-1024 wire asset at 172.16.106.20:22.",
+    "components": [
+     "listener:172.16.106.20:22",
+     "fp:611d45fc6a2efcbb0eab177e88a8416d1bfd2a8862fd3dbe7cfec9bdc9629a30"
+    ],
+    "citations": [
+     "01M6J35Z7MFEDJ3Z775FSDWVH1",
+     "01M6J35Z9E2BXE3V6QB0GDKD3X",
+     "01M6J32BF2J4MAYZHJDDC5ZDFY",
+     "01M6J35ZM5X4V07SW3GR664T1W",
+     "01M6J35ZPHFB93A49GWKTNPBAT"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z7MFEDJ3Z775FSDWVH1",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J32BF2J4MAYZHJDDC5ZDFY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "ssh-audit",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZM5X4V07SW3GR664T1W",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZPHFB93A49GWKTNPBAT",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     },
+     {
+      "ref": "fp:611d45fc6a2efcbb0eab177e88a8416d1bfd2a8862fd3dbe7cfec9bdc9629a30",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 97895
+  },
+  {
+   "id": "ask-01",
+   "repeat": 2,
+   "reply": {
+    "answer": "The SSH listener offering the 1024-bit Diffie-Hellman group is listener:172.16.106.20:22 (SSH 172.16.106.20:22), which depends on DH-1024 (diffie-hellman-group1-sha1) at 172.16.106.20:22.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z7MFEDJ3Z775FSDWVH1",
+     "01M6J35Z9E2BXE3V6QB0GDKD3X",
+     "01M6J32BF2J4MAYZHJDDC5ZDFY",
+     "01M6J35ZM5X4V07SW3GR664T1W",
+     "01M6J35ZPHFB93A49GWKTNPBAT"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z7MFEDJ3Z775FSDWVH1",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J32BF2J4MAYZHJDDC5ZDFY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "ssh-audit",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZM5X4V07SW3GR664T1W",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZPHFB93A49GWKTNPBAT",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 91044
+  },
+  {
+   "id": "ask-02",
+   "repeat": 0,
+   "reply": {
+    "answer": "The listeners that negotiate a hybrid post-quantum key exchange (evidenced by dependencies on X25519MLKEM768 and/or sntrup761x25519) are:\n- listener:172.16.106.21:22 (SSH 172.16.106.21:22) \u2014 depends on X25519MLKEM768 and sntrup761x25519; events: 01M6J35Z6MH2J3ADK7CR13541A, 01M6J35Z8EJCTBVTMK2R8E6V59\n- listener:172.16.106.12:443 (TLS 172.16.106.12:443) \u2014 depends on X25519MLKEM768; events: 01M6J35Z7417D21F8VES2WA80W, 01M6J35Z8XEHA0Y6XRJ8X2EMBX, 01M6J3605T9J3NF8N432NX2ZHZ\n- listener:172.16.106.11:443 (TLS 172.16.106.11:443) \u2014 depends on X25519MLKEM768; events: 01M6J35Z6EVRFZM5D5T78NYDWS, 01M6J35Z83T1510YY2PGJJ6SJS, 01M6J360578HS2PWC8S1KP21VK\n- listener:172.16.106.30:5432 (POSTGRES 172.16.106.30:5432) \u2014 depends on X25519MLKEM768; events: 01M6J35Z7FY35G35VE1VJRB44Y, 01M6J35Z98D890002HB9AX4SHJ, 01M6J36065W59HPJ0WY45THJW9",
+    "components": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6J35Z6MH2J3ADK7CR13541A",
+     "01M6J35Z8EJCTBVTMK2R8E6V59",
+     "01M6J35Z7417D21F8VES2WA80W",
+     "01M6J35Z8XEHA0Y6XRJ8X2EMBX",
+     "01M6J3605T9J3NF8N432NX2ZHZ",
+     "01M6J35Z6EVRFZM5D5T78NYDWS",
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J360578HS2PWC8S1KP21VK",
+     "01M6J35Z7FY35G35VE1VJRB44Y",
+     "01M6J35Z98D890002HB9AX4SHJ",
+     "01M6J36065W59HPJ0WY45THJW9"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6MH2J3ADK7CR13541A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z7417D21F8VES2WA80W",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8XEHA0Y6XRJ8X2EMBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605T9J3NF8N432NX2ZHZ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z6EVRFZM5D5T78NYDWS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J360578HS2PWC8S1KP21VK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z7FY35G35VE1VJRB44Y",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z98D890002HB9AX4SHJ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.12:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 240021
+  },
+  {
+   "id": "ask-02",
+   "repeat": 1,
+   "reply": {
+    "answer": "The listeners that negotiate a hybrid post-quantum key exchange are: listener:172.16.106.21:22 (SSH, depends on X25519MLKEM768 and sntrup761x25519), listener:172.16.106.12:443 (TLS, depends on X25519MLKEM768), listener:172.16.106.11:443 (TLS, depends on X25519MLKEM768), and listener:172.16.106.30:5432 (POSTGRES, depends on X25519MLKEM768).",
+    "components": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6J35Z6MH2J3ADK7CR13541A",
+     "01M6J35Z8EJCTBVTMK2R8E6V59",
+     "01M6J35Z7417D21F8VES2WA80W",
+     "01M6J35Z8XEHA0Y6XRJ8X2EMBX",
+     "01M6J3605T9J3NF8N432NX2ZHZ",
+     "01M6J35Z6EVRFZM5D5T78NYDWS",
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J360578HS2PWC8S1KP21VK",
+     "01M6J35Z7FY35G35VE1VJRB44Y",
+     "01M6J35Z98D890002HB9AX4SHJ",
+     "01M6J36065W59HPJ0WY45THJW9"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6MH2J3ADK7CR13541A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z7417D21F8VES2WA80W",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8XEHA0Y6XRJ8X2EMBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605T9J3NF8N432NX2ZHZ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z6EVRFZM5D5T78NYDWS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J360578HS2PWC8S1KP21VK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z7FY35G35VE1VJRB44Y",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z98D890002HB9AX4SHJ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.12:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 221035
+  },
+  {
+   "id": "ask-02",
+   "repeat": 2,
+   "reply": {
+    "answer": "The listeners that negotiate a hybrid post-quantum key exchange (via X25519MLKEM768 and/or sntrup761x25519) are: listener:172.16.106.21:22 (SSH; depends on X25519MLKEM768 and sntrup761x25519), listener:172.16.106.12:443 (TLS; depends on X25519MLKEM768), listener:172.16.106.11:443 (TLS; depends on X25519MLKEM768), and listener:172.16.106.30:5432 (POSTGRES; depends on X25519MLKEM768).",
+    "components": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6J35Z6MH2J3ADK7CR13541A",
+     "01M6J35Z8EJCTBVTMK2R8E6V59",
+     "01M6J35Z7417D21F8VES2WA80W",
+     "01M6J35Z8XEHA0Y6XRJ8X2EMBX",
+     "01M6J3605T9J3NF8N432NX2ZHZ",
+     "01M6J35Z6EVRFZM5D5T78NYDWS",
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J360578HS2PWC8S1KP21VK",
+     "01M6J35Z7FY35G35VE1VJRB44Y",
+     "01M6J35Z98D890002HB9AX4SHJ",
+     "01M6J36065W59HPJ0WY45THJW9"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6MH2J3ADK7CR13541A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z7417D21F8VES2WA80W",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8XEHA0Y6XRJ8X2EMBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605T9J3NF8N432NX2ZHZ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z6EVRFZM5D5T78NYDWS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J360578HS2PWC8S1KP21VK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z7FY35G35VE1VJRB44Y",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z98D890002HB9AX4SHJ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.12:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 216407
+  },
+  {
+   "id": "ask-03",
+   "repeat": 0,
+   "reply": {
+    "answer": "Yes. The TLS service at 172.16.106.12:443 presents an ML-DSA-65 certificate (component bom-ref fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68), evidenced by events 01M6J33FC6KVX54EJBPNNG7KE6, 01M6J35YXNAN8GBHY7HM74T8VA, 01M6J35ZMGA9XR84KB1XA8ZPV7, 01M6J35ZS7CES2DCAKTNM5AF58.",
+    "components": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68"
+    ],
+    "citations": [
+     "01M6J33FC6KVX54EJBPNNG7KE6",
+     "01M6J35YXNAN8GBHY7HM74T8VA",
+     "01M6J35ZMGA9XR84KB1XA8ZPV7",
+     "01M6J35ZS7CES2DCAKTNM5AF58"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J33FC6KVX54EJBPNNG7KE6",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6J35YXNAN8GBHY7HM74T8VA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZMGA9XR84KB1XA8ZPV7",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZS7CES2DCAKTNM5AF58",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 110689
+  },
+  {
+   "id": "ask-03",
+   "repeat": 1,
+   "reply": {
+    "answer": "Yes. The TLS listener at 172.16.106.12:443 presents an ML-DSA-65 certificate, component bom-ref fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68 (name: ML-DSA-65, subject CN=pq-gateway.agency.test,O=Mini Agency).",
+    "components": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68"
+    ],
+    "citations": [
+     "01M6J33FC6KVX54EJBPNNG7KE6",
+     "01M6J35YXNAN8GBHY7HM74T8VA",
+     "01M6J35ZMGA9XR84KB1XA8ZPV7",
+     "01M6J35ZS7CES2DCAKTNM5AF58"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J33FC6KVX54EJBPNNG7KE6",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6J35YXNAN8GBHY7HM74T8VA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZMGA9XR84KB1XA8ZPV7",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZS7CES2DCAKTNM5AF58",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 100136
+  },
+  {
+   "id": "ask-03",
+   "repeat": 2,
+   "reply": {
+    "answer": "Yes. The TLS service at 172.16.106.12:443 (SNI pq-gateway.agency.test) presents an ML-DSA-65 certificate, evidenced by the wire asset bom-ref fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68 (certificate CN=pq-gateway.agency.test,O=Mini Agency, signature ML-DSA-65, family ml-dsa). It depends on the host certificate file /etc/nginx/tls/pq-gateway.crt (bom-ref fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7).",
+    "components": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7"
+    ],
+    "citations": [
+     "01M6J33FC6KVX54EJBPNNG7KE6",
+     "01M6J35YXNAN8GBHY7HM74T8VA",
+     "01M6J35ZMGA9XR84KB1XA8ZPV7",
+     "01M6J35ZS7CES2DCAKTNM5AF58",
+     "01M6J33GD7WE6N3ME5KARB86M8",
+     "01M6J35YXNAN8GBHY7HM74T8VA",
+     "01M6J35Z0HEKW582GSHHDKV9SA",
+     "01M6J35ZKRE48YP80YCMQPDRXM",
+     "01M6J35ZNDZ7QRJAK4G4SK8XS4",
+     "01M6J35ZS7CES2DCAKTNM5AF58",
+     "01M6J3601KD2ABQ745V9ZZW81F"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J33FC6KVX54EJBPNNG7KE6",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6J35YXNAN8GBHY7HM74T8VA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZMGA9XR84KB1XA8ZPV7",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZS7CES2DCAKTNM5AF58",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     },
+     {
+      "event": "01M6J33GD7WE6N3ME5KARB86M8",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J35YXNAN8GBHY7HM74T8VA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z0HEKW582GSHHDKV9SA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "in-use/served/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZKRE48YP80YCMQPDRXM",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZNDZ7QRJAK4G4SK8XS4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "conflict/resolve/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZS7CES2DCAKTNM5AF58",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3601KD2ABQ745V9ZZW81F",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "queue/m-26-15/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+      "ok": true
+     },
+     {
+      "ref": "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 106694
+  },
+  {
+   "id": "ask-04",
+   "repeat": 0,
+   "reply": {
+    "answer": "The DSA host key file is carried by host/image 127.0.0.1:15000/pqch-agency/sftp-legacy (path /etc/ssh/ssh_host_dsa_key).",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69"
+    ],
+    "citations": [
+     "01M6J3446QH4KFK0AS94JTTT51"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3446QH4KFK0AS94JTTT51",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 38790
+  },
+  {
+   "id": "ask-04",
+   "repeat": 1,
+   "reply": {
+    "answer": "The host 127.0.0.1:15000/pqch-agency/sftp-legacy still carries the DSA host key file /etc/ssh/ssh_host_dsa_key (private key, 1024-bit, in use).",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69"
+    ],
+    "citations": [
+     "01M6J3446QH4KFK0AS94JTTT51",
+     "01M6J35YVQWNDFB488S6YN047G",
+     "01M6J35Z2AAWN7F4XGEK9Q5YGB",
+     "01M6J35ZKX6HG6SDFE1FC3P8X7"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3446QH4KFK0AS94JTTT51",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J35YVQWNDFB488S6YN047G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z2AAWN7F4XGEK9Q5YGB",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "in-use/served/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZKX6HG6SDFE1FC3P8X7",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 48838
+  },
+  {
+   "id": "ask-04",
+   "repeat": 2,
+   "reply": {
+    "answer": "The DSA host key file /etc/ssh/ssh_host_dsa_key is carried by the host/image 127.0.0.1:15000/pqch-agency/sftp-legacy (served via 172.16.106.20:22), as component bom-ref fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69.",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69"
+    ],
+    "citations": [
+     "01M6J3446QH4KFK0AS94JTTT51",
+     "01M6J35YVQWNDFB488S6YN047G",
+     "01M6J35Z2AAWN7F4XGEK9Q5YGB",
+     "01M6J35ZKX6HG6SDFE1FC3P8X7"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3446QH4KFK0AS94JTTT51",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J35YVQWNDFB488S6YN047G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z2AAWN7F4XGEK9Q5YGB",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "in-use/served/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZKX6HG6SDFE1FC3P8X7",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 56557
+  },
+  {
+   "id": "ask-05",
+   "repeat": 0,
+   "reply": {
+    "answer": "The PostgreSQL database is the listener POSTGRES 172.16.106.30:5432 (bom-ref listener:172.16.106.30:5432). Yes, it speaks TLS 1.3: its TLS 1.3 posture is met with versions including TLS 1.3, and it depends on the TLS 1.3 wire protocol asset (bom-ref fp:54ff62bf9522f3295a6f0b6777c88a5f6bb1ae2311ac9b522af08c27cd6aae0c).",
+    "components": [
+     "listener:172.16.106.30:5432",
+     "fp:54ff62bf9522f3295a6f0b6777c88a5f6bb1ae2311ac9b522af08c27cd6aae0c"
+    ],
+    "citations": [
+     "01M6J36065W59HPJ0WY45THJW9",
+     "01M6J33MN63NZHKBJTY3SP13FT"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J33MN63NZHKBJTY3SP13FT",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     },
+     {
+      "ref": "fp:54ff62bf9522f3295a6f0b6777c88a5f6bb1ae2311ac9b522af08c27cd6aae0c",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 45145
+  },
+  {
+   "id": "ask-05",
+   "repeat": 1,
+   "reply": {
+    "answer": "The PostgreSQL database is the listener POSTGRES 172.16.106.30:5432 (bom-ref listener:172.16.106.30:5432), and yes it speaks TLS 1.3: its TLS 1.3 posture is \u201cmet\u201d with versions [\"TLS 1.2\", \"TLS 1.3\"].",
+    "components": [
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6J35Z7FY35G35VE1VJRB44Y",
+     "01M6J35Z98D890002HB9AX4SHJ",
+     "01M6J36065W59HPJ0WY45THJW9"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z7FY35G35VE1VJRB44Y",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z98D890002HB9AX4SHJ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 36867
+  },
+  {
+   "id": "ask-05",
+   "repeat": 2,
+   "reply": {
+    "answer": "The PostgreSQL database is the listener POSTGRES 172.16.106.30:5432 (bom-ref listener:172.16.106.30:5432), and yes it speaks TLS 1.3: its pqch:tls13 state is \u201cmet\u201d with versions [\u201cTLS 1.2\u201d, \u201cTLS 1.3\u201d].",
+    "components": [
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6J36065W59HPJ0WY45THJW9"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 29886
+  },
+  {
+   "id": "ask-06",
+   "repeat": 0,
+   "reply": {
+    "answer": "The listeners still limited to TLS 1.2 are listener:172.16.106.32:8443 and listener:172.16.106.31:5671. Both have pqch:tls13 state \"open\" with versions only [\"TLS 1.2\"].",
+    "components": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671"
+    ],
+    "citations": [
+     "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+     "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+     "01M6J3605E58HRPK7DRW5FF8MV",
+     "01M6J35Z79KXD317957K9DARBN",
+     "01M6J35Z93YX81BD66PJNJBZ32",
+     "01M6J3605Z11A91T9ZWZGMS47F"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z79KXD317957K9DARBN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z93YX81BD66PJNJBZ32",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605Z11A91T9ZWZGMS47F",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.31:5671",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 66503
+  },
+  {
+   "id": "ask-06",
+   "repeat": 1,
+   "reply": {
+    "answer": "The listeners still limited to TLS 1.2 are listener:172.16.106.32:8443 and listener:172.16.106.31:5671. Both have pqch:tls13 state \"open\" with versions only [\"TLS 1.2\"].",
+    "components": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671"
+    ],
+    "citations": [
+     "01M6J3605E58HRPK7DRW5FF8MV",
+     "01M6J3605Z11A91T9ZWZGMS47F"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605Z11A91T9ZWZGMS47F",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.31:5671",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 59323
+  },
+  {
+   "id": "ask-06",
+   "repeat": 2,
+   "reply": {
+    "answer": "The listeners still limited to TLS 1.2 are listener:172.16.106.32:8443 and listener:172.16.106.31:5671. Both have pqch:tls13 state \"open\" with versions only [\"TLS 1.2\"].",
+    "components": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671"
+    ],
+    "citations": [
+     "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+     "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+     "01M6J3605E58HRPK7DRW5FF8MV",
+     "01M6J35Z79KXD317957K9DARBN",
+     "01M6J35Z93YX81BD66PJNJBZ32",
+     "01M6J3605Z11A91T9ZWZGMS47F"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z79KXD317957K9DARBN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z93YX81BD66PJNJBZ32",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605Z11A91T9ZWZGMS47F",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.31:5671",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 58304
+  },
+  {
+   "id": "ask-07",
+   "repeat": 0,
+   "reply": {
+    "answer": "The message queue TLS listener is listener:172.16.106.31:5671 (passage [2]), which depends on an ECDSA certificate. That certificate is the host asset ECDSA certificate \u00b7 /etc/rmq-tls/queue.crt with bom-ref fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a (passage [8]), and it is signed with ecdsa-with-SHA384.",
+    "components": [
+     "listener:172.16.106.31:5671",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a"
+    ],
+    "citations": [
+     "01M6J35Z79KXD317957K9DARBN",
+     "01M6J35Z93YX81BD66PJNJBZ32",
+     "01M6J3605Z11A91T9ZWZGMS47F",
+     "01M6J33T1A5QBVRYXVMN8YE6A4",
+     "01M6J34W6WZFFSEAY7JEHWX6WC",
+     "01M6J35YX6FS9H18RHF8FXK905",
+     "01M6J35YXBKX48S08GPPKZV5JW",
+     "01M6J35Z0PWYPF5REGNNNT5ZSN",
+     "01M6J35Z3HRB6T65Y0AJ597ZPH",
+     "01M6J35ZKRE48YP80YCMQPDRXM",
+     "01M6J35ZREZPTEJVD77N9730KP",
+     "01M6J3602D743N3PHQNJ6KZ7E4"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z79KXD317957K9DARBN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z93YX81BD66PJNJBZ32",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605Z11A91T9ZWZGMS47F",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J33T1A5QBVRYXVMN8YE6A4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J34W6WZFFSEAY7JEHWX6WC",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     },
+     {
+      "event": "01M6J35YX6FS9H18RHF8FXK905",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35YXBKX48S08GPPKZV5JW",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z0PWYPF5REGNNNT5ZSN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "in-use/served/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z3HRB6T65Y0AJ597ZPH",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "in-use/served/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZKRE48YP80YCMQPDRXM",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZREZPTEJVD77N9730KP",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3602D743N3PHQNJ6KZ7E4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "queue/m-26-15/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.31:5671",
+      "ok": true
+     },
+     {
+      "ref": "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 176444
+  },
+  {
+   "id": "ask-07",
+   "repeat": 1,
+   "reply": {
+    "answer": "The message queue TLS listener is listener:172.16.106.31:5671 (passage [2]), which depends on the ECDSA certificate fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d. That certificate is fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a (passage [8]): it is not self-signed, is signed by issuer CN=Mini Agency Internal CA,O=Mini Agency, and uses signature ecdsa-with-SHA384. Events: [2] 01M6J35Z79KXD317957K9DARBN, 01M6J35Z93YX81BD66PJNJBZ32, 01M6J3605Z11A91T9ZWZGMS47F; [8] 01M6J33T1A5QBVRYXVMN8YE6A4, 01M6J34W6WZFFSEAY7JEHWX6WC.",
+    "components": [
+     "listener:172.16.106.31:5671",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a"
+    ],
+    "citations": [
+     "01M6J35Z79KXD317957K9DARBN",
+     "01M6J35Z93YX81BD66PJNJBZ32",
+     "01M6J3605Z11A91T9ZWZGMS47F",
+     "01M6J33T1A5QBVRYXVMN8YE6A4",
+     "01M6J34W6WZFFSEAY7JEHWX6WC"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z79KXD317957K9DARBN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z93YX81BD66PJNJBZ32",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605Z11A91T9ZWZGMS47F",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J33T1A5QBVRYXVMN8YE6A4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J34W6WZFFSEAY7JEHWX6WC",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.31:5671",
+      "ok": true
+     },
+     {
+      "ref": "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 196167
+  },
+  {
+   "id": "ask-07",
+   "repeat": 2,
+   "reply": {
+    "answer": "The message queue's TLS listener is listener:172.16.106.31:5671 (passage [2]), which depends on the ECDSA certificate fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d. That certificate is the host asset ECDSA certificate /etc/rmq-tls/queue.crt with bom-ref fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a (passage [8]); its issuer is CN=Mini Agency Internal CA,O=Mini Agency, but no separate CA component is present in the passages. Cited events: from [2] 01M6J35Z79KXD317957K9DARBN, 01M6J35Z93YX81BD66PJNJBZ32, 01M6J3605Z11A91T9ZWZGMS47F; from [8] 01M6J33T1A5QBVRYXVMN8YE6A4, 01M6J34W6WZFFSEAY7JEHWX6WC, 01M6J35YX6FS9H18RHF8FXK905, 01M6J35YXBKX48S08GPPKZV5JW, 01M6J35Z0PWYPF5REGNNNT5ZSN, 01M6J35Z3HRB6T65Y0AJ597ZPH, 01M6J35ZKRE48YP80YCMQPDRXM, 01M6J35ZREZPTEJVD77N9730KP, 01M6J3602D743N3PHQNJ6KZ7E4.",
+    "components": [
+     "listener:172.16.106.31:5671",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a"
+    ],
+    "citations": [
+     "01M6J35Z79KXD317957K9DARBN",
+     "01M6J35Z93YX81BD66PJNJBZ32",
+     "01M6J3605Z11A91T9ZWZGMS47F",
+     "01M6J33T1A5QBVRYXVMN8YE6A4",
+     "01M6J34W6WZFFSEAY7JEHWX6WC",
+     "01M6J35YX6FS9H18RHF8FXK905",
+     "01M6J35YXBKX48S08GPPKZV5JW",
+     "01M6J35Z0PWYPF5REGNNNT5ZSN",
+     "01M6J35Z3HRB6T65Y0AJ597ZPH",
+     "01M6J35ZKRE48YP80YCMQPDRXM",
+     "01M6J35ZREZPTEJVD77N9730KP",
+     "01M6J3602D743N3PHQNJ6KZ7E4"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z79KXD317957K9DARBN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z93YX81BD66PJNJBZ32",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605Z11A91T9ZWZGMS47F",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J33T1A5QBVRYXVMN8YE6A4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J34W6WZFFSEAY7JEHWX6WC",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     },
+     {
+      "event": "01M6J35YX6FS9H18RHF8FXK905",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35YXBKX48S08GPPKZV5JW",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z0PWYPF5REGNNNT5ZSN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "in-use/served/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z3HRB6T65Y0AJ597ZPH",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "in-use/served/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZKRE48YP80YCMQPDRXM",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "verifier/class/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35ZREZPTEJVD77N9730KP",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "quantum/vulnerable/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3602D743N3PHQNJ6KZ7E4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "queue/m-26-15/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.31:5671",
+      "ok": true
+     },
+     {
+      "ref": "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 203109
+  },
+  {
+   "id": "ask-08",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener offering sntrup761x25519 is listener:172.16.106.21:22 (SSH 172.16.106.21:22), which depends on the sntrup761x25519 algorithm at 172.16.106.21:22.",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6J35Z6MH2J3ADK7CR13541A",
+     "01M6J35Z8EJCTBVTMK2R8E6V59"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6MH2J3ADK7CR13541A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 25926
+  },
+  {
+   "id": "ask-08",
+   "repeat": 1,
+   "reply": {
+    "answer": "listener:172.16.106.21:22",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6J35Z6MH2J3ADK7CR13541A",
+     "01M6J35Z8EJCTBVTMK2R8E6V59"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6MH2J3ADK7CR13541A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 21530
+  },
+  {
+   "id": "ask-08",
+   "repeat": 2,
+   "reply": {
+    "answer": "listener:172.16.106.21:22",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6J35Z6MH2J3ADK7CR13541A",
+     "01M6J35Z8EJCTBVTMK2R8E6V59"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6MH2J3ADK7CR13541A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 20970
+  },
+  {
+   "id": "ask-09",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON: '{ \"answer\": \"The API service\u2019s certificate chain depends on the TLS listener at 172.16.106.11:443 (bom-ref listener:172.16.106.11:443), which depends on the listener ECDSA certificate and ultimately o'",
+   "latency_ms": 205619
+  },
+  {
+   "id": "ask-09",
+   "repeat": 1,
+   "reply": {
+    "answer": "The API service's certificate chain depends on the TLS listener service at 172.16.106.11:443 (bom-ref: listener:172.16.106.11:443). The api service (svc:api) depends on this listener, and the listener depends on its ECDSA certificate at 172.16.106.11:443, which in turn depends on the API certificate /etc/nginx/tls/api.crt (fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd).",
+    "components": [
+     "listener:172.16.106.11:443"
+    ],
+    "citations": [
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J35Z6EVRFZM5D5T78NYDWS",
+     "01M6J360578HS2PWC8S1KP21VK",
+     "01M6J32CB8YZA03S2X4FQ3JVMH",
+     "01M6J3409PPXJBRZAPZCWR1V5B"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z6EVRFZM5D5T78NYDWS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J360578HS2PWC8S1KP21VK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J32CB8YZA03S2X4FQ3JVMH",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J3409PPXJBRZAPZCWR1V5B",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 126621
+  },
+  {
+   "id": "ask-09",
+   "repeat": 2,
+   "reply": {
+    "answer": "The API service (svc:api) certificate chain depends on the TLS listener at 172.16.106.11:443 (bom-ref listener:172.16.106.11:443). The API service depends on that listener, and the listener depends on the ECDDA certificate served at 172.16.106.11:443 (fp:7e1c1645...), which is the certificate referenced by the API's /etc/nginx/tls/api.crt.",
+    "components": [
+     "svc:api",
+     "listener:172.16.106.11:443"
+    ],
+    "citations": [
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J35Z6EVRFZM5D5T78NYDWS",
+     "01M6J360578HS2PWC8S1KP21VK",
+     "01M6J32CB8YZA03S2X4FQ3JVMH",
+     "01M6J3409PPXJBRZAPZCWR1V5B"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z6EVRFZM5D5T78NYDWS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J360578HS2PWC8S1KP21VK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6J32CB8YZA03S2X4FQ3JVMH",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J3409PPXJBRZAPZCWR1V5B",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "svc:api",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 128162
+  },
+  {
+   "id": "ask-10",
+   "repeat": 0,
+   "reply": {
+    "answer": "listener:172.16.106.10:443 (TLS 172.16.106.10:443) still uses an RSA certificate on port 443.",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6J35Z6Y9A4SSHKVB6JD1TMN",
+     "01M6J35Z8RYEG634184GKMP8CS",
+     "01M6J3605KAVK0XH71D3Z5XFT2"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6Y9A4SSHKVB6JD1TMN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8RYEG634184GKMP8CS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605KAVK0XH71D3Z5XFT2",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 30695
+  },
+  {
+   "id": "ask-10",
+   "repeat": 1,
+   "reply": {
+    "answer": "listener:172.16.106.10:443",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6J35Z6Y9A4SSHKVB6JD1TMN",
+     "01M6J35Z8RYEG634184GKMP8CS",
+     "01M6J3605KAVK0XH71D3Z5XFT2"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6Y9A4SSHKVB6JD1TMN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8RYEG634184GKMP8CS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605KAVK0XH71D3Z5XFT2",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 27962
+  },
+  {
+   "id": "ask-10",
+   "repeat": 2,
+   "reply": {
+    "answer": "listener:172.16.106.10:443",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6J35Z6Y9A4SSHKVB6JD1TMN",
+     "01M6J35Z8RYEG634184GKMP8CS",
+     "01M6J3605KAVK0XH71D3Z5XFT2"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6Y9A4SSHKVB6JD1TMN",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8RYEG634184GKMP8CS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605KAVK0XH71D3Z5XFT2",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 28132
+  },
+  {
+   "id": "ask-11",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener that offers DSA for host authentication is listener:172.16.106.20:22 (SSH 172.16.106.20:22), which depends on the DSA algorithm at 172.16.106.20:22.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z7MFEDJ3Z775FSDWVH1",
+     "01M6J35Z9E2BXE3V6QB0GDKD3X"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z7MFEDJ3Z775FSDWVH1",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 32634
+  },
+  {
+   "id": "ask-11",
+   "repeat": 1,
+   "reply": {
+    "answer": "The SSH listener that offers DSA for host authentication is listener:172.16.106.20:22 (SSH 172.16.106.20:22), which depends on the DSA algorithm at 172.16.106.20:22.",
+    "components": [
+     "/bom-ref listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z7MFEDJ3Z775FSDWVH1",
+     "01M6J35Z9E2BXE3V6QB0GDKD3X"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z7MFEDJ3Z775FSDWVH1",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "/bom-ref listener:172.16.106.20:22",
+      "ok": false
+     }
+    ],
+    "ok": false
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 32170
+  },
+  {
+   "id": "ask-11",
+   "repeat": 2,
+   "reply": {
+    "answer": "SSH listener listener:172.16.106.20:22 offers DSA for host authentication (it depends on DSA algorithm fp:15f91bc295a6df4b783f2d29f3e8a35fa0bfac62a6e3bc06b3d143a0670540e9).",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z7MFEDJ3Z775FSDWVH1",
+     "01M6J35Z9E2BXE3V6QB0GDKD3X"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z7MFEDJ3Z775FSDWVH1",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 34205
+  },
+  {
+   "id": "ask-12",
+   "repeat": 0,
+   "reply": {
+    "answer": "Yes. The listener on port 8443 is TLS 172.16.106.32:8443 (bom-ref listener:172.16.106.32:8443), which depends on an RSA certificate at 172.16.106.32:8443 and is associated with the service legacy-app (pqch:service: legacy-app).",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+     "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+     "01M6J3605E58HRPK7DRW5FF8MV"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 34451
+  },
+  {
+   "id": "ask-12",
+   "repeat": 1,
+   "reply": {
+    "answer": "Yes. The listener on port 8443 is bom-ref listener:172.16.106.32:8443 (TLS 172.16.106.32:8443), which depends on an RSA certificate and is associated with service legacy-app (svc:legacy-app).",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+     "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+     "01M6J3605E58HRPK7DRW5FF8MV"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 27331
+  },
+  {
+   "id": "ask-12",
+   "repeat": 2,
+   "reply": {
+    "answer": "Yes. The listener on port 8443 is listener:172.16.106.32:8443 (TLS 172.16.106.32:8443), which depends on an RSA certificate at 172.16.106.32:8443 and is associated with the service legacy-app.",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+     "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+     "01M6J3605E58HRPK7DRW5FF8MV"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z6S72ZY4KBA9Y6CMG0G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "deliberate",
+   "hardware": "DGX Spark GB10 (aarch64; vLLM, Nemotron 3.5 Super VL 120B-A12B NVFP4, medium-effort thinking)",
+   "latency_ms": 34478
+  }
+ ]
+}

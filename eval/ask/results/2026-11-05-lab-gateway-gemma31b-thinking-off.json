@@ -1,0 +1,1171 @@
+{
+ "summary": {
+  "run": "01M5JFEP7D145D2T38TW0S6631",
+  "items": 12,
+  "repeats": 3,
+  "totals": {
+   "retrieval": 10,
+   "phrase": 2,
+   "citations": 3
+  },
+  "floor": {
+   "retrieval": 11,
+   "phrase": 10,
+   "citations": 12
+  },
+  "clears": false,
+  "role_tier": "fast",
+  "reasoning": false,
+  "model": "vllm/gemma-4-31b-l4",
+  "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+  "embed_model": "lab/embed",
+  "embed_hardware": "lab-gateway",
+  "per_item": {
+   "ask-01": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443",
+     "listener:172.16.106.10:443",
+     "svc:sftp-legacy",
+     "svc:bastion",
+     "svc:legacy-app",
+     "svc:queue",
+     "svc:pq-gateway",
+     "svc:api",
+     "svc:portal"
+    ],
+    "latency_ms": [
+     11784,
+     5293,
+     5297
+    ]
+   },
+   "ask-02": {
+    "retrieval": false,
+    "phrase": false,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443",
+     "svc:bastion",
+     "svc:sftp-legacy",
+     "svc:queue",
+     "svc:legacy-app",
+     "svc:pq-gateway",
+     "svc:portal",
+     "svc:api"
+    ],
+    "latency_ms": [
+     20939,
+     15379,
+     15376
+    ]
+   },
+   "ask-03": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "fp:aa4e26d3b3c8941013432f1bb4419cd2ca563cbc2c038ec0355890b7500db0a3",
+     "fp:e9ff1e25d20e67682c095dedf165237c1d26da4750518a86c8260fe8b7dddab1",
+     "fp:ee0f815b0a910e5e06d1264e99f7b29e9614ac0553d18243328e35f9661713f3",
+     "fp:75b405ab6a2f80f6cd8f790dee13cb5c9a87f897792e155c5c556a3b75c4206a",
+     "fp:fc5b12065debb779146c91a2d1e5c5dc7f64ed71aa07db5235454b58f267bc5e",
+     "fp:f38fe22064ffc1776f57f8cf3bbb918114c2461eb67cfb91053344d78e12eac3",
+     "fp:b702c4b25aa5c5f33886b703b3d0b3145c2c178023b76f1e0e5270864b4b9f12",
+     "fp:4aaef3ad645468899c97c9593612d3a6cf65b5b23a50559b56b10c1c09c49d83",
+     "listener:172.16.106.12:443",
+     "svc:pq-gateway",
+     "img:pqch-agency/pq-gateway",
+     "img:pqch-agency/queue",
+     "svc:queue",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.11:443",
+     "svc:api",
+     "img:pqch-agency/records-db",
+     "svc:records-db",
+     "img:pqch-agency/api"
+    ],
+    "latency_ms": []
+   },
+   "ask-04": {
+    "retrieval": false,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "fp:b6c174986276f41233db49bc4cb6128fd1205a8d228ed690ae9e7748da7917a8",
+     "fp:53ad729b66bc31a8ea69654deb1a4d317a96eb5308474fc1e8a2c12b837ff6a2",
+     "fp:f848895bb0e2aa125135b2844feab9f3d3485ce866f3b07c1a402ac8da6c4319",
+     "fp:cc52f38cf407860ba5847226c6f1fef41dcecf6fe905d7d371a5f3d09b56ec08",
+     "fp:5b0941a6b8f9710a2fab6c80e18c1757f6e76d3b91813175db5d52c826a088ec",
+     "fp:37619e372eac5e8a477c3aa627fcee8f00d21525034f35b10fa43b4e5491c428",
+     "fp:16e300ae296bf4da113c7e5ec4c515b9c695ae6d17de96084245a3e48f6f43c0",
+     "fp:72058a8dcf70f7429ccef67e720c53b7c34de4c23d693256c7f371433d729cfe",
+     "fp:bc50ebb205799f08956611eeb3a5f50fe6fd654c35509b9dbbd27807a5ac64d1",
+     "listener:172.16.106.20:22",
+     "img:pqch-agency/sftp-legacy",
+     "svc:sftp-legacy",
+     "fp:2989cae52b63f59a24372bd3a87c17497c3ad880689727eedf3e9c78269de829",
+     "img:pqch-agency/api",
+     "svc:api",
+     "img:pqch-agency/pq-gateway",
+     "svc:pq-gateway",
+     "img:pqch-agency/queue",
+     "svc:queue"
+    ],
+    "latency_ms": []
+   },
+   "ask-05": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.30:5432",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443",
+     "fp:54ff62bf9522f3295a6f0b6777c88a5f6bb1ae2311ac9b522af08c27cd6aae0c",
+     "svc:records-db",
+     "svc:queue",
+     "svc:portal",
+     "svc:pq-gateway",
+     "svc:legacy-app",
+     "svc:api"
+    ],
+    "latency_ms": []
+   },
+   "ask-06": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443",
+     "listener:172.16.106.30:5432",
+     "listener:172.16.106.20:22",
+     "svc:queue",
+     "svc:legacy-app",
+     "svc:portal",
+     "svc:pq-gateway",
+     "svc:api",
+     "svc:records-db",
+     "svc:sftp-legacy"
+    ],
+    "latency_ms": []
+   },
+   "ask-07": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.11:8443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.10:443",
+     "fp:d080eca199dec680f1737e3a3fe1be4e406560e0e673faf3f831f9f22997ea17",
+     "fp:75b405ab6a2f80f6cd8f790dee13cb5c9a87f897792e155c5c556a3b75c4206a",
+     "svc:pq-gateway",
+     "svc:legacy-app",
+     "svc:api",
+     "svc:queue",
+     "svc:portal",
+     "img:pqch-agency/queue",
+     "fp:fc5b12065debb779146c91a2d1e5c5dc7f64ed71aa07db5235454b58f267bc5e"
+    ],
+    "latency_ms": []
+   },
+   "ask-08": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.31:5671",
+     "fp:1ab54baf1ba7ac0593094515544b49e5cf39b9f7a4fa8aedd846567e16942dcf",
+     "fp:be46fe3d507a2c0a75fdf1ec5bc0b07d26cf7607533ab34641191ffd4e2a16ca",
+     "listener:172.16.106.11:443",
+     "svc:sftp-legacy",
+     "svc:bastion",
+     "svc:legacy-app",
+     "svc:pq-gateway",
+     "svc:queue",
+     "fp:c5aefa909eac368e36fa090d43bdf67e05806e76593b01f15c038fefeed3c412",
+     "img:pqch-agency/sftp-legacy",
+     "svc:api"
+    ],
+    "latency_ms": [
+     11484,
+     5496,
+     5496
+    ]
+   },
+   "ask-09": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "svc:api",
+     "img:pqch-agency/legacy-app",
+     "img:pqch-agency/api",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:443",
+     "fp:d0f80d7e4cf802648a49b675651ef5ebf68de4d28b0765ae7e04fc5104bf1370",
+     "fp:25b4b8d357737d09283d6e5dc1b85324dadf289637a39e66e32290f033a3ac05",
+     "listener:172.16.106.32:8443",
+     "svc:legacy-app",
+     "svc:pq-gateway",
+     "fp:03f50533afef3d471a7f9236bf1ff9c95e1d07ad461526a70deaf6606aa7ad12",
+     "listener:172.16.106.30:5432",
+     "img:pqch-agency/records-db",
+     "svc:records-db",
+     "fp:3e6688393871c72d686b9c5bb0a992e345ef9e7f365dd7a55d5cba87c7d2e46b",
+     "listener:172.16.106.11:8443",
+     "fp:f38fe22064ffc1776f57f8cf3bbb918114c2461eb67cfb91053344d78e12eac3"
+    ],
+    "latency_ms": []
+   },
+   "ask-10": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.20:22",
+     "svc:legacy-app",
+     "svc:pq-gateway",
+     "svc:api",
+     "svc:portal",
+     "svc:queue",
+     "svc:bastion",
+     "svc:sftp-legacy"
+    ],
+    "latency_ms": [
+     11751
+    ]
+   },
+   "ask-11": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "fp:53ad729b66bc31a8ea69654deb1a4d317a96eb5308474fc1e8a2c12b837ff6a2",
+     "fp:b6c174986276f41233db49bc4cb6128fd1205a8d228ed690ae9e7748da7917a8",
+     "fp:f848895bb0e2aa125135b2844feab9f3d3485ce866f3b07c1a402ac8da6c4319",
+     "fp:bc50ebb205799f08956611eeb3a5f50fe6fd654c35509b9dbbd27807a5ac64d1",
+     "fp:16e300ae296bf4da113c7e5ec4c515b9c695ae6d17de96084245a3e48f6f43c0",
+     "img:pqch-agency/sftp-legacy",
+     "svc:sftp-legacy",
+     "svc:bastion",
+     "fp:2989cae52b63f59a24372bd3a87c17497c3ad880689727eedf3e9c78269de829"
+    ],
+    "latency_ms": []
+   },
+   "ask-12": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:8443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.21:22",
+     "fp:66a0c2f93148a36d29666f79590aba7c0d15f8148426d52d1b8e04a13778a378",
+     "svc:legacy-app",
+     "svc:pq-gateway",
+     "svc:api",
+     "svc:queue",
+     "svc:portal",
+     "svc:bastion",
+     "fp:cf5916a28738603fc3acc1c1c5ee699d9d16ff0db959642bfc86c1c1e43b558b",
+     "img:pqch-agency/portal"
+    ],
+    "latency_ms": []
+   }
+  }
+ },
+ "records": [
+  {
+   "id": "ask-01",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener at 172.16.106.20:22 still offers the DH-1024 algorithm.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M5JFVAYW3PY316VMYD10VVFQ",
+     "01M5JFVAZJF0NWQWH8GMRNC48A"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYW3PY316VMYD10VVFQ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZJF0NWQWH8GMRNC48A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 11784
+  },
+  {
+   "id": "ask-01",
+   "repeat": 1,
+   "reply": {
+    "answer": "The SSH listener at 172.16.106.20:22 still offers the DH-1024 algorithm.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M5JFVAYW3PY316VMYD10VVFQ",
+     "01M5JFVAZJF0NWQWH8GMRNC48A"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYW3PY316VMYD10VVFQ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZJF0NWQWH8GMRNC48A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 5293
+  },
+  {
+   "id": "ask-01",
+   "repeat": 2,
+   "reply": {
+    "answer": "The SSH listener at 172.16.106.20:22 still offers the DH-1024 algorithm.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M5JFVAYW3PY316VMYD10VVFQ",
+     "01M5JFVAZJF0NWQWH8GMRNC48A"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYW3PY316VMYD10VVFQ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZJF0NWQWH8GMRNC48A",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 5297
+  },
+  {
+   "id": "ask-02",
+   "repeat": 0,
+   "reply": {
+    "answer": "The listeners that negotiate a hybrid post-quantum key exchange are SSH 172.16.106.21:22, TLS 172.16.106.11:443, and TLS 172.16.106.11:8443.",
+    "components": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443"
+    ],
+    "citations": [
+     "01M5JFVAYKBK5JBMV104S0FJBX",
+     "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+     "01M5JFVAYE92474R6P8NXK7CZY",
+     "01M5JFVAZ5TYR15V8MZWKDXP4J",
+     "01M5JFVB9N3ZHF3S9WB4K74QHP",
+     "01M5JFVAYH915WS4XRWEBDM30K",
+     "01M5JFVAZ6KPCZW5B75W1RFNJ8",
+     "01M5JFVB9QSFCAEVD0JQMHVGYP"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYKBK5JBMV104S0FJBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAYE92474R6P8NXK7CZY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ5TYR15V8MZWKDXP4J",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVB9N3ZHF3S9WB4K74QHP",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAYH915WS4XRWEBDM30K",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ6KPCZW5B75W1RFNJ8",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVB9QSFCAEVD0JQMHVGYP",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 20939
+  },
+  {
+   "id": "ask-02",
+   "repeat": 1,
+   "reply": {
+    "answer": "The listeners that negotiate a hybrid post-quantum key exchange are SSH 172.16.106.21:22, TLS 172.16.106.11:443, and TLS 172.16.106.11:8443.",
+    "components": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443"
+    ],
+    "citations": [
+     "01M5JFVAYKBK5JBMV104S0FJBX",
+     "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+     "01M5JFVAYE92474R6P8NXK7CZY",
+     "01M5JFVAZ5TYR15V8MZWKDXP4J",
+     "01M5JFVB9N3ZHF3S9WB4K74QHP",
+     "01M5JFVAYH915WS4XRWEBDM30K",
+     "01M5JFVAZ6KPCZW5B75W1RFNJ8",
+     "01M5JFVB9QSFCAEVD0JQMHVGYP"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYKBK5JBMV104S0FJBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAYE92474R6P8NXK7CZY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ5TYR15V8MZWKDXP4J",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVB9N3ZHF3S9WB4K74QHP",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAYH915WS4XRWEBDM30K",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ6KPCZW5B75W1RFNJ8",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVB9QSFCAEVD0JQMHVGYP",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 15379
+  },
+  {
+   "id": "ask-02",
+   "repeat": 2,
+   "reply": {
+    "answer": "The listeners that negotiate a hybrid post-quantum key exchange are SSH 172.16.106.21:22, TLS 172.16.106.11:443, and TLS 172.16.106.11:8443.",
+    "components": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443"
+    ],
+    "citations": [
+     "01M5JFVAYKBK5JBMV104S0FJBX",
+     "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+     "01M5JFVAYE92474R6P8NXK7CZY",
+     "01M5JFVAZ5TYR15V8MZWKDXP4J",
+     "01M5JFVB9N3ZHF3S9WB4K74QHP",
+     "01M5JFVAYH915WS4XRWEBDM30K",
+     "01M5JFVAZ6KPCZW5B75W1RFNJ8",
+     "01M5JFVB9QSFCAEVD0JQMHVGYP"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYKBK5JBMV104S0FJBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAYE92474R6P8NXK7CZY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ5TYR15V8MZWKDXP4J",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVB9N3ZHF3S9WB4K74QHP",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAYH915WS4XRWEBDM30K",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ6KPCZW5B75W1RFNJ8",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVB9QSFCAEVD0JQMHVGYP",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 15376
+  },
+  {
+   "id": "ask-03",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The pq-gateway service presents an ML-DSA certificate via the listener at 172.16.106.12:443.\", \"components\": [\"fp:aa4e26d3b3c8941013432f1bb4419cd2ca563cbc2c038ec0355890b7500db0a3\", \"listen'",
+   "latency_ms": 68074
+  },
+  {
+   "id": "ask-03",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The pq-gateway service presents an ML-DSA certificate via the listener at 172.16.106.12:443.\", \"components\": [\"svc:pq-gateway\", \"listener:172.16.106.12:443\", \"fp:aa4e26d3b3c8941013432f1bb4'",
+   "latency_ms": 56616
+  },
+  {
+   "id": "ask-03",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The pq-gateway service presents an ML-DSA certificate via the listener at 172.16.106.12:443.\", \"components\": [\"svc:pq-gateway\", \"listener:172.16.106.12:443\", \"fp:aa4e26d3b3c8941013432f1bb4'",
+   "latency_ms": 56553
+  },
+  {
+   "id": "ask-04",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The host pqch-agency/sftp-legacy still carries a DSA host key file at /etc/ssh/ssh_host_dsa_key.\", \"components\": [\"fp:b6c174986276f41233db49bc4cb6128fd1205a8d228ed690ae9e7748da7917a8\"], \"c'",
+   "latency_ms": 66632
+  },
+  {
+   "id": "ask-04",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The host pqch-agency/sftp-legacy still carries a DSA host key file at /etc/ssh/ssh_host_dsa_key.\", \"components\": [\"fp:b6c174986276f41233db49bc4cb6128fd1205a8d228ed690ae9e7748da7917a8\"], \"c'",
+   "latency_ms": 56293
+  },
+  {
+   "id": "ask-04",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The host pqch-agency/sftp-legacy still carries a DSA host key file at /etc/ssh/ssh_host_dsa_key.\", \"components\": [\"fp:b6c174986276f41233db49bc4cb6128fd1205a8d228ed690ae9e7748da7917a8\"], \"c'",
+   "latency_ms": 56154
+  },
+  {
+   "id": "ask-05",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The PostgreSQL database is the listener POSTGRES 172.16.106.30:5432, and it speaks TLS 1.3.\", \"components\": [\"listener:172.16.106.30:5432\"], \"citations\": [\"01M5JFVAYV6F79RHCPXNMZBX43\", \"01'",
+   "latency_ms": 58289
+  },
+  {
+   "id": "ask-05",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The PostgreSQL database is the listener POSTGRES 172.16.106.30:5432, and it speaks TLS 1.3.\", \"components\": [\"listener:172.16.106.30:5432\"], \"citations\": [\"01M5JFVAYV6F79RHCPXNMZBX43\", \"01'",
+   "latency_ms": 53739
+  },
+  {
+   "id": "ask-05",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The PostgreSQL database is the listener POSTGRES 172.16.106.30:5432, and it speaks TLS 1.3.\", \"components\": [\"listener:172.16.106.30:5432\"], \"citations\": [\"01M5JFVAYV6F79RHCPXNMZBX43\", \"01'",
+   "latency_ms": 53736
+  },
+  {
+   "id": "ask-06",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The listeners still limited to TLS 1.2 are TLS 172.16.106.31:5671 and TLS 172.16.106.32:8443.\", \"components\": [\"listener:172.16.106.31:5671\", \"listener:172.16.106.32:8443\"], \"citations\": ['",
+   "latency_ms": 59339
+  },
+  {
+   "id": "ask-06",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The listeners still limited to TLS 1.2 are TLS 172.16.106.31:5671 and TLS 172.16.106.32:8443.\", \"components\": [\"listener:172.16.106.31:5671\", \"listener:172.16.106.32:8443\"], \"citations\": ['",
+   "latency_ms": 54011
+  },
+  {
+   "id": "ask-06",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The listeners still limited to TLS 1.2 are TLS 172.16.106.31:5671 and TLS 172.16.106.32:8443.\", \"components\": [\"listener:172.16.106.31:5671\", \"listener:172.16.106.32:8443\"], \"citations\": ['",
+   "latency_ms": 54010
+  },
+  {
+   "id": "ask-07",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The certificate on the message queue\\'s TLS listener (172.16.106.31:5671) is signed by the Mini Agency Internal CA.\", \"components\": [\"listener:172.16.106.31:5671\", \"fp:fc5b12065debb779146c9'",
+   "latency_ms": 60594
+  },
+  {
+   "id": "ask-07",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The certificate on the message queue\\'s TLS listener (172.16.106.31:5671) is signed by the Mini Agency Internal CA.\", \"components\": [\"listener:172.16.106.31:5671\", \"fp:fc5b12065debb779146c9'",
+   "latency_ms": 54450
+  },
+  {
+   "id": "ask-07",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The certificate on the message queue\\'s TLS listener (172.16.106.31:5671) is signed by the Mini Agency Internal CA.\", \"components\": [\"listener:172.16.106.31:5671\", \"fp:fc5b12065debb779146c9'",
+   "latency_ms": 54516
+  },
+  {
+   "id": "ask-08",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener at 172.16.106.21:22 offers sntrup761x25519.",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M5JFVAYKBK5JBMV104S0FJBX",
+     "01M5JFVAZ8HPM2HGD3Y1B0CXCY"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYKBK5JBMV104S0FJBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 11484
+  },
+  {
+   "id": "ask-08",
+   "repeat": 1,
+   "reply": {
+    "answer": "The SSH listener at 172.16.106.21:22 offers sntrup761x25519.",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M5JFVAYKBK5JBMV104S0FJBX",
+     "01M5JFVAZ8HPM2HGD3Y1B0CXCY"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYKBK5JBMV104S0FJBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 5496
+  },
+  {
+   "id": "ask-08",
+   "repeat": 2,
+   "reply": {
+    "answer": "The SSH listener at 172.16.106.21:22 offers sntrup761x25519.",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M5JFVAYKBK5JBMV104S0FJBX",
+     "01M5JFVAZ8HPM2HGD3Y1B0CXCY"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYKBK5JBMV104S0FJBX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZ8HPM2HGD3Y1B0CXCY",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 5496
+  },
+  {
+   "id": "ask-09",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The API service\\'s certificate chain depends on the ECDSA certificate located at /etc/nginx/tls/api.crt.\", \"components\": [\"fp:25b4b8d357737d09283d6e5dc1b85324dadf289637a39e66e32290f033a3ac0'",
+   "latency_ms": 64035
+  },
+  {
+   "id": "ask-09",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The API service\\'s certificate chain depends on the ECDSA certificate located at /etc/nginx/tls/api.crt.\", \"components\": [\"fp:25b4b8d357737d09283d6e5dc1b85324dadf289637a39e66e32290f033a3ac0'",
+   "latency_ms": 55677
+  },
+  {
+   "id": "ask-09",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The API service\\'s certificate chain depends on the ECDSA certificate located at /etc/nginx/tls/api.crt.\", \"components\": [\"fp:25b4b8d357737d09283d6e5dc1b85324dadf289637a39e66e32290f033a3ac0'",
+   "latency_ms": 55681
+  },
+  {
+   "id": "ask-10",
+   "repeat": 0,
+   "reply": {
+    "answer": "The listener TLS 172.16.106.10:443 still uses an RSA certificate on port 443.",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M5JFVAYQSENHSC6752NAHHBZ",
+     "01M5JFVAZBYA3M0X6FVP5Z4JAV",
+     "01M5JFVB9WM5HAFCXGRF05F3T1"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M5JFVAYQSENHSC6752NAHHBZ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVAZBYA3M0X6FVP5Z4JAV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M5JFVB9WM5HAFCXGRF05F3T1",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "vllm/gemma-4-31b-l4",
+   "hardware": "lab-l4-fleet (vLLM, Gemma 4 31B FP8, TP4)",
+   "latency_ms": 11751
+  },
+  {
+   "id": "ask-10",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The listener TLS 172.16.106.10:443 still uses an RSA certificate on port 443.\", \"components\": [\"listener:172.16.106.10:443\"], \"citations\": [\"01M5JFVAYQSENHSC6752NAHHBZ\", \"01M5JFVAZBYA3M0X6'",
+   "latency_ms": 54113
+  },
+  {
+   "id": "ask-10",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The listener TLS 172.16.106.10:443 still uses an RSA certificate on port 443.\", \"components\": [\"listener:172.16.106.10:443\"], \"citations\": [\"01M5JFVAYQSENHSC6752NAHHBZ\", \"01M5JFVAZBYA3M0X6'",
+   "latency_ms": 54101
+  },
+  {
+   "id": "ask-11",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The SSH listener at 172.16.106.20:22 offers DSA for host authentication.\", \"components\": [\"listener:172.16.106.20:22\"], \"citations\": [\"01M5JFVAYW3PY316VMYD10VVFQ\", \"01M5JFVAZJF0NWQWH8GMRNC'",
+   "latency_ms": 56969
+  },
+  {
+   "id": "ask-11",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The SSH listener at 172.16.106.20:22 offers DSA for host authentication.\", \"components\": [\"listener:172.16.106.20:22\"], \"citations\": [\"01M5JFVAYW3PY316VMYD10VVFQ\", \"01M5JFVAZJF0NWQWH8GMRNC'",
+   "latency_ms": 53381
+  },
+  {
+   "id": "ask-11",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"The SSH listener at 172.16.106.20:22 offers DSA for host authentication.\", \"components\": [\"listener:172.16.106.20:22\"], \"citations\": [\"01M5JFVAYW3PY316VMYD10VVFQ\", \"01M5JFVAZJF0NWQWH8GMRNC'",
+   "latency_ms": 53541
+  },
+  {
+   "id": "ask-12",
+   "repeat": 0,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"Yes, there is a listener on port 8443 at 172.16.106.32:8443 that presents an RSA certificate, and it is the legacy-app service.\", \"components\": [\"listener:172.16.106.32:8443\", \"svc:legacy-'",
+   "latency_ms": 62224
+  },
+  {
+   "id": "ask-12",
+   "repeat": 1,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"Yes, there is a listener on port 8443 at 172.16.106.32:8443 that presents an RSA certificate, and it is the legacy-app service.\", \"components\": [\"listener:172.16.106.32:8443\", \"svc:legacy-'",
+   "latency_ms": 55105
+  },
+  {
+   "id": "ask-12",
+   "repeat": 2,
+   "error": "SchemaViolation: reply is not JSON (finish_reason length, 1200 completion tokens): '{\"answer\": \"Yes, there is a listener on port 8443 at 172.16.106.32:8443 that presents an RSA certificate, and it is the legacy-app service.\", \"components\": [\"listener:172.16.106.32:8443\", \"svc:legacy-'",
+   "latency_ms": 55100
+  }
+ ]
+}

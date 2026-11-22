@@ -1,0 +1,40 @@
+T13 X25519MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 SecP256r1MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 SecP384r1MLKEM1024 => Negotiated TLS1.3 group: <NULL>
+
+T13 MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 X25519 => Peer Temp Key: X25519, 253 bits
+
+T13 X448 => Negotiated TLS1.3 group: <NULL>
+
+T13 P-256 => Peer Temp Key: ECDH, prime256v1, 256 bits
+
+T13 P-384 => Negotiated TLS1.3 group: <NULL>
+
+T13 P-521 => Negotiated TLS1.3 group: <NULL>
+
+T13 ffdhe2048 => Negotiated TLS1.3 group: <NULL>
+
+T13 ffdhe3072 => Negotiated TLS1.3 group: <NULL>
+
+T13 brainpoolP256r1tls13 => Negotiated TLS1.3 group: <NULL>
+
+T12 X25519 => Peer Temp Key: X25519, 253 bits
+
+T12 X448 => 
+T12 P-256 => Peer Temp Key: ECDH, prime256v1, 256 bits
+
+T12 P-384 => 
+T12 P-521 => 
+T12 brainpoolP256r1 => 
+KRSA => New, (NONE), Cipher is (NONE)
+
+KDHE => 
+V12 => New, TLSv1.2, Cipher is ECDHE-RSA-AES256-GCM-SHA384
+
+V13 => New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+
+CERT =>  Subject: O=Mini Agency, CN=portal.agency.test| Public Key Algorithm: rsaEncryption| Public-Key: (2048 bit)|sha256 Fingerprint=F7:46:0B:B6:C6:E8:07:E2:39:88:CF:51:86:FA:D1:C8:34:27:98:E7:CB:4E:59:26:A9:1B:07:B9:64:47:B5:C4|

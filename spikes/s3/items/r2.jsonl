@@ -1,0 +1,36 @@
+{"id": "r2-01", "role": "R2", "tool": "cbomkit-theia", "field": "oid", "spelling": "1.2.840.10045.4.3.2", "seen_in": "var/raw/01M40WYHAWRWZETWEM11B70ME1.json", "set": "scored"}
+{"id": "r2-02", "role": "R2", "tool": "ssh-audit", "field": "mac", "spelling": "hmac-md5-96", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json", "set": "scored"}
+{"id": "r2-03", "role": "R2", "tool": "testssl.sh", "field": "cert_signatureAlgorithm", "spelling": "ECDSA with SHA256", "seen_in": "var/raw/01M40WX0RDY3TWZCWT4BZ06WHF.json", "set": "scored"}
+{"id": "r2-04", "role": "R2", "tool": "openssl s_client", "field": "Public Key Algorithm", "spelling": "ML-DSA-65", "seen_in": "spikes/s2/results/amd64/sclient-C3.txt", "set": "scored"}
+{"id": "r2-05", "role": "R2", "tool": "testssl.sh", "field": "FS_ECDHE_curves", "spelling": "brainpoolP512r1", "seen_in": "spikes/s2/results/amd64/testssl/C5.json", "set": "scored"}
+{"id": "r2-06", "role": "R2", "tool": "openssl s_client", "field": "Public Key Algorithm", "spelling": "rsaEncryption", "seen_in": "spikes/s2/results/amd64/sclient-C1-portal.txt", "set": "scored"}
+{"id": "r2-07", "role": "R2", "tool": "openssl s_client", "field": "Temp Key", "spelling": "ECDH, secp521r1, 521 bits", "seen_in": "spikes/s2/results/amd64/sclient-C5.txt", "set": "scored"}
+{"id": "r2-08", "role": "R2", "tool": "ssh-audit", "field": "kex", "spelling": "ext-info-s", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json", "set": "dev"}
+{"id": "r2-09", "role": "R2", "tool": "openssl s_client", "field": "Temp Key", "spelling": "X25519, 253 bits", "seen_in": "var/raw/01M4181G2KEHANBY7YA9WPZR0K.txt", "set": "scored"}
+{"id": "r2-10", "role": "R2", "tool": "openssl s_client", "field": "Temp Key", "spelling": "DH, 3072 bits", "seen_in": "spikes/s2/results/amd64/sclient-C6.txt", "set": "scored"}
+{"id": "r2-11", "role": "R2", "tool": "ssh-audit", "field": "mac", "spelling": "hmac-ripemd160-etm@openssh.com", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json", "set": "scored"}
+{"id": "r2-12", "role": "R2", "tool": "testssl.sh", "field": "FS_KEMs", "spelling": "offered", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json", "set": "scored"}
+{"id": "r2-13", "role": "R2", "tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "ECDSA+SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C7.json", "set": "scored"}
+{"id": "r2-14", "role": "R2", "tool": "cbomkit-theia", "field": "component name", "spelling": "RSA-3072", "seen_in": "var/raw/01M40WYHAZBMCNC3NQEPR274AQ.json", "set": "scored"}
+{"id": "r2-15", "role": "R2", "tool": "ssh-audit", "field": "mac", "spelling": "umac-64-etm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json", "set": "scored"}
+{"id": "r2-16", "role": "R2", "tool": "testssl.sh", "field": "FS_ECDHE_curves", "spelling": "brainpoolP256r1", "seen_in": "spikes/s2/results/amd64/testssl/C5.json", "set": "scored"}
+{"id": "r2-17", "role": "R2", "tool": "ssh-audit", "field": "enc", "spelling": "rijndael-cbc@lysator.liu.se", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json", "set": "scored"}
+{"id": "r2-18", "role": "R2", "tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA384", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json", "set": "scored"}
+{"id": "r2-19", "role": "R2", "tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA224", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json", "set": "scored"}
+{"id": "r2-20", "role": "R2", "tool": "cbomkit-theia", "field": "oid", "spelling": "1.2.840.113549.1.1.11", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json", "set": "scored"}
+{"id": "r2-21", "role": "R2", "tool": "ssh-audit", "field": "enc", "spelling": "aes128-cbc", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json", "set": "scored"}
+{"id": "r2-22", "role": "R2", "tool": "ssh-audit", "field": "enc", "spelling": "blowfish-cbc", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json", "set": "dev"}
+{"id": "r2-23", "role": "R2", "tool": "cbomkit-theia", "field": "component name", "spelling": "api.agency.test", "seen_in": "var/raw/01M40WYHAWRWZETWEM11B70ME1.json", "set": "dev"}
+{"id": "r2-24", "role": "R2", "tool": "testssl.sh", "field": "FS_TLS13_sig_algs", "spelling": "ECDSA+SHA256", "seen_in": "var/raw/01M40WX0RDY3TWZCWT4BZ06WHF.json", "set": "scored"}
+{"id": "r2-25", "role": "R2", "tool": "cbomkit-theia", "field": "component name", "spelling": "SHA1-RSA", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json", "set": "scored"}
+{"id": "r2-26", "role": "R2", "tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA1", "seen_in": "spikes/s2/results/amd64/testssl/C6.json", "set": "scored"}
+{"id": "r2-27", "role": "R2", "tool": "ssh-audit", "field": "enc", "spelling": "arcfour", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json", "set": "scored"}
+{"id": "r2-28", "role": "R2", "tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA256", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json", "set": "scored"}
+{"id": "r2-29", "role": "R2", "tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha2-256-etm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json", "set": "dev"}
+{"id": "r2-30", "role": "R2", "tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA-PSS-RSAE+SHA512", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json", "set": "scored"}
+{"id": "r2-31", "role": "R2", "tool": "openssl s_client", "field": "Public Key Algorithm", "spelling": "id-ecPublicKey", "seen_in": "spikes/s2/results/amd64/sclient-C1-api.txt", "set": "dev"}
+{"id": "r2-32", "role": "R2", "tool": "testssl.sh", "field": "FS_ECDHE_curves", "spelling": "brainpoolP384r1", "seen_in": "spikes/s2/results/amd64/testssl/C5.json", "set": "scored"}
+{"id": "r2-33", "role": "R2", "tool": "cbomkit-theia", "field": "component name", "spelling": "private-key", "seen_in": "var/raw/01M40WYHB1DCYNJ5RKJAHTQHEK.json", "set": "scored"}
+{"id": "r2-34", "role": "R2", "tool": "cbomkit-theia", "field": "component name", "spelling": "RSA-2048", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json", "set": "scored"}
+{"id": "r2-35", "role": "R2", "tool": "openssl s_client", "field": "Temp Key", "spelling": "DH, 8192 bits", "seen_in": "spikes/s2/results/amd64/sclient-C6.txt", "set": "scored"}
+{"id": "r2-36", "role": "R2", "tool": "testssl.sh", "field": "FS_KEMs", "spelling": "No", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json", "set": "dev"}

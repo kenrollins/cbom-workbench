@@ -1,0 +1,357 @@
+# Answer key — mini-agency, M0 slice.
+#
+# What a perfect inventory of the slice says. Written from the estate as built
+# (agency/*/Dockerfile and the configs beside them), before any scout code
+# existed. It is an inventory, not an assessment: whether an item is
+# quantum-vulnerable, and when it is due, is the assessor's work (M2).
+#
+# Scope of this key: asymmetric cryptography — key establishment and
+# signatures — and the certificates and private keys that carry it. Symmetric
+# ciphers, MACs, hashes and protocol versions are not keyed; findings about
+# them are reported by the scorer as unkeyed, never as false positives.
+
+schema: pqch.answer-key/1
+estate: mini-agency
+slice: m0
+compose: agency/compose.yaml
+
+# Names. Tool spellings are normalized to these before matching.
+#   TLS groups:   X25519, secp256r1, secp384r1, secp521r1, X25519MLKEM768
+#   SSH kex:      curve25519-sha256[@libssh.org] -> X25519
+#                 ecdh-sha2-nistpNNN             -> secpNNNr1
+#                 mlkem768x25519-sha256          -> X25519MLKEM768
+#                 sntrup761x25519-sha512[@openssh.com] -> sntrup761x25519
+#                 diffie-hellman-group1-sha1     -> DH-1024
+#                 diffie-hellman-group14-sha1|sha256 -> DH-2048
+#                 diffie-hellman-group-exchange-sha1|sha256 -> DH-GEX
+#   Keys and signatures: RSA, DSA, ECDSA, Ed25519 (the key's algorithm family;
+#                 size and curve go in parameters)
+#   Key transport: RSA with role key-establishment — TLS 1.2 cipher suites
+#                 TLS_RSA_WITH_*, where the client encrypts the session secret
+#                 to the server's RSA key and no group is involved. A list of
+#                 accepted groups cannot show it; it is keyed where a listener
+#                 accepts such a suite, and planted as a decoy where a listener
+#                 only looks as if it would.
+#
+# Matching. A finding matches an item when:
+#   wire  — layer wire; subject host and port equal; asset.role and asset.name
+#           equal; and, where the item gives asset.type, that too.
+#   host  — layer host; subject is a file in an image whose repository equals
+#           the item's image (tag and digest ignored); subject path is one of
+#           the item's paths; asset.type and asset.name equal.
+#   code  — layer code; subject path equal and the line contains the item's
+#           text.
+#
+# Reported. An item counts as reported when the CBOM holds a component that
+# matches it and is not marked `pqch:in-use` = `false`. A present item that is
+# reported is covered. A decoy that is reported is a false positive.
+#
+# verifiable_by names the pqch.verifier/1 kind that could confirm a fix to the
+# item: wire-kex, cert-parse, compat-run, or none.
+
+items:
+  # ---------------------------------------------------------------- portal
+  - id: portal-kex-x25519
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.10, port: 443, protocol: tls}
+    asset: {role: key-establishment, name: X25519}
+    verifiable_by: wire-kex
+    trace: {path: agency/portal/nginx.conf, contains: ssl_ecdh_curve}
+  - id: portal-kex-secp256r1
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.10, port: 443, protocol: tls}
+    asset: {role: key-establishment, name: secp256r1}
+    verifiable_by: wire-kex
+    trace: {path: agency/portal/nginx.conf, contains: ssl_ecdh_curve}
+  - id: portal-cert
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.10, port: 443, protocol: tls}
+    asset: {type: certificate, role: signature, name: RSA}
+    parameters: {key_bits: 2048, signature: sha256WithRSAEncryption, self_signed: true}
+    verifiable_by: cert-parse
+    trace: {path: agency/portal/Dockerfile, contains: "rsa:2048"}
+  - id: portal-cert-file
+    class: present
+    layer: host
+    image: pqch-agency/portal
+    paths: [/etc/nginx/tls/portal.crt]
+    asset: {type: certificate, name: RSA}
+    verifiable_by: none
+  - id: portal-key-file
+    class: present
+    layer: host
+    image: pqch-agency/portal
+    paths: [/etc/nginx/tls/portal.key]
+    asset: {type: related-crypto-material, name: RSA}
+    parameters: {key_bits: 2048, kind: private-key}
+    verifiable_by: none
+  - id: portal-decoy-unserved-cert
+    class: decoy
+    layer: host
+    image: pqch-agency/portal
+    paths: [/etc/ssl/legacy/portal-2019.crt]
+    asset: {type: certificate, name: RSA}
+    parameters: {key_bits: 1024, signature: sha1WithRSAEncryption}
+    why: In the image and never served; no listener references it.
+    verifiable_by: none
+  - id: portal-decoy-rsa-key-transport
+    class: decoy
+    layer: wire
+    subject: {host: 172.16.106.10, port: 443, protocol: tls}
+    asset: {role: key-establishment, name: RSA}
+    why: >-
+      The portal serves an RSA certificate and accepts TLS 1.2, which is what
+      RSA key transport needs; its ssl_ciphers line allows only ECDHE suites,
+      so a client offering only TLS_RSA_WITH_* suites is refused (observed
+      2026-10-05 with OpenSSL 3.5, s_client -tls1_2 -cipher kRSA). An inventory
+      that infers key transport from the certificate and the protocol version
+      has invented it.
+    verifiable_by: wire-kex
+    trace: {path: agency/portal/nginx.conf, contains: ssl_ciphers}
+  - id: portal-decoy-commented-dhparam
+    class: decoy
+    layer: code
+    path: agency/portal/nginx.conf
+    contains: "# ssl_dhparam /etc/nginx/tls/dh1024.pem;"
+    asset: {role: key-establishment, name: DH-1024}
+    why: A commented-out line; the file it names does not exist.
+    verifiable_by: none
+  - id: portal-context
+    class: supplied
+    layer: context
+    subject: {service: portal}
+    facts: {mission_function: benefits enrollment, data_lifetime_years: 10, high_value_asset: false}
+    why: Typed in by the system owner; no scan can discover it.
+    verifiable_by: none
+
+  # ------------------------------------------------------------------- api
+  - id: api-kex-x25519mlkem768
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.11, port: 443, protocol: tls}
+    asset: {role: key-establishment, name: X25519MLKEM768}
+    verifiable_by: wire-kex
+    trace: {path: agency/api/nginx.conf, contains: ssl_ecdh_curve}
+  - id: api-kex-x25519
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.11, port: 443, protocol: tls}
+    asset: {role: key-establishment, name: X25519}
+    verifiable_by: wire-kex
+    trace: {path: agency/api/nginx.conf, contains: ssl_ecdh_curve}
+  - id: api-cert
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.11, port: 443, protocol: tls}
+    asset: {type: certificate, role: signature, name: ECDSA}
+    parameters: {curve: P-256, signature: ecdsa-with-SHA256, self_signed: true}
+    verifiable_by: cert-parse
+    trace: {path: agency/api/Dockerfile, contains: "ec_paramgen_curve:P-256"}
+  - id: api-cert-file
+    class: present
+    layer: host
+    image: pqch-agency/api
+    paths: [/etc/nginx/tls/api.crt]
+    asset: {type: certificate, name: ECDSA}
+    verifiable_by: none
+  - id: api-key-file
+    class: present
+    layer: host
+    image: pqch-agency/api
+    paths: [/etc/nginx/tls/api.key]
+    asset: {type: related-crypto-material, name: ECDSA}
+    parameters: {curve: P-256, kind: private-key}
+    verifiable_by: none
+
+  # ----------------------------------------------------------- sftp-legacy
+  - id: legacy-kex-x25519
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: X25519}
+    verifiable_by: wire-kex
+    trace: {path: agency/sftp-legacy/sshd_config, contains: KexAlgorithms}
+  - id: legacy-kex-secp256r1
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: secp256r1}
+    verifiable_by: wire-kex
+    trace: {path: agency/sftp-legacy/sshd_config, contains: KexAlgorithms}
+  - id: legacy-kex-secp384r1
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: secp384r1}
+    verifiable_by: wire-kex
+    trace: {path: agency/sftp-legacy/sshd_config, contains: KexAlgorithms}
+  - id: legacy-kex-secp521r1
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: secp521r1}
+    verifiable_by: wire-kex
+    trace: {path: agency/sftp-legacy/sshd_config, contains: KexAlgorithms}
+  - id: legacy-kex-dh-gex
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: DH-GEX}
+    parameters: {ssh_names: [diffie-hellman-group-exchange-sha256, diffie-hellman-group-exchange-sha1]}
+    verifiable_by: wire-kex
+    trace: {path: agency/sftp-legacy/sshd_config, contains: KexAlgorithms}
+  - id: legacy-kex-dh-2048
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: DH-2048}
+    parameters: {ssh_names: [diffie-hellman-group14-sha1]}
+    verifiable_by: wire-kex
+    trace: {path: agency/sftp-legacy/sshd_config, contains: KexAlgorithms}
+  - id: legacy-kex-dh-1024
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: DH-1024}
+    parameters: {ssh_names: [diffie-hellman-group1-sha1]}
+    verifiable_by: wire-kex
+    trace: {path: agency/sftp-legacy/sshd_config, contains: KexAlgorithms}
+  - id: legacy-hostkey-rsa
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: signature, name: RSA}
+    parameters: {key_bits: 2048}
+    verifiable_by: none
+    trace: {path: agency/sftp-legacy/sshd_config, contains: ssh_host_rsa_key}
+  - id: legacy-hostkey-dsa
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: signature, name: DSA}
+    parameters: {key_bits: 1024}
+    verifiable_by: none
+    trace: {path: agency/sftp-legacy/sshd_config, contains: ssh_host_dsa_key}
+  - id: legacy-hostkey-ecdsa
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: signature, name: ECDSA}
+    parameters: {curve: P-256}
+    verifiable_by: none
+    trace: {path: agency/sftp-legacy/sshd_config, contains: ssh_host_ecdsa_key}
+  - id: legacy-hostkey-ed25519
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.20, port: 22, protocol: ssh}
+    asset: {role: signature, name: Ed25519}
+    verifiable_by: none
+    trace: {path: agency/sftp-legacy/sshd_config, contains: ssh_host_ed25519_key}
+  - id: legacy-hostkey-rsa-file
+    class: present
+    layer: host
+    image: pqch-agency/sftp-legacy
+    paths: [/etc/ssh/ssh_host_rsa_key, /etc/ssh/ssh_host_rsa_key.pub]
+    asset: {type: related-crypto-material, name: RSA}
+    verifiable_by: none
+  - id: legacy-hostkey-dsa-file
+    class: present
+    layer: host
+    image: pqch-agency/sftp-legacy
+    paths: [/etc/ssh/ssh_host_dsa_key, /etc/ssh/ssh_host_dsa_key.pub]
+    asset: {type: related-crypto-material, name: DSA}
+    verifiable_by: none
+  - id: legacy-hostkey-ecdsa-file
+    class: present
+    layer: host
+    image: pqch-agency/sftp-legacy
+    paths: [/etc/ssh/ssh_host_ecdsa_key, /etc/ssh/ssh_host_ecdsa_key.pub]
+    asset: {type: related-crypto-material, name: ECDSA}
+    verifiable_by: none
+  - id: legacy-hostkey-ed25519-file
+    class: present
+    layer: host
+    image: pqch-agency/sftp-legacy
+    paths: [/etc/ssh/ssh_host_ed25519_key, /etc/ssh/ssh_host_ed25519_key.pub]
+    asset: {type: related-crypto-material, name: Ed25519}
+    verifiable_by: none
+  - id: legacy-client-kex-records-archive
+    class: out-of-reach
+    layer: wire
+    subject: {host: 172.16.106.20, direction: outbound, peer: records-archive}
+    asset: {role: key-establishment, name: DH-1024}
+    parameters: {host_key_algorithms: [ssh-dss]}
+    why: >-
+      Client-side posture: what sftp-legacy offers when it connects out. No
+      listener shows it; only passive capture beside the client would (M1).
+    verifiable_by: none
+    trace: {path: agency/sftp-legacy/ssh_config, contains: diffie-hellman-group1-sha1}
+
+  # --------------------------------------------------------------- bastion
+  - id: bastion-kex-x25519mlkem768
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.21, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: X25519MLKEM768}
+    parameters: {ssh_names: [mlkem768x25519-sha256]}
+    verifiable_by: wire-kex
+    trace: {path: agency/bastion/sshd_config, contains: KexAlgorithms}
+  - id: bastion-kex-sntrup761x25519
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.21, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: sntrup761x25519}
+    parameters: {ssh_names: [sntrup761x25519-sha512]}
+    verifiable_by: wire-kex
+    trace: {path: agency/bastion/sshd_config, contains: KexAlgorithms}
+  - id: bastion-kex-x25519
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.21, port: 22, protocol: ssh}
+    asset: {role: key-establishment, name: X25519}
+    verifiable_by: wire-kex
+    trace: {path: agency/bastion/sshd_config, contains: KexAlgorithms}
+  - id: bastion-hostkey-ed25519
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.21, port: 22, protocol: ssh}
+    asset: {role: signature, name: Ed25519}
+    verifiable_by: none
+    trace: {path: agency/bastion/sshd_config, contains: ssh_host_ed25519_key}
+  - id: bastion-hostkey-rsa
+    class: present
+    layer: wire
+    subject: {host: 172.16.106.21, port: 22, protocol: ssh}
+    asset: {role: signature, name: RSA}
+    parameters: {key_bits: 3072}
+    verifiable_by: none
+    trace: {path: agency/bastion/sshd_config, contains: ssh_host_rsa_key}
+  - id: bastion-hostkey-ed25519-file
+    class: present
+    layer: host
+    image: pqch-agency/bastion
+    paths: [/etc/ssh/ssh_host_ed25519_key, /etc/ssh/ssh_host_ed25519_key.pub]
+    asset: {type: related-crypto-material, name: Ed25519}
+    verifiable_by: none
+  - id: bastion-hostkey-rsa-file
+    class: present
+    layer: host
+    image: pqch-agency/bastion
+    paths: [/etc/ssh/ssh_host_rsa_key, /etc/ssh/ssh_host_rsa_key.pub]
+    asset: {type: related-crypto-material, name: RSA}
+    verifiable_by: none
+
+# Posture per listener: how the key-establishment and authentication halves
+# combine. Mixed entries are keyed as mixed.
+#   classical — no post-quantum key establishment offered
+#   mixed     — hybrid post-quantum key establishment offered, classical
+#               authentication (certificate or host key)
+#   pq        — post-quantum key establishment and post-quantum authentication
+posture:
+  - {host: 172.16.106.10, port: 443, protocol: tls, posture: classical}
+  - {host: 172.16.106.11, port: 443, protocol: tls, posture: mixed}
+  - {host: 172.16.106.20, port: 22, protocol: ssh, posture: classical}
+  - {host: 172.16.106.21, port: 22, protocol: ssh, posture: mixed}

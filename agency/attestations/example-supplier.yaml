@@ -1,0 +1,40 @@
+# An ILLUSTRATIVE supplier attestation (pqch.attestation/1): the shape a supplier's statement takes
+# when it is brought in as evidence with `pqch attest`. The supplier, the product and every claim
+# below are invented for the example and belong to no real vendor; `illustrative: true` makes every
+# page that shows it say so. A real statement replaces this file, with the same fields.
+#
+# What it is for: the hardware half of an inventory (the algorithm a firmware image is signed with,
+# the modules a controller carries, whether the installed version has a route to post-quantum
+# algorithms) is not on the wire or the disk; it comes from the supplier. Recorded as reported
+# evidence, graded apart from what the server showed, and joined to it by model and version.
+schema: pqch.attestation/1
+supplier: Example Hardware
+issued: 2026-11-01
+reference: "Example Hardware, Cryptographic Statement ES-1U rev 3 (illustrative)"
+illustrative: true
+products:
+  - vendor: Example Hardware
+    model: Example Server 1U
+    tpm: {version: "2.0", vendor: Example Silicon, hash_algorithms: [SHA-256, SHA-384]}
+    crypto_modules:
+      - {name: Example Controller Crypto Library, where: management controller firmware, cmvp_certificate: null,
+         algorithms: [AES-256, SHA-256, SHA-384, RSA-3072, ECDSA P-384]}
+    firmware:
+      - name: BIOS
+        version: "2.4.0"
+        signing: {algorithm: RSA, key_bits: 3072, hash: SHA-256}
+        secure_boot_chain: ["Example Hardware Platform Key 2021", "Microsoft Corporation UEFI CA 2011", "Microsoft UEFI CA 2023"]
+        post_quantum: {algorithms: [ML-DSA-87, LMS], version: "3.0.0", available: "2028-Q2",
+                       statement: "A firmware-signing root in LMS and ML-DSA-87, with a signed update of the platform key, KEK and db, is planned for the 3.0 release train."}
+        supportability: update
+        statement: "Version 2.4.0 is current; the post-quantum signing chain arrives as a firmware update on this model."
+      - name: Example Remote Management Controller
+        version: any
+        tls: {key_establishment: [X25519, secp256r1, secp384r1], signature: [RSA, ECDSA], versions: [TLS 1.2, TLS 1.3]}
+        post_quantum: {algorithms: [X25519MLKEM768], version: "8.0.0", available: null,
+                       statement: "An ML-KEM hybrid key exchange for the controller's HTTPS and SSH is on the roadmap with no committed date."}
+        supportability: update
+      - name: Example 10G Network Adapter
+        version: any
+        signing: {algorithm: RSA, key_bits: 2048, hash: SHA-256}
+        supportability: no-statement

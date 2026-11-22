@@ -1,0 +1,2036 @@
+{
+ "summary": {
+  "run": "01M6N9EQDZ6K7RT6GJDV72G58W",
+  "items": 12,
+  "repeats": 3,
+  "totals": {
+   "retrieval": 10,
+   "phrase": 7,
+   "citations": 8
+  },
+  "floor": {
+   "retrieval": 11,
+   "phrase": 10,
+   "citations": 12
+  },
+  "clears": false,
+  "role_tier": "fast",
+  "reasoning": false,
+  "model": "nemotron-3.5-lightning",
+  "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+  "embed_model": "nvidia/llama-nemotron-embed-1b-v2",
+  "embed_hardware": "Dell Pro Max GB10 (aarch64; NIM llama-nemotron-embed-1b-v2 1.13.0)",
+  "per_item": {
+   "ask-01": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "fp:611d45fc6a2efcbb0eab177e88a8416d1bfd2a8862fd3dbe7cfec9bdc9629a30",
+     "fp:200c1aad26a6a26103184bbf92f8927de94706d70955c0027d4181a362be676d",
+     "listener:172.16.106.20:22",
+     "fp:c1289c9774bb76eadd670eb9aeb4613e77b2d07660b12c71892d235fbe3d0727",
+     "listener:172.16.106.21:22",
+     "fp:a33d8951166012e07cb57369d2d76b7f18de00b899aa4190c019b212def77d5d",
+     "fp:0c423357c8ec5573c536055e026396bb2039969d4dc2dcf9e793e936d2d6654d",
+     "fp:9c0447144336bfff1c3564f727eedb74a9998558887a500ec53570704420e295",
+     "svc:sftp-legacy",
+     "svc:bastion"
+    ],
+    "latency_ms": [
+     2698,
+     1799,
+     1597
+    ]
+   },
+   "ask-02": {
+    "retrieval": false,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:443",
+     "fp:c1289c9774bb76eadd670eb9aeb4613e77b2d07660b12c71892d235fbe3d0727",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.11:8443",
+     "fp:9bb92b86e2681457c8fa1008ce75d665dda42eaf39b8f135464e314f1103cf18",
+     "listener:172.16.106.31:5671",
+     "fp:2edcd6528729e77a9c5b05a70b399e238f4e61f613e0d8935c2fce396903963f",
+     "svc:pq-gateway",
+     "svc:api",
+     "listener:172.16.106.20:22",
+     "svc:sftp-legacy",
+     "svc:legacy-app",
+     "listener:172.16.106.30:5432",
+     "svc:records-db",
+     "svc:queue"
+    ],
+    "latency_ms": []
+   },
+   "ask-03": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+     "fp:15f91bc295a6df4b783f2d29f3e8a35fa0bfac62a6e3bc06b3d143a0670540e9",
+     "listener:172.16.106.12:443",
+     "fp:8f71feb17dfd89ef17fee70f399bb8a5db43c549a4092d677ef26513c783fb96",
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:95ef05076ea528d37626ebe991538de0b71c9e6fc4b2bcf48b4723965aeb67da",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "svc:pq-gateway",
+     "img:127.0.0.1:15000/pqch-agency/pq-gateway",
+     "listener:172.16.106.20:22",
+     "svc:sftp-legacy",
+     "img:127.0.0.1:15000/pqch-agency/sftp-legacy",
+     "listener:172.16.106.11:443",
+     "svc:api"
+    ],
+    "latency_ms": [
+     2546,
+     2552,
+     2508
+    ]
+   },
+   "ask-04": {
+    "retrieval": false,
+    "phrase": false,
+    "citations": true,
+    "shown": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+     "fp:15f91bc295a6df4b783f2d29f3e8a35fa0bfac62a6e3bc06b3d143a0670540e9",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+     "fp:9651ef791b8af12cb96bd653b7c00405204bfa56532f27b8cc7835e335e0d4e0",
+     "fp:07e724a74c1084ae10ea44ea0f16711b270a671085afe17e2c762a931fe56455",
+     "fp:177484e091f5ec6210a6d7409e81a6193b7df170364541d9f8c7262e3d4ca2bb",
+     "listener:172.16.106.20:22",
+     "img:127.0.0.1:15000/pqch-agency/sftp-legacy",
+     "svc:sftp-legacy",
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+     "listener:172.16.106.12:443",
+     "img:127.0.0.1:15000/pqch-agency/pq-gateway",
+     "svc:pq-gateway",
+     "fp:00866af1197a8f950c3fe218c622b1898eb05e4fd76b00d7e4b5a6b810f29206",
+     "img:127.0.0.1:15000/pqch-agency/portal",
+     "svc:portal",
+     "img:127.0.0.1:15000/pqch-agency/legacy-app",
+     "svc:legacy-app"
+    ],
+    "latency_ms": [
+     6912,
+     4021,
+     4016
+    ]
+   },
+   "ask-05": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "fp:54ff62bf9522f3295a6f0b6777c88a5f6bb1ae2311ac9b522af08c27cd6aae0c",
+     "listener:172.16.106.30:5432",
+     "fp:999b749838e92cbfabd261c052275a5ba9fd9cd9f1a2da83c9f93e4722c13fc2",
+     "fp:187123488fea538a5e17a19c6595911b5470e6d4eea48782c68d32558cd46b7e",
+     "fp:2edcd6528729e77a9c5b05a70b399e238f4e61f613e0d8935c2fce396903963f",
+     "fp:0a7795dca3769d70c2ae44f6895015761fc4a5c86124e917f062de2f0aee6f26",
+     "fp:9bd5d7b24c9990918032d0c8b10a88b7a9566467ef3d95854d39f8aad4cb89e1",
+     "fp:6c58876e308c2b497660f53fcb3515aa4bf6121041707fbfce1f3987b298f55d",
+     "svc:records-db",
+     "img:127.0.0.1:15000/pqch-agency/records-db"
+    ],
+    "latency_ms": [
+     2906,
+     2237,
+     2252
+    ]
+   },
+   "ask-06": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.11:8443",
+     "listener:172.16.106.31:5671",
+     "fp:e7afdc0c9888797b68bf98a7cba499cacbd5050bab61b2f76edb8299c5adafde",
+     "fp:cf8f1474bc826307709209c215dba24e65335773bc08b8539bff298a51c03c16",
+     "svc:legacy-app",
+     "svc:portal",
+     "svc:api",
+     "svc:pq-gateway",
+     "svc:queue"
+    ],
+    "latency_ms": [
+     2208,
+     2209
+    ]
+   },
+   "ask-07": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.31:5671",
+     "fp:c1269ddfa3057d933edaef7a9ae2d47f6d97a158bbd7ea794bc529e11013ee1a",
+     "fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+     "fp:26578eb2a06d07fbfc3e077630f23b5a75072c16a00cc80d569d11468bb8d510",
+     "fp:dc31077825d249750a3f4bd383a21fd1f4f681180cfdd0ddb07d6cdf764b7e63",
+     "fp:d8b837d4764e7c19ceebe64520da34bf46c019824239a3d9a7d9f2391e37a4fb",
+     "fp:b293d4e4a8c70f7ffe13ebb42e6126f07e4515a63645dc50339e240db9003f10",
+     "svc:queue",
+     "img:127.0.0.1:15000/pqch-agency/queue"
+    ],
+    "latency_ms": [
+     3721,
+     3635,
+     2554
+    ]
+   },
+   "ask-08": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "fp:d71cd5f559148032dd54363186cb32643459ed45231f3efd9b8100ae59697b2e",
+     "fp:cb59c9c525931ad0060047775568d888e8b55169a9b05d37ecfeca208f64d0b3",
+     "listener:172.16.106.21:22",
+     "fp:d80c4de2588acacb0787ee63a5dd9973e612f0963178e589ee2c9d14ea42946b",
+     "listener:172.16.106.20:22",
+     "fp:771bd5cae4dbfdaf40e21c7e5c5878e34b52162182409ad6b1067dec2dcd4196",
+     "fp:c244d17f952be5a95b1b251ea0c58379ff0f86760988dcf693fb67a07ed3263f",
+     "fp:386b435ad3bd82bf425b1d0433d21d9e0650c46701c5be01f3a192a480db43bd",
+     "svc:bastion",
+     "svc:sftp-legacy"
+    ],
+    "latency_ms": [
+     2398,
+     1686,
+     1674
+    ]
+   },
+   "ask-09": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "img:127.0.0.1:15000/pqch-agency/api",
+     "svc:api",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443",
+     "fp:95ef05076ea528d37626ebe991538de0b71c9e6fc4b2bcf48b4723965aeb67da",
+     "fp:b4c5d84464c7ff116f6ee0ace029efde0b32051b64f5bc79863c89cf49f75a8d",
+     "fp:dfb5de03ffe6a73e65ff883c388a068366e4d8ae1ab30524e02777e840f56855",
+     "img:127.0.0.1:15000/pqch-agency/portal",
+     "svc:portal"
+    ],
+    "latency_ms": [
+     3736,
+     3874
+    ]
+   },
+   "ask-10": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.32:8443",
+     "fp:22ac2415fc20a90f5352a5cfa4ce9fe03fa49da54ab18071e2b17c6867a85ccd",
+     "listener:172.16.106.11:443",
+     "fp:7a56e3e235a03e7cb25c680364b80af495ca782c3a13b807d75bfc3fce265d2d",
+     "listener:172.16.106.11:8443",
+     "fp:f4de6f9e1369cefb282b5f7b19d85c394d7450cd80efdb678455e31b7f7ed5e7",
+     "svc:portal",
+     "svc:pq-gateway",
+     "svc:legacy-app",
+     "svc:api",
+     "img:127.0.0.1:15000/pqch-agency/portal"
+    ],
+    "latency_ms": [
+     3852,
+     2396,
+     2425
+    ]
+   },
+   "ask-11": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "fp:15f91bc295a6df4b783f2d29f3e8a35fa0bfac62a6e3bc06b3d143a0670540e9",
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "listener:172.16.106.20:22",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+     "fp:00866af1197a8f950c3fe218c622b1898eb05e4fd76b00d7e4b5a6b810f29206",
+     "listener:172.16.106.21:22",
+     "fp:9c0447144336bfff1c3564f727eedb74a9998558887a500ec53570704420e295",
+     "svc:sftp-legacy",
+     "img:127.0.0.1:15000/pqch-agency/sftp-legacy",
+     "svc:bastion"
+    ],
+    "latency_ms": [
+     2060,
+     2081
+    ]
+   },
+   "ask-12": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.11:8443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "fp:7a56e3e235a03e7cb25c680364b80af495ca782c3a13b807d75bfc3fce265d2d",
+     "listener:172.16.106.12:443",
+     "fp:22ac2415fc20a90f5352a5cfa4ce9fe03fa49da54ab18071e2b17c6867a85ccd",
+     "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+     "svc:legacy-app",
+     "svc:api",
+     "svc:portal",
+     "svc:pq-gateway",
+     "img:127.0.0.1:15000/pqch-agency/legacy-app"
+    ],
+    "latency_ms": [
+     4204,
+     2715,
+     1826
+    ]
+   }
+  }
+ },
+ "records": [
+  {
+   "id": "ask-01",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener at 172.16.106.20:22 still offers the 1024-bit Diffie-Hellman group.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6N9ETXHJJ4DTW52ARTX95B9",
+     "01M6N9J64ZKBQ4CEYC5WR3MHDE",
+     "01M6N9J661ZEWPDZ5AAEKN72QK"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9ETXHJJ4DTW52ARTX95B9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "ssh-audit",
+      "at": null
+     },
+     {
+      "event": "01M6N9J64ZKBQ4CEYC5WR3MHDE",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J661ZEWPDZ5AAEKN72QK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2698
+  },
+  {
+   "id": "ask-01",
+   "repeat": 1,
+   "reply": {
+    "answer": "The SSH listener at 172.16.106.20:22 still offers the 1024-bit Diffie-Hellman group.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6N9ETXHJJ4DTW52ARTX95B9",
+     "01M6N9J661ZEWPDZ5AAEKN72QK"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9ETXHJJ4DTW52ARTX95B9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "ssh-audit",
+      "at": null
+     },
+     {
+      "event": "01M6N9J661ZEWPDZ5AAEKN72QK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 1799
+  },
+  {
+   "id": "ask-01",
+   "repeat": 2,
+   "reply": {
+    "answer": "172.16.106.20:22",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6N9J64ZKBQ4CEYC5WR3MHDE",
+     "01M6N9J661ZEWPDZ5AAEKN72QK"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64ZKBQ4CEYC5WR3MHDE",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J661ZEWPDZ5AAEKN72QK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 1597
+  },
+  {
+   "id": "ask-02",
+   "repeat": 0,
+   "error": "SchemaViolation: 'answer' is a required property; 'components' is a required property; 'citations' is a required property",
+   "latency_ms": 2710
+  },
+  {
+   "id": "ask-02",
+   "repeat": 1,
+   "error": "SchemaViolation: Additional properties are not allowed ('type' was unexpected)",
+   "latency_ms": 2530
+  },
+  {
+   "id": "ask-02",
+   "repeat": 2,
+   "error": "SchemaViolation: 'answer' is a required property; 'components' is a required property; 'citations' is a required property",
+   "latency_ms": 2846
+  },
+  {
+   "id": "ask-03",
+   "repeat": 0,
+   "reply": {
+    "answer": "Yes, the pq-gateway service presents an ML-DSA-65 certificate.",
+    "components": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7"
+    ],
+    "citations": [
+     "01M6N9FTZ8ARS8C3TJ2RQ6PMJA",
+     "01M6N9FY31J39PS3AHMQA4QDJH"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9FTZ8ARS8C3TJ2RQ6PMJA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6N9FY31J39PS3AHMQA4QDJH",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+      "ok": true
+     },
+     {
+      "ref": "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2546
+  },
+  {
+   "id": "ask-03",
+   "repeat": 1,
+   "reply": {
+    "answer": "Yes, the pq-gateway service presents an ML-DSA-65 certificate.",
+    "components": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7"
+    ],
+    "citations": [
+     "01M6N9FTZ8ARS8C3TJ2RQ6PMJA",
+     "01M6N9FY31J39PS3AHMQA4QDJH"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9FTZ8ARS8C3TJ2RQ6PMJA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6N9FY31J39PS3AHMQA4QDJH",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+      "ok": true
+     },
+     {
+      "ref": "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2552
+  },
+  {
+   "id": "ask-03",
+   "repeat": 2,
+   "reply": {
+    "answer": "Yes, the pq-gateway service presents an ML-DSA-65 certificate.",
+    "components": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7"
+    ],
+    "citations": [
+     "01M6N9FTZ8ARS8C3TJ2RQ6PMJA",
+     "01M6N9FY31J39PS3AHMQA4QDJH"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9FTZ8ARS8C3TJ2RQ6PMJA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6N9FY31J39PS3AHMQA4QDJH",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+      "ok": true
+     },
+     {
+      "ref": "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2508
+  },
+  {
+   "id": "ask-04",
+   "repeat": 0,
+   "reply": {
+    "answer": "The host at 127.0.0.1:15000/pqch-agency/sftp-legacy still carries a DSA host key file.",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0"
+    ],
+    "citations": [
+     "01M6N9GHACCBKGN0TPK87227MA",
+     "01M6N9GHAFGQ6QHV3GQTNW3QWB",
+     "01M6N9HB6MC4YDM5REV7T2YXF4"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9GHACCBKGN0TPK87227MA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9GHAFGQ6QHV3GQTNW3QWB",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9HB6MC4YDM5REV7T2YXF4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     },
+     {
+      "ref": "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+      "ok": true
+     },
+     {
+      "ref": "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 6912
+  },
+  {
+   "id": "ask-04",
+   "repeat": 1,
+   "reply": {
+    "answer": "The host 127.0.0.1:15000/pqch-agency/sftp-legacy still carries a DSA host key file.",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0"
+    ],
+    "citations": [
+     "01M6N9GHACCBKGN0TPK87227MA",
+     "01M6N9GHAFGQ6QHV3GQTNW3QWB",
+     "01M6N9HB6MC4YDM5REV7T2YXF4"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9GHACCBKGN0TPK87227MA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9GHAFGQ6QHV3GQTNW3QWB",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9HB6MC4YDM5REV7T2YXF4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     },
+     {
+      "ref": "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+      "ok": true
+     },
+     {
+      "ref": "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 4021
+  },
+  {
+   "id": "ask-04",
+   "repeat": 2,
+   "reply": {
+    "answer": "The host at 127.0.0.1:15000/pqch-agency/sftp-legacy carries a DSA host key file.",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0"
+    ],
+    "citations": [
+     "01M6N9GHACCBKGN0TPK87227MA",
+     "01M6N9GHAFGQ6QHV3GQTNW3QWB",
+     "01M6N9HB6MC4YDM5REV7T2YXF4"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9GHACCBKGN0TPK87227MA",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9GHAFGQ6QHV3GQTNW3QWB",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9HB6MC4YDM5REV7T2YXF4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     },
+     {
+      "ref": "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+      "ok": true
+     },
+     {
+      "ref": "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 4016
+  },
+  {
+   "id": "ask-05",
+   "repeat": 0,
+   "reply": {
+    "answer": "POSTGRES 172.16.106.30:5432 is the PostgreSQL database and it speaks TLS 1.3.",
+    "components": [
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6N9J6KQ5S33R97AJT452ER3",
+     "01M6N9J65ZFRCBXM22XAQJ6VDS"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J6KQ5S33R97AJT452ER3",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65ZFRCBXM22XAQJ6VDS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2906
+  },
+  {
+   "id": "ask-05",
+   "repeat": 1,
+   "reply": {
+    "answer": "POSTGRES 172.16.106.30:5432 is the PostgreSQL database and it speaks TLS 1.3",
+    "components": [
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6N9J6KQ5S33R97AJT452ER3",
+     "01M6N9J65ZFRCBXM22XAQJ6VDS"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J6KQ5S33R97AJT452ER3",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65ZFRCBXM22XAQJ6VDS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2237
+  },
+  {
+   "id": "ask-05",
+   "repeat": 2,
+   "reply": {
+    "answer": "POSTGRES 172.16.106.30:5432 is the PostgreSQL database and it speaks TLS 1.3.",
+    "components": [
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6N9J6KQ5S33R97AJT452ER3",
+     "01M6N9J65ZFRCBXM22XAQJ6VDS"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J6KQ5S33R97AJT452ER3",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65ZFRCBXM22XAQJ6VDS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2252
+  },
+  {
+   "id": "ask-06",
+   "repeat": 0,
+   "reply": {
+    "answer": "Listeners still limited to TLS 1.2",
+    "components": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671"
+    ],
+    "citations": [
+     "01M6N9J6KC5QS784335VYS56PC",
+     "01M6N9J6KMVMK54AYGDXPV8KJ8"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J6KC5QS784335VYS56PC",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J6KMVMK54AYGDXPV8KJ8",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.31:5671",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2208
+  },
+  {
+   "id": "ask-06",
+   "repeat": 1,
+   "reply": {
+    "answer": "Listeners still limited to TLS 1.2",
+    "components": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671"
+    ],
+    "citations": [
+     "01M6N9J6KC5QS784335VYS56PC",
+     "01M6N9J6KMVMK54AYGDXPV8KJ8"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J6KC5QS784335VYS56PC",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J6KMVMK54AYGDXPV8KJ8",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.31:5671",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2209
+  },
+  {
+   "id": "ask-06",
+   "repeat": 2,
+   "error": "SchemaViolation: 'answer' is a required property; 'components' is a required property; 'citations' is a required property",
+   "latency_ms": 2714
+  },
+  {
+   "id": "ask-07",
+   "repeat": 0,
+   "reply": {
+    "answer": "The ECDSA certificate at /etc/rmq-tls/queue.crt signs the TLS listener on 172.16.106.31:5671.",
+    "components": [
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+     "fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d"
+    ],
+    "citations": [
+     "01M6N9FXJ13BQWJXWBRRZ2617G",
+     "01M6N9J603ZMZ4ZNNXA8EFCDP0"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9FXJ13BQWJXWBRRZ2617G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6N9J603ZMZ4ZNNXA8EFCDP0",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+      "ok": true
+     },
+     {
+      "ref": "fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 3721
+  },
+  {
+   "id": "ask-07",
+   "repeat": 1,
+   "reply": {
+    "answer": "The ECDSA certificate on the message queue's TLS listener is signed by the Mini Agency Internal CA.",
+    "components": [
+     "fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+     "fp:26578eb2a06d07fbfc3e077630f23b5a75072c16a00cc80d569d11468bb8d510"
+    ],
+    "citations": [
+     "01M6N9FXJ13BQWJXWBRRZ2617G",
+     "01M6N9G4KRH9AZQYFPBTDB624J",
+     "01M6N9G4KPD4Q9VXJE7TYK4F11"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9FXJ13BQWJXWBRRZ2617G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6N9G4KRH9AZQYFPBTDB624J",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9G4KPD4Q9VXJE7TYK4F11",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d",
+      "ok": true
+     },
+     {
+      "ref": "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+      "ok": true
+     },
+     {
+      "ref": "fp:26578eb2a06d07fbfc3e077630f23b5a75072c16a00cc80d569d11468bb8d510",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 3635
+  },
+  {
+   "id": "ask-07",
+   "repeat": 2,
+   "reply": {
+    "answer": "The ECDSA certificate at /etc/rmq-tls/queue.crt signs the TLS listener on 172.16.106.31:5671.",
+    "components": [
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a"
+    ],
+    "citations": [
+     "01M6N9FXJ13BQWJXWBRRZ2617G",
+     "01M6N9J603ZMZ4ZNNXA8EFCDP0"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9FXJ13BQWJXWBRRZ2617G",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     },
+     {
+      "event": "01M6N9J603ZMZ4ZNNXA8EFCDP0",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2554
+  },
+  {
+   "id": "ask-08",
+   "repeat": 0,
+   "reply": {
+    "answer": "SSH 172.16.106.21:22",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6N9J64HJ1QFY4PCTEVPPWRQ",
+     "01M6N9J65GZPMP6M2V7K9XS7E0"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64HJ1QFY4PCTEVPPWRQ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65GZPMP6M2V7K9XS7E0",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2398
+  },
+  {
+   "id": "ask-08",
+   "repeat": 1,
+   "reply": {
+    "answer": "SSH 172.16.106.21:22",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6N9J64HJ1QFY4PCTEVPPWRQ",
+     "01M6N9J65GZPMP6M2V7K9XS7E0"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64HJ1QFY4PCTEVPPWRQ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65GZPMP6M2V7K9XS7E0",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 1686
+  },
+  {
+   "id": "ask-08",
+   "repeat": 2,
+   "reply": {
+    "answer": "SSH 172.16.106.21:22",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6N9J64HJ1QFY4PCTEVPPWRQ",
+     "01M6N9J65GZPMP6M2V7K9XS7E0"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64HJ1QFY4PCTEVPPWRQ",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65GZPMP6M2V7K9XS7E0",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 1674
+  },
+  {
+   "id": "ask-09",
+   "repeat": 0,
+   "error": "SchemaViolation: Additional properties are not allowed ('type' was unexpected)",
+   "latency_ms": 6879
+  },
+  {
+   "id": "ask-09",
+   "repeat": 1,
+   "reply": {
+    "answer": "The API service's certificate chain depends on the ECDSA certificate at /etc/nginx/tls/api.crt, the TLS listeners at 172.16.106.11:443 and 172.16.106.11:8443, and the image img:127.0.0.1:15000/pqch-agency/api.",
+    "components": [
+     "fp:dfb5de03ffe6a73e65ff883c388a068366e4d8ae1ab30524e02777e840f56855",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443",
+     "img:127.0.0.1:15000/pqch-agency/api"
+    ],
+    "citations": [
+     "01M6N9FEDJPYBJHTEC86YFTW99",
+     "01M6N9J64C5YSDGSE0SFB38HCT",
+     "01M6N9J64EY9FGV7YRBFCS7SPT",
+     "01M6N9J65BB5CWQ3118TPP6YBS"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9FEDJPYBJHTEC86YFTW99",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9J64C5YSDGSE0SFB38HCT",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J64EY9FGV7YRBFCS7SPT",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65BB5CWQ3118TPP6YBS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:dfb5de03ffe6a73e65ff883c388a068366e4d8ae1ab30524e02777e840f56855",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:8443",
+      "ok": true
+     },
+     {
+      "ref": "img:127.0.0.1:15000/pqch-agency/api",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 3736
+  },
+  {
+   "id": "ask-09",
+   "repeat": 2,
+   "reply": {
+    "answer": "The API service's certificate chain depends on the ECDSA certificate at /etc/nginx/tls/api.crt, the TLS listeners on 172.16.106.11:443 and 172.16.106.11:8443, and the image 127.0.0.1:15000/pqch-agency/api.",
+    "components": [
+     "fp:dfb5de03ffe6a73e65ff883c388a068366e4d8ae1ab30524e02777e840f56855",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.11:8443",
+     "img:127.0.0.1:15000/pqch-agency/api"
+    ],
+    "citations": [
+     "01M6N9FEDJPYBJHTEC86YFTW99",
+     "01M6N9J64C5YSDGSE0SFB38HCT",
+     "01M6N9J64EY9FGV7YRBFCS7SPT",
+     "01M6N9J664XTDM6RK38QYPP97Q"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9FEDJPYBJHTEC86YFTW99",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6N9J64C5YSDGSE0SFB38HCT",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J64EY9FGV7YRBFCS7SPT",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J664XTDM6RK38QYPP97Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:dfb5de03ffe6a73e65ff883c388a068366e4d8ae1ab30524e02777e840f56855",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     },
+     {
+      "ref": "listener:172.16.106.11:8443",
+      "ok": true
+     },
+     {
+      "ref": "img:127.0.0.1:15000/pqch-agency/api",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 3874
+  },
+  {
+   "id": "ask-10",
+   "repeat": 0,
+   "reply": {
+    "answer": "TLS 172.16.106.10:443",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6N9J64PRZR6RQQJHATFAMS7",
+     "01M6N9J65P1XE8BM5XX7N6PMPB",
+     "01M6N9J6KEES1ZQ2KQ5MGMP035"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64PRZR6RQQJHATFAMS7",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65P1XE8BM5XX7N6PMPB",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J6KEES1ZQ2KQ5MGMP035",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 3852
+  },
+  {
+   "id": "ask-10",
+   "repeat": 1,
+   "reply": {
+    "answer": "TLS 172.16.106.10:443",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6N9J64PRZR6RQQJHATFAMS7",
+     "01M6N9J65P1XE8BM5XX7N6PMPB",
+     "01M6N9J6KEES1ZQ2KQ5MGMP035"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64PRZR6RQQJHATFAMS7",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65P1XE8BM5XX7N6PMPB",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J6KEES1ZQ2KQ5MGMP035",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2396
+  },
+  {
+   "id": "ask-10",
+   "repeat": 2,
+   "reply": {
+    "answer": "TLS 172.16.106.10:443",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6N9J64PRZR6RQQJHATFAMS7",
+     "01M6N9J65P1XE8BM5XX7N6PMPB",
+     "01M6N9J6KEES1ZQ2KQ5MGMP035"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64PRZR6RQQJHATFAMS7",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65P1XE8BM5XX7N6PMPB",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J6KEES1ZQ2KQ5MGMP035",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2425
+  },
+  {
+   "id": "ask-11",
+   "repeat": 0,
+   "error": "SchemaViolation: 'answer' is a required property; 'components' is a required property; 'citations' is a required property",
+   "latency_ms": 2991
+  },
+  {
+   "id": "ask-11",
+   "repeat": 1,
+   "reply": {
+    "answer": "SSH 172.16.106.20:22 listener offers DSA for host authentication",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6N9J64ZKBQ4CEYC5WR3MHDE",
+     "01M6N9J661ZEWPDZ5AAEKN72QK"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64ZKBQ4CEYC5WR3MHDE",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J661ZEWPDZ5AAEKN72QK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2060
+  },
+  {
+   "id": "ask-11",
+   "repeat": 2,
+   "reply": {
+    "answer": "SSH 172.16.106.20:22 listener offers DSA for host authentication",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6N9J64ZKBQ4CEYC5WR3MHDE",
+     "01M6N9J661ZEWPDZ5AAEKN72QK"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64ZKBQ4CEYC5WR3MHDE",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J661ZEWPDZ5AAEKN72QK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2081
+  },
+  {
+   "id": "ask-12",
+   "repeat": 0,
+   "reply": {
+    "answer": "Yes, there is a listener on port 8443 that presents an RSA certificate, and it is the legacy-app service.",
+    "components": [
+     "listener:172.16.106.32:8443",
+     "fp:7a56e3e235a03e7cb25c680364b80af495ca782c3a13b807d75bfc3fce265d2d"
+    ],
+    "citations": [
+     "01M6N9J64KKGCT7M64JRSHRN3Q",
+     "01M6N9J65MQ3K50GKJ2TNW7EPD",
+     "01M6N9J6KC5QS784335VYS56PC",
+     "01M6N9FPWA60JCJFJFR8RFTNVX"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64KKGCT7M64JRSHRN3Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65MQ3K50GKJ2TNW7EPD",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J6KC5QS784335VYS56PC",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9FPWA60JCJFJFR8RFTNVX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     },
+     {
+      "ref": "fp:7a56e3e235a03e7cb25c680364b80af495ca782c3a13b807d75bfc3fce265d2d",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 4204
+  },
+  {
+   "id": "ask-12",
+   "repeat": 1,
+   "reply": {
+    "answer": "Yes, there is a listener on port 8443 that presents an RSA certificate, and it is the legacy-app service.",
+    "components": [
+     "listener:172.16.106.32:8443",
+     "fp:7a56e3e235a03e7cb25c680364b80af495ca782c3a13b807d75bfc3fce265d2d"
+    ],
+    "citations": [
+     "01M6N9J64KKGCT7M64JRSHRN3Q",
+     "01M6N9J65MQ3K50GKJ2TNW7EPD",
+     "01M6N9J6KC5QS784335VYS56PC",
+     "01M6N9FPWA60JCJFJFR8RFTNVX"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64KKGCT7M64JRSHRN3Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65MQ3K50GKJ2TNW7EPD",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J6KC5QS784335VYS56PC",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9FPWA60JCJFJFR8RFTNVX",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "testssl.sh",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     },
+     {
+      "ref": "fp:7a56e3e235a03e7cb25c680364b80af495ca782c3a13b807d75bfc3fce265d2d",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 2715
+  },
+  {
+   "id": "ask-12",
+   "repeat": 2,
+   "reply": {
+    "answer": "Yes, there is a listener on port 8443 that presents an RSA certificate, and it is the legacy-app service.",
+    "components": [
+     "listener:172.16.106.32:8443",
+     "svc:legacy-app"
+    ],
+    "citations": [
+     "01M6N9J64KKGCT7M64JRSHRN3Q",
+     "01M6N9J65MQ3K50GKJ2TNW7EPD"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6N9J64KKGCT7M64JRSHRN3Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6N9J65MQ3K50GKJ2TNW7EPD",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     },
+     {
+      "ref": "svc:legacy-app",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nemotron-3.5-lightning",
+   "hardware": "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)",
+   "latency_ms": 1826
+  }
+ ]
+}

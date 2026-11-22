@@ -1,0 +1,15 @@
+# Emulation smoke test only: the runner, and every scanner it starts, as linux/arm64
+# under qemu-user on an x86_64 host. Time budgets are scaled for emulation.
+# Timings from this are labelled as emulated; they say nothing about a GB10.
+# The image is built first, by:
+#   docker buildx build --platform linux/arm64 -t pqch/harness:m0b-arm64 --load .
+#   docker compose -f compose.yaml -f workshop/compose.lab.yaml -f compose.arm64-runner.yaml up -d runner
+services:
+  runner:
+    platform: linux/arm64
+    image: pqch/harness:m0b-arm64
+    build: !reset null
+    environment:
+      PQCH_SCANNER_PLATFORM: linux/arm64
+      PQCH_BUDGET_SCALE: "10"
+      PQCH_HARDWARE: xr7620 (x86_64), runner and scanners arm64 under qemu-user

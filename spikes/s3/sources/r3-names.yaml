@@ -1,0 +1,49 @@
+# R3's pool: algorithm names as a finding carries them, each with the family it belongs to and what
+# settles that. 36 of these are drawn by seeded shuffle. Whether a family is quantum-vulnerable is not
+# stated here: make_r123.py takes it from OMB M-26-15, Appendix A (sources/m-26-15-appendix-a.txt).
+# Left out on purpose: names whose status that text does not settle — LMS and XMSS, sntrup761x25519,
+# FALCON, HQC. (CNSA 2.0 would settle the first two; NSA's site refused the download on 2026-10-05,
+# so it was not read first-hand and is not used.)
+names:
+  - {name: X25519, role: key-establishment, family: ecdh, function: key-establishment, why: "RFC 7748; IANA TLS Supported Groups 29."}
+  - {name: X448, role: key-establishment, family: ecdh, function: key-establishment, why: "RFC 7748; IANA TLS Supported Groups 30."}
+  - {name: secp256r1, role: key-establishment, family: ecdh, function: key-establishment, why: "IANA TLS Supported Groups 23: an ECDH group."}
+  - {name: secp384r1, role: key-establishment, family: ecdh, function: key-establishment, why: "IANA TLS Supported Groups 24."}
+  - {name: secp521r1, role: key-establishment, family: ecdh, function: key-establishment, why: "IANA TLS Supported Groups 25."}
+  - {name: brainpoolP256r1, role: key-establishment, family: ecdh, function: key-establishment, why: "IANA TLS Supported Groups 26 (RFC 7027)."}
+  - {name: brainpoolP384r1, role: key-establishment, family: ecdh, function: key-establishment, why: "IANA TLS Supported Groups 27 (RFC 7027)."}
+  - {name: ECMQV, role: key-establishment, family: mqv, function: key-establishment, why: "NIST SP 800-56A: the elliptic-curve MQV scheme."}
+  - {name: ffdhe2048, role: key-establishment, family: finite-field-dh, function: key-establishment, why: "RFC 7919; IANA TLS Supported Groups 256."}
+  - {name: ffdhe3072, role: key-establishment, family: finite-field-dh, function: key-establishment, why: "RFC 7919; IANA TLS Supported Groups 257."}
+  - {name: DH-1024, role: key-establishment, family: finite-field-dh, function: key-establishment, parameters: {ssh_names: [diffie-hellman-group1-sha1]}, why: "RFC 4253 section 8.1: Oakley group 2."}
+  - {name: DH-2048, role: key-establishment, family: finite-field-dh, function: key-establishment, parameters: {ssh_names: [diffie-hellman-group14-sha256]}, why: "RFC 8268: Oakley group 14."}
+  - {name: DH-GEX, role: key-establishment, family: finite-field-dh, function: key-establishment, parameters: {ssh_names: [diffie-hellman-group-exchange-sha256]}, why: "RFC 4419: Diffie-Hellman group exchange."}
+  - {name: RSA, role: key-establishment, family: rsa, function: key-establishment, parameters: {mode: key-transport, tls_version: "1.2"}, why: "TLS_RSA_WITH_* suites: RSA key transport."}
+  - {name: RSA, role: signature, type: certificate, family: rsa, function: signature, parameters: {key_bits: 2048, signature: sha256WithRSAEncryption}, why: "A certificate with an RSA key, signed with RSA."}
+  - {name: RSA, role: signature, family: rsa, function: signature, parameters: {ssh_names: [rsa-sha2-512], key_bits: 3072}, why: "RFC 8332: an RSA SSH host key."}
+  - {name: ECDSA, role: signature, type: certificate, family: ecdsa, function: signature, parameters: {curve: P-256}, why: "A certificate with an ECDSA key."}
+  - {name: ECDSA, role: signature, family: ecdsa, function: signature, parameters: {ssh_names: [ecdsa-sha2-nistp256]}, why: "RFC 5656: an ECDSA SSH host key."}
+  - {name: DSA, role: signature, family: dsa, function: signature, parameters: {ssh_names: [ssh-dss]}, why: "RFC 4253 section 6.6: a DSA host key."}
+  - {name: Ed25519, role: signature, family: eddsa, function: signature, parameters: {ssh_names: [ssh-ed25519]}, why: "RFC 8032 EdDSA; RFC 8709 for SSH. Asymmetric, classical."}
+  - {name: Ed448, role: signature, family: eddsa, function: signature, why: "RFC 8032 EdDSA. Asymmetric, classical."}
+  - {name: ML-KEM-512, role: key-establishment, family: ml-kem, function: key-establishment, why: "FIPS 203 parameter set."}
+  - {name: ML-KEM-768, role: key-establishment, family: ml-kem, function: key-establishment, why: "FIPS 203 parameter set."}
+  - {name: ML-KEM-1024, role: key-establishment, family: ml-kem, function: key-establishment, why: "FIPS 203 parameter set."}
+  - {name: ML-DSA-44, role: signature, family: ml-dsa, function: signature, why: "FIPS 204 parameter set."}
+  - {name: ML-DSA-65, role: signature, type: certificate, family: ml-dsa, function: signature, why: "FIPS 204 parameter set, as a certificate's key."}
+  - {name: ML-DSA-87, role: signature, family: ml-dsa, function: signature, why: "FIPS 204 parameter set."}
+  - {name: SLH-DSA, role: signature, family: slh-dsa, function: signature, why: "FIPS 205."}
+  - {name: X25519MLKEM768, role: key-establishment, family: hybrid, function: key-establishment, why: "IANA TLS Supported Groups 4588: X25519 with ML-KEM-768."}
+  - {name: SecP256r1MLKEM768, role: key-establishment, family: hybrid, function: key-establishment, why: "IANA TLS Supported Groups 4587: P-256 with ML-KEM-768."}
+  - {name: SecP384r1MLKEM1024, role: key-establishment, family: hybrid, function: key-establishment, why: "IANA TLS Supported Groups 4589: P-384 with ML-KEM-1024."}
+  - {name: AES-128, role: encryption, family: symmetric-cipher, function: neither, why: "FIPS 197: a symmetric block cipher."}
+  - {name: AES-256, role: encryption, family: symmetric-cipher, function: neither, why: "FIPS 197."}
+  - {name: 3DES, role: encryption, family: symmetric-cipher, function: neither, why: "NIST SP 800-67: a symmetric block cipher."}
+  - {name: ChaCha20-Poly1305, role: encryption, family: symmetric-cipher, function: neither, why: "RFC 8439: a symmetric AEAD."}
+  - {name: RC4, role: encryption, family: symmetric-cipher, function: neither, why: "A symmetric stream cipher."}
+  - {name: SHA-1, role: hash, family: hash-or-mac, function: neither, why: "FIPS 180-4: a hash function."}
+  - {name: SHA-256, role: hash, family: hash-or-mac, function: neither, why: "FIPS 180-4."}
+  - {name: SHA-384, role: hash, family: hash-or-mac, function: neither, why: "FIPS 180-4."}
+  - {name: HMAC-SHA-256, role: mac, family: hash-or-mac, function: neither, why: "FIPS 198-1: a keyed hash."}
+  - {name: HMAC-MD5, role: mac, family: hash-or-mac, function: neither, why: "RFC 2104 with MD5: a keyed hash."}
+  - {name: UMAC-64, role: mac, family: hash-or-mac, function: neither, why: "RFC 4418: a message authentication code."}

@@ -1,0 +1,23 @@
+# Passive capture on a mirror port: Zeek reads one host interface and writes its logs as JSON.
+# Run from the deployment checkout with PQCH_CAPTURE_IFACE and PQCH_CAPTURE_DIR in its .env:
+#   docker compose --project-directory . -f capture/compose.yaml up -d
+# Host network is needed to open the interface; the container gets NET_RAW and NET_ADMIN only, a
+# read-only root, no Docker socket, and writes nowhere but the log directory. No packets are kept.
+name: pqch-capture
+services:
+  zeek:
+    image: zeek/zeek:lts@sha256:70733f4e540ba1608e37e00c6a93d009f79734262c9ec2ba09d90aa9abc16de5
+    network_mode: host
+    cap_add: [NET_RAW, NET_ADMIN]
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    mem_limit: 2g
+    cpus: 4
+    working_dir: /logs
+    volumes:
+      - ${PQCH_CAPTURE_DIR:?set PQCH_CAPTURE_DIR to the log directory}:/logs
+      - ./src/pqch/scout/zeek:/scripts:ro
+    command: ["zeek", "-C", "-i", "${PQCH_CAPTURE_IFACE:?set PQCH_CAPTURE_IFACE to the mirror interface}", "/scripts/posture.zeek"]

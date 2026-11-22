@@ -1,0 +1,85 @@
+# OMB M-26-15, Execution of the Migration to Post-Quantum Cryptography (2026-06-24)
+# Appendix A, sections 1 to 3 (to the end of the key-exchange bullet), as extracted with pdftotext -layout, and footnote 13
+# (rejoined from three lines). Page footers removed; nothing else changed.
+# Source: https://www.whitehouse.gov/wp-content/uploads/2026/06/M-26-15-Execution-of-the-Migration-to-Post-Quantum-Cryptography.pdf
+# fetched 2026-10-05; PDF sha256 515af70472d3a4a2107c61a1bc5f8014523d99feab9b2cf92a95e4bcc790da2c.
+
+Appendix A: Technical Implementation Guidance
+
+1.        PQC ALGORITHM SELECTION
+
+     1.   FIPS 203 ML-KEM (Key Encapsulation Mechanism (KEM)/Encryption)
+                Pros:
+                Efficient, moderate key sizes, widely recommended for near-term PQC needs.
+                 Cons:
+                 Larger overhead than classical Elliptical Curve Technology (ECC).
+                 Future Considerations:
+                 Might see additional parameter sets or improvements in speed/size.
+
+     2.   FIPS 204 ML-DSA (Digital Signature Algorithm)
+                Pros:
+                Balanced performance for signatures, solid lattice foundation.
+                 Cons:
+                 ~1–2 KB signatures can strain bandwidth in certain use cases.
+                 Future Considerations:
+                 NIST may finalize new lattice optimizations or next-generation signature variants.
+
+     3.   FIPS 205 SLH-DSA (Digital Signature Algorithm)
+                Pros:
+                Hash-based approach, robust fallback independent of lattice/code assumptions.
+                 Cons:
+                 Larger signatures (tens of KB), slower signing.
+
+                 Future Considerations:
+                 Parameter refinements may reduce size or increase speed; new hash-based
+                 algorithms might appear.
+
+     4.   Future Standards
+
+                  Notably, additional signature or KEM schemes may be announced in the future as
+          part of continuing efforts to standardize more signature algorithms beyond the initial set.
+          If future cryptanalysis reveals weaknesses or improvements, NIST might recommend
+          different parameter levels (e.g., higher security, smaller keys) such as FALCON and
+          HQC.
+
+2.       QUANTUM-VULNERABLE ALGORITHMS
+
+ Algorithm                             Function                              Specification
+ Elliptic Curve Diffie-Hellman         Asymmetric algorithm used             NIST SP 800-56A/B/C
+ (ECDH) Key Exchange                   for key establishment
+ Menezes-Qu-Vanstone                   Asymmetric algorithm used             NIST SP 800-56A rev3
+ (MQV) Key Exchange                    for key establishment
+ Elliptic Curve Digital                Asymmetric algorithms used            FIPS PUB 186-5
+ Signature Algorithm                   for digital signatures
+ (ECDSA)
+ Diffie-Hellman (DH) Key               Asymmetric algorithm used             NIST 800-56A rev3
+ Exchange and variants                 for key establishment
+ Rivest-Shamir-Adleman                 Asymmetric algorithm used             FIPS SP 800-56B rev 1
+ (RSA) Signature Algorithm             for signatures
+ RSA Key Establishment                 Asymmetric algorithm used             SP 800-56B rev1
+                                       for key establishment
+ Digital Signature Algorithm           Asymmetric algorithm used             FIPS 186-5
+                                       for digital signatures
+ Other non-PQC Asymmetric              Remaining asymmetric                  Not applicable
+ Algorithms 13                         algorithms not enumerated in
+                                       the list above
+
+Symmetric-key-based protocols should also be avoided.
+
+3.       HYBRID ARCHITECTURE
+
+        A hybrid architecture 14 is an implementation model that combines a traditional
+cryptographic algorithm, such as ECDH or ECDSA, with a PQC algorithm, such as FIPS 203
+ML-KEM or FIPS 204 ML-DSA. Compromising the security of the operation requires an
+attacker to break both the classical and the PQC schemes if properly implemented. This model
+can be a useful tool for managing risk during the migration from traditional to post-quantum
+cryptographic systems; however, because it introduces its own risks and complexities, agencies
+considering this approach should perform a thorough evaluation of its tradeoffs, as it is an
+intricate and resource-intensive stopgap.
+
+     •   For Key Exchange: In a hybrid key exchange, the client and server generate two sets of
+         public/private keys—one traditional and one PQC. The resulting shared secrets are
+         cryptographically combined (e.g., through the use of a key derivation function taking
+         both as inputs) to derive the final session keys.
+
+Footnote 13: Agencies should work with CISA and vendors of products that utilize asymmetric algorithms not enumerated in this table to determine if those algorithms are quantum-vulnerable. Agencies are encouraged to treat as quantum-vulnerable any asymmetric algorithm that is not definitively known to be quantum-resistant.

@@ -1,0 +1,87 @@
+# NIST IR 8547, Transition to Post-Quantum Cryptography Standards (final, 2026-10-27), as data.
+#
+# The transition dates NIST sets for every quantum-vulnerable signature and key-establishment
+# family: deprecated after 2030, disallowed under NIST standards after 2035. The queue rule
+# (`queue/m-26-15/1`) reads this pack beside M-26-15's: an item's deadline is the earlier of the
+# memo's queue date and this pack's disallowance, and the item says which source set it; the
+# deprecation date is carried beside it. For a system M-26-15 prioritizes, the memo's dates are
+# earlier and govern (§4.1.1 says so in its own words, quoted below).
+#
+# Dates the report gives only as a year ("after 2030") are carried as the last day of that year,
+# marked `computed`. Every quote is checked against the text below by `pqch.policy.load_pack`.
+#
+# Text: policy/sources/ir-8547.txt, `pdftotext -layout` of the PDF below, read 2026-11-06.
+schema: pqch.policy-pack/1
+id: ir-8547
+title: "NIST IR 8547, Transition to Post-Quantum Cryptography Standards"
+dated: 2026-10-27
+source:
+  url: https://doi.org/10.6028/NIST.IR.8547
+  pdf_sha256: 3049cdfdd7c20417cf588a3d55ace6e8813982d1499502b7ef69e9593b2dc280
+  text: policy/sources/ir-8547.txt
+  read_first_hand: 2026-11-06
+
+# The general rule, §4 (introduction to the transition).
+transition:
+  section: "4"
+  quote: >-
+    NIST will deprecate quantum-vulnerable public-key cryptography after 2030 and disallow its use
+    under NIST standards and guidelines after 2035.
+  deprecated_after: 2030-12-31
+  disallowed_after: 2035-12-31
+  dates_basis: computed   # the report says "after 2030" and "after 2035"; the last day of each year is ours
+  # The report's own statement that the window does not move M-26-15's earlier dates.
+  prioritized:
+    quote: >-
+      this window does not alter the earlier deadlines that apply to high value assets, high
+      impact systems, and other high-sensitivity federal systems under EO 14412 and OMB M-26-15.
+
+# Per function: the table, the families of `policy/algorithm-families.yaml` it covers, and the
+# parameters the table states. Key size is not in a finding's normalized name, so the rule
+# records the parameter condition and does not check it.
+functions:
+  signature:
+    table: "Table 2"
+    section: "4.1.1"
+    quote: >-
+      NIST will instead deprecate all quantum-vulnerable digital signature algorithms after 2030
+      and disallow their use under NIST standards and guidelines after 2035.
+    quote_note: >-
+      For federal high value assets, high impact systems, and other systems prioritized under OMB
+      Memorandum M-26-15 [OMB2615], the continued use of these deprecated algorithms is constrained
+      by the earlier migration deadlines established under EO 14412
+    rows:
+      - row: ECDSA
+        families: [ecdsa]
+        parameters: "at or above 112 bits of classical security strength"
+        quote: "ECDSA ... Deprecated after 2030 ... ≥ 112 bits of classical security strength ... Disallowed after 2035"
+      - row: EdDSA
+        # algorithm-families.yaml files Ed25519 and Ed448 under M-26-15's footnote 13; this table names them.
+        names: [Ed25519, Ed448]
+        parameters: "at or above 128 bits of classical security strength"
+        quote: "EdDSA ... Deprecated after 2030 ... ≥ 128 bits of classical security strength ... Disallowed after 2035"
+      - row: RSA
+        families: [rsa-sig]
+        parameters: "at or above 112 bits of classical security strength"
+        quote: "RSA ... Deprecated after 2030 ... ≥ 112 bits of classical security strength ... Disallowed after 2035"
+    # DSA is not in Table 2; the rule records it as not covered rather than guess a date.
+  key-establishment:
+    table: "Table 4"
+    section: "4.1.2"
+    quote: >-
+      NIST will deprecate all quantum-vulnerable cryptography after 2030 and disallow its use under
+      NIST standards and guidelines after 2035.
+    rows:
+      - row: "Finite Field DH and MQV"
+        families: [finite-field-dh, mqv]
+        parameters: "at or above 112 bits of classical security strength"
+        quote: "Finite Field ... DH and MQV ... Deprecated after 2030 ... ≥ 112 bits of classical security strength ... Disallowed after 2035"
+      - row: "Elliptic Curve DH and MQV"
+        families: [ecdh, mqv]
+        parameters: "at or above 112 bits of classical security strength"
+        quote: "Elliptic Curve ... Deprecated after 2030 ... DH and MQV ≥ 112 bits of classical security strength ... Disallowed after 2035"
+      - row: RSA
+        families: [rsa-kex]
+        parameters: "at or above 112 bits of classical security strength"
+        quote: "RSA ... Deprecated after 2030 ... ≥ 112 bits of classical security strength ... Disallowed after 2035"
+    # OpenSSH's sntrup761x25519 hybrid is in no row (M-26-15 footnote 13 makes it vulnerable).

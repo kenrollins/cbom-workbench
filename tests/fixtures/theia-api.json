@@ -1,0 +1,241 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:e2cc4e4c-62ea-4598-b0e7-696703a5df29",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-10-03T12:48:44Z",
+    "tools": {
+      "services": [
+        {
+          "provider": {
+            "name": "PQCA"
+          },
+          "name": "cbomkit-theia",
+          "version": "edge",
+          "services": [
+            {
+              "name": "Certificate File Plugin"
+            },
+            {
+              "name": "Secret Detection Plugin"
+            },
+            {
+              "name": "OpenSSL Config Plugin"
+            },
+            {
+              "name": "Problematic CA Detection Plugin"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "e93d3e7d-3340-4482-a5c9-5caac1e2789a",
+      "type": "cryptographic-asset",
+      "name": "ECDSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/api.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "cryptoFunctions": [
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.10045.2.1"
+      }
+    },
+    {
+      "bom-ref": "72eec4da-9371-4cb0-8f80-a5e7dd4953a9",
+      "type": "cryptographic-asset",
+      "name": "SHA256",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/api.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "256",
+          "cryptoFunctions": [
+            "digest"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "fe1a786e-43e0-47ff-ac4a-3862c2c29367",
+      "type": "cryptographic-asset",
+      "name": "ECDSA-SHA256",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/api.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "256",
+          "cryptoFunctions": [
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.10045.4.3.2"
+      }
+    },
+    {
+      "bom-ref": "d5d04f6b-bdd1-4b1a-b5f5-a6e368ecf58e",
+      "type": "cryptographic-asset",
+      "name": "ECDSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/api.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "cryptoFunctions": [
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.10045.2.1"
+      }
+    },
+    {
+      "bom-ref": "f9f63515-3b49-4424-9d34-2362ab0bebdc",
+      "type": "cryptographic-asset",
+      "name": "ECDSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/api.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "algorithmRef": "d5d04f6b-bdd1-4b1a-b5f5-a6e368ecf58e",
+          "value": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEpOT+0Vzr9D4WvwOGvsdwir8NCfbsU4KodtMRsM3lIilAo0HCBbf+rE3EXMs1iWK1nJCtrQQyeUWKDHlboM1myg==",
+          "format": "PEM"
+        },
+        "oid": "1.2.840.10045.2.1"
+      }
+    },
+    {
+      "bom-ref": "fc3a710a-7c6e-4aaf-87b9-ff6390cf6ef6",
+      "type": "cryptographic-asset",
+      "name": "api.agency.test",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/api.crt"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "api.agency.test",
+          "issuerName": "api.agency.test",
+          "notValidBefore": "2026-10-03T12:29:57Z",
+          "notValidAfter": "2029-01-05T12:29:57Z",
+          "signatureAlgorithmRef": "fe1a786e-43e0-47ff-ac4a-3862c2c29367",
+          "subjectPublicKeyRef": "f9f63515-3b49-4424-9d34-2362ab0bebdc",
+          "certificateFormat": "X.509",
+          "certificateExtension": "crt"
+        }
+      }
+    },
+    {
+      "bom-ref": "eef3d82c-235e-40d8-b237-cd19605ea515",
+      "type": "cryptographic-asset",
+      "name": "ECDSA",
+      "description": "Curve: P-256;Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/nginx/tls/api.key",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "format": "PEM"
+        }
+      }
+    },
+    {
+      "bom-ref": "7a6757eb-ca73-4e32-af82-7e6ef13c0c0e",
+      "type": "file",
+      "name": "openssl.cnf.dist",
+      "description": "OpenSSL configuration",
+      "properties": [
+        {
+          "name": "theia:openssl:default_md",
+          "value": "default\t\t# use public key default MD"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/openssl.cnf.dist"
+          }
+        ]
+      }
+    },
+    {
+      "bom-ref": "c4bb34bd-f3fa-42b8-b5dd-3ccedc5b4ca9",
+      "type": "file",
+      "name": "openssl.cnf",
+      "description": "OpenSSL configuration",
+      "properties": [
+        {
+          "name": "theia:openssl:default_md",
+          "value": "default\t\t# use public key default MD"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/etc/ssl/openssl.cnf"
+          }
+        ]
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "fe1a786e-43e0-47ff-ac4a-3862c2c29367",
+      "dependsOn": [
+        "e93d3e7d-3340-4482-a5c9-5caac1e2789a",
+        "72eec4da-9371-4cb0-8f80-a5e7dd4953a9"
+      ]
+    }
+  ]
+}

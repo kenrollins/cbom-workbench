@@ -1,0 +1,123 @@
+{
+ "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+ "bomFormat": "CycloneDX",
+ "specVersion": "1.6",
+ "serialNumber": "urn:uuid:3e671687-395b-41f5-a30f-a58921a69b79",
+ "version": 1,
+ "metadata": {
+  "timestamp": "2026-11-09T00:00:00Z",
+  "tools": {
+   "components": [
+    {
+     "type": "application",
+     "author": "anchore",
+     "name": "syft",
+     "version": "1.33.0"
+    }
+   ]
+  },
+  "component": {
+   "bom-ref": "img",
+   "type": "container",
+   "name": "pqch-agency/portal",
+   "version": "sha256:cc0ff875"
+  }
+ },
+ "components": [
+  {
+   "bom-ref": "pkg:apk/alpine/libssl3@3.5.8-r0?arch=x86_64",
+   "type": "library",
+   "name": "libssl3",
+   "version": "3.5.8-r0",
+   "licenses": [
+    {
+     "license": {
+      "id": "Apache-2.0"
+     }
+    }
+   ],
+   "purl": "pkg:apk/alpine/libssl3@3.5.8-r0?arch=x86_64",
+   "properties": [
+    {
+     "name": "syft:package:type",
+     "value": "apk"
+    }
+   ]
+  },
+  {
+   "bom-ref": "pkg:apk/alpine/libcrypto3@3.5.8-r0?arch=x86_64",
+   "type": "library",
+   "name": "libcrypto3",
+   "version": "3.5.8-r0",
+   "licenses": [
+    {
+     "license": {
+      "id": "Apache-2.0"
+     }
+    }
+   ],
+   "purl": "pkg:apk/alpine/libcrypto3@3.5.8-r0?arch=x86_64",
+   "properties": [
+    {
+     "name": "syft:package:type",
+     "value": "apk"
+    }
+   ]
+  },
+  {
+   "bom-ref": "pkg:apk/alpine/nginx@1.28.0-r3?arch=x86_64",
+   "type": "library",
+   "name": "nginx",
+   "version": "1.28.0-r3",
+   "licenses": [
+    {
+     "license": {
+      "id": "BSD-2-Clause"
+     }
+    }
+   ],
+   "purl": "pkg:apk/alpine/nginx@1.28.0-r3?arch=x86_64",
+   "properties": [
+    {
+     "name": "syft:package:type",
+     "value": "apk"
+    }
+   ]
+  },
+  {
+   "bom-ref": "pkg:apk/alpine/musl@1.2.5-r9?arch=x86_64",
+   "type": "library",
+   "name": "musl",
+   "version": "1.2.5-r9",
+   "licenses": [
+    {
+     "license": {
+      "id": "MIT"
+     }
+    }
+   ],
+   "purl": "pkg:apk/alpine/musl@1.2.5-r9?arch=x86_64",
+   "properties": [
+    {
+     "name": "syft:package:type",
+     "value": "apk"
+    }
+   ]
+  },
+  {
+   "bom-ref": "os:alpine",
+   "type": "operating-system",
+   "name": "alpine",
+   "version": "3.22.0"
+  }
+ ],
+ "dependencies": [
+  {
+   "ref": "pkg:apk/alpine/nginx@1.28.0-r3?arch=x86_64",
+   "dependsOn": [
+    "pkg:apk/alpine/libssl3@3.5.8-r0?arch=x86_64",
+    "pkg:apk/alpine/libcrypto3@3.5.8-r0?arch=x86_64"
+   ]
+  }
+ ]
+}

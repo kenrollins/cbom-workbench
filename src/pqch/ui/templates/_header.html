@@ -1,0 +1,97 @@
+{# One header for every page of the demonstration and for the site: this shape, styled by static/header.css,
+   which the site build copies in and site_overrides/partials/header.html emits too, so opening the field
+   notes changes nothing above the page. `active` names this page's tab; `lede` says, in a
+   line, where the reader is. #}
+<a class="skip" href="#main">Skip to content</a>
+{% if marking %}<div class="marking" role="note" aria-label="marking">{{ marking }}</div>{% endif %}
+<header class="site">
+  <div class="bar">
+    <a class="brand" href="/">cbom-workbench</a>
+    <span class="disclaimer">A personal research project, open source. Not a Dell product, reference architecture or supported offering.</span>
+    <a class="repo" href="https://github.com/kenrollins/cbom-workbench" title="The repository"><svg viewBox="0 0 496 512" aria-hidden="true"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8z"/></svg></a>
+  </div>
+  <nav class="tabs" aria-label="sections">
+    {# The demo's mode: "live" when the app serves it; a static copy (GitHub Pages, eventually) says "snapshot". #}
+    <div class="demo-group">
+    <span class="group">Demo<small>{{ demo_mode }}</small></span>
+    <a href="/demo" class="{{ 'on' if active == 'stage' }} stage" title="{{ 'The eight beats on stage, recorded from the lab' if public else 'The eight minutes on stage: the story in beats, every number live' }}">Demo</a>
+    {# The public copy carries the stage, the CBOM viewer, the recorded answers and About (ADR-0006); the
+       running workbench's other pages are shown there as screenshots, page by page, in the field notes. #}
+    {% if not public %}<a href="/" class="{{ 'on' if active == 'overview' }}" title="NIST's crypto-agility plan, with what the workbench does in each part">Overview</a>
+    <a href="/agency" class="{{ 'on' if active == 'agency' }}" title="The test agency the demo scans: its services and what was planted in each">Test agency</a>
+    <a href="/walkthrough" class="{{ 'on' if active == 'demo' }}" title="The walkthrough, on a test agency built for it">Walkthrough</a>{% endif %}
+    <a href="/cbom" class="{{ 'on' if active == 'cbom' }}" title="The CBOM this demo produced, opened up field by field">Inside the CBOM</a>
+    {% if not public %}<a href="/plan" class="{{ 'on' if active == 'plan' }}" title="What the CBOM says depends on what, what comes first, and in what order">The plan</a>{% endif %}
+    <a href="/ask" class="{{ 'on' if active == 'ask' }}" title="A question answered from the CBOM, citing ledger events, each citation checked">Ask the CBOM</a>
+    {% if not public and lab_shown(request) %}<a href="/lab" class="{{ 'on' if active == 'lab' }}" title="The owner's own network, observed passively; nothing from it is published">The lab</a>{% endif %}
+    <a href="/about" class="{{ 'on' if active == 'about' }}" title="What this is, who made it, and the disclaimer in full">About</a>
+    </div>
+    {# The field notes: the little brown book (the site's own theme), the project's name written under the
+       label in ballpoint (the entries' span is on the site's own cover). #}
+    <div class="learn-group fn-box">
+    <span class="group">Field notes<small class="hand">cbom workbench</small></span>
+    <a href="/site/how-it-works/">How it works</a>
+    {% if public %}<a href="/site/pages/">Page by page</a>
+    <a href="/site/record/">The record</a>{% endif %}
+    <a href="/site/adr/" title="Architecture decision records">Decisions</a>
+    <a href="/site/notes/">Notes</a>
+    <a href="/site/lessons/">Lessons</a>
+    <a href="/site/sources/">Sources</a>
+    {% if not public %}<a href="/notes/ask" class="{{ 'on' if active == 'notes' }}" title="A question about the notes, answered by the box's model, citations checked">Ask</a>{% endif %}
+    </div>
+  </nav>
+</header>
+<div class="where"><div class="inner">{{ lede|safe }}</div></div>
+{# A page that takes a while — the lab's, above all, which reads the capture's ledger — says so: after a
+   moment's delay a bar runs along the top and a line says what is loading. No script, no bar. #}
+<div id="loading" hidden><div class="bar-run"></div><div class="msg"></div></div>
+<script>
+(function () {
+  var box = document.getElementById("loading"), timer = null;
+  var css = document.querySelector('link[rel="stylesheet"][href$="style.css"]');
+  var base = css ? new URL(css.getAttribute("href"), location.href).pathname.replace(/static\/style\.css$/, "") : "/";
+  function what(url) {
+    var u = new URL(url, location.href);
+    if (u.pathname.indexOf(base) === 0) u = new URL(u.pathname.slice(base.length - 1) + u.search + u.hash, location.origin);
+    url = u.href;
+    if (/estate=lab|\/lab\b/.test(url)) return "Loading the lab — reading the passive capture's ledger and the targeted scan; the first view after a restart takes longest…";
+    if (/\/plan/.test(url)) return "Computing the plan from the CBOM…";
+    if (/\/cbom/.test(url)) return "Rebuilding the CBOM from the ledger…";
+    if (/\/walkthrough/.test(url)) return "Loading the walkthrough — the latest scan, its CBOM, the queues and the plan…";
+    if (/\/agency/.test(url)) return "Reading the test agency's files…";
+    if (/\/resolve/.test(url)) return "Reading the change runs and checking each verdict against the runner's record…";
+    if (/\/packages/.test(url)) return "Reading the change packages…";
+    if (/\/imports/.test(url)) return "Reading the imported CBOMs and their scores…";
+    if (/\/site\//.test(url)) return "Opening the notes…";
+    if (u.pathname === "/") return "Drawing the overview from the ledgers…";
+    return "Loading…";
+  }
+  // The message takes over the one-line lede under the banner — the line the next page replaces
+  // anyway — with a glow and a running bar; a page without that line gets the floating box.
+  var where = document.querySelector(".where"), lede = where && where.querySelector(".inner");
+  var saved = lede ? lede.innerHTML : null;
+  function show(url) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      if (lede) { lede.textContent = what(url); where.classList.add("loading"); }
+      else { box.querySelector(".msg").textContent = what(url); box.hidden = false; }
+    }, 250);
+  }
+  function hide() {
+    clearTimeout(timer); box.hidden = true;
+    if (lede && where.classList.contains("loading")) { where.classList.remove("loading"); lede.innerHTML = saved; }
+  }
+  document.addEventListener("click", function (ev) {
+    var a = ev.target.closest && ev.target.closest("a[href]");
+    if (!a || ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || a.target === "_blank") return;
+    // A link that stays on the page — an anchor, a what-if, a note that a copy cannot follow — loads nothing.
+    if ((a.getAttribute("href") || "").charAt(0) === "#" || a.hasAttribute("data-whatif") || a.hasAttribute("data-clear") || a.hasAttribute("data-offline")) return;
+    var u = new URL(a.href, location.href);
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search && u.hash)) return;
+    if (/\.(json|jsonl|csv)$/.test(u.pathname) || a.hasAttribute("download")) return;
+    show(u.href);
+  });
+  document.addEventListener("submit", function (ev) { show(ev.target.action || location.href); });
+  window.addEventListener("pageshow", hide);
+})();
+</script>

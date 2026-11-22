@@ -1,0 +1,487 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://cbom-workbench/schemas/scope.json",
+ "title": "pqch.scope/1",
+ "type": "object",
+ "required": [
+  "schema",
+  "id",
+  "estate",
+  "owned",
+  "authorized_by",
+  "endpoints",
+  "images",
+  "sources",
+  "reach"
+ ],
+ "properties": {
+  "schema": {
+   "const": "pqch.scope/1"
+  },
+  "id": {
+   "$ref": "event.json#/$defs/ulid"
+  },
+  "estate": {
+   "enum": [
+    "colocated",
+    "remote",
+    "external"
+   ]
+  },
+  "owned": {
+   "type": "boolean"
+  },
+  "authorized_by": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "authorization": {
+   "description": "Who authorized the scan, for which system, and for how long (FR-13). The runner refuses every job outside the window.",
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "system_id",
+    "person",
+    "role",
+    "valid_from",
+    "valid_until"
+   ],
+   "properties": {
+    "system_id": {
+     "description": "The system's identifier in the agency's inventory (its FISMA or ATO system id).",
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 128
+    },
+    "person": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 200
+    },
+    "role": {
+     "description": "The authorizing person's role: system owner, authorizing official, ISSO.",
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 200
+    },
+    "valid_from": {
+     "$ref": "#/$defs/day_or_ts"
+    },
+    "valid_until": {
+     "$ref": "#/$defs/day_or_ts"
+    },
+    "rules_of_engagement_sha256": {
+     "description": "The signed rules-of-engagement document, by hash.",
+     "type": "string",
+     "pattern": "^[0-9a-f]{64}$"
+    }
+   }
+  },
+  "copy": {
+   "description": "Optional: this scope is a frozen copy of an estate the answer key describes, placed elsewhere so another tool can see it. `of` names the estate; `taken` is when the copy was made, the cut-off for which applied changes it carries; `carries` lists those changes by id. A copy is scored, never changed.",
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "of",
+    "taken"
+   ],
+   "properties": {
+    "of": {
+     "type": "string",
+     "minLength": 1,
+     "maxLength": 200
+    },
+    "taken": {
+     "$ref": "#/$defs/day_or_ts"
+    },
+    "carries": {
+     "type": "array",
+     "items": {
+      "$ref": "event.json#/$defs/ulid"
+     }
+    },
+    "note": {
+     "type": "string",
+     "maxLength": 1000
+    }
+   }
+  },
+  "endpoints": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "host",
+     "port",
+     "transport",
+     "protocol"
+    ],
+    "properties": {
+     "host": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.:_-]*$",
+      "maxLength": 253
+     },
+     "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535
+     },
+     "transport": {
+      "enum": [
+       "tcp",
+       "udp"
+      ]
+     },
+     "protocol": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     },
+     "sni": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$",
+      "maxLength": 253
+     },
+     "image": {
+      "type": "string",
+      "pattern": "^[^@\\s]+@sha256:[0-9a-f]{64}$"
+     },
+     "vlan": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4094
+     },
+     "service": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "maxLength": 63
+     },
+     "copy_of": {
+      "description": "The original listener this one is a copy of, when the scope is a copy of a scored estate (`copy` below): the scorer maps a finding here back to the original before matching the answer key. Port defaults to this listener's.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "host"
+      ],
+      "properties": {
+       "host": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9.:_-]*$",
+        "maxLength": 253
+       },
+       "port": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535
+       }
+      }
+     }
+    }
+   }
+  },
+  "images": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "pattern": "^[^@\\s]+@sha256:[0-9a-f]{64}$"
+   }
+  },
+  "sources": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "repo",
+     "commit"
+    ],
+    "properties": {
+     "repo": {
+      "type": "string"
+     },
+     "commit": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "reach": {
+   "oneOf": [
+    {
+     "type": "object",
+     "required": [
+      "kind"
+     ],
+     "properties": {
+      "kind": {
+       "const": "local"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "kind",
+      "context"
+     ],
+     "properties": {
+      "kind": {
+       "const": "ssh-docker"
+      },
+      "context": {
+       "type": "string"
+      }
+     }
+    }
+   ]
+  },
+  "captures": {
+   "description": "Passive capture points: a mirror or tap the harness listens on. Nothing is sent on them. Present only for an external estate, beside the operator's authorization.",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "interface",
+     "host",
+     "vlans"
+    ],
+    "properties": {
+     "interface": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "maxLength": 32
+     },
+     "host": {
+      "type": "string",
+      "maxLength": 253
+     },
+     "vlans": {
+      "type": "array",
+      "items": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 4094
+      }
+     },
+     "mirror": {
+      "type": "string",
+      "maxLength": 200
+     }
+    }
+   }
+  },
+  "twins": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "host",
+     "port",
+     "transport",
+     "protocol",
+     "service",
+     "image",
+     "network"
+    ],
+    "properties": {
+     "host": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9.:_-]*$",
+      "maxLength": 253
+     },
+     "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535
+     },
+     "transport": {
+      "enum": [
+       "tcp",
+       "udp"
+      ]
+     },
+     "protocol": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+     },
+     "sni": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]([A-Za-z0-9._-]*[A-Za-z0-9])?$",
+      "maxLength": 253
+     },
+     "image": {
+      "type": "string",
+      "pattern": "^[^@\\s]+@sha256:[0-9a-f]{64}$"
+     },
+     "vlan": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4094
+     },
+     "service": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$",
+      "maxLength": 63
+     },
+     "network": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+     }
+    }
+   }
+  },
+  "systems": {
+   "description": "Optional, for an external estate: servers whose own files and firmware are read, beside their listeners. Each names the system, the addresses its listeners use, the paths read (never written) and whether its firmware's trust databases and identity are read. The runner packs only these paths into an archive for the readers; it reaches them under its system root (PQCH_SYSTEM_ROOT).",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "name",
+     "addresses",
+     "paths"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,62}$"
+     },
+     "addresses": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "paths": {
+      "type": "array",
+      "items": {
+       "type": "string",
+       "pattern": "^/[^\\s]*$"
+      }
+     },
+     "firmware": {
+      "type": "boolean"
+     },
+     "trust_store": {
+      "type": "string",
+      "pattern": "^/[^\\s]*$",
+      "description": "A directory of CA certificates the system trusts, reported as a count, not as components"
+     },
+     "via": {
+      "description": "How the runner reaches the system's files when they are not mounted under its own root: over SSH, with the packer sent to the remote python3 and the archive read back. The identity file and the known-hosts file are paths inside the runner (mounted read-only); host-key checking is strict, so a host not in known_hosts is refused, never accepted on first use.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "kind",
+       "host",
+       "user",
+       "known_hosts"
+      ],
+      "properties": {
+       "kind": {
+        "const": "ssh"
+       },
+       "host": {
+        "type": "string",
+        "minLength": 1
+       },
+       "user": {
+        "type": "string",
+        "minLength": 1
+       },
+       "port": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 65535
+       },
+       "identity": {
+        "type": "string",
+        "pattern": "^/[^\\s]*$"
+       },
+       "known_hosts": {
+        "type": "string",
+        "pattern": "^/[^\\s]*$"
+       },
+       "python": {
+        "type": "string",
+        "default": "python3"
+       }
+      }
+     }
+    }
+   }
+  },
+  "controllers": {
+   "description": "Optional, for an external estate: a system's management controller (a BMC), read through its Redfish API with GET requests only. `of` names the system in `systems`; the host and port are also listed in `endpoints` for the wire scans.",
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "host",
+     "port",
+     "kind",
+     "of"
+    ],
+    "additionalProperties": false,
+    "properties": {
+     "host": {
+      "type": "string"
+     },
+     "port": {
+      "type": "integer"
+     },
+     "kind": {
+      "enum": [
+       "redfish"
+      ]
+     },
+     "of": {
+      "type": "string"
+     }
+    }
+   }
+  }
+ },
+ "allOf": [
+  {
+   "if": {
+    "required": [
+     "authorization"
+    ]
+   },
+   "then": {
+    "properties": {
+     "authorized_by": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   }
+  },
+  {
+   "if": {
+    "properties": {
+     "estate": {
+      "const": "external"
+     }
+    }
+   },
+   "then": {
+    "properties": {
+     "authorized_by": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   }
+  }
+ ],
+ "$defs": {
+  "day_or_ts": {
+   "description": "A day (YYYY-MM-DD, the whole day in UTC) or an RFC 3339 UTC time.",
+   "type": "string",
+   "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z)?$"
+  }
+ }
+}

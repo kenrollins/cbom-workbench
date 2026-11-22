@@ -1,0 +1,85 @@
+# Lessons
+
+One rule per lesson: the rule, why it holds, when it applies, how to apply it.
+Read `../STYLE.md` before writing one. Lessons are standing guidance, written
+in the present tense.
+
+Filename: `NN-short-slug.md`. Never renumber.
+
+A lesson is written when something measured in the project yields a rule that
+would hold in another project. It states the rule and the mechanism, not the
+day it was learned.
+
+## Written
+
+| # | Rule | Rung |
+|---|---|---|
+| 01 | When verifying that a post-quantum key exchange is required, offer every classical group | agile |
+| 02 | Give an isolated Docker network no host address, and test for it | all |
+| 03 | Carry a registry in an offline bundle; `docker save` and `docker load` do not preserve digest references | all |
+| 04 | Believe an identity header only on a connection from the proxy that sets it | managed |
+| 05 | Score an inventory for what it invents, and put a decoy in every layer it is scored on | enumerated |
+| 06 | Record which container a scan reached, and join evidence only when it is the one you think it is | structured |
+| 07 | Take the key that verifies a signed log from somewhere other than the log | all |
+| 08 | Identify a key in an inventory by the hash of its public key, not by where it was found | structured |
+| 09 | Time a file scanner on the bare base image first; symlinks, not size, can set its cost | enumerated |
+| 10 | Count a key-exchange group as accepted only when it is the one negotiated | enumerated |
+| 12 | Check cited evidence against the question it was meant to answer, then derive the conclusion again | agile |
+| 13 | To bound when a logged event happened, sign the log just before it and just after | all |
+| 15 | Hash every blob in an offline bundle's registry before serving it, and keep the checksum file's own hash somewhere else | all |
+| 16 | Count a change as applied only when the service answers, and put the old configuration back when it does not | agile |
+| 17 | In a bundle build, always rebuild what must match the source and record the commit; reuse only what must not change | all |
+| 18 | Observe what a service accepts with nothing configured before planning its migration | enumerated |
+| 19 | Label a cause only after changing it and watching the effect go | all |
+| 20 | Before reading a configuration, know which occurrence of a setting wins in that software | structured |
+| 21 | Set a floor per role before comparing two models, and repeat every call before believing it | all |
+| 24 | A hardware label in a config is a claim; record what served the call | all |
+| 25 | Size the scanner network's address range to the parallelism, and record a job that never started as its own failure | enumerated |
+| 26 | Name the reasoning setting beside the model in every measurement and binding | all |
+| 27 | Before keying a TLS listener, probe each kind of key exchange on its own: named groups, finite-field DHE, RSA key transport | enumerated |
+| 28 | Read a certificate's CA flag together with its key usage; a self-signed server certificate is usually marked CA:TRUE | structured |
+| 29 | Give a listener that carries TLS behind a protocol upgrade its own scan profile; a plain TLS scan of its port is silent, not negative | enumerated |
+| 31 | Confirm every cause an answer key names by changing it, including the ones written as annotations | all |
+| 32 | Ask the protocol stack's runtime what it will negotiate before calling a migration blocked, or not blocked, by its supplier | managed |
+| 33 | Read a validated module's certificate for the algorithm you need, and check that the module is active, before calling a system validated | managed |
+| 34 | Score the retrieval step on its own before scoring a model's answer over it | all |
+| 35 | Compare two inventories by the identity of each observation and by what it says, leaving out references to the records behind it | managed |
+| 36 | When verifying that a listener requires post-quantum key establishment, probe TLS 1.2 on its own; a classical-only TLS 1.3 client is refused, not downgraded | agile |
+| 37 | When a probe claims a handshake the enumerating witness does not find, call the verdict inconclusive and say why | agile |
+| 38 | Before citing or redrawing a standard, read its status; cite the current revision by its own identifier | all |
+| 39 | Every label in a diagram of what a system does is a claim; fill it from the record and check each | all |
+| 41 | Before approving a change that requires post-quantum key establishment, probe each kind of client against a copy with the change | agile |
+| 43 | Report a change's time from approval to proof beside its time from policy to proof | agile |
+| 48 | Write each CBOM fact in CycloneDX's own field; where the standard has none, name the property as the tools you feed read it | structured |
+| 49 | Before binding a role to an engine on a new machine, check the four things the engine decides for itself: its GPU profile, its window, its memory share, its model id | all |
+| 50 | When a bundle keeps an image from one build to the next, key it to a hash of its build context, never to its name | all |
+| 51 | Where a protocol upgrade can be refused, ask for it once and record the answer before scanning what it would carry | enumerated |
+| 52 | An inventory read as an ordinary user must list every path it could not open, and the plan must carry the privileged read | enumerated |
+| 53 | An offline install carries the build backend with the wheelhouse and installs outside the lock file; nothing in the runbook calls the package manager's run command | all |
+| 55 | A reply cap on a thinking tier is a thinking budget: set it from the measured tokens of the role's hardest items, and record a cut-off as an empty reply | all |
+| 56 | A signer's first signature over an event is a floor on the span that starts there, never a reading of it; check a ledger's clock against the bracket, not the floor | managed |
+| 58 | A model whose chat template thinks by default must be told not to on every plain call, and its reply's shape belongs in the prompt and a validator, not in the engine's grammar | all |
+| 60 | Before a component goes in an architecture picture, find the line of code that calls it | all |
+| 63 | A static copy of a page whose answer comes from a model shows a call made once and labelled, offers only the questions recorded, and runs the rule's check again where it is built | structured |
+| 64 | Run the accessibility check in every colour scheme a page ships; a palette that passes in light can fail in dark, and the reverse | all |
+| 66 | Pinning a self-signed certificate by making it the only trust anchor still checks its dates; an expired management-controller certificate fails the pin | all |
+| 67 | Publish a running system as a recording, a record and notes; never as a static copy of its pages with the buttons disabled | all |
+| 68 | When two sources describe one asset, keep every claim, put one in force by the grade of its evidence, and show the rest as dissent; never fold two values into a list | structured |
+| 69 | A policy pack written from secondary summaries is marked unverified and applies no date; the primary is read, hashed and quote-checked before any of its dates or names counts | managed |
+| 70 | A number shown on two pages is computed in one place; a page that counts a rule's events and a page that counts the document's entries will disagree | structured |
+| 71 | An automated keyboard pass counts only the controls that are shown; a control inside a closed disclosure is reached through its summary, and a page that takes focus on load is walked from where it starts | all |
+| 73 | A demonstration written around one machine goes stale the day the machine leaves; name hardware once, as where a run was recorded, and build the beats on the approach | all |
+| 75 | Score a copy of an estate through an address map on the copy's scope, never through an edited key; judge a remediated item by when the copy was taken | structured |
+| 76 | Read another tool's document in its own shape before scoring it; a reader's blind spot is otherwise recorded as the tool's score | structured |
+| 78 | A positive verdict needs positive evidence; "nothing was attributed" is its own state | managed |
+| 79 | A scan that did not connect is not a scan that found nothing; the tool's own statement decides, not the container's exit | enumerated |
+| 80 | A check that had nothing to check must say so, and the tool that publishes must refuse without its rules | all |
+| 81 | Text checks do not read pixels: scrub a page before the browser draws it, check what it shows, and choose what is published by the scope it was authorized under, not by its kind | all |
+| 82 | Delete a shared artefact by who still cites it, and record the intent before the act | managed |
+| 83 | A writer enforces what its verifier requires | all |
+| 84 | A test double must apply the one transformation the real boundary applies | all |
+| 85 | Two absences are not a match, and "restored" describes what is running | agile |
+| 86 | Excuse a miss only on evidence, and take what is excused out of the count | structured |
+| 87 | A majority is counted on the one decision; an optional model step degrades, it does not raise | structured |
+| 88 | A demonstration steps on the presenter's key; a replay on a timer makes the presenter wait for the screen, or talk past it | all |
+| 89 | Before measuring a model on a job, read the facts the job hands it; a wrong fact comes back as a fluent, wrong sentence and is scored against the model | all |

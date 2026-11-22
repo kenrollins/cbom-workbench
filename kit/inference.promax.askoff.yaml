@@ -1,0 +1,54 @@
+# pqch.inference/1 — the tier map for the demo box (a Dell Pro Max GB10), 2026-11-04. The engines are the
+# box's own `ws up rag` stack, joined to the kit's bridge under the kit's names (BOX-STEPS.md):
+# Lightning 30B-A3B NVFP4 under vLLM 0.27.1 with DSpark speculation, and the Llama Nemotron embed NIM.
+# No Super VL on this box: the deliberate tier is Lightning with thinking, the fallback PLAN.md names.
+# No role here is measured on this box until spike S3's dev set runs (kit/README.md; lesson 49).
+schema: pqch.inference/1
+profile: kit
+tiers:
+  fast:
+    base_url: http://pqch-engine-fast:8000/v1
+    api_key_env: PQCH_ENGINE_KEY
+    model: nemotron-3.5-lightning
+    hardware: "Dell Pro Max GB10 (aarch64; vLLM 0.27.1 ws/vllm-upstream, Nemotron 3.5 Lightning 30B-A3B NVFP4 + DSpark, 0.40 share)"
+    max_context: 40960
+    timeout_s: 300
+    residency: resident
+    # Plain answers on this tier: a Nemotron chat template thinks unless told not to, and a plain call
+    # that thinks spends its whole budget before answering. Roles that reason say so (reasoning: true,
+    # the block below). With this, spike S3's plain `fast` arm on this box means thinking off, as the
+    # lab's `fast` arm always has, so the arms stay comparable.
+    request: {chat_template_kwargs: {enable_thinking: false}}
+    structured: false   # the engine's grammar breaks with thinking off (xgrammar, 2026-11-05); the schema rides in the prompt
+    reasoning:
+      model: nemotron-3.5-lightning
+      timeout_s: 900
+      structured: true
+      request: {chat_template_kwargs: {enable_thinking: true}}
+  deliberate:
+    base_url: http://pqch-engine-fast:8000/v1
+    api_key_env: PQCH_ENGINE_KEY
+    model: nemotron-3.5-lightning
+    hardware: "Dell Pro Max GB10 (aarch64; the same Lightning engine as fast — no Super VL on this box)"
+    max_context: 40960
+    timeout_s: 1800
+    residency: resident
+    reasoning:
+      model: nemotron-3.5-lightning
+      timeout_s: 1800
+      request: {chat_template_kwargs: {enable_thinking: true}}
+  embed:
+    base_url: http://pqch-engine-embed:8000/v1
+    api_key_env: PQCH_ENGINE_KEY
+    model: nvidia/llama-nemotron-embed-1b-v2
+    hardware: "Dell Pro Max GB10 (aarch64; NIM llama-nemotron-embed-1b-v2 1.13.0)"
+    residency: resident
+    purpose_field: input_type
+    request: {truncate: END}
+roles:
+  call-site-read:      {tier: fast, reasoning: true}        # measured on the lab GB10 (S3 R1); re-measure here
+  classify-algorithm:  {tier: fast, reasoning: true}        # S3 R3 on the lab GB10; re-measure here
+  normalize-name:      {tier: deliberate, reasoning: true}  # Lightning fallback: Super VL met the floor, Lightning not measured
+  trace-to-cause:      {tier: deliberate, reasoning: true}  # Lightning fallback, as above
+  change-plan:         {tier: fast, reasoning: true}        # no engine cleared the floor on the lab GB10; flagged
+  ask-cbom:            {tier: fast, reasoning: false}       # the thinking-off arm, for eval/ask on this box

@@ -1,0 +1,226 @@
+# Tool spellings to standard names, as data: `pqch.alias-pack/1`.
+#
+# Every scanner spells an algorithm its own way (testssl.sh says prime256v1, OpenSSH says
+# ecdh-sha2-nistp256, a capture sees the IANA group id 23, an imported CBOM says P-256). The
+# normalizer maps each spelling to one standard name through these tables and nothing else, so
+# two tools' findings about one algorithm fold onto one CBOM entry. A spelling no table knows
+# passes through unchanged and shows up as an entry of its own, which is how a missing alias is
+# found. A change to a table is a change to this file with `version` raised; a run records the
+# version and the file's hash in `run.started`, so an inventory says which table named it.
+#
+# Standard names are the answer key's (agency/answer-key.yaml, "Names"): IANA's TLS group names,
+# FIPS names for the post-quantum algorithms (ML-KEM-768), and the hybrid names of the TLS
+# drafts. Group ids are IANA TLS Supported Groups; a draft or vendor id is named by its draft.
+#
+# Version 2 (2026-11-21): group 25498 is SecP256r1Kyber768Draft00 (it was misnamed
+# X25519Kyber512Draft00, which only ever had the private-use id 65072); curveSM2 (41),
+# curveSM2MLKEM768 (4590) and the three private-use Kyber draft ids (65072-65074) are named;
+# `tls_version_names` holds every tool's spelling of a protocol version (testssl.sh's TLSv1, Zeek's
+# TLSv13); `ssh_kex_ignore` holds the negotiation markers SSH lists among its key exchanges; and
+# `pq_key_establishment` is the one list of which standard names are post-quantum or hybrid, for
+# every rule that counts them.
+#
+# Checked 2026-11-22 (no mapping changed, so `version` stays 2): every id in `tls_group_ids` was
+# read against IANA's TLS Supported Groups registry, held as policy/sources/iana-tls-supported-groups.csv
+# (`source` below: URL, date read, sha256; the registry group states "Last Updated 2026-11-05").
+# All 51 ids the registry names carry (48 on the day of the check, and the three version 3 adds) its name under this pack's convention: IANA's spelling,
+# except the two Montgomery curves written X25519 and X448 (IANA: x25519, x448) and the FIPS names
+# ML-KEM-512/768/1024 (IANA: MLKEM512/768/1024). The registry marks 25497 and 25498 "(OBSOLETE)",
+# Recommended "D" (discouraged), obsoleted by RFC 10024; the pack keeps the bare name, since a
+# capture still sees them. 1-8 and 15-21 are also Recommended "D" (RFC 9847). The three ids
+# 65072-65074 lie in the registry's "Reserved for Private Use" range (65024-65279), which IANA
+# does not name; they are named from Cloudflare's Go fork (`source.private_use`), which spells the
+# last one P256Kyber768Draft00 and which this pack writes with IANA's name for the same
+# construction at 25498. tests/test_aliases_sources.py holds the pack to the saved registry.
+# Version 3 (2026-11-22) adds the three hybrid groups the registry names and version 2 did not hold,
+# so a handshake on one is counted as post-quantum: 4585 SecP256r1MLKEM512, 4586 MLKEM512X25519,
+# 4591 MLKEM1024X448. Registry-named ids this pack still does not hold, which pass through as
+# `group-<id>`: 34-40 (GC256A to GC512C), 42-44 (bign-curve), 65281 and 65282 (arbitrary explicit curves).
+schema: pqch.alias-pack/1
+version: 3
+dated: '2026-11-22'
+source:
+  title: "IANA, Transport Layer Security (TLS) Parameters: TLS Supported Groups"
+  url: https://www.iana.org/assignments/tls-parameters/tls-parameters-8.csv
+  registry_updated: '2026-11-05'
+  read_first_hand: '2026-11-22'
+  sha256: d35959b23d588f8b4daa038788f168227cc1e909500a8a4d8412b0f6aeffbc17
+  file: policy/sources/iana-tls-supported-groups.csv
+  # Ids in IANA's private-use range, which the registry does not name: where each name was read.
+  private_use:
+    url: https://raw.githubusercontent.com/cloudflare/go/cf/src/crypto/tls/cfkem.go
+    read_first_hand: '2026-11-22'
+    sha256: ff3c127e0812faecf0d130b1060c9a2c5eb0f52eae904c50350d0ce918d7f384
+    ids:
+      65072: "X25519Kyber512Draft00 = CurveID(0xfe30)"
+      65073: "X25519Kyber768Draft00Old = CurveID(0xfe31)"
+      65074: "P256Kyber768Draft00 = CurveID(0xfe32)"
+tables:
+  tls_groups:
+    prime256v1: secp256r1
+    secp256r1: secp256r1
+    P-256: secp256r1
+    secp384r1: secp384r1
+    P-384: secp384r1
+    secp521r1: secp521r1
+    P-521: secp521r1
+    X25519: X25519
+    x25519: X25519
+    X448: X448
+    X25519MLKEM768: X25519MLKEM768
+    SecP256r1MLKEM768: SecP256r1MLKEM768
+    SecP256r1MLKEM512: SecP256r1MLKEM512
+    MLKEM512X25519: MLKEM512X25519
+    MLKEM1024X448: MLKEM1024X448
+    SecP384r1MLKEM1024: SecP384r1MLKEM1024
+    x448: X448
+    MLKEM512: ML-KEM-512
+    MLKEM768: ML-KEM-768
+    MLKEM1024: ML-KEM-1024
+  tls_group_ids:
+    1: sect163k1
+    2: sect163r1
+    3: sect163r2
+    4: sect193r1
+    5: sect193r2
+    6: sect233k1
+    7: sect233r1
+    8: sect239k1
+    9: sect283k1
+    10: sect283r1
+    11: sect409k1
+    12: sect409r1
+    13: sect571k1
+    14: sect571r1
+    15: secp160k1
+    16: secp160r1
+    17: secp160r2
+    18: secp192k1
+    19: secp192r1
+    20: secp224k1
+    21: secp224r1
+    22: secp256k1
+    23: secp256r1
+    24: secp384r1
+    25: secp521r1
+    26: brainpoolP256r1
+    27: brainpoolP384r1
+    28: brainpoolP512r1
+    29: X25519
+    30: X448
+    31: brainpoolP256r1tls13
+    32: brainpoolP384r1tls13
+    33: brainpoolP512r1tls13
+    41: curveSM2
+    256: ffdhe2048
+    257: ffdhe3072
+    258: ffdhe4096
+    259: ffdhe6144
+    260: ffdhe8192
+    512: ML-KEM-512
+    513: ML-KEM-768
+    514: ML-KEM-1024
+    4585: SecP256r1MLKEM512
+    4586: MLKEM512X25519
+    4587: SecP256r1MLKEM768
+    4588: X25519MLKEM768
+    4589: SecP384r1MLKEM1024
+    4590: curveSM2MLKEM768
+    4591: MLKEM1024X448
+    25497: X25519Kyber768Draft00
+    25498: SecP256r1Kyber768Draft00
+    # Private-use ids (0xFE30-0xFE32) the Kyber drafts were deployed under before registration.
+    65072: X25519Kyber512Draft00
+    65073: X25519Kyber768Draft00
+    65074: SecP256r1Kyber768Draft00
+  tls_version_ids:
+    768: SSL 3.0
+    769: TLS 1.0
+    770: TLS 1.1
+    771: TLS 1.2
+    772: TLS 1.3
+  # A protocol version as a tool spells it: testssl.sh's cipher lines (TLSv1 is TLS 1.0), OpenSSL's
+  # and Zeek's (TLSv13). The standard name is the one `tls_version_ids` gives.
+  tls_version_names:
+    SSLv2: SSL 2.0
+    SSLv3: SSL 3.0
+    TLSv1: TLS 1.0
+    TLSv1.0: TLS 1.0
+    TLSv10: TLS 1.0
+    TLSv1.1: TLS 1.1
+    TLSv11: TLS 1.1
+    TLSv1.2: TLS 1.2
+    TLSv12: TLS 1.2
+    TLSv1.3: TLS 1.3
+    TLSv13: TLS 1.3
+    DTLSv1: DTLS 1.0
+    DTLSv1.0: DTLS 1.0
+    DTLSv10: DTLS 1.0
+    DTLSv1.2: DTLS 1.2
+    DTLSv12: DTLS 1.2
+    DTLSv1.3: DTLS 1.3
+    DTLSv13: DTLS 1.3
+  ssh_kex:
+    curve25519-sha256: X25519
+    curve25519-sha256@libssh.org: X25519
+    ecdh-sha2-nistp256: secp256r1
+    ecdh-sha2-nistp384: secp384r1
+    ecdh-sha2-nistp521: secp521r1
+    mlkem768x25519-sha256: X25519MLKEM768
+    mlkem768nistp256-sha256: SecP256r1MLKEM768
+    mlkem1024nistp384-sha384: SecP384r1MLKEM1024
+    sntrup761x25519-sha512: sntrup761x25519
+    sntrup761x25519-sha512@openssh.com: sntrup761x25519
+    diffie-hellman-group1-sha1: DH-1024
+    diffie-hellman-group14-sha1: DH-2048
+    diffie-hellman-group14-sha256: DH-2048
+    diffie-hellman-group16-sha512: DH-4096
+    diffie-hellman-group18-sha512: DH-8192
+    diffie-hellman-group-exchange-sha1: DH-GEX
+    diffie-hellman-group-exchange-sha256: DH-GEX
+  # Names SSH lists among its key exchanges that negotiate no key: extension and strict-kex
+  # markers, and Dropbear's first-packet-follows marker.
+  ssh_kex_ignore:
+    - ext-info-c
+    - ext-info-s
+    - kex-strict-c-v00@openssh.com
+    - kex-strict-s-v00@openssh.com
+    - kexguess2@matt.ucc.asn.au
+  # Standard names of key establishment that is post-quantum, alone or in a hybrid. One list for
+  # every rule that asks "did this handshake use a post-quantum group" (the capture's posture, the
+  # CBOM's merge, the page).
+  pq_key_establishment:
+    - ML-KEM-512
+    - ML-KEM-768
+    - ML-KEM-1024
+    - X25519MLKEM768
+    - SecP256r1MLKEM512
+    - MLKEM512X25519
+    - MLKEM1024X448
+    - SecP256r1MLKEM768
+    - SecP384r1MLKEM1024
+    - curveSM2MLKEM768
+    - X25519Kyber512Draft00
+    - X25519Kyber768Draft00
+    - SecP256r1Kyber768Draft00
+    - sntrup761x25519
+  ssh_hostkey:
+    ssh-rsa: RSA
+    rsa-sha2-256: RSA
+    rsa-sha2-512: RSA
+    ssh-dss: DSA
+    ecdsa-sha2-nistp256: ECDSA
+    ecdsa-sha2-nistp384: ECDSA
+    ecdsa-sha2-nistp521: ECDSA
+    ssh-ed25519: Ed25519
+    ssh-ed448: Ed448
+  ssh_hostkey_curve:
+    ecdsa-sha2-nistp256: P-256
+    ecdsa-sha2-nistp384: P-384
+    ecdsa-sha2-nistp521: P-521
+  hashes:
+    SHA1: SHA-1
+    SHA256: SHA-256
+    SHA384: SHA-384
+    SHA512: SHA-512
+    MD5: MD5

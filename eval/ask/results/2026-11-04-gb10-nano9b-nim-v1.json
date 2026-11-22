@@ -1,0 +1,1803 @@
+{
+ "summary": {
+  "run": "01M6J326QNTAFJW3CQNVR2JFPJ",
+  "items": 12,
+  "repeats": 3,
+  "totals": {
+   "retrieval": 9,
+   "phrase": 8,
+   "citations": 9
+  },
+  "floor": {
+   "retrieval": 11,
+   "phrase": 10,
+   "citations": 12
+  },
+  "clears": false,
+  "role_tier": "fast",
+  "reasoning": false,
+  "model": "nvidia/nemotron-nano-9b-v2",
+  "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+  "embed_model": "mxbai-embed-large",
+  "embed_hardware": "DGX Spark GB10 (aarch64; ollama, mxbai-embed-large)",
+  "per_item": {
+   "ask-01": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "fp:611d45fc6a2efcbb0eab177e88a8416d1bfd2a8862fd3dbe7cfec9bdc9629a30"
+    ],
+    "latency_ms": [
+     8759,
+     6983,
+     7559
+    ]
+   },
+   "ask-02": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.30:5432"
+    ],
+    "latency_ms": [
+     7429,
+     8179,
+     7892
+    ]
+   },
+   "ask-03": {
+    "retrieval": false,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "fp:e8a1fb5dfdb09527123c9bc7cd316700d095dc9de3f7eacbb59b9b4d52d9ce68",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a",
+     "fp:26578eb2a06d07fbfc3e077630f23b5a75072c16a00cc80d569d11468bb8d510",
+     "fp:7e1c1645da51761c5a406051101dc62e8882f998e861383f499a54b6be7c2000",
+     "fp:bdca7715b5788cc1cf9eecf38cb92d4779eebb99786f44478af563511e54352d",
+     "fp:177484e091f5ec6210a6d7409e81a6193b7df170364541d9f8c7262e3d4ca2bb",
+     "fp:551599cb1b29cf9f5660369aa1ab602c6a634b0c46ff094bd388e9ed47047de4"
+    ],
+    "latency_ms": [
+     3675,
+     5874,
+     3794
+    ]
+   },
+   "ask-04": {
+    "retrieval": false,
+    "phrase": false,
+    "citations": true,
+    "shown": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+     "fp:8f71feb17dfd89ef17fee70f399bb8a5db43c549a4092d677ef26513c783fb96",
+     "fp:9651ef791b8af12cb96bd653b7c00405204bfa56532f27b8cc7835e335e0d4e0",
+     "fp:6b9f08309a44d419bb54b08afecd2983affca61de809855cf390374d3e532919",
+     "fp:bf53f0621623d0e3117e6b659154adc78578c3c5803896387f0f0b7553d76ef1",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7"
+    ],
+    "latency_ms": [
+     16610,
+     15516,
+     14286
+    ]
+   },
+   "ask-05": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.30:5432",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "fp:54ff62bf9522f3295a6f0b6777c88a5f6bb1ae2311ac9b522af08c27cd6aae0c",
+     "fp:999b749838e92cbfabd261c052275a5ba9fd9cd9f1a2da83c9f93e4722c13fc2"
+    ],
+    "latency_ms": [
+     8308,
+     8533,
+     8128
+    ]
+   },
+   "ask-06": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.30:5432",
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22"
+    ],
+    "latency_ms": [
+     7643,
+     7820,
+     7857
+    ]
+   },
+   "ask-07": {
+    "retrieval": true,
+    "phrase": false,
+    "citations": false,
+    "shown": [
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.10:443",
+     "fp:c1269ddfa3057d933edaef7a9ae2d47f6d97a158bbd7ea794bc529e11013ee1a",
+     "fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+     "fp:196cd6272d3bda0c15587117bf32fe94df268c425c66edbfb2a99eb73dd9799a"
+    ],
+    "latency_ms": [
+     7590,
+     4917,
+     7763
+    ]
+   },
+   "ask-08": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "img:127.0.0.1:15000/pqch-agency/sftp-legacy",
+     "listener:172.16.106.32:8443",
+     "fp:a30676fc7cbf956f316b3c739bf44d006bb89f13b6b9fdc50e91c1fbd2832f8e",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443"
+    ],
+    "latency_ms": [
+     8159,
+     7976,
+     8166
+    ]
+   },
+   "ask-09": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": false,
+    "shown": [
+     "svc:api",
+     "img:127.0.0.1:15000/pqch-agency/api",
+     "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+     "listener:172.16.106.11:443",
+     "img:127.0.0.1:15000/pqch-agency/legacy-app",
+     "listener:172.16.106.32:8443",
+     "fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd",
+     "fp:9bd5d7b24c9990918032d0c8b10a88b7a9566467ef3d95854d39f8aad4cb89e1"
+    ],
+    "latency_ms": [
+     25366,
+     17020,
+     21300
+    ]
+   },
+   "ask-10": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.20:22",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.30:5432"
+    ],
+    "latency_ms": [
+     7095,
+     6188,
+     7443
+    ]
+   },
+   "ask-11": {
+    "retrieval": true,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.20:22",
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "listener:172.16.106.21:22",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+     "fp:84619b4491d005f741cd34ff302fd5a6f59b7bd33e26e400513bacdfd32640a0",
+     "fp:9651ef791b8af12cb96bd653b7c00405204bfa56532f27b8cc7835e335e0d4e0",
+     "fp:6b9f08309a44d419bb54b08afecd2983affca61de809855cf390374d3e532919",
+     "listener:172.16.106.31:5671"
+    ],
+    "latency_ms": [
+     11674,
+     11924,
+     11742
+    ]
+   },
+   "ask-12": {
+    "retrieval": false,
+    "phrase": true,
+    "citations": true,
+    "shown": [
+     "listener:172.16.106.32:8443",
+     "listener:172.16.106.31:5671",
+     "listener:172.16.106.12:443",
+     "listener:172.16.106.10:443",
+     "listener:172.16.106.11:443",
+     "listener:172.16.106.21:22",
+     "listener:172.16.106.20:22",
+     "fp:7a56e3e235a03e7cb25c680364b80af495ca782c3a13b807d75bfc3fce265d2d"
+    ],
+    "latency_ms": [
+     6139,
+     5976,
+     6114
+    ]
+   }
+  }
+ },
+ "records": [
+  {
+   "id": "ask-01",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener 172.16.106.20:22 (bom-ref listener:172.16.106.20:22) offers the DH-1024 algorithm, which is associated with the 1024-bit Diffie-Hellman group.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z9E2BXE3V6QB0GDKD3X"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 8759
+  },
+  {
+   "id": "ask-01",
+   "repeat": 1,
+   "reply": {
+    "answer": "The SSH listener 172.16.106.20:22 (bom-ref listener:172.16.106.20:22) still offers the 1024-bit Diffie-Hellman group.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z9E2BXE3V6QB0GDKD3X"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 6983
+  },
+  {
+   "id": "ask-01",
+   "repeat": 2,
+   "reply": {
+    "answer": "The SSH listener 172.16.106.20:22 (bom-ref listener:172.16.106.20:22) offers the DH-1024 algorithm, which is associated with the 1024-bit Diffie-Hellman group.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z9E2BXE3V6QB0GDKD3X"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7559
+  },
+  {
+   "id": "ask-02",
+   "repeat": 0,
+   "reply": {
+    "answer": "The listener TLS 172.16.106.11:443 (bom-ref listener:172.16.106.11:443) negotiates a hybrid post-quantum key exchange using the X25519MLKEM768 algorithm.",
+    "components": [
+     "listener:172.16.106.11:443"
+    ],
+    "citations": [
+     "01M6J360578HS2PWC8S1KP21VK"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J360578HS2PWC8S1KP21VK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7429
+  },
+  {
+   "id": "ask-02",
+   "repeat": 1,
+   "reply": {
+    "answer": "The listener TLS 172.16.106.11:443 (bom-ref listener:172.16.106.11:443) negotiates a hybrid post-quantum key exchange using X25519MLKEM768 and X25519 algorithms.",
+    "components": [
+     "listener:172.16.106.11:443"
+    ],
+    "citations": [
+     "01M6J360578HS2PWC8S1KP21VK"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J360578HS2PWC8S1KP21VK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 8179
+  },
+  {
+   "id": "ask-02",
+   "repeat": 2,
+   "reply": {
+    "answer": "The listener TLS 172.16.106.11:443 (bom-ref listener:172.16.106.11:443) negotiates a hybrid post-quantum key exchange using X25519MLKEM768 algorithm.",
+    "components": [
+     "listener:172.16.106.11:443"
+    ],
+    "citations": [
+     "01M6J360578HS2PWC8S1KP21VK"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J360578HS2PWC8S1KP21VK",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.11:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7892
+  },
+  {
+   "id": "ask-03",
+   "repeat": 0,
+   "reply": {
+    "answer": "No service presents an ML-DSA certificate.",
+    "components": [],
+    "citations": [],
+    "not_in_passages": true
+   },
+   "check": {
+    "citations": [],
+    "components": [],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 3675
+  },
+  {
+   "id": "ask-03",
+   "repeat": 1,
+   "reply": {
+    "answer": "No service presents an ML-DSA certificate.",
+    "components": [],
+    "citations": [],
+    "not_in_passages": true
+   },
+   "check": {
+    "citations": [],
+    "components": [],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 5874
+  },
+  {
+   "id": "ask-03",
+   "repeat": 2,
+   "reply": {
+    "answer": "No service presents an ML-DSA certificate.",
+    "components": [],
+    "citations": [],
+    "not_in_passages": true
+   },
+   "check": {
+    "citations": [],
+    "components": [],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 3794
+  },
+  {
+   "id": "ask-04",
+   "repeat": 0,
+   "reply": {
+    "answer": "The DSA host key file is present in component fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69 (passage 1) and fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee (passage 2). Both passages show evidence of the DSA key file at /etc/ssh/ssh_host_dsa_key.",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee"
+    ],
+    "citations": [
+     "01M6J3446QH4KFK0AS94JTTT51",
+     "01M6J3446W2PQ4CNBY3C2T16Q0"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3446QH4KFK0AS94JTTT51",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J3446W2PQ4CNBY3C2T16Q0",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     },
+     {
+      "ref": "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 16610
+  },
+  {
+   "id": "ask-04",
+   "repeat": 1,
+   "reply": {
+    "answer": "The DSA host key file is present in component fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69 (passage 1) and fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee (passage 2).",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee"
+    ],
+    "citations": [
+     "01M6J3446QH4KFK0AS94JTTT51",
+     "01M6J3446W2PQ4CNBY3C2T16Q0"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3446QH4KFK0AS94JTTT51",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J3446W2PQ4CNBY3C2T16Q0",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     },
+     {
+      "ref": "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 15516
+  },
+  {
+   "id": "ask-04",
+   "repeat": 2,
+   "reply": {
+    "answer": "The DSA host key file is present in passage 1 and 2. The evidence event IDs are 01M6J3446QH4KFK0AS94JTTT51 (passage 1) and 01M6J3446W2PQ4CNBY3C2T16Q0 (passage 2).",
+    "components": [
+     "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+     "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee"
+    ],
+    "citations": [
+     "01M6J3446QH4KFK0AS94JTTT51",
+     "01M6J3446W2PQ4CNBY3C2T16Q0"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3446QH4KFK0AS94JTTT51",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J3446W2PQ4CNBY3C2T16Q0",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "fp:5903a1fa948f3b7590f0e95f7719f6ef9deb0d1f9782a04be2f728fc8ba8dc69",
+      "ok": true
+     },
+     {
+      "ref": "fp:520906c131f3faf1036bf684f8950182118474d222194e65a6cfbe9978d8ebee",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 14286
+  },
+  {
+   "id": "ask-05",
+   "repeat": 0,
+   "reply": {
+    "answer": "The PostgreSQL listener at 172.16.106.30:5432 (bom-ref listener:172.16.106.30:5432) supports TLS 1.3. This is evidenced by event 01M6J36065W59HPJ0WY45THJW9 in passage 1.",
+    "components": [
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6J36065W59HPJ0WY45THJW9"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 8308
+  },
+  {
+   "id": "ask-05",
+   "repeat": 1,
+   "reply": {
+    "answer": "The PostgreSQL listener at 172.16.106.30:5432 (bom-ref listener:172.16.106.30:5432) supports TLS 1.3. This is evidenced by event 01M6J36065W59HPJ0WY45THJW9 in passage 1.",
+    "components": [
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6J36065W59HPJ0WY45THJW9"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 8533
+  },
+  {
+   "id": "ask-05",
+   "repeat": 2,
+   "reply": {
+    "answer": "The PostgreSQL listener at 172.16.106.30:5432 (bom-ref listener:172.16.106.30:5432) supports TLS 1.3. This is evidenced by event 01M6J36065W59HPJ0WY45THJW9 in passage 1.",
+    "components": [
+     "listener:172.16.106.30:5432"
+    ],
+    "citations": [
+     "01M6J36065W59HPJ0WY45THJW9"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J36065W59HPJ0WY45THJW9",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.30:5432",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 8128
+  },
+  {
+   "id": "ask-06",
+   "repeat": 0,
+   "reply": {
+    "answer": "The listener TLS 172.16.106.32:8443 (bom-ref listener:172.16.106.32:8443) is limited to TLS 1.2.",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J3605E58HRPK7DRW5FF8MV"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7643
+  },
+  {
+   "id": "ask-06",
+   "repeat": 1,
+   "reply": {
+    "answer": "The listener TLS 172.16.106.32:8443 (bom-ref listener:172.16.106.32:8443) is limited to TLS 1.2.",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J3605E58HRPK7DRW5FF8MV"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7820
+  },
+  {
+   "id": "ask-06",
+   "repeat": 2,
+   "reply": {
+    "answer": "The listener TLS 172.16.106.32:8443 (bom-ref listener:172.16.106.32:8443) is limited to TLS 1.2.",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J3605E58HRPK7DRW5FF8MV"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J3605E58HRPK7DRW5FF8MV",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7857
+  },
+  {
+   "id": "ask-07",
+   "repeat": 0,
+   "reply": {
+    "answer": "ML-DSA-65 certificate",
+    "components": [
+     "bom-ref fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7"
+    ],
+    "citations": [
+     "01M6J35ZNDZ7QRJAK4G4SK8XS4"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35ZNDZ7QRJAK4G4SK8XS4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "conflict/resolve/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "bom-ref fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+      "ok": false
+     }
+    ],
+    "ok": false
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7590
+  },
+  {
+   "id": "ask-07",
+   "repeat": 1,
+   "reply": {
+    "answer": "ML-DSA-65 certificate",
+    "components": [
+     "[7]"
+    ],
+    "citations": [
+     "01M6J35ZNDZ7QRJAK4G4SK8XS4"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35ZNDZ7QRJAK4G4SK8XS4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "conflict/resolve/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "[7]",
+      "ok": false
+     }
+    ],
+    "ok": false
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 4917
+  },
+  {
+   "id": "ask-07",
+   "repeat": 2,
+   "reply": {
+    "answer": "ML-DSA-65 certificate",
+    "components": [
+     "bom-ref: fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7"
+    ],
+    "citations": [
+     "01M6J35ZNDZ7QRJAK4G4SK8XS4"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35ZNDZ7QRJAK4G4SK8XS4",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "conflict/resolve/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "bom-ref: fp:e599742fa729998e323bb55214746e4aa8c234fe50f83e9e06e3480fa5a589c7",
+      "ok": false
+     }
+    ],
+    "ok": false
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7763
+  },
+  {
+   "id": "ask-08",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener offering sntrup761x25519 is listener:172.16.106.21:22 (bom-ref listener:172.16.106.21:22).",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6J35Z8EJCTBVTMK2R8E6V59"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 8159
+  },
+  {
+   "id": "ask-08",
+   "repeat": 1,
+   "reply": {
+    "answer": "The SSH listener offering sntrup761x25519 is listener:172.16.106.21:22 (bom-ref listener:172.16.106.21:22).",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6J35Z8EJCTBVTMK2R8E6V59"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7976
+  },
+  {
+   "id": "ask-08",
+   "repeat": 2,
+   "reply": {
+    "answer": "The SSH listener offering sntrup761x25519 is listener:172.16.106.21:22 (bom-ref listener:172.16.106.21:22).",
+    "components": [
+     "listener:172.16.106.21:22"
+    ],
+    "citations": [
+     "01M6J35Z8EJCTBVTMK2R8E6V59"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8EJCTBVTMK2R8E6V59",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.21:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 8166
+  },
+  {
+   "id": "ask-09",
+   "repeat": 0,
+   "reply": {
+    "answer": "The API service's certificate chain depends on the following components:",
+    "components": [
+     "svc:api",
+     "img:127.0.0.1:15000/pqch-agency/api",
+     "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+     "fp:7e1c1645da51761c5a406051101dc62e8882f998e861383f499a54b6be7c2000",
+     "fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd"
+    ],
+    "citations": [
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J35Z9MTHZ68M5A8MT493W3",
+     "01M6J35Z6EVRFZM5D5T78NYDWS",
+     "01M6J35Z7E1C1645DA51761C5A406051101DC62E8882F998E861383F499A54B6BE7C2000",
+     "01M6J35ZE3FA870A835A9B53444BA8102966519F44E2D4DB2866D06DDAA7FEC1190BDFD"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9MTHZ68M5A8MT493W3",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z6EVRFZM5D5T78NYDWS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z7E1C1645DA51761C5A406051101DC62E8882F998E861383F499A54B6BE7C2000",
+      "in_ledger": false,
+      "shown": false,
+      "ok": false,
+      "type": null,
+      "actor": null,
+      "at": null
+     },
+     {
+      "event": "01M6J35ZE3FA870A835A9B53444BA8102966519F44E2D4DB2866D06DDAA7FEC1190BDFD",
+      "in_ledger": false,
+      "shown": false,
+      "ok": false,
+      "type": null,
+      "actor": null,
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "svc:api",
+      "ok": true
+     },
+     {
+      "ref": "img:127.0.0.1:15000/pqch-agency/api",
+      "ok": true
+     },
+     {
+      "ref": "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+      "ok": true
+     },
+     {
+      "ref": "fp:7e1c1645da51761c5a406051101dc62e8882f998e861383f499a54b6be7c2000",
+      "ok": false
+     },
+     {
+      "ref": "fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd",
+      "ok": true
+     }
+    ],
+    "ok": false
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 25366
+  },
+  {
+   "id": "ask-09",
+   "repeat": 1,
+   "reply": {
+    "answer": "The API service's certificate chain depends on the following components:",
+    "components": [
+     "svc:api",
+     "img:127.0.0.1:15000/pqch-agency/api",
+     "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+     "fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd"
+    ],
+    "citations": [
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J35Z9MTHZ68M5A8MT493W3",
+     "01M6J32CB8YZA03S2X4FQ3JVMH",
+     "01M6J3409PPXJBRZAPZCWR1V5B"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9MTHZ68M5A8MT493W3",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J32CB8YZA03S2X4FQ3JVMH",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     },
+     {
+      "event": "01M6J3409PPXJBRZAPZCWR1V5B",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "cbomkit-theia",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "svc:api",
+      "ok": true
+     },
+     {
+      "ref": "img:127.0.0.1:15000/pqch-agency/api",
+      "ok": true
+     },
+     {
+      "ref": "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+      "ok": true
+     },
+     {
+      "ref": "fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 17020
+  },
+  {
+   "id": "ask-09",
+   "repeat": 2,
+   "reply": {
+    "answer": "The API service's certificate chain depends on the following components:",
+    "components": [
+     "svc:api",
+     "img:127.0.0.1:15000/pqch-agency/api",
+     "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+     "fp:7e1c1645da51761c5a406051101dc62e8882f998e861383f499a54b6be7c2000",
+     "fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd"
+    ],
+    "citations": [
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J35Z9MTHZ68M5A8MT493W3",
+     "01M6J35Z6EVRFZM5D5T78NYDWS",
+     "01M6J35Z83T1510YY2PGJJ6SJS",
+     "01M6J35YWWH9R991K1KP97JW69"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z9MTHZ68M5A8MT493W3",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z6EVRFZM5D5T78NYDWS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z83T1510YY2PGJJ6SJS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35YWWH9R991K1KP97JW69",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/public-key/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "svc:api",
+      "ok": true
+     },
+     {
+      "ref": "img:127.0.0.1:15000/pqch-agency/api",
+      "ok": true
+     },
+     {
+      "ref": "fp:8eb467214fb41ac0b7f77681cb4c59425fd8fecc001d53cdc155a13058a0f686",
+      "ok": true
+     },
+     {
+      "ref": "fp:7e1c1645da51761c5a406051101dc62e8882f998e861383f499a54b6be7c2000",
+      "ok": false
+     },
+     {
+      "ref": "fp:e3fa870a835a9b53444ba8102966519f44e2d4db2866d06ddaa7fecc1190bdfd",
+      "ok": true
+     }
+    ],
+    "ok": false
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 21300
+  },
+  {
+   "id": "ask-10",
+   "repeat": 0,
+   "reply": {
+    "answer": "listener:172.16.106.10:443",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6J35Z8RYEG634184GKMP8CS",
+     "01M6J3605KAVK0XH71D3Z5XFT2"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8RYEG634184GKMP8CS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605KAVK0XH71D3Z5XFT2",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7095
+  },
+  {
+   "id": "ask-10",
+   "repeat": 1,
+   "reply": {
+    "answer": "listener:172.16.106.10:443",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6J35Z8RYEG634184GKMP8CS"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8RYEG634184GKMP8CS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 6188
+  },
+  {
+   "id": "ask-10",
+   "repeat": 2,
+   "reply": {
+    "answer": "listener:172.16.106.10:443",
+    "components": [
+     "listener:172.16.106.10:443"
+    ],
+    "citations": [
+     "01M6J35Z8RYEG634184GKMP8CS",
+     "01M6J3605KAVK0XH71D3Z5XFT2"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8RYEG634184GKMP8CS",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3605KAVK0XH71D3Z5XFT2",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "deadline/tls13/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.10:443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 7443
+  },
+  {
+   "id": "ask-11",
+   "repeat": 0,
+   "reply": {
+    "answer": "The SSH listener offering DSA for host authentication is listener:172.16.106.20:22 (bom-ref listener:172.16.106.20:22). This is evidenced by event ids 01M6J35Z9E2BXE3V6QB0GDKD3X and 01M6J35Z7MFEDJ3Z775FSDWVH1.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z9E2BXE3V6QB0GDKD3X",
+     "01M6J35Z7MFEDJ3Z775FSDWVH1"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J35Z7MFEDJ3Z775FSDWVH1",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "assessment.made",
+      "actor": "posture/kex-auth/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 11674
+  },
+  {
+   "id": "ask-11",
+   "repeat": 1,
+   "reply": {
+    "answer": "The SSH listener 172.16.106.20:22 (bom-ref listener:172.16.106.20:22) offers DSA for host authentication. This is evidenced by event ids 01M6J35Z9E2BXE3V6QB0GDKD3X and 01M6J3446QH4KFK0AS94JTTT51.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z9E2BXE3V6QB0GDKD3X",
+     "01M6J3446QH4KFK0AS94JTTT51"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3446QH4KFK0AS94JTTT51",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 11924
+  },
+  {
+   "id": "ask-11",
+   "repeat": 2,
+   "reply": {
+    "answer": "The SSH listener 172.16.106.20:22 (bom-ref listener:172.16.106.20:22) offers DSA for host authentication. This is evidenced by event IDs 01M6J35Z9E2BXE3V6QB0GDKD3X and 01M6J3446QH4KFK0AS94JTTT51.",
+    "components": [
+     "listener:172.16.106.20:22"
+    ],
+    "citations": [
+     "01M6J35Z9E2BXE3V6QB0GDKD3X",
+     "01M6J3446QH4KFK0AS94JTTT51"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z9E2BXE3V6QB0GDKD3X",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     },
+     {
+      "event": "01M6J3446QH4KFK0AS94JTTT51",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "finding.observed",
+      "actor": "pqch-image-files",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.20:22",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 11742
+  },
+  {
+   "id": "ask-12",
+   "repeat": 0,
+   "reply": {
+    "answer": "The listener on port 8443 presents an RSA certificate. The service is legacy-app.",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J35Z8KTG2H9HAPPZP7HJ9Q"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 6139
+  },
+  {
+   "id": "ask-12",
+   "repeat": 1,
+   "reply": {
+    "answer": "The listener on port 8443 presents an RSA certificate. The service is legacy-app.",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J35Z8KTG2H9HAPPZP7HJ9Q"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 5976
+  },
+  {
+   "id": "ask-12",
+   "repeat": 2,
+   "reply": {
+    "answer": "The listener on port 8443 presents an RSA certificate. The service is 'legacy-app'.",
+    "components": [
+     "listener:172.16.106.32:8443"
+    ],
+    "citations": [
+     "01M6J35Z8KTG2H9HAPPZP7HJ9Q"
+    ],
+    "not_in_passages": false
+   },
+   "check": {
+    "citations": [
+     {
+      "event": "01M6J35Z8KTG2H9HAPPZP7HJ9Q",
+      "in_ledger": true,
+      "shown": true,
+      "ok": true,
+      "type": "link.asserted",
+      "actor": "link/service/1",
+      "at": null
+     }
+    ],
+    "components": [
+     {
+      "ref": "listener:172.16.106.32:8443",
+      "ok": true
+     }
+    ],
+    "ok": true
+   },
+   "model": "nvidia/nemotron-nano-9b-v2",
+   "hardware": "DGX Spark GB10 (aarch64; NIM nvidia-nemotron-nano-9b-v2-dgx-spark, 40k window)",
+   "latency_ms": 6114
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+openjdk version "1.8.0_402"
+OpenJDK Runtime Environment (Temurin)(build 1.8.0_402-b06)
+OpenJDK 64-Bit Server VM (Temurin)(build 25.402-b06, mixed mode)
+## /opt/java/openjdk/lib/jsse.jar mlkem 0 mldsa 0
+## /opt/java/openjdk/lib/rt.jar mlkem 0 mldsa 0
+## kem-api 0
+## fips
+fips-module:
+config /etc/ssl/openssl.cnf:
+config /usr/lib/ssl/openssl.cnf:
+sh: 1: unzip: not found
+sh: 1: unzip: not found
+sh: 1: unzip: not found
+sh: 1: unzip: not found
+sh: 1: unzip: not found

@@ -1,0 +1,26 @@
+# The buckets a later phase is scoped by (M10): every plan step falls in one, so the plan hands a later
+# phase its work already grouped. Data; the plan reads this file and nothing else for the grouping. A
+# step is placed by its id's prefix first (a server's plan names its steps by part), then by its kind;
+# a step no row places is `unplaced`, counted, never hidden.
+schema: pqch.buckets/1
+id: phase-buckets
+version: 1
+buckets:
+  - id: identity-pki-signing
+    label: "Identity, PKI and signing"
+    means: "certificate authorities and the certificates they issue, keys, firmware-signing roots and the boot chain"
+    kinds: [ca, reissue, retire, ca-issue, firmware]
+    ids: ["supplier:signing", "supplier:identity", "os:keys", "fw:"]
+  - id: infrastructure-data-protection
+    label: "Infrastructure and data protection"
+    means: "key exchange on the wire: TLS and SSH on listeners, the controller's settings, what the supplier ships for them"
+    kinds: [enable, require, tls13, tls-on, setting]
+    ids: ["supplier:controller", "require:controller", "bmc:"]
+  - id: applications-mission
+    label: "Applications and mission systems"
+    means: "software that cannot take post-quantum cryptography and must be replaced or upgraded by its supplier"
+    kinds: [replace, upgrade]
+  - id: inventory
+    label: "Inventory (the discovery phase itself)"
+    means: "a read the inventory still needs: paths an unprivileged scan could not open, a gap a person must fill"
+    kinds: [inventory]

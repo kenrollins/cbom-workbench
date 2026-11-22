@@ -1,0 +1,45 @@
+T13 X25519MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 SecP256r1MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 SecP384r1MLKEM1024 => Negotiated TLS1.3 group: <NULL>
+
+T13 MLKEM768 => Negotiated TLS1.3 group: <NULL>
+
+T13 X25519 => Negotiated TLS1.3 group: <NULL>
+
+T13 X448 => Negotiated TLS1.3 group: <NULL>
+
+T13 P-256 => Negotiated TLS1.3 group: <NULL>
+
+T13 P-384 => Peer Temp Key: ECDH, secp384r1, 384 bits
+
+T13 P-521 => Negotiated TLS1.3 group: <NULL>
+
+T13 ffdhe2048 => Negotiated TLS1.3 group: <NULL>
+
+T13 ffdhe3072 => Negotiated TLS1.3 group: <NULL>
+
+T13 brainpoolP256r1tls13 => Negotiated TLS1.3 group: <NULL>
+
+T12 X25519 => Peer Temp Key: DH, 2048 bits
+
+T12 X448 => Peer Temp Key: DH, 2048 bits
+
+T12 P-256 => Peer Temp Key: DH, 2048 bits
+
+T12 P-384 => Peer Temp Key: ECDH, secp384r1, 384 bits
+
+T12 P-521 => Peer Temp Key: DH, 2048 bits
+
+T12 brainpoolP256r1 => Peer Temp Key: DH, 2048 bits
+
+KRSA => New, TLSv1.2, Cipher is AES256-GCM-SHA384
+
+KDHE => Peer Temp Key: DH, 2048 bits
+
+V12 => New, TLSv1.2, Cipher is ECDHE-RSA-AES256-GCM-SHA384
+
+V13 => New, TLSv1.3, Cipher is TLS_AES_256_GCM_SHA384
+
+CERT =>  Subject: O=S3 lab, CN=lab.s3.test| Public Key Algorithm: rsaEncryption| Public-Key: (2048 bit)|sha256 Fingerprint=B5:A3:A6:66:6A:84:68:FC:71:3F:B7:76:6B:2F:C1:8A:82:3A:CC:17:6D:A0:D0:55:90:26:62:C3:8D:1D:61:2C|

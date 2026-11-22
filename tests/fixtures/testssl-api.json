@@ -1,0 +1,359 @@
+[
+         {
+              "id"           : "engine_problem",
+              "ip"           : "/",
+              "port"         : "443",
+              "severity"     : "WARN",
+              "finding"      : "No engine or GOST support via engine with your /home/testssl/bin/openssl.Linux.x86_64"
+          }
+,         {
+              "id"           : "optimal_proto",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "api.agency.test:443 appears to support TLS 1.3 ONLY, switching from /home/testssl/bin/openssl.Linux.x86_64 to /usr/bin/openssl automagically"
+          }
+,         {
+              "id"           : "engine_problem",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "WARN",
+              "finding"      : "No engine or GOST support via engine with your /usr/bin/openssl"
+          }
+,         {
+              "id"           : "service",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "HTTP"
+          }
+,         {
+              "id"           : "pre_128cipher",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "No 128 cipher limit bug"
+          }
+,         {
+              "id"           : "FS",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "offered"
+          }
+,         {
+              "id"           : "FS_ciphers",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "TLS_AES_256_GCM_SHA384 TLS_CHACHA20_POLY1305_SHA256 TLS_AES_128_GCM_SHA256"
+          }
+,         {
+              "id"           : "FS_KEMs",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "X25519MLKEM768"
+          }
+,         {
+              "id"           : "FS_ECDHE_curves",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "X25519"
+          }
+,         {
+              "id"           : "FS_TLS13_sig_algs",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "ECDSA+SHA256"
+          }
+,         {
+              "id"           : "TLS_extensions",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "'server name/#0' 'supported versions/#43' 'key share/#51'"
+          }
+,         {
+              "id"           : "TLS_session_ticket",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "no -- no lifetime advertised"
+          }
+,         {
+              "id"           : "SSL_sessionID_support",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "no"
+          }
+,         {
+              "id"           : "sessionresumption_ticket",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "not supported"
+          }
+,         {
+              "id"           : "sessionresumption_ID",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "No Session ID, no resumption"
+          }
+,         {
+              "id"           : "TLS_timestamp",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "random"
+          }
+,         {
+              "id"           : "certificate_compression",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "none"
+          }
+,         {
+              "id"           : "clientAuth",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "none"
+          }
+,         {
+              "id"           : "cert_numbers",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "1"
+          }
+,         {
+              "id"           : "cert_signatureAlgorithm",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "ECDSA with SHA256"
+          }
+,         {
+              "id"           : "cert_keySize",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "EC 256 bits (curve P-256)"
+          }
+,         {
+              "id"           : "cert_keyUsage",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "No server key usage information"
+          }
+,         {
+              "id"           : "cert_extKeyUsage",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "No server extended key usage information"
+          }
+,         {
+              "id"           : "cert_serialNumber",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "75CD6684F26276824E1C63ACBBF5977BF4EACF61"
+          }
+,         {
+              "id"           : "cert_serialNumberLen",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "20"
+          }
+,         {
+              "id"           : "cert_fingerprintSHA1",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "67DD276F5F1D92647267A8A2D6B94E7AF2CEA824"
+          }
+,         {
+              "id"           : "cert_fingerprintSHA256",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "E05DB619BC265873FC5BD2EF3B5132A37FAE8507032CBD4495AAC99B082A3D2A"
+          }
+,         {
+              "id"           : "cert",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "-----BEGIN CERTIFICATE-----\nMIIB0TCCAXegAwIBAgIUdc1mhPJidoJOHGOsu/WXe/Tqz2EwCgYIKoZIzj0EAwIwMDEUMBIGA1UECgwLTWluaSBBZ2VuY3kxGDAWBgNVBAMMD2FwaS5hZ2VuY3kudGVzdDAeFw0yNjEwMDMxMjI5NTdaFw0yOTAxMDUxMjI5NTdaMDAxFDASBgNVBAoMC01pbmkgQWdlbmN5MRgwFgYDVQQDDA9hcGkuYWdlbmN5LnRlc3QwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASk5P7RXOv0Pha/A4a+x3CKvw0J9uxTgqh20xGwzeUiKUCjQcIFt/6sTcRcyzWJYrWckK2tBDJ5RYoMeVugzWbKo28wbTAdBgNVHQ4EFgQUi9xjKFQb/MCBWaUsHtBRM9RAArIwHwYDVR0jBBgwFoAUi9xjKFQb/MCBWaUsHtBRM9RAArIwDwYDVR0TAQH/BAUwAwEB/zAaBgNVHREEEzARgg9hcGkuYWdlbmN5LnRlc3QwCgYIKoZIzj0EAwIDSAAwRQIgOhdGaw9ILXIQAQwqvmQH528yAgPZ6sdYum/rbIwmtEYCIQCM39aG6r/5OtzCca0G+mXrERRjApRpuNywiQ+Rc84Qjg==\n-----END CERTIFICATE-----"
+          }
+,         {
+              "id"           : "cert_commonName",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "api.agency.test"
+          }
+,         {
+              "id"           : "cert_commonName_wo_SNI",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "api.agency.test"
+          }
+,         {
+              "id"           : "cert_subjectAltName",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "api.agency.test"
+          }
+,         {
+              "id"           : "cert_trust",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "Ok via SAN and CN (same w/o SNI)"
+          }
+,         {
+              "id"           : "cert_chain_of_trust",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "CRITICAL",
+              "finding"      : "failed (self signed)."
+          }
+,         {
+              "id"           : "cert_certificatePolicies_EV",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "no"
+          }
+,         {
+              "id"           : "cert_expirationStatus",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "824 >= 60 days"
+          }
+,         {
+              "id"           : "cert_notBefore",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "2026-10-03 12:29"
+          }
+,         {
+              "id"           : "cert_notAfter",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "2029-01-05 12:29"
+          }
+,         {
+              "id"           : "cert_extlifeSpan",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "MEDIUM",
+              "finding"      : "825 > 398 days"
+          }
+,         {
+              "id"           : "cert_eTLS",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "not present"
+          }
+,         {
+              "id"           : "cert_crlDistributionPoints",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "cert_ocspURL",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "cert_revocation",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "HIGH",
+              "finding"      : "Neither CRL nor OCSP URI provided"
+          }
+,         {
+              "id"           : "OCSP_stapling",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "not offered"
+          }
+,         {
+              "id"           : "cert_mustStapleExtension",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "DNS_CAArecord",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "check skipped as instructed"
+          }
+,         {
+              "id"           : "certificate_transparency",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "--"
+          }
+,         {
+              "id"           : "certs_countServer",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "1"
+          }
+,         {
+              "id"           : "certs_list_ordering_problem",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "no"
+          }
+,         {
+              "id"           : "cert_caIssuers",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "api.agency.test (Mini Agency)"
+          }
+,         {
+              "id"           : "intermediate_cert_badOCSP",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "OK",
+              "finding"      : "intermediate certificate(s) is/are ok"
+          }
+,         {
+              "id"           : "scanTime",
+              "ip"           : "api.agency.test/172.16.106.11",
+              "port"         : "443",
+              "severity"     : "INFO",
+              "finding"      : "26"
+          }
+]

@@ -1,0 +1,6 @@
+{# The plan's two acts under one header item: the plan itself, and the changes that carry its steps
+   out. `sub` names this page's tab; /resolve shows the latest change run unless one is named. #}
+<div class="subnav"><div class="inner">
+  <a href="/plan" class="{{ 'on' if sub == 'plan' }}" title="What depends on what, what comes first, in what order">Plan</a>
+  <a href="/resolve{% if change_run %}?change={{ change_run }}{% endif %}" class="{{ 'on' if sub == 'changes' }}" title="A step of the plan carried out: proposed, rehearsed, approved, applied, proved on the wire">Changes</a>
+</div></div>

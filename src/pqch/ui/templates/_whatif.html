@@ -1,0 +1,18 @@
+{# What a what-if changes, in detail: the assumption, what it frees, and what is closer but still waits. #}
+<div class="whatif" id="whatif">
+  <div class="head"><strong>What if</strong> {% for w in plan.whatif if w.change == 'assumed' %}<em>{{ w.title }}</em>{{ ' and ' if not loop.last }}{% endfor %}
+    {{ 'were' if plan.assumed|length > 1 else 'was' }} done?
+    <a href="/plan{{ '?estate=lab' if estate == 'lab' else '' }}#map">clear the what-if</a></div>
+  {% set fr = plan.whatif|selectattr('change', 'equalto', 'freed')|list %}{% set cl = plan.whatif|selectattr('change', 'equalto', 'closer')|list %}
+  <p class="sum">{% if fr %}<strong>{{ fr|length }}</strong> step{{ 's' if fr|length != 1 }} could start at once{% else %}No other step could start on this alone{% endif %}{% if cl %}, and <strong>{{ cl|length }}</strong> more would be one step closer{% endif %}. Nothing is changed or recorded; the assumption lives in the address.</p>
+  {% if fr %}<h4>Free to start</h4>
+  <ul class="wi">{% for w in fr %}<li><strong>{{ w.title }}</strong>{% if w.due %} <span class="dim">— due {{ w.due }}</span>{% endif %}<br>
+    <span class="small">{{ w.why }}</span>{% if w.entries %} <span class="dim small">· moves {{ w.entries }} CBOM entr{{ 'ies' if w.entries != 1 else 'y' }}</span>{% endif %}
+    {% if w.unblocks %}<br><span class="dim small">then unblocks: {{ w.unblocks|join('; ') }}</span>{% endif %}</li>{% endfor %}</ul>{% endif %}
+  {% if cl %}<h4>Closer, but still waiting</h4>
+  <ul class="wi">{% for w in cl %}<li><strong>{{ w.title }}</strong>{% if w.due %} <span class="dim">— due {{ w.due }}</span>{% endif %}<br>
+    <span class="small">still waits for: {{ w.still_waits_for|join('; ') }}</span></li>{% endfor %}</ul>{% endif %}
+  <h4>Taken as done</h4>
+  <ul class="wi">{% for w in plan.whatif if w.change == 'assumed' %}<li><strong>{{ w.title }}</strong> <span class="dim small">— {{ w.why }}</span></li>{% endfor %}</ul>
+  <p class="dim small">On the map below: amber is assumed done, a glow is freed. Click another step's "What if this were done?" to add it.</p>
+</div>

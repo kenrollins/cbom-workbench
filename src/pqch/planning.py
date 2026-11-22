@@ -1,0 +1,1321 @@
+"""From the CBOM to a migration plan: what depends on what, what comes first, in what order.
+
+The CBOM says what the estate holds and how its parts connect; the policy pack says what is due when.
+Together they answer the planning questions an inventory alone cannot:
+
+- *what depends on what* — a certificate authority whose root every leaf it issued must be reissued
+  under; a library build several services share; one key served on two listeners; a trust anchor for
+  clients the agency does not run;
+- *what comes first* — the memo's prioritization, the data's lifetime, what is quantum-vulnerable today;
+- *in what order* — TLS 1.3 before a hybrid group, a hybrid group offered before it is required, the
+  software replaced before the CA that its certificate chains to is re-rooted, the CA before its
+  leaves; and procurement started now for what no setting can move.
+
+Every step names the CBOM entries it moves, its deadline, what it waits for and what it unblocks, and
+its state read from the ledger (done when a change landed). Rules only: the plan is computed from the
+latest scan's ledger at the moment it is shown, the way the queues are, and it names that run.
+"""
+
+from __future__ import annotations
+
+import json
+from collections import Counter, defaultdict
+from pathlib import Path
+
+from pqch.run import Run
+
+DUE_TLS13 = "2030-01-02"
+
+# What each kind of step was computed from: the CBOM fields and records no list of systems carries.
+FIELDS = {
+    "replace": ["the runtime's own list of algorithms it supports", "the queue item and its deadline", "the supplier blocker"],
+    "tls13": ["the protocol versions each listener negotiates, on the wire", "listener to service, from the runner's binding"],
+    "enable": ["the groups each listener accepts, on the wire", "the library build behind the service"],
+    "require": ["posture: hybrid accepted beside classical, on the wire", "the queue and its deadline", "the owner's data lifetime"],
+    "ca": ["certificate issuer, linking each leaf to its CA", "the CA file's basicConstraints, read in each image",
+           "which services hold the root", "the supplier blockers of those services"],
+    "reissue": ["the certificate each listener serves", "its issuer", "one key across listeners, by its SPKI hash"],
+    "retire": ["files in images that no listener serves: host evidence against wire evidence"],
+}
+
+
+WAVES = (("now", "Now — what takes longest to start", "now"),
+         ("2030", "By 2030 — key establishment, prioritized systems first", "by 2030"),
+         ("2031", "By 2031 — signatures", "by 2031"),
+         ("2035", "By 2035 — the remaining systems", "by 2035"))
+
+
+def _sw_family(software: str) -> str:
+    return software.split(" ")[0]
+
+
+def _wave(row: dict) -> str:
+    """The wave a queue row's steps sit in: its queue's own year, so a remaining system's work is not
+    drawn in a column headed five years before it is due."""
+    if row.get("queue") == "remaining-2035":
+        return "2035"
+    return "2030" if row["function"] == "key-establishment" else "2031"
+
+
+def resets(var: Path | str) -> list[str]:
+    """When the estate was reset to its baseline (`estate.reset`, in runs of kind `reset`), oldest first.
+    A reset undoes every change before it; the plan and the queue's `enforced` both read it here."""
+    out: list[str] = []
+    runs = Path(var) / "runs"
+    if not runs.is_dir():
+        return out
+    for d in sorted(x for x in runs.iterdir() if x.is_dir()):
+        led = d / "ledger.jsonl"
+        if not led.is_file():
+            continue
+        with led.open(encoding="utf-8") as f:
+            first = f.readline()
+        try:
+            kind = json.loads(first).get("payload", {}).get("kind")
+        except ValueError:
+            continue
+        if kind == "reset":
+            out += [e["ts"] for e in Run(Path(var), d.name).ledger.events() if e["type"] == "estate.reset"]
+    return sorted(out)
+
+
+def standing_changes(var: Path | str, before: str | None = None) -> dict[str, dict]:
+    """The change standing on each service: its last landed change (verified by the verifier, and
+    again after a recreate), on a ledger that verifies, after the latest estate reset. A later landed
+    `none` is a rollback and is what stands; so is a later `enable` after a `require`. With `before`,
+    as things stood at that time. {service: {intent, run, change_id, ts}}."""
+    from pqch.ledger import verify
+    from pqch.migrator import intervals
+    from pqch.ui.view import change_runs
+
+    rs = [t for t in resets(var) if before is None or t < before]
+    last_reset = rs[-1] if rs else ""
+    landed = []
+    for cr in change_runs(Path(var)):
+        ce = list(cr.ledger.events())
+        if not ce or not verify(ce).ok:
+            continue
+        for iv in intervals(ce):
+            ts, svc = iv.get("verdict_ts") or "", (iv.get("target") or {}).get("service")
+            if iv.get("landed") and svc and ts > last_reset and (before is None or ts < before):
+                landed.append((ts, svc, {"intent": iv["intent"], "run": cr.id, "change_id": iv["change_id"], "ts": ts}))
+    out: dict[str, dict] = {}
+    for _, svc, rec in sorted(landed, key=lambda x: x[0]):
+        out[svc] = rec
+    return out
+
+
+def cbom_entries(events: list[dict]) -> int:
+    """How many entries the CBOM these events project holds: its components that carry a fingerprint.
+    The number the CBOM page shows; a plan's header reads it here, not from a count of findings
+    (several findings fold onto one entry)."""
+    from pqch import cbom
+
+    return sum(1 for c in cbom.project(events).get("components", [])
+               if any(p["name"] == "pqch:fingerprint" for p in c.get("properties", [])))
+
+
+def build(var: Path, scan: Run, snapshots_dir: str | Path | None = None, assume: frozenset = frozenset()) -> dict | None:
+    """The owned estate's plan, from a run of kind `scan`. None for any other kind: a copy's scan, a
+    server's or the lab's is not the estate the change runs were made on."""
+    import os
+
+    from pqch.ui.view import packages_view, queues_view, run_view
+
+    view = run_view(scan)
+    if not view or view.get("broken"):
+        return None
+    events = list(scan.ledger.events())
+    if events[0]["payload"].get("kind", "scan") != "scan":
+        return None
+    q = queues_view(var, events)
+    if not q:
+        return None
+    # One place for the snapshots' directory, whoever calls: the argument, else the deployment's setting.
+    snapshots_dir = snapshots_dir or os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots")
+    snaps = sorted(Path(snapshots_dir).glob("capabilities-*.json"))
+    snapshot = json.loads(snaps[-1].read_text()) if snaps else {"services": {}}
+    finds = {e["id"]: e for e in events if e["type"] == "finding.observed"}
+    ref = lambda fid: {"fingerprint": finds[fid]["payload"]["fingerprint"], "event": fid}  # noqa: E731
+
+    # ---- the estate as the CBOM states it: services, their listeners, posture, certificates
+    service_of: dict[str, str] = {}
+    posture: dict[str, dict] = {}
+    for ln in view["listeners"]:
+        svc = (ln.get("service") or {}).get("name") or ln.get("service_named")
+        if svc:
+            service_of[ln["address"]] = svc
+            posture[ln["address"]] = ln.get("posture") or {}
+    leaf: dict[str, list[dict]] = defaultdict(list)       # service -> served certificates
+    for fid, e in finds.items():
+        p = e["payload"]
+        s = p["subject"]
+        if p["layer"] == "wire" and p["asset"]["type"] == "certificate" and s.get("kind") == "endpoint":
+            addr = f"{s['host']}:{s['port']}"
+            if addr in service_of:
+                prm = p["asset"]["parameters"]
+                leaf[service_of[addr]].append({"listener": addr, "subject": prm.get("subject"), "issuer": prm.get("issuer"),
+                                               "spki": prm.get("spki_sha256"), "name": p["asset"]["name"], **ref(fid)})
+    ca_files: dict[str, list[dict]] = defaultdict(list)    # CA subject -> where its certificate sits
+    image_service = {img.split("@")[0]: (ch or {}).get("service") for img, ch in (view.get("image_chains") or {}).items()}
+    for fid, e in finds.items():
+        p = e["payload"]
+        prm = p["asset"]["parameters"]
+        # A certificate authority by its own basicConstraints, as the workbench's reader parsed it.
+        if p["layer"] == "host" and p["asset"]["type"] == "certificate" and prm.get("is_ca") is True:
+            ca_files[prm["subject"]].append({"service": image_service.get(p["subject"]["image"]) or p["subject"]["image"].split("/")[-1],
+                                             "path": p["subject"]["path"], "referenced_by": prm.get("referenced_by") or [], **ref(fid)})
+
+    # ---- what depends on what
+    deps = []
+    for ca, where in ca_files.items():
+        leaves = [(svc, c) for svc, cs in leaf.items() for c in cs if c["issuer"] == ca and c["subject"] != ca]
+        if leaves:
+            deps.append({"kind": "certificate-authority", "id": f"ca:{ca}", "name": ca,
+                         "what": f"issues the certificates of {', '.join(sorted({s for s, _ in leaves}))}; its root sits in "
+                                 f"{', '.join(sorted({w['service'] for w in where}))} as a trust anchor",
+                         "services": sorted({s for s, _ in leaves} | {w["service"] for w in where}),
+                         "entries": [c for _, c in leaves] + where,
+                         "consequence": "a post-quantum signature for any of them means a new ML-DSA root, distributed to every "
+                                        "service that holds the old one, and every leaf reissued under it"})
+        else:
+            deps.append({"kind": "client-trust-anchor", "id": f"ca:{ca}", "name": ca,
+                         "what": f"held by {', '.join(sorted({w['service'] for w in where}))} to verify certificates that "
+                                 "clients present; it issues none of the estate's own certificates",
+                         "services": sorted({w["service"] for w in where}), "entries": where,
+                         "consequence": "the keys behind it belong to the clients — partners, other agencies — so their "
+                                        "migration is theirs to make and this service's to wait for"})
+    # Services on one library build: the snapshot's same-build lists, joined into groups.
+    group_of: dict[str, set] = {}
+    for svc, s in snapshot.get("services", {}).items():
+        g = set(s.get("same_build") or []) | {svc}
+        for m in list(g):
+            g |= group_of.get(m, set())
+        for m in g:
+            group_of[m] = g
+    for members in sorted({tuple(sorted(g)) for g in group_of.values()}):
+        if len(members) < 2:
+            continue
+        pq = [m for m in members for a, svc in service_of.items() if svc == m and (posture.get(a) or {}).get("kex_pq")]
+        # A same-build list may name a service the snapshot has no entry for: describe the build from one it has.
+        known = next((snapshot["services"][m] for m in members if m in snapshot["services"]), {})
+        sw = known.get("software", "one library build")
+        deps.append({"kind": "library-build", "id": "build:" + ",".join(members), "name": sw,
+                     "what": f"{', '.join(members)} run the same library build ({', '.join(known.get('library') or ['not recorded'])})",
+                     "services": list(members), "entries": [], "negotiates": sorted(set(pq)),
+                     "consequence": (f"{' and '.join(sorted(set(pq)))} already {'negotiates' if len(set(pq)) == 1 else 'negotiate'} a hybrid group on it, so for the rest "
+                                     "enabling one is configuration only, and an upgrade of the build moves all of them at once")
+                     if pq else "an upgrade of the build moves all of them at once"})
+    by_spki: dict[str, list[dict]] = defaultdict(list)
+    for svc, cs in leaf.items():
+        for c in cs:
+            if c["spki"]:
+                by_spki[c["spki"]].append({**c, "service": svc})
+    for spki, cs in by_spki.items():
+        if len({c["listener"] for c in cs}) > 1:
+            deps.append({"kind": "shared-key", "id": f"key:{spki}", "name": f"one {cs[0]['name']} key",
+                         "what": f"served on {', '.join(sorted({c['listener'] for c in cs}))}",
+                         "services": sorted({c["service"] for c in cs}), "entries": cs,
+                         "consequence": "rotating or reissuing it changes every listener at once; plan them as one step"})
+
+    # ---- what comes first
+    prio = {}
+    for e in events:
+        p = e["payload"]
+        if e["type"] == "assessment.made" and p.get("rule_id") == "priority/m-26-15/1":
+            prio[p["subject"]["name"]] = p["classification"]
+    facts = {}
+    for e in events:
+        p = e["payload"]
+        if e["type"] == "link.asserted" and p.get("status") == "supplied":
+            facts.setdefault(p["from"]["name"], {})[p["kind"]] = p["to"]["value"]
+    rows = q["rows"]
+    blocked = {(r["service"], r["function"]) for r in rows if (r["blockers"].get("blocker/supplier/1") or {}).get("state") == "blocked"}
+    ranking = []
+    for svc, c in prio.items():
+        f = facts.get(svc, {})
+        ranking.append({"service": svc, "prioritized": c["prioritized"], "criteria": c.get("criteria") or [],
+                        "sensitive_through": c.get("sensitive_through"), "lifetime": f.get("data-lifetime"),
+                        "hva": f.get("high-value-asset") is True, "impact": f.get("fips199-impact"),
+                        "mission": f.get("mission-function"), "owner": f.get("owner"),
+                        "open": [r["function"] for r in rows if r["service"] == svc],
+                        "blocked": sorted(fn for s, fn in blocked if s == svc),
+                        "kex_now": sorted({p2 for a, s in service_of.items() if s == svc for p2 in [(posture.get(a) or {}).get("posture")] if p2}),
+                        # Key establishment alone, per listener: the posture above also weighs
+                        # authentication (`mixed` is a post-quantum key exchange with a classical
+                        # certificate), so it cannot say whether a classical key exchange is still taken.
+                        "kex_state": sorted({_kex_state(posture.get(a) or {}) for a, s in service_of.items() if s == svc} - {None})})
+    ranking.sort(key=lambda r: (not r["prioritized"], -len(r["criteria"]), -(r["sensitive_through"] or 0), not r["hva"], r["service"]))
+    rank = {r["service"]: i for i, r in enumerate(ranking)}
+
+    # ---- in what order
+    steps: dict[str, dict] = {}
+
+    def step(sid, **kw):
+        steps.setdefault(sid, {"id": sid, "depends_on": [], "entries": [], "state": "ready", **kw})
+        return steps[sid]
+
+    # Required since the scan: a change with intent `require` that landed — verified, and verified
+    # again after a recreate — after this scan was taken, and still standing: a later rollback (a landed
+    # `none`), a later `enable` over a `require`, or an estate reset takes it away again.
+    from pqch.ledger import verify
+    from pqch.migrator import intervals
+    from pqch.ui.view import change_runs
+    landed = {}
+    for svc_, st_ in standing_changes(var).items():
+        if st_["intent"] in ("enable", "require") and st_["ts"] > events[-1]["ts"]:
+            landed[(svc_, st_["intent"])] = {"run": st_["run"], "change_id": st_["change_id"], "ts": st_["ts"]}
+    # Where each step stands in the open change run, by the ledger alone: the latest change run's
+    # proposals, each with the furthest event about it. Nothing here is new state (plan page, 2026-11-04).
+    # A run that is closed (a reset closes it: its proposals no longer match the estate) or whose
+    # ledger does not verify offers nothing to carry out; a denied proposal is denied, not proposed.
+    changes: dict[tuple, dict] = {}
+    runs_ = change_runs(var)
+    ce = list(runs_[-1].ledger.events()) if runs_ else []
+    if ce and ce[-1]["type"] != "run.closed" and verify(ce).ok:
+        ivs = intervals(ce)
+        for prop in (e for e in ce if e["type"] == "change.proposed"):
+            cid = prop["payload"]["change_id"]
+            rel = [e for e in ce if e["payload"].get("change_id") == cid]
+            iv = next((i for i in ivs if i["change_id"] == cid), None)
+            status = ("landed" if iv and iv.get("landed") else
+                      "applied" if any(e["type"] == "change.applied" for e in rel) else
+                      "approved" if any(e["type"] == "approval.granted" for e in rel) else
+                      "denied" if any(e["type"] == "approval.denied" for e in rel) else
+                      "rehearsed" if any(e["type"] == "rehearsal.completed" for e in rel) else "proposed")
+            changes[((prop["payload"].get("target") or {}).get("service"), prop["payload"].get("intent"))] = {
+                "run": runs_[-1].id, "change_id": cid, "status": status,
+                # Proposed before the scan this plan reads: its rehearsal and matrix describe an earlier CBOM.
+                "predates_scan": prop["ts"] < events[0]["ts"]}
+    pk = packages_view(Run.latest(var, "package"))
+    pk = pk if pk and not pk.get("broken") else None
+    # A package is written from one scan's events; say so when it is not this one's.
+    pk_stale = bool(pk and pk.get("scan_run") and pk["scan_run"] != scan.id)
+    pk_label = "change package" + (" (written from an earlier scan)" if pk_stale else "")
+    from pqch.migrator import package as package_mod
+    for svc in sorted({s for s, _ in blocked}, key=lambda s: rank.get(s, 99)):
+        fns = sorted(fn for s, fn in blocked if s == svc)
+        cap = snapshot["services"].get(svc, {})
+        ups = [o for o, s in snapshot["services"].items() if o != svc and _sw_family(s["software"]) == _sw_family(cap.get("software", "?"))
+               and (s.get("pq") or {}).get("kex" if "key-establishment" in fns else "sig")]
+        due_row = min((r for r in rows if r["service"] == svc and r["function"] in fns), key=lambda r: r["deadline"])
+        due = due_row["deadline"]
+        # The entries the replacement moves: what the service's listeners negotiate or present in the blocked functions.
+        moved = {x["fingerprint"]: {"fingerprint": x["fingerprint"], "event": x["event"]}
+                 for fn_ in fns for x in package_mod.entries(events, svc, fn_)}
+        step(f"replace:{svc}", kind="replace", service=svc, due=due, wave="now", **_set_by(due_row),
+             entries=list(moved.values()),
+             title=f"Start replacing {cap.get('software', svc)} on {svc}" if not ups else f"Upgrade {svc} to the {cap['software'].split(' ')[0]} the estate already runs on {', '.join(ups)}",
+             why=f"its software lists no post-quantum algorithm for {' or '.join(fns)}; nothing configurable can move it, "
+                 f"and replacement takes procurement time, so it starts now for a {due} deadline",
+             resolve=("/packages#" + svc + "-" + fns[0]) if pk else "/walkthrough#queues", resolve_label=pk_label,
+             **({"package_scan": pk["scan_run"]} if pk_stale else {}))
+    for r in rows:
+        svc, fn = r["service"], r["function"]
+        addrs = [a for a, s in service_of.items() if s == svc]
+        if fn == "key-establishment":
+            pre = [f"replace:{svc}"] if (svc, fn) in blocked else []
+            tls13 = [t for t in q.get("tls13", []) if t["service"] == svc and t["state"] == "open"]
+            if tls13:
+                open_at = {t["address"] for t in tls13}
+                st = step(f"tls13:{svc}", kind="tls13", service=svc, due=DUE_TLS13, wave="2030",
+                          title=f"TLS 1.3 on {svc}", depends_on=list(pre),
+                          entries=[ref(fid) for fid, e in finds.items() if e["payload"]["asset"]["type"] == "protocol"
+                                   and f"{e['payload']['subject'].get('host')}:{e['payload']['subject'].get('port')}" in open_at],
+                          why="M-26-15 requires TLS 1.3 everywhere by 2030; a hybrid group exists only in TLS 1.3")
+                pre = [st["id"]]
+            # Posture is per listener and the step per service: the hybrid group is offered on the service
+            # only when every one of its listeners accepts it.
+            acc = [bool((posture.get(a) or {}).get("kex_pq")) for a in addrs]
+            accepts = bool(acc) and all(acc)
+            fps = [ref(fid) for fid, e in finds.items() if e["payload"]["layer"] == "wire"
+                   and f"{e['payload']['subject'].get('host')}:{e['payload']['subject'].get('port')}" in addrs
+                   and e["payload"]["asset"]["role"] == "key-establishment"]
+            build_note = next((d["consequence"] for d in deps if d["kind"] == "library-build" and svc in d["services"]), None)
+            if not accepts:
+                st = step(f"enable:{svc}", kind="enable", service=svc, due=r["deadline"], wave=_wave(r), **_set_by(r), depends_on=list(pre),
+                          title=f"Offer the hybrid group on {svc}", entries=fps,
+                          why="clients that can use X25519MLKEM768 get it; nobody is refused"
+                              + (f"; {sum(acc)} of its {len(acc)} listeners already offer it" if any(acc) else "")
+                              + (f"; {build_note}" if build_note else ""),
+                          resolve="/resolve", resolve_label="propose the change")
+                pre = [st["id"]]
+            st = step(f"require:{svc}", kind="require", service=svc, due=r["deadline"], wave=_wave(r), **_set_by(r), depends_on=list(pre),
+                      title=f"Require the hybrid group on {svc}", entries=fps,
+                      why=("it already offers the hybrid group but still accepts classical key exchange: enabled, not enforced. "
+                           if accepts else "") + "M-26-15 counts a classical key exchange still accepted as open; requiring refuses "
+                           "every client that cannot offer the hybrid group, so the clients are measured first",
+                      resolve="/resolve", resolve_label="change, with its compatibility matrix")
+            if (svc, "require") in landed:
+                st["state"] = "done"
+                st["done"] = landed[(svc, "require")]
+                # Requiring it means it is offered. It proves nothing of TLS 1.2 or of a replacement:
+                # those wait for the next scan's own rules.
+                if f"enable:{svc}" in st["depends_on"]:
+                    steps[f"enable:{svc}"]["state"] = "done"
+            elif (svc, "enable") in landed and f"enable:{svc}" in steps:
+                steps[f"enable:{svc}"]["state"] = "done"
+                steps[f"enable:{svc}"]["done"] = landed[(svc, "enable")]
+        else:
+            pre = [f"replace:{svc}"] if (svc, fn) in blocked else []
+            mine = leaf.get(svc, [])
+            ca = next((c["issuer"] for c in mine if c["issuer"] and c["issuer"] != c["subject"]), None)
+            if ca:
+                cid = f"ca:{ca}"
+                ca_dep = next((d for d in deps if d["id"] == cid), None)
+                cst = step(cid, kind="ca", service=None, due=r["deadline"], wave=_wave(r), **_set_by(r),
+                           entries=list({x["fingerprint"]: {"fingerprint": x["fingerprint"], "event": x["event"]}
+                                         for x in (ca_dep or {}).get("entries", [])}.values()),
+                           title=f"Stand up an ML-DSA root for {ca.split(',')[0].replace('CN=', '')} and distribute it",
+                           why="every service holding the old root must be able to verify ML-DSA before any leaf moves; "
+                               "a service whose software cannot is a blocker of the root, not only of itself")
+                if r["deadline"] < cst["due"]:
+                    cst.update(due=r["deadline"], wave=_wave(r), **_set_by(r))
+                cst["depends_on"] = sorted(set(cst["depends_on"]) | set(pre))
+                pre = [cid]
+            shared = next((d for d in deps if d["kind"] == "shared-key" and svc in d["services"]), None)
+            step(f"reissue:{svc}", kind="reissue", service=svc, due=r["deadline"], wave=_wave(r), **_set_by(r), depends_on=pre,
+                 title=f"Reissue {svc}'s certificate with ML-DSA" if mine else f"Move {svc}'s host keys to a post-quantum signature",
+                 entries=[{"fingerprint": c["fingerprint"], "event": c["event"]} for c in mine],
+                 why=("issued by the internal CA: waits for the new root" if ca else "self-signed: the service's own software decides")
+                     + ("; no software in the estate lists a post-quantum signature for it yet" if (svc, fn) in blocked and not any(
+                         (o.get("pq") or {}).get("sig") and _sw_family(o["software"]) == _sw_family(snapshot["services"].get(svc, {}).get("software", "?"))
+                         for o in snapshot["services"].values()) else "")
+                     + (f"; {shared['what']} — one key, both listeners" if shared else ""),
+                 resolve="/packages#" + svc + "-signature" if (svc, fn) in blocked and pk else None)
+    for d in deps:
+        if d["kind"] == "client-trust-anchor":
+            for svc in d["services"]:
+                s = steps.get(f"reissue:{svc}")
+                if s:
+                    s["external"] = f"its clients' certificates chain to {d['name'].split(',')[0].replace('CN=', '')}: their move, not the agency's"
+    # Work already done and proved: a key-establishment item this scan found met on a service where a
+    # change requiring the hybrid group had landed before the scan and still stands. Its step is in the
+    # plan as done, with the change that did it. An item with nothing observed is not met and gets none.
+    before = standing_changes(var, before=events[0]["ts"])
+    for r in q.get("met", []):
+        svc = r["service"]
+        st_ = r.get("enforced_by") or (before.get(svc) if (before.get(svc) or {}).get("intent") == "require" else None)
+        if r.get("state") != "met" or r["function"] != "key-establishment" or not st_ or f"require:{svc}" in steps:
+            continue
+        addrs = [a for a, s_ in service_of.items() if s_ == svc]
+        done = step(f"require:{svc}", kind="require", service=svc, due=None, wave="2030" if r.get("prioritized") else "2035",
+                    title=f"Require the hybrid group on {svc}",
+                    entries=[ref(fid) for fid, e in finds.items() if e["payload"]["layer"] == "wire"
+                             and f"{e['payload']['subject'].get('host')}:{e['payload']['subject'].get('port')}" in addrs
+                             and e["payload"]["asset"]["role"] == "key-establishment"],
+                    why=f"done: the change landed before this scan, and the scan finds {r['basis']}",
+                    resolve="/resolve", resolve_label="the change that did it")
+        done["state"] = "done"
+        done["done"] = {"run": st_["run"], "change_id": st_["change_id"], "ts": st_.get("ts") or st_.get("verdict_ts")}
+    # One entry per fingerprint: the rule judged some findings twice on older ledgers, and two findings
+    # can be one entry. The title counts what the CBOM page lists.
+    unserved_by_fp: dict[str, dict] = {}
+    for e in events:
+        fid = e["payload"].get("finding") if e["type"] == "assessment.made" else None
+        if fid in finds and e["payload"].get("rule_id") == "in-use/not-served/1" \
+                and finds[fid]["payload"]["asset"]["type"] in ("certificate", "related-crypto-material"):
+            unserved_by_fp.setdefault(finds[fid]["payload"]["fingerprint"], ref(fid))
+    unserved = list(unserved_by_fp.values())
+    if unserved:
+        kinds = Counter(finds[x["event"]]["payload"]["asset"]["type"] for x in unserved)
+        files = len({json.dumps(finds[x["event"]]["payload"]["subject"], sort_keys=True) for x in unserved})
+        said = " and ".join(f"{n} {'certificate' if k == 'certificate' else 'key'}{'s' if n != 1 else ''}"
+                            for k, n in sorted(kinds.items()))
+        step("retire", kind="retire", service=None, due=None, wave="now", entries=unserved,
+             title=f"Retire {said} nothing serves ({files} file{'s' if files != 1 else ''})",
+             why="files in images that no listener serves: they inflate the inventory and outlive the services they belonged to")
+    _propagate_due(steps)
+
+    # Each configurable step carries its change's status and opens the resolution page at that change.
+    # A step whose service's software lists no post-quantum key exchange is blocked, not open: the runner
+    # cannot carry it out until the replacement lands, so it gets no button (demo box, 2026-11-04).
+    for st in steps.values():
+        if st["kind"] in ("enable", "require"):
+            ch = changes.get((st["service"], st["kind"]))
+            st["change"] = ch
+            st["status"] = ("landed" if st["state"] == "done" else
+                            "blocked" if (st["service"], "key-establishment") in blocked else
+                            ch["status"] if ch else "open")
+            if ch and ch["status"] != "denied":
+                st["resolve"] = f"/resolve?change={ch['run']}#change-{ch['change_id']}"
+            elif st["status"] == "blocked":
+                st["resolve"] = steps[f"replace:{st['service']}"]["resolve"]
+                st["resolve_label"] = pk_label
+        elif st["kind"] == "replace":
+            st["status"] = "package"
+    freed = _settle(steps, assume)
+    for st in steps.values():
+        st["fields"] = FIELDS.get(st["kind"], [])
+    order = _topo(steps, rank)
+    cycle = sorted(i for i in order if steps[i].get("cycle"))
+    # The step each prioritized service is at: its first configurable step not yet done, or its last if
+    # all are; a service nothing configurable can move points at its change package.
+    # The Step cell follows the key-exchange lane, which is what the ranking orders: the service's
+    # first enable/require step not yet done; its replacement step when that lane is blocked; its last
+    # when all landed; none when the service already negotiates a hybrid group.
+    for r in ranking:
+        kex = [steps[i] for i in order if steps[i].get("service") == r["service"] and steps[i]["kind"] in ("enable", "require")]
+        nxt = next((s for s in kex if s["state"] != "done"), None)
+        if nxt and nxt["status"] == "blocked":
+            r["step"] = steps[f"replace:{r['service']}"]
+        else:
+            r["step"] = nxt or (kex[-1] if kex else None)
+    actions = [steps[i] for i in order if steps[i]["kind"] in ("replace", "enable", "require")]
+    first_open = next((s["id"] for s in actions if s["state"] != "done" and s["status"] not in ("blocked", "package")), None)
+    traps = _traps(deps, steps, rows, blocked)
+    waves = []
+    for w, label, _ in WAVES:
+        ws = [steps[i] for i in order if steps[i]["wave"] == w]
+        if ws:
+            waves.append({"id": w, "label": label, "steps": ws})
+    moved = len({e["fingerprint"] for st in steps.values() for e in st["entries"]})
+    return with_buckets({"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": scan.id, "dependencies": deps, "ranking": ranking, "waves": waves, "steps": len(steps), "traps": traps, "actions": actions, "first_open": first_open,
+            "wave_labels": {w: short for w, _, short in WAVES}, "cycle": cycle,
+            # `entries` is the entries the steps move (the page says so); `cbom_entries` is the whole CBOM's.
+            "scan_ts": events[-1]["ts"], "entries": moved, "entries_moved": moved, "cbom_entries": cbom_entries(events),
+            "assumed": sorted(a for a in assume if a in steps), "freed": freed, "whatif": _whatif(steps, assume, freed),
+            "done": sum(1 for s in steps.values() if s["state"] == "done" and not s.get("assumed")),
+            "waiting": sum(1 for s in steps.values() if s["state"] == "waiting"),
+            "compatibility": _compatibility_counts(events)})
+
+
+def _kex_state(p: dict) -> str | None:
+    """What a listener's key establishment is today, from the posture rule's own lists: `pq-only`,
+    `both` (a standardised post-quantum group and a classical one), `classical-only`; None when the
+    rule saw no key establishment."""
+    pq, classical = bool(p.get("kex_pq")), bool(p.get("kex_classical") or p.get("kex_pq_not_standardised"))
+    return "both" if pq and classical else "pq-only" if pq else "classical-only" if classical else None
+
+
+def _propagate_due(steps: dict) -> None:
+    """A step is due no later than the step that waits for it: a replacement that TLS 1.3 waits on is
+    needed by TLS 1.3's date, whatever its own queue says. The step says which step set its date."""
+    moved = True
+    while moved:
+        moved = False
+        for st in steps.values():
+            for d in st["depends_on"]:
+                dep = steps.get(d)
+                if dep and st.get("due") and dep.get("due") and st["due"] < dep["due"] and dep.get("state") != "done":
+                    if dep.get("kind") == "replace" and dep.get("why"):
+                        dep["why"] = dep["why"].replace(
+                            f"for a {dep['due']} deadline",
+                            f"for {st['due']}, when {st['id']} that waits for it is due (its own queue says {dep['due']})")
+                    dep.update(due=st["due"], due_set_by=[f"needed by {st['id']}, due {st['due']}"], due_needed_by=st["id"])
+                    moved = True
+
+
+def _compatibility_counts(events: list[dict]) -> dict | None:
+    """The entries' statuses under their packs (`compatibility/entry/1`), counted for the plan's header from
+    the CBOM the same events project, so the plan and the CBOM page give one number: the rule judges each
+    fingerprint, and several fingerprints can fold onto one entry. None for a run from before the rule."""
+    from pqch import cbom
+    from pqch.cbom import anatomy
+
+    c = anatomy.compatibility(cbom.project(events))
+    if not c:
+        return None
+    return dict(c["all"]) | {"provisional": c["provisional"], "packs": c["packs"], "entries": c["entries"]}
+
+
+def _settle(steps: dict, assume: frozenset) -> list[str]:
+    """Set each step waiting while any step it depends on is not done. With `assume` — steps taken as
+    done for a what-if — return the steps that were waiting without it and are free with it."""
+    def waiting(done: set) -> set:
+        return {s["id"] for s in steps.values() if s["id"] not in done and any(d in steps and d not in done for d in s["depends_on"])}
+    done = {s["id"] for s in steps.values() if s["state"] == "done"}
+    before = waiting(done)
+    for a in assume:
+        if a in steps and a not in done:
+            steps[a]["state"], steps[a]["assumed"] = "done", True
+            done.add(a)
+    after = waiting(done)
+    for s in steps.values():
+        s["unblocks"] = sorted(t["id"] for t in steps.values() if s["id"] in t["depends_on"])
+        if s["id"] in after:
+            s["state"] = "waiting"
+    return sorted(before - after - done)
+
+
+def _whatif(steps: dict, assume: frozenset, freed: list[str]) -> list[dict]:
+    """What an assumption changes, in detail: each step taken as done, each step it frees, and each step
+    further on that is closer but still waits — with exactly what it still waits for."""
+    if not assume:
+        return []
+    out = []
+    for a in sorted(assume):
+        if a in steps:
+            out.append({"change": "assumed", **_brief(steps[a], steps)})
+    for f in freed:
+        out.append({"change": "freed", **_brief(steps[f], steps)})
+    reach, frontier = set(), set(assume) | set(freed)
+    while frontier:
+        nxt = {t["id"] for t in steps.values() for f in frontier if f in t["depends_on"]} - reach - set(assume) - set(freed)
+        reach |= nxt
+        frontier = nxt
+    for r in sorted(reach, key=lambda x: (steps[x].get("due") or "9999", x)):
+        if steps[r]["state"] == "waiting":
+            out.append({"change": "closer", **_brief(steps[r], steps)})
+    return out
+
+
+def _brief(s: dict, steps: dict) -> dict:
+    still = [steps[d]["title"] for d in s["depends_on"] if d in steps and steps[d]["state"] != "done"]
+    return {"id": s["id"], "title": s["title"], "due": s.get("due"), "why": s["why"], "entries": len(s["entries"]),
+            "service": s.get("service"), "still_waits_for": still, "unblocks": [steps[u]["title"] for u in s.get("unblocks", []) if u in steps]}
+
+
+@__import__("functools").cache
+def _buckets() -> dict:
+    """policy/buckets.yaml: the buckets a later phase is scoped by."""
+    import yaml
+
+    from pqch.policy import ROOT
+
+    doc = yaml.safe_load((ROOT / "policy" / "buckets.yaml").read_text())
+    if doc.get("schema") != "pqch.buckets/1":
+        raise ValueError("policy/buckets.yaml: expected schema pqch.buckets/1")
+    return doc
+
+
+def bucket_of(step: dict) -> str:
+    """Which bucket a step falls in: by its id's prefix first, then by its kind; `unplaced` otherwise."""
+    for b in _buckets()["buckets"]:
+        if any(step["id"].startswith(x) for x in b.get("ids", [])):
+            return b["id"]
+    for b in _buckets()["buckets"]:
+        if step.get("kind") in b.get("kinds", []):
+            return b["id"]
+    return "unplaced"
+
+
+def with_buckets(plan: dict) -> dict:
+    """Every step placed in a bucket (`step.bucket`), and `plan.buckets`: one row per bucket with its
+    steps, services, earliest due date and how many wait; `unplaced` listed when any step is."""
+    if not plan:
+        return plan
+    for s in plan.get("order", []):
+        s["bucket"] = bucket_of(s)
+    rows = []
+    for b in [*_buckets()["buckets"], {"id": "unplaced", "label": "Unplaced", "means": "a step no bucket row names"}]:
+        mine = [s for s in plan.get("order", []) if s["bucket"] == b["id"]]
+        if not mine and b["id"] == "unplaced":
+            continue
+        rows.append({"id": b["id"], "label": b["label"], "means": b.get("means"), "steps": len(mine),
+                     "services": sorted({s.get("service") for s in mine if s.get("service")}),
+                     "earliest_due": min((s["due"] for s in mine if s.get("due")), default=None),
+                     "waiting": sum(1 for s in mine if s.get("state") == "waiting"),
+                     "done": sum(1 for s in mine if s.get("state") == "done")})
+    plan["buckets"] = rows
+    plan["buckets_pack"] = f"{_buckets()['id']}/{_buckets()['version']}"
+    return plan
+
+
+REGISTER_COLUMNS = ["n", "step", "title", "bucket", "wave", "due", "due_set_by", "state", "waits_for", "service", "system",
+                    "interface", "mission_thread", "owner", "classification", "fips199_impact", "high_value_asset",
+                    "data_lifetime_years", "sensitive_through", "prioritized", "criteria", "not_compatible_entries",
+                    "unknown_entries", "blocked_on_supplier", "blocked_by", "vendor_path", "cost_to_fix", "entries",
+                    "fingerprints", "why"]
+
+
+def compatibility_by_service(events: list[dict]) -> dict[str, dict[str, int]]:
+    """Each service's entries by status, counted over the CBOM's entries, the way the CBOM page and the
+    plan's header count them: the rule judges each fingerprint and several fingerprints can fold onto
+    one entry, so a count of the rule's assessments is larger than any number a page shows. An entry
+    belongs to the service the rule placed its fingerprint under."""
+    from pqch import cbom
+
+    svc_of = {e["payload"]["subject"]["fingerprint"]: e["payload"]["classification"].get("service") for e in events
+              if e["type"] == "assessment.made" and e["payload"].get("rule_id") == "compatibility/entry/1"}
+    out: dict[str, dict[str, int]] = {}
+    for c in cbom.project(events).get("components", []):
+        props = {p["name"]: p["value"] for p in c.get("properties", [])}
+        svc = svc_of.get(props.get("pqch:fingerprint"))
+        if "pqch:compatibility" not in props or not svc:
+            continue
+        status = json.loads(props["pqch:compatibility"])["status"]
+        out.setdefault(svc, {})[status] = out.setdefault(svc, {}).get(status, 0) + 1
+    return out
+
+
+def _supplier_held(plan: dict) -> dict[str, list[str]]:
+    """For each step, the replacement or supplier steps it cannot move before: itself when it is one,
+    and every one its dependencies reach."""
+    by_id = {s["id"]: s for s in plan.get("order", [])}
+    memo: dict[str, list[str]] = {}
+
+    def held(sid: str, seen: frozenset = frozenset()) -> list[str]:
+        if sid in memo:
+            return memo[sid]
+        s_ = by_id.get(sid)
+        if s_ is None or sid in seen:
+            return []
+        own = [sid] if s_.get("kind") in ("replace", "supplier") or s_.get("status") == "package" else []
+        out = sorted(set(own) | {x for d in s_.get("depends_on") or [] for x in held(d, seen | {sid})})
+        memo[sid] = out
+        return out
+    return {sid: held(sid) for sid in by_id}
+
+
+def register(plan: dict, events: list[dict]) -> dict:
+    """The plan as a register a later phase is planned from: one row per step, with the owner's facts
+    for its service beside it and the CBOM entries it moves by fingerprint. Owner-supplied columns are
+    the owner's words; nothing here is computed from them."""
+    facts: dict[str, dict] = {}
+    for e in events:
+        p = e["payload"]
+        if e["type"] == "link.asserted" and p.get("status") == "supplied":
+            facts.setdefault(p["from"]["name"], {})[p["kind"]] = p["to"]["value"]
+    prio = {e["payload"]["subject"]["name"]: e["payload"]["classification"] for e in events
+            if e["type"] == "assessment.made" and e["payload"].get("rule_id") == "priority/m-26-15/1"}
+    compat = compatibility_by_service(events)
+    held = _supplier_held(plan)
+    rows = []
+    for s in plan.get("order", []):
+        svc = s.get("service")
+        f = facts.get(svc, {}) if svc else {}
+        pr = prio.get(svc, {}) if svc else {}
+        rows.append([s.get("n"), s["id"], s.get("title"), s.get("bucket"), s.get("wave"), s.get("due"),
+                     " and ".join(s.get("due_set_by") or []) or None, s.get("state"), "; ".join(s.get("depends_on") or []) or None,
+                     svc, f.get("system"), f.get("interface"), f.get("mission-thread"), f.get("owner"), f.get("classification"),
+                     f.get("fips199-impact"), f.get("high-value-asset"), f.get("data-lifetime"), pr.get("sensitive_through"),
+                     pr.get("prioritized"), ", ".join(pr.get("criteria") or []) or None,
+                     compat.get(svc, {}).get("not-compatible") if svc else None, compat.get(svc, {}).get("unknown") if svc else None,
+                     "yes" if s.get("status") in ("blocked", "package") or held.get(s["id"]) else None,
+                     "; ".join(x for x in held.get(s["id"], []) if x != s["id"]) or None,
+                     f.get("vendor-path"), f.get("cost-to-fix"), len({e["fingerprint"] for e in s.get("entries") or []}),
+                     ",".join(sorted({e["fingerprint"] for e in s.get("entries") or []})) or None, s.get("why")])
+    import os
+
+    marking = os.environ.get("PQCH_MARKING", "").strip() or None
+    if marking:
+        for r in rows:
+            r.append(marking)
+    return {"columns": REGISTER_COLUMNS + (["marking"] if marking else []), "rows": rows, "run": plan.get("run"),
+            "buckets": plan.get("buckets"), "buckets_pack": plan.get("buckets_pack"), "steps": len(rows),
+            "cost": _cost(rows), "marking": marking, "schema": "pqch.register/1"}
+
+
+def _cost(rows: list[list]) -> dict | None:
+    """The owner-supplied costs summed per currency, counted once per service. A sum of the owner's
+    numbers, labelled as such; a row with no cost adds nothing and is counted as uncosted."""
+    seen, by_cur, uncosted = set(), {}, 0
+    for r in rows:
+        svc, cost = r[REGISTER_COLUMNS.index("service")], r[REGISTER_COLUMNS.index("cost_to_fix")]
+        if not svc or svc in seen:
+            continue
+        seen.add(svc)
+        if isinstance(cost, dict):
+            by_cur[cost["currency"]] = by_cur.get(cost["currency"], 0) + cost["amount"]
+        else:
+            uncosted += 1
+    return {"by_currency": by_cur, "services_costed": len(seen) - uncosted, "services_uncosted": uncosted,
+            "basis": "the owner's cost_to_fix facts, summed per currency, once per service; nothing is estimated here"}
+
+
+def register_csv(reg: dict) -> str:
+    import csv
+    import io
+
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow(reg["columns"])
+    for r in reg["rows"]:
+        w.writerow(["" if v is None else (json.dumps(v) if isinstance(v, (dict, list)) else v) for v in r])
+    return buf.getvalue()
+
+
+def write_register(var: Path, scan: Run) -> dict[str, Path] | None:
+    """The register and the grouped plan written beside the run (register.csv, register.json), as the
+    CBOMs are: a projection, rebuilt at will; the routes serve the live one."""
+    from pqch import varmode
+
+    plan = build(var, scan)
+    if not plan:
+        return None
+    reg = register(with_buckets(plan), list(scan.ledger.events()))
+    out = {}
+    for name, text in (("register.csv", register_csv(reg)), ("register.json", json.dumps(reg, indent=1, sort_keys=True) + "\n")):
+        p = scan.dir / name
+        p.write_text(text)
+        varmode.private(p)
+        out[name] = p
+    return out
+
+
+def _set_by(row: dict) -> dict:
+    """Which source set a step's due date, and NIST IR 8547's deprecation date when the item has one
+    (the queue item's `deadline_set_by`; absent on a ledger assessed before IR 8547 was a pack)."""
+    out = {}
+    if row.get("deadline_set_by"):
+        out["due_set_by"] = row["deadline_set_by"]
+    if row.get("deprecated_after"):
+        out["deprecated_after"] = row["deprecated_after"]
+    tr = row.get("transition") or {}
+    if tr.get("unchecked"):
+        out["key_size_unchecked"] = tr["unchecked"]
+    if tr.get("below_condition"):
+        out["already_disallowed"] = tr["below_condition"]
+    return out
+
+
+def _traps(deps: list[dict], steps: dict, rows: list[dict], blocked: set) -> list[dict]:
+    """For each dependency the plan rests on, the step a plan made from a list of systems would take
+    in the wrong order, and what the CBOM shows instead. Each is computed from this estate."""
+    out = []
+    for d in deps:
+        if d["kind"] == "certificate-authority":
+            ca = steps.get(d["id"]) if (steps.get(d["id"]) or {}).get("kind") == "ca" else None
+            if ca and ca["depends_on"]:
+                waits = ", ".join(x.split(":", 1)[1] for x in ca["depends_on"])
+                out.append({"dependency": d["id"], "sheet": "re-issue each service's certificate with ML-DSA, one row at a time",
+                            "cbom": f"{len(d['services'])} services chain to one internal CA; its new root must be verifiable "
+                                    f"everywhere it is held, and {waits} cannot verify ML-DSA until their software is replaced — "
+                                    "so the replacement comes first, then the root, then every leaf at once"})
+        elif d["kind"] == "library-build" and d.get("negotiates"):
+            others = [x for x in d["services"] if x not in d["negotiates"]]
+            out.append({"dependency": d["id"], "sheet": f"budget an upgrade for each of {', '.join(d['services'])}",
+                        "cbom": f"{', '.join(d['services'])} run one library build, on which {' and '.join(d['negotiates'])} already "
+                                f"{'negotiates' if len(d['negotiates']) == 1 else 'negotiate'} the hybrid group: for "
+                                f"{', '.join(others) or 'the rest'} it is a setting, not an upgrade"})
+        elif d["kind"] == "shared-key":
+            out.append({"dependency": d["id"], "sheet": "replace the certificate on the service's main listener",
+                        "cbom": f"the same key is {d['what']}: reissue for one and the other still serves the old key"})
+        elif d["kind"] == "client-trust-anchor":
+            out.append({"dependency": d["id"], "sheet": f"move {', '.join(d['services'])} to post-quantum signatures on the agency's schedule",
+                        "cbom": f"{', '.join(d['services'])} trusts client certificates from {d['name'].split(',')[0].replace('CN=', '')}, "
+                                "whose keys its partners hold: their reissue sets the pace"})
+    req = [s for s in steps.values() if s["kind"] == "require" and s["state"] != "done"]
+    if req:
+        out.append({"dependency": None, "sheet": "switch each service to post-quantum key exchange when its row comes up",
+                    "cbom": f"{len(req)} services still accept classical key exchange; requiring the hybrid group refuses every client "
+                            "that cannot offer it, so each is offered first, its clients measured, then required"})
+    if blocked:
+        by = defaultdict(list)
+        for s_, fn in sorted(blocked):
+            by[s_].append({"key-establishment": "key exchange", "signature": "signatures"}[fn])
+        what = "; ".join(f"{s_} ({' and '.join(f)})" for s_, f in by.items())
+        out.append({"dependency": None, "sheet": "schedule every service's change for its deadline year",
+                    "cbom": f"no setting can move {what}: the software lists no post-quantum algorithm for it, so that work is "
+                            "procurement, and it starts now"})
+    # Strongest first: the orderings a row-by-row plan gets most wrong.
+    kind = {d["id"]: d["kind"] for d in deps}
+    weight = {"certificate-authority": 0, "procurement": 1, "library-build": 2, "require": 3, "shared-key": 4, "client-trust-anchor": 5}
+
+    def strength(t):
+        if t["dependency"]:
+            return weight[kind[t["dependency"]]]
+        return weight["procurement" if "procurement" in t["cbom"] else "require"]
+    return sorted(out, key=strength)
+
+
+def _topo(steps: dict, rank: dict) -> list[str]:
+    """Dependencies first; among steps free at the same time, earlier deadline, then higher priority."""
+    done, out = set(), []
+    key = lambda s: (s["due"] or "9999", rank.get(s.get("service"), 50), s["id"])  # noqa: E731
+    while len(out) < len(steps):
+        ready = [s for s in steps.values() if s["id"] not in done and all(d in done or d not in steps for d in s["depends_on"])]
+        if not ready:
+            # Nothing is free: the steps left wait on each other. Today's rules cannot build that; if a
+            # later one does, the order still ends, and every step taken this way says so (`cycle`).
+            ready = [s for s in steps.values() if s["id"] not in done]
+            for s in ready:
+                s["cycle"] = True
+        nxt = min(ready, key=key)
+        done.add(nxt["id"])
+        out.append(nxt["id"])
+    return out
+
+
+def lab_build(capture: dict | None, house: dict | None, assume: frozenset = frozenset()) -> dict | None:
+    """The lab estate's plan. No owner's facts are supplied, so nothing is ranked by mission; lanes are
+    hosts ordered by how much they are used. What the CBOM gives instead is who holds whom back: a
+    server that refuses a hybrid group its clients offer is the blocker; a listener that accepts one no
+    client offers waits for its clients; requiring the hybrid group refuses a measured share of today's
+    handshakes, from known VLANs."""
+    if not capture or not house:
+        return None
+    servers = {f"{s['host']}:{s['port']}": s for s in capture.get("inside_servers", [])}
+    ssh = {f"{s['host']}:{s['port']}": s for s in capture.get("ssh", [])}
+    vlan_of_comp: dict[str, Counter] = defaultdict(Counter)
+    for c in house["doc"]["components"]:
+        props: dict[str, list] = {}
+        for p in c.get("properties", []):
+            props.setdefault(p["name"], []).append(p["value"])
+        sj = json.loads(props.get("pqch:subject", ["{}"])[0])
+        if sj.get("kind") != "endpoint":
+            continue
+        for pv in props.get("pqch:parameters", []):
+            for v, n in (json.loads(pv).get("client_vlans") or {}).items():
+                vlan_of_comp[f"{sj['host']}:{sj['port']}"][int(v)] += n
+    vlans = {v["vlan"]: v for v in capture.get("vlans", [])}
+    steps: dict[str, dict] = {}
+    deps = []
+
+    def step(sid, **kw):
+        return steps.setdefault(sid, {"id": sid, "depends_on": [], "entries": [], "state": "ready", "fields": [], **kw})
+
+    for v, info in sorted(vlans.items()):
+        behind = info.get("legacy", 0) + info.get("classical13", 0)
+        if not behind:
+            continue
+        hosts = sorted({a.rsplit(":", 1)[0] for a, vs in vlan_of_comp.items() if v in vs})
+        deps.append({"kind": "client-vlan", "id": f"vlan:{v}", "name": f"VLAN {v} clients",
+                     "what": f"{info['clients']} clients: " + ", ".join(x for x in (
+                         f"{info.get('hybrid', 0)} offer a hybrid group" if info.get("hybrid") else "",
+                         f"{info.get('classical13', 0)} offer TLS 1.3 without one" if info.get("classical13") else "",
+                         f"{info.get('legacy', 0)} never offer TLS 1.3" if info.get("legacy") else "") if x),
+                     "services": hosts, "entries": [],
+                     "consequence": f"every listener their handshakes reach refuses {behind} of them once it requires the hybrid group"})
+        step(f"clients:{v}", kind="clients", service=f"VLAN {v}", wave="next", due=None,
+             title=f"Upgrade or replace the clients on VLAN {v} that cannot offer a hybrid group",
+             why=deps[-1]["what"] + "; a client is the blocker wherever it is the one that cannot follow",
+             fields=["what each client offered, in every handshake (capture)", "the client's VLAN, from the frame's tag"],
+             touch=[f"vlan:{v}"])
+    quiet: list[str] = []
+    for r in house["listeners"]:
+        a = r["address"]
+        host = a.rsplit(":", 1)[0]
+        cap = servers.get(a) or ssh.get(a)
+        hs = (cap or {}).get("handshakes") or (cap or {}).get("sessions") or 0
+        offered = (servers.get(a) or {}).get("hybrid_offered")
+        vs = sorted(vlan_of_comp.get(a, {}))
+        client_deps = [f"clients:{v}" for v in vs if f"clients:{v}" in steps]
+        touch = [f"vlan:{v}" for v in vs]
+        # A weak certificate is the scan's own finding: it needs no captured traffic to be a step, and a
+        # listener with two of them gets two steps.
+        weak = [c for c in r.get("certs") or [] if c.get("bits") and c["bits"] < 2048]
+        for i, c in enumerate(weak):
+            step(f"cert:{a}" if i == 0 else f"cert:{a}:{i + 1}", kind="cert", service=host, wave="now", due=None,
+                 title=f"Replace the {c['name']}-{c['bits']} certificate on {a}",
+                 why=f"{c['name']}-{c['bits']} is below today's classical floor, before any quantum question; valid until {c.get('not_after')}",
+                 fields=["the certificate the listener presents (targeted scan)"])
+        if "capture" not in r["layers"]:
+            if not r["hybrid_accepted"]:
+                quiet.append(a)
+            continue
+        if "scan" not in r["layers"]:
+            step(f"scope:{a}", kind="scope", service=host, wave="now", due=None, title=f"Add {a} to the scope for a targeted check",
+                 why=f"seen in {hs:,} captured handshakes but never asked what it accepts", fields=["every server that spoke, from the capture"], touch=touch)
+            continue
+        pre = []
+        if not r["hybrid_accepted"]:
+            st = step(f"enable:{a}", kind="enable", service=host, wave="now", due=None, title=f"Offer a hybrid group on {a}",
+                      why=(f"clients offered one in {offered:,} of its {hs:,} handshakes and it refused every one: the server is the blocker"
+                           if offered else "it accepts no hybrid group"),
+                      fields=["what the listener accepts when asked (targeted scan)", "what its clients offered (capture)"], touch=touch)
+            pre = [st["id"]]
+        refused = (hs - offered) if offered is not None else None
+        why = ("" if offered is None else
+               f"requiring it today would refuse {refused:,} of {hs:,} handshakes ({round(100 * refused / hs) if hs else 0}%), from clients on VLAN "
+               + ", ".join(str(v) for v in vs) + "; ")
+        if r["hybrid_accepted"] and not r["hybrid_chosen"] and offered == 0:
+            why += "it accepts a hybrid group no client has offered: enabled, never used"
+        if r["protocol"] == "ssh":
+            why += ("the capture records the key exchange each SSH session agreed, not what the client offered: "
+                    "the clients are measured first, with a probe per kind of client")
+        step(f"require:{a}", kind="require", service=host, wave="then", due=None, title=f"Require the hybrid group on {a}",
+             depends_on=pre + client_deps, why=why.rstrip("; ") or "the clients are measured first",
+             fields=["posture on the wire, chosen against accepted (capture and scan merged)", "the share of handshakes whose client offered a hybrid group",
+                     "the clients' VLANs"], touch=touch)
+    if quiet:
+        step("enable:quiet", kind="enable", service="no traffic seen", wave="now", due=None,
+             title=f"Offer a hybrid group on {len(quiet)} listeners no captured handshake reached",
+             why="the targeted scan finds no hybrid group accepted on " + ", ".join(quiet) + "; with no traffic across the mirror there is "
+                 "nothing to measure about their clients — embedded management interfaces, mostly, whose path is the vendor's firmware",
+             fields=["what each listener accepts when asked (targeted scan)", "every server that spoke, from the capture: these did not"])
+    for s in steps.values():
+        s.setdefault("touch", [])
+    freed = _settle(steps, assume)
+    use = Counter()
+    for a, srv in {**servers, **ssh}.items():
+        use[a.rsplit(":", 1)[0]] += srv.get("handshakes") or srv.get("sessions") or 0
+    vl = sorted({s["service"] for s in steps.values() if s["kind"] == "clients"}, key=lambda x: int(x.split()[1]))
+    hosts = sorted({s["service"] for s in steps.values() if s["kind"] != "clients" and s["service"] != "no traffic seen"}, key=lambda h: (-use[h], h))
+    lanes = [{"id": v, "label": f"{v} clients", "sub": f"{vlans[int(v.split()[1])]['clients']} clients"} for v in vl] + \
+        [{"id": h, "label": h, "sub": f"{use[h]:,} handshakes seen"} for h in hosts] + \
+        ([{"id": "no traffic seen", "label": "no traffic seen", "sub": f"{len(quiet)} listeners"}] if quiet else [])
+    rank = {h: i for i, h in enumerate(hosts)}
+    order = _topo(steps, rank)
+    waves = [{"id": w, "label": label, "steps": [steps[i] for i in order if steps[i]["wave"] == w]}
+             for w, label in (("now", "Now"), ("next", "Clients"), ("then", "Then require"))]
+    waves = [w for w in waves if w["steps"]]
+    traps = []
+    blocker = max((s for s in steps.values() if s["kind"] == "enable" and "refused every one" in s["why"]), key=lambda s: len(s["why"]), default=None)
+    if blocker:
+        traps.append({"dependency": None, "sheet": "wait for the clients to support post-quantum key exchange",
+                      "cbom": f"{blocker['title'].replace('Offer a hybrid group on ', '')}: {blocker['why']}"})
+    unused = next((s for s in steps.values() if s["kind"] == "require" and "never used" in s["why"]), None)
+    if unused:
+        traps.append({"dependency": None, "sheet": "count a server that supports the hybrid group as done",
+                      "cbom": f"{unused['title'].replace('Require the hybrid group on ', '')}: {unused['why']}"})
+    worst = max((d for d in deps), key=lambda d: vlans[int(d["id"].split(':')[1])].get("legacy", 0), default=None)
+    if worst:
+        traps.append({"dependency": worst["id"], "sheet": "require the hybrid group on every server by the deadline",
+                      "cbom": f"{worst['name']}: {worst['what']}; {worst['consequence']}"})
+    return {"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": capture.get("run"), "estate": "lab", "dependencies": deps, "lanes": lanes, "ranking": [],
+            "wave_labels": {"now": "now", "next": "clients", "then": "then require"}, "waves": waves, "steps": len(steps),
+            "traps": traps, "entries": house["entries"], "done": 0,
+            "assumed": sorted(a for a in assume if a in steps), "freed": freed, "whatif": _whatif(steps, assume, freed),
+            "waiting": sum(1 for s in steps.values() if s["state"] == "waiting")}
+
+
+# ---------------------------------------------------------------- one server
+SYSTEM_LANES = [("services", "Services on the host", "what its applications listen with"),
+                ("os", "Operating system", "its SSH server and its own files"),
+                ("controller", "Management controller", "the BMC: its settings and its firmware"),
+                ("firmware", "Firmware and boot chain", "the BIOS, Secure Boot, the TPM")]
+
+
+
+def _latest_date(v) -> str:
+    """A finding's date parameter as `YYYY-MM-DD`. The collector folds findings that share a key identity
+    and merges their parameters, so a date may arrive as a list (two Secure Boot KEK certificates on
+    one key, the demo box): the latest counts."""
+    if isinstance(v, list):
+        return max((_latest_date(x) for x in v), default="")
+    return (v or "")[:10] if isinstance(v, str) else ""
+
+def _attested_line(att: dict | None, pick) -> tuple[str, dict] | None:
+    """One firmware row of a supplier's statement, as a sentence for a step's why and as data."""
+    if not att:
+        return None
+    row = next((r for r in att["firmware"] if pick(r)), None)
+    if not row:
+        return None
+    pq = row.get("post_quantum") or {}
+    route = (f"{', '.join(pq.get('algorithms') or [])}" + (f" in version {pq['version']}" if pq.get("version") else "")
+             + (f", {pq['available']}" if pq.get("available") else ", no date given")) if pq else "no post-quantum route stated"
+    ver = ("the installed version" if row["agrees"] else f"version {row['attested_version']}, not the installed {row['observed_version']}"
+           if row["agrees"] is False else f"version {row['attested_version']}")
+    text = (f"The supplier's statement ({att['supplier']}, {att['issued']}{', illustrative' if att.get('illustrative') else ''}; "
+            f"reported, not observed) says of {ver}: supportability {row['supportability']}; {route}")
+    return text, {"supplier": att["supplier"], "issued": att["issued"], "illustrative": att.get("illustrative", False),
+                  "firmware": row["name"], "supportability": row["supportability"], "agrees": row["agrees"], "post_quantum": pq or None}
+
+
+def system_build(run: Run, assume: frozenset = frozenset(), pack_path: str | Path = "policy/packs/m-26-15.yaml",
+                 cnsa_path: str | Path = "policy/packs/cnsa-2.0.yaml", attestation: dict | None = None) -> dict | None:
+    """A server's plan, from its system scan (`kind: scan-system`): what to fix on it, in what order,
+    and what waits for its supplier. Rules only, over the run's findings and `platform.observed`
+    facts. No owner's facts are supplied for a single server, so nothing is prioritized: its key
+    establishment and signatures fall in the memo's remaining queue, by 2035, and the plan says what
+    the dates would be if the owner named it a high-value or high-impact system."""
+    import datetime as dt
+
+    import yaml
+
+    events = list(run.ledger.events())
+    if not events or events[0]["payload"].get("kind") != "scan-system":
+        return None
+    scope = events[0]["payload"]["scope"]
+    system = (scope.get("systems") or [{}])[0].get("name", "system")
+    ctl = (scope.get("controllers") or [None])[0]
+    addresses = set((scope.get("systems") or [{}])[0].get("addresses") or [])
+    pack = yaml.safe_load(Path(pack_path).read_text())
+    q = {x["id"]: x for x in pack["queues"]}
+    cnsa = yaml.safe_load(Path(cnsa_path).read_text()) if Path(cnsa_path).is_file() else {}
+    # CNSA 2.0's dates for a firmware-signing root (FAQ Ver. 2.2, Timeframe): no new NSS product with a non-QR
+    # burned-in root of trust from 2027, and equipment that cannot support the suite phased out by 2030-12-31.
+    cnsa_dates = {d["id"]: d for d in ((cnsa.get("timeline") or {}).get("dates") or []) if isinstance(d, dict)}
+    fw_sign = cnsa_dates.get("phase-out") if cnsa.get("verified") else None
+    remaining = str(q["remaining-2035"]["deadline"])
+    ir_path = Path(pack_path).with_name("ir-8547.yaml")
+    ir = (yaml.safe_load(ir_path.read_text()) or {}).get("transition", {}) if ir_path.is_file() else {}
+    kex_pri, sig_pri, tls13 = str(q["kex-2030"]["deadline"]), str(q["sig-2031"]["deadline"]), str(q["tls13-2030"]["deadline"])
+    when = events[0]["ts"][:10]
+    today = dt.date.fromisoformat(when)
+
+    finds = {e["id"]: e for e in events if e["type"] == "finding.observed"}
+    facts = [e["payload"] for e in events if e["type"] == "platform.observed"]
+    # When the server was read: the jobs' own times, which a replay keeps; the run's own time is the replay's.
+    scans = [e["payload"] for e in events if e["type"] == "scan.completed"]
+    reads = sorted(x["started_at"] for x in scans if x.get("started_at"))
+    replayed = next((x["replayed_from"].get("recording") for x in scans
+                     if (x.get("replayed_from") or {}).get("source_run")), None)
+    fact = {f["source"]: f for f in facts}
+    post = {(e["payload"]["subject"]["host"], e["payload"]["subject"]["port"]): e["payload"]["classification"]
+            for e in events if e["type"] == "assessment.made" and e["payload"].get("rule_id") == "posture/kex-auth/1"}
+
+    def ref(fid):
+        return {"fingerprint": finds[fid]["payload"]["fingerprint"], "event": fid}
+
+    def where(f):
+        s = f["subject"]
+        return f"{s['host']}:{s['port']}" if s["kind"] == "endpoint" else s.get("path") or s.get("component")
+
+    def pick(pred):
+        return [fid for fid, e in finds.items() if pred(e["payload"])]
+
+    steps: dict[str, dict] = {}
+    deps: list[dict] = []
+
+    def step(sid, **kw):
+        kw.setdefault("depends_on", [])
+        kw.setdefault("entries", [])
+        kw.setdefault("touch", [])
+        return steps.setdefault(sid, {"id": sid, "state": "ready", "fields": [], **kw})
+
+    def lane_of(host, port=None):
+        if ctl and host == ctl["host"]:
+            return "controller"
+        return "os" if host in addresses and port == 22 else "services"
+
+    # --- Before any quantum question: what crosses in the clear.
+    clear: dict[str, list[str]] = {}
+    for fid in pick(lambda p: p["asset"]["name"] == "PostgreSQL" and p["asset"]["parameters"].get("tls_offered") is False):
+        clear.setdefault(finds[fid]["payload"]["subject"]["host"], []).append(fid)
+    for host, fids in sorted(clear.items()):
+        ports = sorted(finds[x]["payload"]["subject"]["port"] for x in fids)
+        step(f"tls-on:{host}", kind="tls-on", service="services", wave="now", due=None,
+             title=f"Turn on TLS at the database listener{'s' if len(ports) > 1 else ''} on {host} ({', '.join(f':{p}' for p in ports)})",
+             why="each answers PostgreSQL's request for TLS with a refusal, so every connection, its password included, crosses "
+                 "the network in the clear: a gap today, before any quantum question, and nothing to migrate until TLS is there",
+             fields=["the listener's answer to an SSLRequest (probe)"], entries=[ref(x) for x in fids])
+        on = f"tls-on:{host}"
+        en = step(f"enable:{host}:db", kind="enable", service="services", wave="next", due=remaining, depends_on=[on],
+                  title=f"Then offer an ML-KEM hybrid group on the database listener{'s' if len(ports) > 1 else ''} on {host}",
+                  why="once TLS is on, it starts with whatever groups the TLS library offers; the hybrid has to be offered beside them",
+                  fields=["the listener's answer to an SSLRequest (probe)"])
+        step(f"require:{host}:db", kind="require", service="services", wave="then", due=remaining, depends_on=[en["id"]],
+             title=f"Then require the hybrid on the database listener{'s' if len(ports) > 1 else ''} on {host}",
+             why="required once its clients, the applications that connect to the pooler, are seen to offer it",
+             fields=["posture on the wire, after TLS is on"])
+
+    # --- Self-signed defaults on TLS listeners.
+    for fid in pick(lambda p: p["layer"] == "wire" and p["asset"]["type"] == "certificate"
+                    and p["asset"]["parameters"].get("subject") and p["asset"]["parameters"].get("subject") == p["asset"]["parameters"].get("issuer")):
+        f = finds[fid]["payload"]
+        a, prm = where(f), f["asset"]["parameters"]
+        host, port = f["subject"]["host"], f["subject"]["port"]
+        sid = f"cert:{a}"
+        if sid in steps:
+            steps[sid]["entries"].append(ref(fid))
+            continue
+        default = "CN=localhost" in prm["subject"]
+        step(sid, kind="ca-issue", service=lane_of(host, port), wave="next", due=None,
+             title=f"Replace the self-signed certificate on {a} with one the organization's CA issues",
+             why=(f"it serves {'a product default' if default else 'a certificate it signed itself'} ({f['asset']['name']}"
+                  f"{'-' + str(prm['key_bits']) if prm.get('key_bits') else ''}): no client can tell it from an impostor's, and a "
+                  "certificate outside the CA cannot be moved to a post-quantum signature with the rest; issue it from the CA "
+                  "now, and it re-roots with the CA later"),
+             fields=["the certificate the listener presents: subject equals issuer"], entries=[ref(fid)])
+
+    # --- Key establishment on the wire: the hybrid offered or not.
+    for (host, port), c in sorted(post.items()):
+        a = f"{host}:{port}"
+        on_wire = pick(lambda p, h=host, pt=port: p["layer"] == "wire" and p["subject"].get("host") == h and p["subject"].get("port") == pt
+                       and p["asset"]["role"] == "key-establishment")
+        if not on_wire:
+            continue
+        # Post-quantum key exchange of either kind: the standardised names, and the ones that are
+        # post-quantum by design and not standardised (listed apart since the posture rule split them; an
+        # older ledger has them all in `kex_pq`).
+        pq = (c.get("kex_pq") or []) + (c.get("kex_pq_not_standardised") or [])
+        lane = lane_of(host, port)
+        nist = [k for k in pq if "MLKEM" in k.upper() or "ML-KEM" in k.upper()]
+        if lane == "controller":
+            continue   # the controller's offers move with its firmware: the supplier step below
+        if nist:
+            step(f"require:{a}", kind="require", service=lane, wave="then", due=remaining,
+                 title=f"Require the ML-KEM hybrid on {a}", why=f"it already accepts {', '.join(nist)} beside classical groups",
+                 fields=["posture on the wire"], entries=[ref(x) for x in on_wire])
+            continue
+        if pq:
+            up = step(f"upgrade:{a}", kind="enable", service=lane, wave="next", due=remaining,
+                      title=f"Upgrade the server on {a} to one that offers ML-KEM key exchange",
+                      why=(f"it negotiates {', '.join(pq)}, a post-quantum hybrid that is not in FIPS 203 and not on the memo's list; "
+                           "the federal hybrid is ML-KEM (for OpenSSH, mlkem768x25519-sha256, from release 9.9). Due by "
+                           f"{remaining} as a remaining system; by {kex_pri} if the owner names this server high-value"),
+                      fields=["what the listener accepts (targeted scan)", "the quantum-vulnerable table (M-26-15, Appendix A)"],
+                      entries=[ref(x) for x in on_wire])
+        else:
+            up = step(f"enable:{a}", kind="enable", service=lane, wave="next", due=remaining,
+                      title=f"Offer an ML-KEM hybrid group on {a}",
+                      why=f"it accepts only classical key exchange ({', '.join((c.get('kex_classical') or [])[:5])}); a recording made today "
+                          "can be decrypted once a quantum computer exists. Due by "
+                          f"{remaining} as a remaining system; by {kex_pri} if named high-value",
+                      fields=["what the listener accepts (targeted scan)"], entries=[ref(x) for x in on_wire])
+        step(f"require:{a}", kind="require", service=lane, wave="then", due=remaining,
+             title=f"Then require the hybrid on {a}", depends_on=[up["id"]],
+             why="offered first, so clients that can follow are seen to; required once the clients that cannot are known",
+             fields=["posture on the wire"])
+        for fid in pick(lambda p, h=host, pt=port: p["subject"].get("host") == h and p["subject"].get("port") == pt
+                        and p["asset"]["name"] in ("TLS 1.2",) and p["asset"]["type"] == "protocol"):
+            steps[up["id"]]["entries"].append(ref(fid))
+
+    # --- The controller: settings the owner can change, and what moves only with its firmware.
+    ctl_fact = fact.get("controller") or {}
+    settings = ctl_fact.get("settings") or {}
+    if ctl:
+        cname = f"{ctl['host']}"
+        snmp = pick(lambda p: p["subject"].get("component") == "bmc:snmp" and p["asset"]["parameters"].get("community_strings_accepted"))
+        if snmp:
+            step("bmc:snmp", kind="setting", service="controller", wave="now", due=None,
+                 title=f"Restrict the controller's SNMP to version 3 ({cname})",
+                 why="it accepts SNMP v1 and v2c, which authenticate with a community string sent in the clear; v3 authenticates "
+                     "and encrypts. A setting, today",
+                 fields=["the controller's SNMP settings (Redfish)"], entries=[ref(x) for x in snmp])
+        if settings.get("fips_mode") == "Disabled":
+            step("bmc:fips", kind="setting", service="controller", wave="now", due=None,
+                 title=f"Decide on the controller's FIPS mode ({cname})",
+                 why=f"it is off; the module it would use is {settings.get('fips_module', 'not named')}. Where the estate must use "
+                     "validated modules, this is a setting; the module's validation has its own clock (note 10)",
+                 fields=["the controller's security settings (Redfish)"])
+        ssh_cfg = pick(lambda p: p["subject"].get("component") == "bmc:ssh-config" and p["asset"]["role"] == "key-establishment")
+        wire_ctl = pick(lambda p: p["layer"] == "wire" and p["subject"].get("host") == ctl["host"] and p["asset"]["role"] == "key-establishment")
+        ident = pick(lambda p: p["subject"].get("component", "").startswith("bmc:certificate:"))
+        fwv = ctl_fact.get("controller", {}).get("firmware_version")
+        ctl_att = _attested_line(attestation, lambda r: r.get("tls") or "controller" in r["name"].lower() or "idrac" in r["name"].lower())
+        sup = step("supplier:controller", kind="supplier", service="controller", wave="supplier", due=remaining,
+                   title=f"Controller firmware with ML-KEM key exchange, from the vendor (now {fwv or 'unknown'})",
+                   why="its HTTPS and SSH accept only classical key exchange, on the wire and as configured; its SSH list is the "
+                       "vendor's to extend, and its web server's groups are fixed in the firmware. Ask the vendor for the release "
+                       f"and the date; it falls in the memo's remaining queue, by {remaining}"
+                       + (f". {ctl_att[0]}" if ctl_att else ""), attested=ctl_att[1] if ctl_att else None,
+                   fields=["what its listeners accept (targeted scan)", "its configured key exchange (Redfish)", "its firmware version (Redfish)"],
+                   entries=[ref(x) for x in wire_ctl + ssh_cfg])
+        step("require:controller", kind="require", service="controller", wave="then", due=remaining,
+             title="Then require the hybrid on the controller's HTTPS and SSH", depends_on=[sup["id"]],
+             why="once the firmware offers it; the controller's clients are a handful of administrators' tools",
+             fields=["posture on the wire"])
+        if ident:
+            step("supplier:identity", kind="supplier", service="controller", wave="supplier", due=sig_pri,
+                 title="Ask the vendor which algorithms sign the controller's identity certificates",
+                 why=f"the controller holds {len(ident)} certificates from the vendor's own CAs (factory identity, TPM attestation, "
+                     "component verification) and reports their issuers and dates but not their keys: the CBOM lists them as "
+                     "algorithm unknown until the vendor attests to them",
+                 fields=["the controller's certificate list (Redfish)"], entries=[ref(x) for x in ident])
+        deps.append({"kind": "supplier", "id": "dep:controller", "name": "The controller's firmware",
+                     "what": f"its TLS, its SSH and its identity certificates are set by the vendor's firmware ({fwv or 'version unknown'})",
+                     "services": ["controller"], "entries": [ref(x) for x in wire_ctl + ident],
+                     "consequence": "none of them moves with an operating-system update; each waits for a firmware release"})
+
+    # --- Firmware and the boot chain.
+    fwf = fact.get("firmware") or {}
+    sb_on = (fwf.get("settings") or {}).get("secure_boot")
+    sbc = {fid: finds[fid]["payload"] for fid in pick(lambda p: p["subject"].get("component", "").startswith("secure-boot:"))}
+
+    def expired(p):
+        na = _latest_date(p["asset"]["parameters"].get("not_after"))     # a folded finding carries a list of dates
+        return bool(na) and dt.date.fromisoformat(na) < today
+    ms2011 = [fid for fid, p in sbc.items() if "Microsoft" in p["asset"]["parameters"].get("subject", "") and "2011" in p["asset"]["parameters"].get("subject", "")]
+    ms2023 = [fid for fid, p in sbc.items() if "Microsoft" in p["asset"]["parameters"].get("subject", "") and "2023" in p["asset"]["parameters"].get("subject", "")]
+    bios = next((x for x in fwf.get("firmware") or [] if x["name"] == "BIOS"), {})
+    if ms2011 and not ms2023:
+        upd = step("fw:ca2023", kind="firmware", service="firmware", wave="next", due=None,
+                   title=f"Install the 2023 Microsoft UEFI CAs: a BIOS release that carries them, or a signed db and KEK update (BIOS now {bios.get('version', '?')})",
+                   why=f"the boot chain trusts only Microsoft's 2011 CAs, which expired in 2026 ({sum(1 for x in ms2011 if expired(sbc[x]))} of "
+                       f"{len(ms2011)} past their dates on {when}); bootloaders and option ROMs signed under the 2023 CAs will not verify",
+                   fields=["the Secure Boot databases, read from the firmware's variables"], entries=[ref(x) for x in ms2011])
+        if sb_on is False:
+            step("fw:secureboot", kind="firmware", service="firmware", wave="then", due=None, depends_on=[upd["id"]],
+                 title="Then turn Secure Boot on",
+                 why="it is off, so nothing the firmware loads is checked against these databases at all; turning it on before the "
+                     "2023 CAs are in risks a server that will not boot a newly signed loader",
+                 fields=["the Secure Boot state, from the firmware's variables and the controller"])
+    elif sb_on is False:
+        step("fw:secureboot", kind="firmware", service="firmware", wave="now", due=None, title="Turn Secure Boot on",
+             why="it is off, so nothing the firmware loads is checked", fields=["the Secure Boot state"])
+    roots = [fid for fid, p in sbc.items() if p["subject"]["component"] in ("secure-boot:PK", "secure-boot:KEK", "secure-boot:db")
+             and p["asset"]["name"] in ("RSA", "ECDSA") and not p["asset"]["parameters"].get("revoked")]
+    if roots:
+        longest = max((_latest_date(sbc[x]["asset"]["parameters"].get("not_after")) for x in roots), default="")
+        fw_due = str(fw_sign["by"]) if fw_sign else None
+        bios_att = _attested_line(attestation, lambda r: r["name"].upper() == "BIOS")
+        step("supplier:signing", kind="supplier", service="firmware", wave="supplier", due=fw_due or sig_pri,
+             depends_on=["fw:ca2023"] if "fw:ca2023" in steps else [],
+             title="A post-quantum firmware-signing root, and a way to rotate the platform key, KEK and db, from the vendor",
+             why=f"every key the boot chain trusts is RSA or ECDSA ({len(roots)} certificates, valid to {longest}); a firmware "
+                 "signature is checked for the life of the hardware, so the root has to change before the hardware retires"
+                 + (f"; CNSA 2.0 phases out equipment that cannot support the suite by {fw_sign['by']} in national security "
+                    f"systems, and from {cnsa_dates['root-of-trust']['by'].year} no new product there may carry a burned-in "
+                    "root of trust on a quantum-vulnerable primitive" if fw_sign and "root-of-trust" in cnsa_dates else "")
+                 + (f". {bios_att[0]}" if bios_att else ""), attested=bios_att[1] if bios_att else None,
+             fields=["the Secure Boot databases' certificates and keys", "the quantum-vulnerable table"], entries=[ref(x) for x in roots])
+        deps.append({"kind": "firmware-trust", "id": "dep:bootchain", "name": f"The BIOS ({bios.get('version', '?')}) and its trust databases",
+                     "what": f"the BIOS enforces {len(sbc)} certificates in the platform key, KEK, db and dbx when Secure Boot is on",
+                     "services": ["firmware"], "entries": [ref(x) for x in sbc],
+                     "consequence": "a new CA or a new signing algorithm arrives as a firmware or key-database update, signed by the key it replaces"})
+
+    # --- The host's own files.
+    ff = fact.get("files") or {}
+    unread = [u for u in ff.get("unreadable") or [] if "(absent)" not in u]
+    if unread:
+        step("os:privileged-read", kind="inventory", service="os", wave="now", due=None,
+             title=f"Read the {len(unread)} paths an unprivileged read could not open",
+             why=f"the scan read the host's files as an ordinary user (uid {ff.get('read_as_uid')}); {', '.join(unread[:4])}"
+                 f"{' and more' if len(unread) > 4 else ''} hold private keys the inventory cannot see. One privileged, read-only pass "
+                 "fills the gap; until then the CBOM lists their public halves only",
+             fields=["the reader's list of unreadable paths"])
+    files = pick(lambda p: p["layer"] == "host" and p["asset"]["role"] in ("signature", "other")
+                 and p["asset"]["name"] in ("RSA", "ECDSA", "Ed25519", "DSA"))
+    if files:
+        waits = [x for x in ("os:privileged-read",) if x in steps] + [k for k in steps if k.startswith("upgrade:") and steps[k]["service"] == "os"]
+        step("os:keys", kind="replace", service="os", wave="then", due=remaining, depends_on=waits,
+             title=f"Reissue the host's own certificates and keys under post-quantum signatures as their software allows ({len(files)} files)",
+             why="SSH host keys, the cluster CA and service certificates on the host are RSA, ECDSA or Ed25519: each moves when the "
+                 "software that uses it accepts ML-DSA, and a CA before the certificates it issued",
+             fields=["files read on the host: certificates, public keys, the CA flag"], entries=[ref(x) for x in files])
+    for s in steps.values():
+        s.setdefault("touch", [])
+        s["touch"] = [d["id"] for d in deps if s["service"] in d["services"]]
+    freed = _settle(steps, assume)
+    # A server's list runs by wave: today's settings, then updates, then requiring, then the supplier;
+    # dependencies first within that, then the earlier deadline, then the lane.
+    rank = {lane: i for i, (lane, _, _) in enumerate(SYSTEM_LANES)}
+    wave_rank = {"now": 0, "next": 1, "supplier": 2, "then": 3}
+    done_ids, order = set(), []
+    while len(order) < len(steps):
+        ready = [x for x in steps.values() if x["id"] not in done_ids and all(d in done_ids or d not in steps for d in x["depends_on"])] \
+            or [x for x in steps.values() if x["id"] not in done_ids]
+        nxt = min(ready, key=lambda x: (wave_rank.get(x["wave"], 9), x["due"] or "9999", rank.get(x["service"], 9), x["id"]))
+        done_ids.add(nxt["id"])
+        order.append(nxt["id"])
+    lanes = [{"id": lid, "label": label, "sub": sub} for lid, label, sub in SYSTEM_LANES if any(s["service"] == lid for s in steps.values())]
+    waves = [{"id": w, "label": label, "steps": [steps[i] for i in order if steps[i]["wave"] == w]}
+             for w, label in (("now", "Now: settings"), ("next", "Next: updates"), ("supplier", "From the vendor"), ("then", "Then: require"))]
+    waves = [w for w in waves if w["steps"]]
+    traps = []
+    hybrid_on_host = [(key, kx) for key, c in post.items()
+                      for kx in [(c.get("kex_pq") or []) + (c.get("kex_pq_not_standardised") or [])]
+                      if kx and key[0] in addresses and not any("MLKEM" in k.upper() for k in kx)]
+    if hybrid_on_host:
+        (h, p), kex = hybrid_on_host[0]
+        traps.append({"dependency": None, "sheet": "mark the server post-quantum ready: its SSH negotiates a hybrid",
+                      "cbom": f"{h}:{p} negotiates {', '.join(kex)}, "
+                              "which is not ML-KEM; the controller on the same box offers no hybrid, and "
+                              + ("its database pooler offers no TLS at all" if any(k.startswith("tls-on:") for k in steps) else "its other listeners none")})
+    if "fw:ca2023" in steps:
+        traps.append({"dependency": "dep:bootchain", "sheet": "turn Secure Boot on",
+                      "cbom": "the only Microsoft CAs in its databases expired in 2026 and their 2023 replacements are absent: update the databases first"})
+    if ctl:
+        traps.append({"dependency": "dep:controller", "sheet": "patch the operating system and rescan",
+                      "cbom": "the controller's TLS, SSH and identity certificates and the boot chain's keys sit below the operating system; "
+                              "an OS update changes none of them"})
+    if unread:
+        traps.append({"dependency": None, "sheet": "count a scan run as an ordinary user as complete",
+                      "cbom": f"{len(unread)} paths, the private host keys among them, were unreadable to it: the inventory says so instead of omitting them"})
+    return with_buckets({"order": [dict(steps[i], n=k + 1) for k, i in enumerate(order)], "run": run.id, "estate": "system", "system": system,
+            "dependencies": deps, "lanes": lanes, "ranking": [],
+            "wave_labels": {"now": "now", "next": "next", "supplier": "vendor", "then": "then"}, "waves": waves,
+            "steps": len(steps), "traps": traps, "entries": cbom_entries(events), "findings": len(finds), "done": 0,
+            "assumed": sorted(a for a in assume if a in steps), "freed": freed, "whatif": _whatif(steps, assume, freed),
+            "waiting": sum(1 for s in steps.values() if s["state"] == "waiting"),
+            "attestation": attestation and {"supplier": attestation["supplier"], "issued": attestation["issued"],
+                                            "illustrative": attestation.get("illustrative", False), "run": attestation["run"],
+                                            "named": len(attestation["firmware"]),
+                                            "agree": sum(1 for r in attestation["firmware"] if r["agrees"]),
+                                            "differ": sum(1 for r in attestation["firmware"] if r["agrees"] is False),
+                                            "unseen": sum(1 for r in attestation["firmware"] if r["agrees"] is None),
+                                            "not_attested": len(attestation["not_attested"]),
+                                            "covered": sum(1 for r in attestation["firmware"] if r.get("covers")),
+                                            "by_supportability": {k: sum(1 for r in attestation["firmware"] if r["supportability"] == k)
+                                                                  for k in ("update", "replace", "end-of-life", "no-statement")}},
+            "read_from": min(reads) if reads else events[0]["ts"], "read_to": max(reads) if reads else events[0]["ts"],
+            "replayed": replayed, "replayed_at": events[0]["ts"] if replayed else None,
+            "device": next((f.get("device") for f in facts if f.get("device", {}).get("model")), {}),
+            "deadlines": {"remaining": remaining, "kex_prioritized": kex_pri, "sig_prioritized": sig_pri, "tls13": tls13,
+                          "deprecated_after": str(ir["deprecated_after"]) if ir.get("deprecated_after") else None,
+                          "disallowed_after": str(ir["disallowed_after"]) if ir.get("disallowed_after") else None}})

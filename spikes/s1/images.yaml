@@ -1,0 +1,46 @@
+# Every image the mini-agency and the harness plan to use, as of 2026-10-04.
+# The service list follows BRIEF "Targets" (legacy bases, web, identity,
+# database, messaging, Java, an internal certificate authority, hybrid
+# endpoints) and the images the design review checked (01-findings F-15).
+# role: target | harness | scanner | bundle
+# digest: what the check reads. Where the repository already pins the image (a Dockerfile, the
+#   runner's profiles, the bundle build) it is that pin; otherwise the digest the tag pointed at
+#   when S1 read it. The tag is kept for people; a tag that has since moved is reported, not followed.
+# build_time: true marks a lab-only tool that never runs on the GB10 and so needs no stand-in.
+# gb10: true when the image is meant to run on one GB10.
+images:
+  # --- slice and legacy bases
+  - {ref: "alpine:3.22", digest: "sha256:5291449c3df73caf6ed85e649dec1b9e818b39a5d8c871e97afc13e9cd5e8fa8", pinned_in: "agency/*/Dockerfile", role: target, gb10: true, why: "slice base: nginx and OpenSSH 10 with OpenSSL 3.5"}
+  - {ref: "ubuntu:14.04", digest: "sha256:64483f3496c1373bfd55348e88694d1c4d0c9b660dee6bfef5e12f43b9933b30", pinned_in: "agency/sftp-legacy/Dockerfile", role: target, gb10: true, why: "legacy base: OpenSSH 6.6, OpenSSL 1.0.1"}
+  - {ref: "ubuntu:16.04", digest: "sha256:1f1a2d56de1d604801a9671f301190704c25d604a416f59e03c04f5c6ffee0d6", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "legacy base"}
+  - {ref: "centos:7", digest: "sha256:be65f488b7764ad3638f236b7b515b3678369a5124c47b8d32916d6487418ea4", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "legacy base"}
+  - {ref: "debian:stretch", digest: "sha256:c5c5200ff1e9c73ffbf188b4a67eb1c91531b644856b4aefe86a58d2f0cb05be", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "legacy base"}
+  - {ref: "centos:6", digest: "sha256:a93df2e96e07f56ea48f215425c6f1673ab922927894595bb5c0ee4c5a955133", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: false, standin: "centos:7", why: "older legacy base, lab only"}
+  - {ref: "debian:jessie", digest: "sha256:32ad5050caffb2c7e969dac873bce2c370015c2256ff984b70c1c08b3a2816a0", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: false, standin: "debian:stretch", why: "older legacy base, lab only"}
+  # --- services planned for the full agency (M1)
+  - {ref: "nginx:1.28-alpine", digest: "sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "web"}
+  - {ref: "openquantumsafe/nginx:latest", digest: "sha256:5de15572d934c59c6a00c49bf73a348c41c9a4746e2eb3ff1f246d4b007ade32", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "hybrid web endpoint built on liboqs"}
+  - {ref: "openquantumsafe/curl:latest", digest: "sha256:18d07cfb79cf5c8d21d2326c40dd6875150f833b91742d1bf7041ccbda0b92b7", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "hybrid client, traffic generator"}
+  - {ref: "postgres:18", digest: "sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722", pinned_in: "spikes/s2/postgres/Dockerfile", role: target, gb10: true, why: "database; Debian 13, OpenSSL 3.5"}
+  - {ref: "postgres:17", digest: "sha256:d74eeac9a635390a49bc21bd49fccd973de707e2a53a76ac49b552b8712ec46f", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "database, the version the design review named"}
+  - {ref: "rabbitmq:4", digest: "sha256:1da79932eb36450a9a93bb7c6b44d04ee542b73e2819833403e364a0bc095709", pinned_in: "spikes/s2/rabbitmq/Dockerfile", role: target, gb10: true, why: "message broker (AMQP over TLS)"}
+  - {ref: "apache/kafka:4.1.0", digest: "sha256:bff074a5d0051dbc0bbbcd25b045bb1fe84833ec0d3c7c965d1797dd289ec88f", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "message broker (Kafka over TLS)"}
+  - {ref: "quay.io/keycloak/keycloak:26.4", digest: "sha256:9409c59bdfb65dbffa20b11e6f18b8abb9281d480c7ca402f51ed3d5977e6007", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "identity"}
+  - {ref: "tomcat:8.5", digest: "sha256:06982e168b3d83bd903c0c9a54f9e14fe5ee4a1a2cbcc602be27f6748229735e", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "legacy Java service"}
+  - {ref: "eclipse-temurin:8-jre", digest: "sha256:7806d0570e7234dccae4232e8273e87a0fcb74ca7c6f8692c9f5c672f355fd1d", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "legacy Java runtime"}
+  - {ref: "smallstep/step-ca:latest", digest: "sha256:a2b17872915c193259b75a5474c398326f41bd199f0842093e52cf4182bc8270", pinned_in: "S1 reading, 2026-10-05", role: target, gb10: true, why: "internal certificate authority"}
+  # --- harness
+  - {ref: "python:3.12-slim", digest: "sha256:dddfd7e07f9d15aeeca61529320492139d21cac7f0070c00609243e51e4e0016", pinned_in: "Dockerfile", role: harness, gb10: true, why: "harness base: Debian 13, OpenSSL 3.5"}
+  - {ref: "ghcr.io/astral-sh/uv:0.9.26", digest: "sha256:9a23023be68b2ed09750ae636228e903a54a05ea56ed03a934d00fe9fbeded4b", pinned_in: "Dockerfile", role: harness, gb10: true, why: "build tool in the harness image"}
+  - {ref: "docker:29-cli", digest: "sha256:b1805116a6a86cc591b5d5f60a910a0715cdcc9d18d866ad68b1457ead25c35c", pinned_in: "Dockerfile", role: harness, gb10: true, why: "Docker CLI and Compose in the runner"}
+  # --- scanners
+  - {ref: "ghcr.io/testssl/testssl.sh:3.2", digest: "sha256:31213829a371e90afc9beae12a715793190aecebe9b64488ea49f72de7ff3c62", pinned_in: "src/pqch/runner/profiles.yaml", role: scanner, gb10: true, why: "TLS"}
+  - {ref: "positronsecurity/ssh-audit:latest", digest: "sha256:6d5dee75fe91b5f6279f683f0e7d4374d2ba83e2227c8d9a17097aac2775127d", pinned_in: "src/pqch/runner/profiles.yaml", role: scanner, gb10: true, why: "SSH"}
+  - {ref: "ghcr.io/cbomkit/cbomkit-theia:latest", digest: "sha256:46a72eadc9849b919fc4c72e1c851f9783e03c35db8fad49ba99341ac97f8dea", pinned_in: "src/pqch/runner/profiles.yaml", role: scanner, gb10: true, why: "images"}
+  - {ref: "ghcr.io/cbomkit/cbomkit:latest", digest: "sha256:20d37926b979d7c901d130fe8a4178c3f87601df4a69e66e366710f767f6b007", pinned_in: "S1 reading, 2026-10-05", role: scanner, gb10: true, why: "CBOMkit service: source scanners, baseline"}
+  - {ref: "zeek/zeek:lts", digest: "sha256:70733f4e540ba1608e37e00c6a93d009f79734262c9ec2ba09d90aa9abc16de5", pinned_in: "S1 reading, 2026-10-05", role: scanner, gb10: true, why: "passive capture, client-side posture"}
+  # --- bundle
+  # registry:2 was listed here when the criterion was written; the bundle was built with
+  # the same software from GitHub's registry instead (Docker Hub was rate-limiting the host).
+  - {ref: "ghcr.io/distribution/distribution:3.0.0", digest: "sha256:4ba3adf47f5c866e9a29288c758c5328ef03396cb8f5f6454463655fa8bc83e2", pinned_in: "bundle/build.py", role: bundle, gb10: true, why: "the offline bundle's local registry"}
+  - {ref: "quay.io/skopeo/stable:latest", digest: "sha256:47853bb9fb24202af9110531ebd6e43c5f97701254ca290596640290d17942f4", pinned_in: "bundle/build.py", role: bundle, gb10: false, build_time: true, why: "build-time copy tool; runs where the bundle is built, not on the GB10"}

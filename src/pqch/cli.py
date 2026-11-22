@@ -1,0 +1,1138 @@
+"""Command line: `pqch <command>`."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+
+
+def _ledger_verify(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from pqch.ledger import Ledger, verify
+    from pqch.ledger.checkpoints import verify_signed
+
+    events = list(Ledger(args.path).events())
+    if not args.signed:
+        res = verify(events)
+        print(json.dumps(res.__dict__))
+        return 0 if res.ok else 1
+    pub = Path(args.pub) if args.pub else Path(args.path).parent / "ledger.pub"
+    known = json.loads(Path(args.known).read_text()) if args.known else None
+    res = verify_signed(events, pub.read_bytes() if pub.exists() else None, known=known,
+                        require_alg=args.require_alg)
+    out = dict(res.__dict__)
+    if args.key_id:
+        out["key_checked"] = res.key_id == args.key_id
+        if not out["key_checked"]:
+            out["ok"], out["error"] = False, f"the key is {res.key_id}, not the expected {args.key_id}"
+    elif not args.pub:
+        out["key_checked"] = False
+        print("warning: the public key was taken from beside the ledger and checked against nothing. "
+              "A ledger rewritten and re-signed with another key passes this. Give --key-id (shown on the "
+              "page) or --pub from the signer, and --known.", file=sys.stderr)
+    print(json.dumps(out))
+    return 0 if out["ok"] else 1
+
+
+def _var_harden(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch import varmode
+
+    root = Path(args.var or os.environ.get("PQCH_VAR", "var"))
+    print(json.dumps({"root": str(root), **varmode.harden(root)}))
+    return 0
+
+
+def _scope_generate(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from pqch import scope
+
+    s = scope.generate(args.compose, network=args.network)
+    text = json.dumps(s, indent=2) + "\n"
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(text)
+        print(f"{args.out}  sha256 {scope.scope_hash(s)}", file=sys.stderr)
+    else:
+        sys.stdout.write(text)
+    return 0
+
+
+def _scan(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.pipeline import run_once
+    from pqch.runner.client import RunnerClient
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    client = RunnerClient(os.environ.get("PQCH_RUNNER_SOCKET", "/run/pqch/runner.sock"))
+    key = Path(os.environ.get("PQCH_KEY", "agency/answer-key.yaml"))
+
+    def show(line: dict) -> None:
+        tg = line["target"]
+        t = f"{tg['host']}:{tg['port']}" if "host" in tg else tg["image"].split("@")[0]
+        tag = " (replayed)" if line["replayed"] else ""
+        print(f"{line['profile']:<14} {t:<40} {line['status']:<8} {line['duration_ms']:>7} ms "
+              f"{line['findings']:>3} findings{tag}", flush=True)
+
+    run, summary = run_once(var, client, key, host=args.host, classify=args.classify_one,
+                            explain=args.explain_conflicts, progress=show)
+    print(f"run {run.id}: {len(summary['jobs'])} jobs, wall {summary['wall_ms']} ms; rules {summary['rules']}")
+    if summary.get("classification"):
+        print("classification:", json.dumps(summary["classification"]))
+    return _jobs_exit(summary)
+
+
+def _investigate(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.investigator import investigate
+    from pqch.pipeline import signer_from_env
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    scan = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    _need(scan, "scan")
+    if scan is None or not scan.ledger.exists():
+        print("no scan run to investigate", file=sys.stderr)
+        return 1
+
+    def show(ev: dict) -> None:
+        p = ev["payload"]
+        a = p["answer"] or {}
+        where = (f"{a['file']}:{a['line_start']}-{a['line_end']}" if a.get("file") else
+                 ("default" if a.get("cause") == "default" else "no answer"))
+        kc = p["key_check"]
+        agree = "not keyed" if kc is None else ("agrees with the key" if kc["agrees"] else f"differs from the key ({kc['why']})")
+        print(f"{p['finding']['subject']['host']}:{p['finding']['subject']['port']:<6} {p['finding']['asset']['name']:<18} "
+              f"{p['outcome']:<16} {where:<48} {p['used']['steps']} steps {p['used']['tokens']:>6} tok "
+              f"{p['latency_ms'] / 1000:6.1f} s  {agree}", flush=True)
+
+    run, events = investigate(var, scan, agency_dir=Path(os.environ.get("PQCH_AGENCY_DIR", "agency")),
+                              signer=signer_from_env(), finding_ids=args.finding, step_budget=args.steps,
+                              token_budget=args.tokens, key_path=Path(os.environ.get("PQCH_KEY", "agency/answer-key.yaml")),
+                              progress=show)
+    print(f"investigate run {run.id if run else '(none: nothing to trace)'} over scan {scan.id}: {len(events)} traces")
+    return 0
+
+
+def _package(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.migrator.package import build
+    from pqch.pipeline import signer_from_env
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    scan = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    _need(scan, "scan")
+    run, pkgs = build(var, scan, pack_path=os.environ.get("PQCH_PACK", "policy/packs/m-26-15.yaml"),
+                      snapshots_dir=args.snapshots, signer=signer_from_env())
+    if not run:
+        print("no item is blocked on its supplier; no package")
+        return 0
+    for p in pkgs:
+        up = "; upgrade path in the estate: " + ", ".join(u["service"] + " (" + u["software"] + ")" for u in p["unblock"]) if p["unblock"] else ""
+        print(f"{p['item']['service']:<12} {p['item']['function']:<18} {p['why']['software']}: {len(p['entries'])} entries{up}")
+    print(f"package run {run.id}: {len(pkgs)} packages")
+    return 0
+
+
+def _ask_record(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch import ask
+    from pqch.inference import Seam, load_config
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    _need(run, "scan")
+    rec = ask.record(Seam(load_config(os.environ["PQCH_INFERENCE_CONFIG"])), run)
+    for q, a in rec["answers"].items():
+        if "unavailable" in a:
+            print(f"not answered  {q}: {a['unavailable']}")
+        else:
+            # The verdict in the check's own word: a declined answer is not a pass and not a failure.
+            verdict = a["check"].get("verdict") or ("checked" if a["check"]["ok"] else "FAILS")
+            print(f"{verdict:<9} {a['latency_ms']:>7} ms  {a.get('finish_reason')}  {q}")
+    print(f"recorded {len(rec['answers'])} answers for run {run.id}: {ask.recording_path(var, run.id)}")
+    return 0
+
+
+def _demo_record(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.run import Run
+    from pqch.ui import demo
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    _need(run, "scan")
+    rec = demo.record(var, run, snapshots_dir=Path(os.environ.get("PQCH_SNAPSHOTS", "policy/snapshots")),
+                      inference_config=os.environ.get("PQCH_INFERENCE_CONFIG"))
+    for k, n in enumerate(rec["narration"], 1):
+        print(f"row {k:<2} " + (f"{n['ms']:>6} ms  {n.get('finish')}  {n['text']}" if "text" in n else f"not narrated: {n.get('error')}"))
+    print(f"recorded {len(rec['narration'])} narration lines for run {run.id}: {demo.recording_path(var, run.id)}")
+    return 0
+
+
+def _import(args: argparse.Namespace) -> int:
+    """Any tool's CycloneDX CBOM as evidence, on a run of its own; scored when a key is given."""
+    import json
+    import os
+    from pathlib import Path
+
+    from pqch.pipeline import signer_from_env
+    from pqch.run import Run
+    from pqch.scout.imported import run_import
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    if args.scope:
+        scope = json.loads(Path(args.scope).read_text())
+    else:
+        scan = Run.latest(var, "scan")
+        _need(scan, "scan", hint="give the scope the document's listeners are under with --scope")
+        scope = next(scan.ledger.events())["payload"]["scope"]
+    # PATH=IMAGE names the image a document describes; a path that exists is a path, whatever it holds.
+    docs = [(Path(d), None) if Path(d).exists() or "=" not in d else (Path(d.rsplit("=", 1)[0]), d.rsplit("=", 1)[1])
+            for d in args.documents]
+    run, s = run_import(var, docs, scope, repo=args.repo, commit=args.commit, tool=args.tool,
+                        key_path=Path(args.key) if args.key else None, signer=signer_from_env(),
+                        observed=args.observed, conditions=args.conditions, window=args.window)
+    out = s["left_out"]
+    print(f"{s['tool']}: {sum(s['assets'].values())} components in {len(s['documents'])} documents; "
+          f"{s['findings']} findings placed ({', '.join(f'{k} {v}' for k, v in s['by_layer'].items()) or 'none'})")
+    print(f"  left out: {out['no_location']} with no location, {out['out_of_scope']} at addresses outside the scope, "
+          f"{out['client_side']} describing clients, {out['referenced']} referenced only, {out['repeated']} repeated")
+    if s["tool"] == "unnamed tool":
+        print("  the document names no tool; give one with --tool so the run can be told from other imports")
+    if not s["findings"]:
+        print("  nothing was placed: the document's locations match no listener, image or repository in the scope, "
+              "or its shape is one this reader does not know; the score below is of the reader, not of the tool")
+    for layer, r in (s.get("score") or {}).items():
+        if r["scanned"]:
+            print(f"  {layer}: {r['covered']} of {r['denominator']} keyed items ({r['out_of_reach']} out of reach"
+                  + (f", {len(r['remediated'])} remediated and out of the count" if r.get("remediated") else "")
+                  + f"), {r['false_positives']} false positives, {len(r['flagged_decoys'])} of {r['decoys']} decoys flagged")
+            for claim in r.get("unplanted", []):
+                print(f"    false positive: {claim}")
+            for claim in r.get("unrecognised", []):
+                print(f"    unrecognised name, not counted: {claim}")
+        elif r.get("denominator"):
+            print(f"  {layer}: nothing placed (of {r['denominator']} keyed items)")
+    print(f"import run {run.id}")
+    return 0
+
+
+def _retention_apply(args: argparse.Namespace) -> int:
+    """Destroy the artefacts of runs older than the retention period, on the record; the ledgers stay."""
+    import os
+    from pathlib import Path
+
+    from pqch import retention
+    from pqch.pipeline import signer_from_env
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    days = args.days if args.days is not None else int(os.environ.get("PQCH_RETENTION_DAYS", "0") or 0)
+    if days <= 0:
+        raise SystemExit("a retention period in days is needed (--days or PQCH_RETENTION_DAYS)")
+    s = retention.apply(var, days=days, by=args.by or os.environ.get("PQCH_OPERATOR", "operator"), basis=args.basis,
+                        dry_run=args.dry_run, signer=signer_from_env())
+    for c in s["runs"]:
+        print(f"{c['run']} ({c['kind']}, {c['started'][:10]}): {len(c['raw'])} raw outputs, {len(c['documents'])} documents"
+              + ("" if c["verifies"] else "  [ledger does not verify]"))
+    for c in s["runs"]:
+        if c.get("kept_cited"):
+            print(f"  {c['run']}: kept {len(c['kept_cited'])} raw outputs that a run outside this pass still cites")
+        for ref in c.get("refused") or []:
+            print(f"  {c['run']}: refused {ref} (not a file under var/raw)")
+    for sk in s.get("skipped") or []:
+        print(f"skipped {sk.get('run')}: {sk.get('why')}")
+    if s.get("reconciled"):
+        print(f"recorded what an interrupted earlier pass destroyed: {s['reconciled']}")
+    print(f"{'would destroy' if s['dry_run'] else 'destroyed'} {sum(len(c['raw']) + len(c['documents']) for c in s['runs'])} files across "
+          f"{len(s['runs'])} runs" + (f"; recorded on run {s['run']}" if s.get("run") else ""))
+    return 0
+
+
+def _gap_list(args: argparse.Namespace) -> int:
+    """What no tool could see on a run: the open gaps, each with what would fill it."""
+    import os
+    from pathlib import Path
+
+    from pqch.assessor import gaps
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    _need(run, "scan")
+    if not run or not run.ledger.exists():
+        raise SystemExit("no run")
+    q = gaps.queue(var, list(run.ledger.events()))
+    if q is None:
+        raise SystemExit(f"run {run.id} was assessed before the gap rule existed; rescan to record its gaps")
+    for c in q["classes"]:
+        print(f"{c['class']:<12} {c['reached']:>4} reached  {c['gaps']:>3} gaps  {c['coverage']:>3}% coverage")
+    for g in q["open"]:
+        print(f"{g['gap']}  {g['kind']:<34} {g['asset_class']:<10} {__import__('json').dumps(g['subject'])}\n    {g['reason']}\n    fill: {g['fills']}")
+    print(f"{len(q['open'])} open, {len(q['filled'])} filled, on run {run.id}")
+    return 0
+
+
+def _gap_fill(args: argparse.Namespace) -> int:
+    """Close a gap with the evidence a person brought, on the record."""
+    import os
+    from pathlib import Path
+
+    from pqch.assessor import gaps
+    from pqch.pipeline import signer_from_env
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run, s = gaps.fill(var, args.gap, evidence=args.evidence, by=args.by or os.environ.get("PQCH_OPERATOR", "operator"),
+                       basis=args.basis, signer=signer_from_env())
+    print(f"gap {s['gap']} ({s['kind']}) filled by run {run.id}, event {s['event']}")
+    return 0
+
+
+def _plan_export(args: argparse.Namespace) -> int:
+    """The plan as a register beside the run: one row per step with the owner's facts, grouped into the buckets a later phase is scoped by."""
+    import os
+    from pathlib import Path
+
+    from pqch.planning import write_register
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    scan = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    _need(scan, "scan")
+    if not scan or not scan.ledger.exists():
+        raise SystemExit("no scan run")
+    out = write_register(var, scan)
+    if not out:
+        raise SystemExit(f"run {scan.id}: no plan (not a scan of the owned estate, or no assessment on its ledger)")
+    for p in out.values():
+        print(f"{p} ({p.stat().st_size:,} bytes)")
+    return 0
+
+
+def _estate_project(args: argparse.Namespace) -> int:
+    """One CBOM over several runs' ledgers: a scan and its imports, every claim kept."""
+    import json
+    import os
+    from pathlib import Path
+
+    from pqch.cbom import anatomy, project_estate, validate
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    ids = [x for x in args.runs.split(",") if x]
+    if not all(x.isalnum() for x in ids):
+        raise SystemExit("run ids are alphanumeric")
+    bom = project_estate([Run(var, x) for x in ids])
+    errors = validate(bom)
+    if errors:
+        raise SystemExit("the estate CBOM fails CycloneDX 1.6: " + "; ".join(errors[:3]))
+    d = anatomy.document(bom)
+    text = json.dumps(bom, indent=1, sort_keys=True)
+    if args.out:
+        Path(args.out).write_text(text)
+    else:
+        print(text)
+    print(f"estate over {len(ids)} runs: {d['components']} components; {d['claims']['multi']} entries with more than one claim, "
+          f"{d['claims']['dissent']} with dissent, {d['claims']['resolved']} resolved by a person; serial {bom['serialNumber']}",
+          file=__import__("sys").stderr)
+    return 0
+
+
+def _attest(args: argparse.Namespace) -> int:
+    """A supplier's attestation as reported evidence, on a run of its own, matched to the system scans here."""
+    import os
+    from pathlib import Path
+
+    from pqch import attest
+    from pqch.pipeline import signer_from_env
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run, s = attest.record(var, Path(args.document), operator=os.environ.get("PQCH_OPERATOR", "operator"), signer=signer_from_env())
+    if s["duplicate"]:
+        print(f"already recorded: {s['document']['name']} ({s['document']['sha256'][:19]}…) on run {s['run']}; nothing appended")
+        return 0
+    print(f"{s['supplier']}: {s['products']} product statement(s) recorded as reported evidence, {s['document']['sha256'][:19]}…")
+    for m in s["matches"]:
+        print(f"  matches {m['system']} (scan {m['run']}): {m['agree']} firmware at the attested version, {m['differ']} at another, "
+              f"{m['unseen']} not reported by the server")
+    if not s["matches"]:
+        print("  matches no system scanned here yet; it joins the first scan of that model")
+    print(f"attestation run {run.id}")
+    return 0
+
+
+def _explain_queues(args: argparse.Namespace) -> int:
+    import os
+    import statistics
+    from pathlib import Path
+
+    from pqch.assessor.explain_queue import explain
+    from pqch.pipeline import signer_from_env
+    from pqch.run import Run
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    scan = Run(var, args.run) if args.run else Run.latest(var, "scan")
+    _need(scan, "scan")
+
+    def show(subject, passed, calls):
+        marks = "".join("+" if c["pass"] else ("!" if c["harmful"] else "-") for c in calls)
+        print(f"{subject['service']:<12} {subject['function']:<18} {marks}  {'pass' if passed else 'FAIL'}  "
+              + "; ".join(c["why"] for c in calls if not c["pass"])[:160], flush=True)
+
+    run, s = explain(var, scan, pack_path=os.environ.get("PQCH_PACK", "policy/packs/m-26-15.yaml"),
+                     repeats=args.repeats, signer=signer_from_env(), progress=show)
+    lat = s.pop("latency_ms")
+    print(f"explain run {run.id if run else '(none)'} over scan {scan.id}: {s['passed']} of {s['items']} items pass; "
+          f"{s['harmful_calls']} harmful of {s['calls']} calls; median {statistics.median(lat) / 1000 if lat else 0:.1f} s per call")
+    return 0
+
+
+def _watch(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.pipeline import signer_from_env
+    from pqch.runner.client import RunnerClient
+    from pqch.watch import watch
+
+    out = watch(Path(os.environ.get("PQCH_VAR", "var")),
+                RunnerClient(os.environ.get("PQCH_RUNNER_SOCKET", "/run/pqch/runner.sock")),
+                Path(os.environ.get("PQCH_KEY", "agency/answer-key.yaml")),
+                agency_dir=Path(os.environ.get("PQCH_AGENCY_DIR", "agency")), signer=signer_from_env(),
+                trace=not args.no_trace, explain=not args.no_explain)
+    print(json.dumps(out))
+    return 0
+
+
+def _scan_code(args: argparse.Namespace) -> int:
+    """The thin code layer: one pinned repository, candidates by rule, judged by call-site-read."""
+    import os
+    import statistics
+    from pathlib import Path
+
+    import yaml
+
+    from pqch.pipeline import signer_from_env, write_cboms
+    from pqch.scout.code import scan
+
+    pins = {p["name"]: p for p in yaml.safe_load(Path(args.pins).read_text())["repositories"]}
+    pin = pins[args.name]
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+
+    def show(c, m):
+        print(f"{c['path']}:{c['line']:<5} {c['rule']:<22} {('USE ' + m['family'] + ' ' + m['role']) if m and m['is_crypto_use'] else ('not a use' if m else 'no reply')}", flush=True)
+
+    run, s = scan(var, Path(args.targets) / args.name, repo=pin["repo"], commit=pin["commit"],
+                  rules_path=Path(args.rules or f"policy/code-rules/{pin['language']}.yaml"),
+                  authorized_by="a public repository, read at a pinned commit; nothing in it is run",
+                  signer=signer_from_env(), progress=show, workers=args.workers)
+    write_cboms_ok = True
+    try:
+        write_cboms(run)
+    except ValueError as e:
+        write_cboms_ok = False
+        print(f"CBOM not written: {e}")
+    lat = s.pop("latencies_ms")
+    print(f"scan-code run {run.id}: {json.dumps(s)}; median {statistics.median(lat) / 1000 if lat else 0:.1f} s a call; CBOM {'written' if write_cboms_ok else 'not written'}")
+    return 0
+
+
+def _cbom_build(args: argparse.Namespace) -> int:
+    import os
+
+    from pqch.pipeline import write_cboms
+    from pqch.run import Run
+
+    var = os.environ.get("PQCH_VAR", "var")
+    run = Run(var, args.run) if args.run else Run.latest(var)
+    _need(run, "run")
+    for name, path in write_cboms(run).items():
+        print(f"{name:<20} {path}")
+    return 0
+
+
+def _scanners_pull(args: argparse.Namespace) -> int:
+    import docker
+
+    from pqch.runner import load_profiles
+
+    client = docker.from_env()
+    for name, prof in sorted(load_profiles().items()):
+        if prof["image"] == "self":     # the runner's own image: built, not pulled
+            continue
+        repo, digest = prof["image"].split("@", 1)
+        client.images.pull(repo, tag=digest)
+        print(f"{name:<14} {prof['image']}")
+    return 0
+
+
+def _env_paths():
+    import os
+    from pathlib import Path
+
+    return (Path(os.environ.get("PQCH_VAR", "var")),
+            Path(os.environ.get("PQCH_CRYPTO_POLICY", "policy/crypto-policy.yaml")),
+            Path(os.environ.get("PQCH_AGENCY_DIR", "agency")))
+
+
+def _clients():
+    import os
+
+    from pqch.pipeline import signer_from_env
+    from pqch.runner.client import RunnerClient
+
+    signer = signer_from_env()
+    if signer is None:
+        raise SystemExit("PQCH_SIGNER_SOCKET is not set: changes need the signer")
+    return RunnerClient(os.environ.get("PQCH_RUNNER_SOCKET", "/run/pqch/runner.sock")), signer
+
+
+def _change_run(args):
+    from pqch.run import Run
+
+    var, _, _ = _env_paths()
+    run = Run(var, args.run) if args.run else Run.latest(var, "change")
+    _need(run, "change")
+    if run is None:
+        raise SystemExit("no change run")
+    return run
+
+
+def _policy_render(args: argparse.Namespace) -> int:
+    """Building the estate: write each target's TLS configuration from the policy, outside any run."""
+    from pqch.migrator import render
+
+    _, policy_path, agency = _env_paths()
+    policy = render.load(policy_path)
+    for t in policy["targets"]:
+        sw = t.get("software", "nginx")
+        path = render.target_path(agency, t["service"], sw)
+        if path.exists() and not args.force:
+            print(f"{path} exists; changes to a built estate go through propose and approve "
+                  f"(--force only when building it)")
+            continue
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if sw in render.RENDERED:
+            path.write_text(render.render_for(sw, policy, t["intent"]))
+        elif t["intent"] == "none":
+            path.write_text(render.base(sw))
+        else:
+            print(f"{path}: {sw} has no renderer; build it at intent none and propose the change")
+            continue
+        print(f"{path}  intent {t['intent']}")
+    return 0
+
+
+def _change_propose(args: argparse.Namespace) -> int:
+    from pqch.migrator import propose
+
+    var, policy_path, agency = _env_paths()
+    runner, signer = _clients()
+    run, props = propose(var, runner, policy_path, agency, by=args.by,
+                         authenticated_by="command line in the harness container", signer=signer)
+    print(f"run {run.id}")
+    for p in props:
+        pl = p["payload"]
+        print(f"change {pl['change_id']}  {pl['target']['service']} {pl['target']['address']}:{pl['target']['port']}"
+              f"  intent {pl['intent']}\n{pl['diff']}")
+    if not props:
+        print("nothing to change: every target already matches the policy")
+    return 0
+
+
+def _change_approve(args: argparse.Namespace) -> int:
+    from pqch.migrator import approve, execute
+
+    import os
+
+    run = _change_run(args)
+    runner, signer = _clients()
+    separation = os.environ.get("PQCH_SEPARATION_OF_DUTIES") == "1"
+    if separation and not args.single_operator:
+        raise SystemExit("this deployment separates duties: the command line approves only in single-operator mode "
+                         "(--single-operator), which labels the approval as such; the apply is then `pqch change apply`")
+    how = ("command line in the harness container" + ("; single-operator mode" if args.single_operator else "")
+           + (f"; {args.via}" if args.via else ""))
+    ev = approve(run, args.change_id, by=args.by, authenticated_by=how, signer=signer, deny=args.deny,
+                 role="approver" if args.single_operator else None)
+    print(f"{ev['type']} by {args.by} at {ev['ts']} (event {ev['id']})")
+    if args.deny or args.no_execute or separation:
+        if separation and not args.deny:
+            print("approved; apply it as a second step: pqch change apply " + args.change_id)
+        return 0
+    out = execute(run, runner, signer, args.change_id, close=not args.keep_open)
+    for k in ("verdict", "durable"):
+        p = out[k]["payload"]
+        print(f"{k:<8} {p['status']:<22} meets intent {p['meets_intent']}  durable {p['durable']}"
+              f"  container {str(p['binding']['container_id'])[:12]}  {'; '.join(p['reasons'])}")
+    return _change_status(args)
+
+
+def _change_apply(args: argparse.Namespace) -> int:
+    """Apply an approved change through the runner, as a step of its own (ADR-0008)."""
+    from pqch.migrator import execute
+
+    run = _change_run(args)
+    runner, signer = _clients()
+    out = execute(run, runner, signer, args.change_id, close=not args.keep_open)
+    for k in ("verdict", "durable"):
+        p = out[k]["payload"]
+        print(f"{k:<8} {p['status']:<22} meets intent {p['meets_intent']}  durable {p['durable']}")
+    return _change_status(args)
+
+
+def _change_rehearse(args: argparse.Namespace) -> int:
+    """Prove a proposal on a copy of the service in the twin, before anyone approves it."""
+    import os
+
+    from pqch.migrator import rehearse
+
+    run = _change_run(args)
+    runner, signer = _clients()
+    ev = rehearse(run, runner, signer, args.change_id, hardware=os.environ.get("PQCH_HARDWARE", "unlabelled"))
+    v = ev["payload"]["verdict"]
+    print(f"rehearsal on {ev['payload']['twin']}: {v['status']}  meets intent {v['meets_intent']}"
+          + (f"  also accepts {', '.join(v.get('also_accepts') or [])}" if v.get("also_accepts") else "")
+          + (f"  {'; '.join(v.get('reasons') or [])}" if v.get("reasons") else "")
+          + (f"\n{v.get('logs_tail', '')}" if v["status"] == "did-not-start" else ""))
+    return 0 if v["meets_intent"] else 1
+
+
+def _estate_reset(args: argparse.Namespace) -> int:
+    """The mini-agency back to its starting state (agency/baseline/), through the runner, on the record."""
+    import os
+    from pathlib import Path
+
+    from pqch.migrator.reset import reset_estate
+
+    runner, signer = _clients()
+    how = "command line in the harness container" + (f"; {args.via}" if args.via else "")
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    if args.approved_by:
+        # Two people: one asks, another approves. The runner checks the approval (and, under
+        # separation of duties, that the two differ and the approver holds the role).
+        from pqch.migrator.reset import approve_reset, execute_reset, request_reset
+
+        run = request_reset(var, runner, signer, by=args.by, authenticated_by=how)
+        approve_reset(run, signer, by=args.approved_by, authenticated_by=how, role="approver")
+        out, closed = execute_reset(var, run, runner, signer)
+    else:
+        run, out, closed = reset_estate(var, runner, signer, by=args.by, authenticated_by=how)
+    for s in out["services"]:
+        print(f"{s['service']:<12} {s['file']:<36} {'restored' if s['changed'] else 'already at start'}"
+              f"  listening {s['listening']}")
+    print(f"reset run {run.id}; closed {len(closed)} open change run(s). Scan next: the plan and the score read the latest scan.")
+    return 0
+
+
+def _change_matrix(args: argparse.Namespace) -> int:
+    """Kinds of client against the listener as deployed and a copy with the proposed file."""
+    import os
+
+    from pqch.verifier.matrix import run_matrix
+
+    run = _change_run(args)
+    runner, signer = _clients()
+    ev = run_matrix(run, runner, signer, args.change_id, hardware=os.environ.get("PQCH_HARDWARE", "unlabelled"))
+    for r in ev["payload"]["rows"]:
+        print(f"{r['label']:<34} today {r['today']['result']:<9} proposed {r['proposed']['result']:<9} {r['effect']}")
+    return 0
+
+
+def _change_verify(args: argparse.Namespace) -> int:
+    """Run a change's check again, optionally against another address (to show a wrong container fails)."""
+    from pqch.migrator import verify_now
+
+    run = _change_run(args)
+    runner, signer = _clients()
+    events = list(run.ledger.events())
+    applied = [e for e in events if e["type"] in ("change.applied", "service.recreated")
+               and e["payload"]["change_id"] == args.change_id]
+    if not applied:
+        raise SystemExit("the change has not been applied")
+    last = applied[-1]
+    c = last["payload"]["containers"][0]
+    override = None
+    if args.address:
+        host, _, port = args.address.partition(":")
+        override = {"host": host, "port": int(port or 443)}
+        if args.sni:
+            override["sni"] = args.sni
+    ev = verify_now(run, runner, signer, args.change_id, after_event=last,
+                    expect={"container_id": c["after"], "image_digest": c["image_digest"]}, target_override=override)
+    p = ev["payload"]
+    print(f"{p['status']}  meets intent {p['meets_intent']}  container {str(p['binding']['container_id'])[:12]}")
+    for r in p["reasons"]:
+        print(f"  - {r}")
+    return 0
+
+
+def _change_close(args: argparse.Namespace) -> int:
+    run = _change_run(args)
+    _, signer = _clients()
+    ev = run.close(signer)
+    print(f"run {run.id} closed at {ev['ts']}")
+    return 0
+
+
+def _change_status(args: argparse.Namespace) -> int:
+    from pqch.migrator import intervals
+
+    run = _change_run(args)
+    for t in intervals(list(run.ledger.events())):
+        fmt = lambda ms: "—" if ms is None else f"{ms / 1000:.1f} s"  # noqa: E731
+        print(f"{t['change_id']}  {t['target']['service']}  intent {t['intent']}  verdicts {t['statuses']}"
+              f"  durable {t['durable']}")
+        if t["landed"]:
+            print(f"  time-to-change: policy to verdict {fmt(t['policy_to_verdict_ms'])}"
+                  f"  approval to verdict {fmt(t['approval_to_verdict_ms'])}  on {t['hardware']}"
+                  f"  (ledger clock)")
+            if t["signer_policy_to_verdict_max_ms"] is not None:
+                print(f"  by the signer's clock: policy to verdict no more than {fmt(t['signer_policy_to_verdict_max_ms'])}"
+                      f"  approval to verdict no more than {fmt(t['signer_approval_to_verdict_max_ms'])}"
+                      f"  (last signature before each event to first signature over the verdict)")
+            else:
+                print(f"  by the signer's clock, first seen: policy to verdict {fmt(t['signer_policy_to_verdict_ms'])}"
+                      f"  approval to verdict {fmt(t['signer_approval_to_verdict_ms'])}"
+                      f"  (no signature precedes the policy event)")
+            if t["clocks_disagree_ms"] is not None:
+                print(f"  the ledger's timestamps and the signer's clock disagree by {fmt(t['clocks_disagree_ms'])}")
+        else:
+            print(f"  did not land: no time-to-change. Elapsed to the last verdict "
+                  f"{fmt(t['policy_to_verdict_ms'])} on {t['hardware']}")
+    return 0
+
+
+
+def _scan_system(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.runner.client import RunnerClient
+    from pqch.systems import scan_system
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    client = RunnerClient(args.runner_socket or os.environ.get("PQCH_SYSTEM_RUNNER_SOCKET", "/run/pqch-system/runner.sock"))
+    recs = {}
+    for r in args.controller_recording or []:
+        host, _, path = r.partition("=")
+        recs[host] = Path(path)
+
+    def show(line: dict) -> None:
+        tg = line["target"]
+        where = tg.get("system") or tg.get("controller") or f"{tg.get('host')}:{tg.get('port')}"
+        print(f"{line['profile']:<20} {where:<22} {line['status']:<8} {line['duration_ms']:>7} ms {line['findings']:>3} findings"
+              + (" (recorded)" if line.get("replayed") else "") + (f"  {line['error']}" if line.get("error") else ""), flush=True)
+
+    run, summary = scan_system(var, client, controller_recordings=recs,
+                               recorder=Path(args.recorder) if args.recorder else None, progress=show)
+    print(f"run {run.id}: {len(summary['jobs'])} jobs; rules {summary['rules']}")
+    return 0
+
+
+def _system_export(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    import yaml
+
+    from pqch.run import Run
+    from pqch.systems import export_recording
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    mapping = yaml.safe_load(Path(args.map).read_text()) if args.map else {}
+    leaks = []
+    if args.leaks:
+        doc = yaml.safe_load(Path(args.leaks).read_text())
+        leaks = [p if isinstance(p, str) else p.get("pattern", "") for p in (doc.get("leaks") if isinstance(doc, dict) else doc) or []]
+    m = export_recording(Run(var, args.run), Path(args.out), mapping=mapping.get("replace", mapping) if isinstance(mapping, dict) else {},
+                         leaks=[p for p in leaks if p], scrub_hardware_ids=args.scrub_hardware_ids)
+    print(f"recording {m['id']} of run {m['source_run']}: {len(m['jobs'])} jobs, sanitized={m['sanitized']}, in {args.out}")
+    return 0
+
+
+def _system_replay(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.systems import replay_recording
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    run, summary = replay_recording(var, Path(args.recording),
+                                    progress=lambda line: print(f"{line['profile']:<20} {line['findings']:>3} findings", flush=True))
+    print(f"run {run.id}: replayed recording {summary['recording']} (of run {summary['source_run']}); rules {summary['rules']}")
+    return 0
+
+def _scan_external(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.pipeline import scan_external
+    from pqch.runner.client import RunnerClient
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    client = RunnerClient(args.runner_socket or os.environ.get("PQCH_LAB_RUNNER_SOCKET", "/run/pqch-lab/runner.sock"))
+
+    def show(line: dict) -> None:
+        tg = line["target"]
+        print(f"{line['profile']:<14} {tg['host']}:{tg['port']:<6} {line['status']:<8} {line['duration_ms']:>7} ms "
+              f"{line['findings']:>3} findings" + (f"  {line['error']}" if line.get("error") else ""), flush=True)
+
+    run, summary = scan_external(var, client, progress=show)
+    print(f"run {run.id}: {len(summary['jobs'])} jobs, wall {summary['wall_ms']} ms; rules {summary['rules']}")
+    return _jobs_exit(summary)
+
+
+def _scan_copy(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.pipeline import scan_copy
+    from pqch.runner.client import RunnerClient
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    client = RunnerClient(args.runner_socket or os.environ.get("PQCH_COPY_RUNNER_SOCKET", "/run/pqch-copy/runner.sock"))
+
+    def show(line: dict) -> None:
+        tg = line["target"]
+        print(f"{line['profile']:<22} {tg['host']}:{tg['port']:<6} {line['status']:<8} {line['duration_ms']:>7} ms "
+              f"{line['findings']:>3} findings" + (f"  {line['error']}" if line.get("error") else ""), flush=True)
+
+    try:
+        run, summary = scan_copy(var, client, Path(args.key), sources=args.sources, progress=show)
+    except ValueError as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    from pqch.score import table
+
+    print(f"run {run.id}: {len(summary['jobs'])} jobs, wall {summary['wall_ms']} ms; rules {summary['rules']}")
+    print(table(summary["score"]))
+    return _jobs_exit(summary)
+
+
+def _capture_ingest(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch import scope as scope_mod
+    from pqch.scout import capture
+
+    var = Path(os.environ.get("PQCH_VAR", "var"))
+    scope, h = scope_mod.load(args.scope)
+    try:
+        _run, summary = capture.ingest(var, scope, args.capture_dir,
+                                      hardware=os.environ.get("PQCH_HARDWARE", "unlabelled"))
+    except ValueError as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    print(json.dumps({"scope_hash": h, **summary}))
+    return 0
+
+
+def _capture_prune(args: argparse.Namespace) -> int:
+    import os
+    from pathlib import Path
+
+    from pqch.scout import capture
+
+    removed = capture.prune(Path(os.environ.get("PQCH_VAR", "var")), Path(args.capture_dir))
+    print(json.dumps({"removed": len(removed)}))
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="pqch")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    led = sub.add_parser("ledger", help="ledger tools").add_subparsers(dest="sub", required=True)
+    v = led.add_parser("verify", help="verify a ledger's hash chain and binding rules")
+    v.add_argument("path")
+    v.add_argument("--signed", action="store_true", help="also check every checkpoint's ML-DSA signature")
+    v.add_argument("--pub", help="public key PEM (default: ledger.pub beside the ledger)")
+    v.add_argument("--known", help="JSON list of {through_seq, head_hash} recorded outside the ledger")
+    v.add_argument("--key-id", help="the signer's key id, recorded outside the ledger")
+    v.add_argument("--require-alg", choices=["ML-DSA-65", "ML-DSA-87"],
+                   help="refuse a checkpoint signed with any other algorithm (CNSA 2.0: ML-DSA-87)")
+    v.set_defaults(func=_ledger_verify)
+
+    vh = sub.add_parser("var", help="what is kept under var/").add_subparsers(dest="sub", required=True)
+    h = vh.add_parser("harden", help="every directory under var/ 0700 and every file 0600 (FR-08); "
+                                     "set PQCH_VAR_PRIVATE=1 so what is written next follows")
+    h.add_argument("--var", help="the directory (default: $PQCH_VAR, else var)")
+    h.set_defaults(func=_var_harden)
+
+    sc = sub.add_parser("scope", help="scope tools").add_subparsers(dest="sub", required=True)
+    g = sc.add_parser("generate", help="generate an owned, colocated scope from a compose file")
+    g.add_argument("compose", nargs="+", help="compose file, then any overlays")
+    g.add_argument("--network", default=None)
+    g.add_argument("--out", default=None)
+    g.set_defaults(func=_scope_generate)
+
+    se = sub.add_parser("scan-external", help="targeted scan of the listeners an external scope names, through its own runner")
+    se.add_argument("--runner-socket", help="the external estate's runner socket (default PQCH_LAB_RUNNER_SOCKET)")
+    se.set_defaults(func=_scan_external)
+
+    scp = sub.add_parser("scan-copy", help="scored wire scan of a frozen copy of the estate the answer key describes, "
+                                           "through the copy's own runner; the score is mapped back to the key's addresses")
+    scp.add_argument("--key", default="agency/answer-key.yaml", help="the answer key of the estate the copy was taken from")
+    scp.add_argument("--runner-socket", help="the copy's runner socket (default PQCH_COPY_RUNNER_SOCKET)")
+    scp.add_argument("--sources", help="the addresses the scans come from, recorded in the window event for whoever else watches that wire")
+    scp.set_defaults(func=_scan_copy)
+
+    ss = sub.add_parser("scan-system", help="a server: its listeners, its own files and firmware, and its management controller, through its runner")
+    ss.add_argument("--runner-socket", help="the system runner's socket (default PQCH_SYSTEM_RUNNER_SOCKET)")
+    ss.add_argument("--controller-recording", action="append", metavar="HOST=FILE",
+                    help="bring an earlier Redfish read of this controller in as its job, instead of reading it now")
+    ss.add_argument("--recorder", help="the program that made the recording, hashed into the job's record")
+    ss.set_defaults(func=_scan_system)
+    sy = sub.add_parser("system", help="recordings of a system scan").add_subparsers(dest="sub", required=True)
+    sx = sy.add_parser("export", help="write a run's scope and raw outputs as a recording, identifiers replaced")
+    sx.add_argument("run")
+    sx.add_argument("--out", required=True)
+    sx.add_argument("--map", help="YAML: replace: {identifier: replacement}")
+    sx.add_argument("--leaks", help="YAML with a `leaks` list of patterns that must not survive; the export stops on a match")
+    sx.add_argument("--scrub-hardware-ids", action="store_true", help="replace every MAC address and UUID with a consistent stand-in")
+    sx.set_defaults(func=_system_export)
+    sr = sy.add_parser("replay", help="a new run from a recording, on any host, with no access to the system")
+    sr.add_argument("recording")
+    sr.set_defaults(func=_system_replay)
+
+    cap = sub.add_parser("capture", help="passive capture").add_subparsers(dest="sub", required=True)
+    ci = cap.add_parser("ingest", help="read Zeek's rotated handshake logs into a new capture run")
+    ci.add_argument("--scope", required=True, help="the external scope with the capture point and the authorization")
+    ci.add_argument("--capture-dir", required=True, help="where Zeek writes its logs")
+    ci.set_defaults(func=_capture_ingest)
+    cp = cap.add_parser("prune", help="delete the connection logs of hours already ingested")
+    cp.add_argument("--capture-dir", required=True)
+    cp.set_defaults(func=_capture_prune)
+
+    scn = sub.add_parser("scanners", help="scanner images").add_subparsers(dest="sub", required=True)
+    pl = scn.add_parser("pull", help="pull every runner profile's scanner image by its pinned digest")
+    pl.set_defaults(func=_scanners_pull)
+
+    pol = sub.add_parser("policy", help="crypto policy").add_subparsers(dest="sub", required=True)
+    rn = pol.add_parser("render", help="render the policy into the estate's configuration, when building it")
+    rn.add_argument("--force", action="store_true")
+    rn.set_defaults(func=_policy_render)
+
+    ch = sub.add_parser("change", help="propose, approve, apply and verify a policy change")
+    chs = ch.add_subparsers(dest="sub", required=True)
+    pr = chs.add_parser("propose", help="record the policy as it stands and propose what it changes")
+    pr.add_argument("--as", dest="by", required=True, help="who changed the policy")
+    pr.set_defaults(func=_change_propose)
+    ap = chs.add_parser("approve", help="approve a change; then the runner applies it and the verifier checks it")
+    ap.add_argument("change_id")
+    ap.add_argument("--as", dest="by", required=True, help="who approves")
+    ap.add_argument("--via", help="how the approval reached the command line, when someone other than the approver typed it")
+    ap.add_argument("--run")
+    ap.add_argument("--deny", action="store_true")
+    ap.add_argument("--no-execute", action="store_true")
+    ap.add_argument("--keep-open", action="store_true", help="leave the run open for further checks")
+    ap.add_argument("--single-operator", action="store_true",
+                    help="label the approval as single-operator mode: one person proposes and approves (required when PQCH_SEPARATION_OF_DUTIES=1)")
+    ap.set_defaults(func=_change_approve)
+    aa = chs.add_parser("apply", help="apply an approved change through the runner, as its own step")
+    aa.add_argument("change_id")
+    aa.add_argument("--run")
+    aa.add_argument("--keep-open", action="store_true")
+    aa.set_defaults(func=_change_apply)
+    rh = chs.add_parser("rehearse", help="prove a proposal on a copy of the service in the twin, before approval")
+    rh.add_argument("change_id")
+    rh.add_argument("--run")
+    rh.set_defaults(func=_change_rehearse)
+    mx = chs.add_parser("matrix", help="kinds of client against the listener as deployed and a copy with the proposed file: who the change shuts out")
+    mx.add_argument("change_id")
+    mx.add_argument("--run")
+    mx.set_defaults(func=_change_matrix)
+    vf = chs.add_parser("verify", help="run a change's check again")
+    vf.add_argument("change_id")
+    vf.add_argument("--run")
+    vf.add_argument("--address", help="probe this address instead, to show a wrong container fails")
+    vf.add_argument("--sni")
+    vf.set_defaults(func=_change_verify)
+    cl = chs.add_parser("close", help="checkpoint and close a change run")
+    cl.add_argument("--run")
+    cl.set_defaults(func=_change_close)
+    st = chs.add_parser("status", help="verdicts and time-to-change for a change run")
+    st.add_argument("--run")
+    st.set_defaults(func=_change_status)
+
+    inv = sub.add_parser("investigate", help="trace wire findings to their configuration lines with the model bound to trace-to-cause, in a run of its own")
+    inv.add_argument("--run", help="the scan run to trace from (default: the latest scan)")
+    inv.add_argument("--finding", action="append", help="a finding event id to trace (repeatable; default: one key-establishment finding per bound listener)")
+    inv.add_argument("--steps", type=int, default=8, help="step budget per trace")
+    inv.add_argument("--tokens", type=int, default=60000, help="token budget per trace")
+    inv.set_defaults(func=_investigate)
+
+    ex = sub.add_parser("explain-queues", help="have the model bound to explain-queue explain each open item's queue over the policy pack, checked against the rule")
+    ex.add_argument("--run", help="the scan run (default: the latest scan)")
+    ex.add_argument("--repeats", type=int, default=3)
+    ex.set_defaults(func=_explain_queues)
+
+    im = sub.add_parser("import", help="bring your own scanner: any tool's CycloneDX CBOM as evidence, scored against the answer key")
+    im.add_argument("documents", nargs="+", help="CBOM files; PATH=IMAGE names the image a document describes")
+    im.add_argument("--tool", help="the tool's name, when the document's metadata does not give it")
+    im.add_argument("--repo", help="for call sites: the repository the document's paths are in")
+    im.add_argument("--commit", help="for call sites: the pinned commit")
+    im.add_argument("--key", help="an answer key to score against (the mini-agency's: agency/answer-key.yaml)")
+    im.add_argument("--observed", choices=("accepted", "selected"),
+                    help="what the document's lists mean: everything the server accepts (an active scan), or what "
+                         "the period's clients selected (a passive sensor); recorded, changes no score")
+    im.add_argument("--conditions", help="what drove the observation, in the operator's words (the client mix, the export's settings); recorded")
+    im.add_argument("--window", help="the period the document covers, FROM/TO; recorded")
+    im.add_argument("--scope", help="the scope whose listeners the document describes (default: the latest scan run's); "
+                                    "a copy's scope places them at the copy's addresses and scores through its address map")
+    im.set_defaults(func=_import)
+
+    at = sub.add_parser("attest", help="a supplier's attestation (pqch.attestation/1) as reported evidence, joined to the hosts it names by model and version")
+    at.add_argument("document", help="the attestation, YAML or JSON (the shape: agency/attestations/example-supplier.yaml)")
+    at.set_defaults(func=_attest)
+
+    es = sub.add_parser("estate", help="the owned estate").add_subparsers(dest="sub", required=True)
+    er = es.add_parser("reset", help="put the mini-agency back to its starting state (agency/baseline/), through the runner, on the record")
+    er.add_argument("--as", dest="by", required=True, help="who asks for the reset")
+    er.add_argument("--via", help="how the request reached the command line, when someone else typed it")
+    er.add_argument("--approved-by", help="who approves the reset, when it is not the person asking (required under separation of duties)")
+    er.set_defaults(func=_estate_reset)
+    ep = es.add_parser("project", help="one CBOM over several runs (a scan and its imports), every claim kept, the one in force by the grade of its evidence")
+    ep.add_argument("--runs", required=True, help="comma-separated run ids, in order")
+    ep.add_argument("--out", help="write the document here (default: stdout)")
+    ep.set_defaults(func=_estate_project)
+
+    ak = sub.add_parser("ask", help="Ask the CBOM").add_subparsers(dest="sub", required=True)
+    ar = ak.add_parser("record", help="answer the example questions once against a scan run and keep the answers beside it, for a static copy of the page")
+    ar.add_argument("--run", help="the scan run (default: the latest scan)")
+    ar.set_defaults(func=_ask_record)
+
+    dm = sub.add_parser("demo", help="the demo stage").add_subparsers(dest="sub", required=True)
+    dr = dm.add_parser("record", help="narrate each plan row once and keep the lines beside the run, for a static copy of the stage")
+    dr.add_argument("--run", help="the scan run (default: the latest scan)")
+    dr.set_defaults(func=_demo_record)
+
+    rt = sub.add_parser("retention", help="destroy old runs' artefacts on the record; the ledgers stay").add_subparsers(dest="sub", required=True)
+    ra = rt.add_parser("apply", help="runs older than the period lose their raw outputs and documents; each loss is an artefact.destroyed event")
+    ra.add_argument("--days", type=int, help="the retention period (default: PQCH_RETENTION_DAYS)")
+    ra.add_argument("--basis", default="the deployment's retention period", help="why, in words")
+    ra.add_argument("--by", help="who runs it (default: PQCH_OPERATOR)")
+    ra.add_argument("--dry-run", action="store_true")
+    ra.set_defaults(func=_retention_apply)
+
+    gp = sub.add_parser("gap", help="what no tool could see: the gap-fill queue").add_subparsers(dest="sub", required=True)
+    gl = gp.add_parser("list", help="the open gaps of a run, with what would fill each, and coverage per asset class")
+    gl.add_argument("--run", help="the run (default: the latest scan)")
+    gl.set_defaults(func=_gap_list)
+    gf = gp.add_parser("fill", help="close a gap with evidence brought by hand: a run on this deployment, or run:event")
+    gf.add_argument("gap", help="the gap id, from `pqch gap list`")
+    gf.add_argument("--evidence", required=True, help="RUN or RUN:EVENT that holds the evidence (an attestation run, an import, a later scan)")
+    gf.add_argument("--basis", required=True, help="why this evidence fills the gap, in words")
+    gf.add_argument("--by", help="who vouches for it (default: PQCH_OPERATOR)")
+    gf.set_defaults(func=_gap_fill)
+
+    pl = sub.add_parser("plan", help="the plan the CBOM makes").add_subparsers(dest="sub", required=True)
+    px = pl.add_parser("export", help="write register.csv and register.json beside a scan run: one row per step with the owner's facts, grouped into the next phase's buckets")
+    px.add_argument("--run", help="the scan run (default: the latest scan)")
+    px.set_defaults(func=_plan_export)
+
+    pk = sub.add_parser("package", help="a change package for each item blocked on its supplier: why no configuration change can do it, with the evidence, and what would unblock it")
+    pk.add_argument("--run", help="the scan run (default: the latest scan)")
+    pk.add_argument("--snapshots", default="policy/snapshots")
+    pk.set_defaults(func=_package)
+
+    scd = sub.add_parser("scan-code", help="the thin code layer: one pinned repository, candidate call sites by rule, judged by the call-site-read role")
+    scd.add_argument("name", help="a repository name in eval/pins.yaml")
+    scd.add_argument("--pins", default="eval/pins.yaml")
+    scd.add_argument("--targets", default="targets", help="where the pinned checkouts are (default targets/)")
+    scd.add_argument("--rules")
+    scd.add_argument("--workers", type=int, default=4)
+    scd.set_defaults(func=_scan_code)
+
+    w = sub.add_parser("watch", help="scan, record what changed since the last scan, and send only the changed records to the model jobs")
+    w.add_argument("--no-trace", action="store_true")
+    w.add_argument("--no-explain", action="store_true")
+    w.set_defaults(func=_watch)
+
+    cb = sub.add_parser("cbom", help="CBOM tools").add_subparsers(dest="sub", required=True)
+    b = cb.add_parser("build", help="rebuild a run's CBOMs from its ledger (default: the latest run)")
+    b.add_argument("run", nargs="?")
+    b.set_defaults(func=_cbom_build)
+
+    imf = sub.add_parser("image-files", help="read the key material in a docker archive (the runner's own host profile)")
+    imf.add_argument("archive")
+    imf.add_argument("image", nargs="?", default="")
+    imf.set_defaults(func=lambda a: __import__("pqch.scout.imagefiles", fromlist=["main"]).main([a.archive, a.image]))
+    sf = sub.add_parser("system-files", help="read the key material in a system's packed paths (the runner's own system profile)")
+    sf.add_argument("directory")
+    sf.set_defaults(func=lambda a: __import__("pqch.scout.system", fromlist=["main"]).main(["files", a.directory]))
+    sfw = sub.add_parser("system-firmware", help="read a system's firmware identity, TPM and Secure Boot databases from its packed paths")
+    sfw.add_argument("directory")
+    sfw.set_defaults(func=lambda a: __import__("pqch.scout.system", fromlist=["main"]).main(["firmware", a.directory]))
+    po = sub.add_parser("postgres-tls-offer", help="send PostgreSQL's SSLRequest and record the answer (the runner's probe)")
+    po.add_argument("host")
+    po.add_argument("port")
+    po.set_defaults(func=lambda a: __import__("pqch.scout.system", fromlist=["main"]).main(["postgres-tls-offer", a.host, a.port]))
+    cr = sub.add_parser("controller-redfish", help="read a management controller through Redfish, GET only (the runner's controller profile)")
+    cr.add_argument("host")
+    cr.add_argument("port", nargs="?", default="443")
+    cr.set_defaults(func=lambda a: __import__("pqch.scout.redfish", fromlist=["main"]).main([a.host, a.port]))
+
+    sc = sub.add_parser("scan", help="run the slice: scope, key, scans, CBOM, score")
+    sc.add_argument("--host", choices=["live", "replay", "skip"], default="replay",
+                    help="image scans: run live, replay the latest earlier scan, or skip")
+    sc.add_argument("--classify-one", action="store_true",
+                    help="also make one fast-tier typed classification through the inference seam")
+    sc.add_argument("--explain-conflicts", action="store_true",
+                    help="also have the model bound to the resolve-conflict role explain each conflict beside the rule's answer")
+    sc.set_defaults(func=_scan)
+    return p
+
+
+def _need(run, what: str, *, hint: str = "") -> None:
+    """A command that reads the latest run of a kind says so when there is none."""
+    if run is None or not run.ledger.exists():
+        raise SystemExit(f"no {what} run under {os.environ.get('PQCH_VAR', 'var')}" + (f"; {hint}" if hint else ""))
+
+
+def _jobs_exit(summary: dict) -> int:
+    """0 when every job ran; 3 when the run was written but some job did not, so a caller that
+    scripts a scan window is told, not left to notice a lower score."""
+    failed = [j for j in summary.get("jobs", []) if j.get("status") not in (None, "ok")]
+    if failed:
+        print(f"{len(failed)} of {len(summary['jobs'])} jobs did not run to completion: "
+              + ", ".join(sorted({str(j.get('status')) for j in failed})), file=sys.stderr)
+        return 3
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    from pqch.ledger import LedgerError
+    from pqch.runner.client import RunnerRefused
+
+    args = build_parser().parse_args(argv)
+    try:
+        return args.func(args)
+    except (ValueError, RunnerRefused, LedgerError, PermissionError) as e:
+        # A refusal is an answer, not a crash: the reason on one line, and a code a script can read.
+        print(f"pqch: {e}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,195 @@
+{"tool": "cbomkit-theia", "field": "oid", "spelling": "1.2.840.10045.4.3.2", "seen_in": "var/raw/01M40WYHAWRWZETWEM11B70ME1.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ARIA256-GCM-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-md5-96", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "cert_signatureAlgorithm", "spelling": "ECDSA with SHA256", "seen_in": "var/raw/01M40WX0RDY3TWZCWT4BZ06WHF.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES256-CCM", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-CAMELLIA256-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "openssl s_client", "field": "Public Key Algorithm", "spelling": "ML-DSA-65", "seen_in": "spikes/s2/results/amd64/sclient-C3.txt"}
+{"tool": "testssl.sh", "field": "FS_ECDHE_curves", "spelling": "brainpoolP512r1", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "openssl s_client", "field": "Public Key Algorithm", "spelling": "rsaEncryption", "seen_in": "spikes/s2/results/amd64/sclient-C1-portal.txt"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "ECDH, secp521r1, 521 bits", "seen_in": "spikes/s2/results/amd64/sclient-C5.txt"}
+{"tool": "ssh-audit", "field": "kex", "spelling": "ext-info-s", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-CHACHA20-POLY1305", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "X25519, 253 bits", "seen_in": "var/raw/01M4181G2KEHANBY7YA9WPZR0K.txt"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "DH, 3072 bits", "seen_in": "spikes/s2/results/amd64/sclient-C6.txt"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-ripemd160-etm@openssh.com", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "FS_KEMs", "spelling": "offered", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-CHACHA20-POLY1305", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "ECDSA+SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-CAMELLIA128-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "RSA-3072", "seen_in": "var/raw/01M40WYHAZBMCNC3NQEPR274AQ.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "umac-64-etm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_ECDHE_curves", "spelling": "brainpoolP256r1", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "rijndael-cbc@lysator.liu.se", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES128-CCM8", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-AES256-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA384", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_AES_128_CCM", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA224", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_ARIA_256_GCM_SHA384", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "cbomkit-theia", "field": "oid", "spelling": "1.2.840.113549.1.1.11", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_AES_256_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "aes128-cbc", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "blowfish-cbc", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "api.agency.test", "seen_in": "var/raw/01M40WYHAWRWZETWEM11B70ME1.json"}
+{"tool": "testssl.sh", "field": "FS_TLS13_sig_algs", "spelling": "ECDSA+SHA256", "seen_in": "var/raw/01M40WX0RDY3TWZCWT4BZ06WHF.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-AES128-GCM-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "SHA1-RSA", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA1", "seen_in": "spikes/s2/results/amd64/testssl/C6.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "arcfour", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA256", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha2-256-etm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA-PSS-RSAE+SHA512", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_AES_256_CCM", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_AES_128_GCM_SHA256", "seen_in": "var/raw/01M46T9216SWWX6X6PC2T17WAY.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-AES128-GCM-SHA256", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-AES256-GCM-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_ARIA_128_GCM_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_AES_256_GCM_SHA384", "seen_in": "var/raw/01M46T9216SWWX6X6PC2T17WAY.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_AES_128_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_AES_128_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "openssl s_client", "field": "Public Key Algorithm", "spelling": "id-ecPublicKey", "seen_in": "spikes/s2/results/amd64/sclient-C1-api.txt"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_AES_256_GCM_SHA384", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_ECDHE_curves", "spelling": "brainpoolP384r1", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "private-key", "seen_in": "var/raw/01M40WYHB1DCYNJ5RKJAHTQHEK.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-ARIA128-GCM-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "RSA-2048", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "DH, 8192 bits", "seen_in": "spikes/s2/results/amd64/sclient-C6.txt"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "DH, 6144 bits", "seen_in": "spikes/s2/results/amd64/sclient-C6.txt"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-ARIA256-GCM-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "umac-64@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES128-CCM", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA-PSS-RSAE+SHA384", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_KEMs", "spelling": "No", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-CAMELLIA256-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-AES128-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "chacha20-poly1305@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "aes192-cbc", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha1-96-etm@openssh.com", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-AES128-CCM", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "openssl s_client", "field": "Cipher", "spelling": "(NONE)", "seen_in": "var/raw/01M4183TCVT38H3TF9QZWGAFN9.txt"}
+{"tool": "ssh-audit", "field": "kex", "spelling": "kex-strict-s-v00@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_AES_128_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_TLS13_sig_algs", "spelling": "RSA-PSS-RSAE+SHA384", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA-PSS-RSAE+SHA256", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "TLS_AES_256_GCM_SHA384", "seen_in": "var/raw/01M40WX0RDY3TWZCWT4BZ06WHF.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "arcfour128", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "seen_in": "var/raw/01M46T921AT106ZM903GXQ5K2Z.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-CAMELLIA128-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "ECDSA+SHA512", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "aes192-ctr", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_CAMELLIA_256_CBC_SHA384", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_ARIA_128_GCM_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cert_keySize", "spelling": "ML-DSA ML-DSA-65", "seen_in": "spikes/s2/results/amd64/testssl/C3.json"}
+{"tool": "openssl s_client", "field": "Peer signature type", "spelling": "rsa_pss_rsae_sha256", "seen_in": "var/raw/01M4181G2FZTF6VVK6SK11WZHE.txt"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "ECDH, brainpoolP384r1, 384 bits", "seen_in": "spikes/s2/results/amd64/sclient-C5.txt"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-ARIA256-GCM-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "aes256-ctr", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "ECDSA+SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-CAMELLIA256-SHA", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_CHACHA20_POLY1305_SHA256", "seen_in": "var/raw/01M46T9216SWWX6X6PC2T17WAY.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "SHA256-RSA", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json"}
+{"tool": "cbomkit-theia", "field": "oid", "spelling": "1.2.840.10045.2.1", "seen_in": "var/raw/01M40WYHAWRWZETWEM11B70ME1.json"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "ECDH, secp384r1, 384 bits", "seen_in": "var/raw/01M422DNEW9TP0RAA50JQQP2PB.txt"}
+{"tool": "testssl.sh", "field": "cert_signatureAlgorithm", "spelling": "ML-DSA-65", "seen_in": "spikes/s2/results/amd64/testssl/C3.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ARIA128-GCM-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-AES256-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-AES128-SHA", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-AES128-SHA", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_TLS13_sig_algs", "spelling": "RSA-PSS-RSAE+SHA256", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "aes256-gcm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "TLS_AES_128_CCM_SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-CAMELLIA256-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_AES_256_CCM", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "RSA-1024", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "TLS_AES_128_CCM_8_SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "openssl s_client", "field": "Signature Algorithm", "spelling": "ML-DSA-65", "seen_in": "spikes/s2/results/amd64/sclient-C3.txt"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-ripemd160@openssh.com", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "DH, 4096 bits", "seen_in": "spikes/s2/results/amd64/sclient-C6.txt"}
+{"tool": "testssl.sh", "field": "FS_KEMs", "spelling": "KEMs", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha2-512-etm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "cast128-cbc", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "portal.agency.test", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json"}
+{"tool": "testssl.sh", "field": "cert_signatureAlgorithm", "spelling": "SHA256 with RSA", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "FS_TLS13_sig_algs", "spelling": "ML-DSA-65", "seen_in": "spikes/s2/results/amd64/testssl/C3.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES128-GCM-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha2-256", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "ECDSA+SHA224", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "TLS_AES_128_GCM_SHA256", "seen_in": "var/raw/01M40WX0RDY3TWZCWT4BZ06WHF.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-AES256-CCM", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-CHACHA20-POLY1305", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "DH_groups", "spelling": "RFC3526/Oakley Group 14", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_TLS13_sig_algs", "spelling": "RSA-PSS-RSAE+SHA512", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_ARIA_128_GCM_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-CAMELLIA128-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha2-512", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES128-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "testssl.sh", "field": "DH_groups", "spelling": "ffdhe2048 ffdhe3072 ffdhe4096 ffdhe6144 ffdhe8192", "seen_in": "spikes/s2/results/amd64/testssl/C6.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384", "seen_in": "var/raw/01M46T921AT106ZM903GXQ5K2Z.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "aes256-cbc", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "aes128-ctr", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "cert_keySize", "spelling": "RSA 2048 bits (exponent is 65537)", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_AES_256_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "3des-cbc", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "ECDH, brainpoolP512r1, 512 bits", "seen_in": "spikes/s2/results/amd64/sclient-C5.txt"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-md5-etm@openssh.com", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_AES_128_GCM_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "cbomkit-theia", "field": "component name", "spelling": "ECDSA-SHA256", "seen_in": "var/raw/01M40WYHAWRWZETWEM11B70ME1.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha1", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-AES256-GCM-SHA384", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES256-CCM8", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-ARIA128-GCM-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_AES_128_CCM", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-CAMELLIA128-SHA", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "cert_keySize", "spelling": "EC 256 bits (curve P-256)", "seen_in": "var/raw/01M40WX0RDY3TWZCWT4BZ06WHF.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "umac-128-etm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "openssl s_client", "field": "Negotiated TLS1.3 group", "spelling": "<NULL>", "seen_in": "var/raw/01M4183TCVT38H3TF9QZWGAFN9.txt"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_ARIA_256_GCM_SHA384", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha1-96", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_RSA_WITH_AES_256_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-sha1-etm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "umac-128@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "cbomkit-theia", "field": "oid", "spelling": "1.2.840.113549.1.1.5", "seen_in": "var/raw/01M40WYHB0646MPZWC76K6PT1R.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-md5", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_ARIA_256_GCM_SHA384", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "cbomkit-theia", "field": "oid", "spelling": "1.2.840.113549.1.1.1", "seen_in": "var/raw/01M40WYHAZBMCNC3NQEPR274AQ.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES256-GCM-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C5.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "TLS_CHACHA20_POLY1305_SHA256", "seen_in": "var/raw/01M40WX0RDY3TWZCWT4BZ06WHF.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_CAMELLIA_128_CBC_SHA256", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-md5-96-etm@openssh.com", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "ECDH, prime256v1, 256 bits", "seen_in": "spikes/s2/results/amd64/sclient-C1-portal.txt"}
+{"tool": "openssl s_client", "field": "Signature Algorithm", "spelling": "sha256WithRSAEncryption", "seen_in": "spikes/s2/results/amd64/sclient-C1-portal.txt"}
+{"tool": "ssh-audit", "field": "mac", "spelling": "hmac-ripemd160", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "testssl.sh", "field": "FS_TLS12_sig_algs", "spelling": "RSA+SHA512", "seen_in": "var/raw/01M40WX0RMJKQS5W0W78M9MQ4P.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "arcfour256", "seen_in": "var/raw/01M40WX0RNJBNVGHKGRCPN89YV.json"}
+{"tool": "openssl s_client", "field": "Peer signature type", "spelling": "ecdsa_secp256r1_sha256", "seen_in": "var/raw/01M4185RCCK67ZYPPKW0A4BMGQ.txt"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "X448, 448 bits", "seen_in": "spikes/s2/results/amd64/sclient-C5.txt"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "DH, 2048 bits", "seen_in": "spikes/s2/results/amd64/sclient-C4.txt"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "DHE-RSA-AES256-SHA", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES128-SHA", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "openssl s_client", "field": "Temp Key", "spelling": "ECDH, brainpoolP256r1, 256 bits", "seen_in": "spikes/s2/results/amd64/sclient-C5.txt"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES256-SHA384", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256", "seen_in": "var/raw/01M46T921AT106ZM903GXQ5K2Z.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-AES256-SHA", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "testssl.sh", "field": "cipher suite", "spelling": "TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA", "seen_in": "tests/fixtures/testssl-postgres-rsa-kx.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-ECDSA-AES256-SHA", "seen_in": "spikes/s2/results/amd64/testssl/C7.json"}
+{"tool": "testssl.sh", "field": "FS_ciphers", "spelling": "ECDHE-RSA-AES128-SHA256", "seen_in": "spikes/s2/results/amd64/testssl/C4.json"}
+{"tool": "ssh-audit", "field": "enc", "spelling": "aes128-gcm@openssh.com", "seen_in": "var/raw/01M40WX0RJ5YA3GZVANG56HNZC.json"}
+{"tool": "openssl s_client", "field": "Cipher", "spelling": "TLS_AES_256_GCM_SHA384", "seen_in": "var/raw/01M4181G2FZTF6VVK6SK11WZHE.txt"}
+{"tool": "openssl s_client", "field": "Signature Algorithm", "spelling": "ecdsa-with-SHA256", "seen_in": "spikes/s2/results/amd64/sclient-C1-api.txt"}

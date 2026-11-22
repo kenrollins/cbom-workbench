@@ -1,0 +1,14 @@
+# The closed list of standard names an R2 reply may use, beside `unknown`. Families as
+# pqch.finding/1 names them; a size is part of the name only where the standard's own name carries it.
+names: [
+  X25519, X448, secp256r1, secp384r1, secp521r1, brainpoolP256r1, brainpoolP384r1, brainpoolP512r1,
+  ffdhe2048, ffdhe3072, ffdhe4096, ffdhe6144, ffdhe8192,
+  DH-1024, DH-2048, DH-3072, DH-4096, DH-6144, DH-8192, DH-GEX,
+  X25519MLKEM768, SecP256r1MLKEM768, SecP384r1MLKEM1024, ML-KEM-512, ML-KEM-768, ML-KEM-1024, sntrup761x25519,
+  RSA, DSA, ECDSA, Ed25519, Ed448, ML-DSA-44, ML-DSA-65, ML-DSA-87, SLH-DSA,
+  AES-128, AES-192, AES-256, 3DES, Blowfish, CAST5, RC4, ChaCha20-Poly1305,
+  HMAC-MD5, HMAC-SHA-1, HMAC-SHA-256, HMAC-SHA-512, HMAC-RIPEMD-160, UMAC-64, UMAC-128,
+  SHA-1, SHA-224, SHA-256, SHA-384, SHA-512, MD5,
+]
+asset_types: [algorithm, certificate, protocol, related-crypto-material]
+roles: [key-establishment, signature, encryption, hash, mac, other]

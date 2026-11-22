@@ -1,0 +1,12 @@
+{# The plan handed to the next phase: every step in one of the buckets a later phase is scoped by, and the
+   register (one row per step with the owner's facts) to download. Rules and data only; the owner's numbers
+   are the owner's. #}
+<section id="handoff">
+  <h2><span class="step">{{ handoff_step }}</span> Handed to the next phase</h2>
+  <p class="lede">A discovery phase ends by handing its plan to the phases that deploy: the same steps, grouped into the buckets those phases are scoped by (pack <code>{{ plan.buckets_pack }}</code>, <code>policy/buckets.yaml</code>), with the owner's facts beside each step and every CBOM entry a step moves named by fingerprint. The grouping is data, the order is the plan's, and nothing is estimated here: the cost column is the owner's own numbers, summed once per service, with the basis each rests on.</p>
+  <div class="receipts">
+    {% for b in plan.buckets %}<div class="receipt"><div class="k">{{ b.label }}</div><div class="n">{{ b.steps }}<small>step{{ 's' if b.steps != 1 }}</small></div>
+      <div class="s">{{ b.means }}{% if b.services %} · {{ b.services|join(', ') }}{% endif %}{% if b.earliest_due %} · earliest due {{ b.earliest_due }}{% endif %}{% if b.waiting %} · {{ b.waiting }} wait for another step{% endif %}{% if b.done %} · {{ b.done }} done{% endif %}</div></div>{% endfor %}
+  </div>
+  <p class="note"><a href="/runs/{{ plan.run }}/register.csv"><strong>Download the register</strong></a> (CSV, one row per step: bucket, wave, due date and what set it, state, what it waits for, the service's system, interface, mission thread, owner, classification, impact, data lifetime, priority and its criteria, whether it is blocked on its supplier, the vendor's path and the cost the owner typed in, the entries by fingerprint) · <a href="/runs/{{ plan.run }}/register.json">as JSON</a>. Computed now from the run and the change runs since; <code>pqch plan export</code> writes the same beside the run with the record.</p>
+</section>

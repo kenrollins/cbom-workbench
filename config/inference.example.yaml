@@ -1,0 +1,71 @@
+# pqch.inference/1 — the tier map and the role bindings (spec/interfaces.md, section 4). Copy
+# to the path named by PQCH_INFERENCE_CONFIG and fill in. The key itself never goes in this
+# file: api_key_env names the environment variable that holds it.
+#
+# A deployment keeps its own copy outside the repository; this one shows the shape.
+# `hardware` and `engine` are copied onto every timing the tier produces; a tier that names no
+# engine loads with a warning and its timings say "engine not named". A tier's `reasoning` block
+# says how the same engine is reached with reasoning on: another model id or gateway lane, a
+# longer timeout, and any extra request fields the endpoint needs (vLLM: chat_template_kwargs);
+# with reasoning on, the block's `request` is sent instead of the tier's own. A lane that always
+# reasons says so with an empty block (`reasoning: {}`). A role bound with `reasoning: true` to a
+# tier with no block is called plainly and recorded as plain, with a warning when the file loads.
+# `roles` binds each role the pipeline names to a tier and a reasoning flag. A role this file
+# does not name is not called. The bindings below follow spike S3 (role numbers R1 to R6, not
+# rounds; the scores and their engines are in eval/role-cards.yaml); change them only on a new
+# measurement, on the engine this file names.
+schema: pqch.inference/1
+profile: example
+# Optional (M8, FR-03 and FR-07); without them the seam behaves as it always has.
+# tls:
+#   require: true                   # refuse http:// unless loopback or in a subnet listed below
+#   allow_plain_subnets: [172.16.108.0/24]   # where plain http:// is still allowed: the kit's engine bridge, by name, never inferred
+#   ca_file: /etc/pqch/inference-ca.pem   # what https:// base URLs are verified against (a tier may set its own ca_file)
+# origins:
+#   allowed: [US]                   # refuse any tier whose model's provenance.origin is not listed, or is not given
+# and on each tier:
+#   provenance: {origin: US, licence: <the model licence>, weights_sha256: <digest of the weights served>, source: <where from>}
+tiers:
+  fast:
+    base_url: http://127.0.0.1:8000/v1
+    api_key_env: PQCH_FAST_KEY
+    model: fast-model-id
+    hardware: label-the-machine
+    engine: vllm                  # the engine serving the tier (vllm, nim, ollama), recorded on every model actor and timing
+    max_context: 32768
+    timeout_s: 60
+    residency: resident
+    reasoning:
+      model: fast-model-id          # the same engine; a different lane on a gateway, if that is how it is switched
+      timeout_s: 600
+      request: {chat_template_kwargs: {enable_thinking: true}}
+  deliberate:
+    base_url: http://127.0.0.1:8001/v1
+    api_key_env: PQCH_DELIBERATE_KEY
+    model: deliberate-model-id
+    hardware: label-the-machine
+    engine: vllm
+    max_context: 131072
+    timeout_s: 600
+    residency: resident
+  embed:
+    base_url: http://127.0.0.1:8002/v1
+    api_key_env: PQCH_EMBED_KEY
+    model: embed-model-id
+    hardware: label-the-machine
+    engine: ollama
+    residency: resident
+roles:
+  call-site-read:      {tier: fast, reasoning: true}        # role R1: a 31B-class model with reasoning on reached the floor
+  classify-algorithm:  {tier: fast, reasoning: true}        # role R3: engine-dependent — one 31B model reached the floor without reasoning, another needed it
+  trace-to-cause:      {tier: deliberate, reasoning: false} # role R5: the one role that needed the larger model
+  change-plan:         {tier: fast, reasoning: false}       # role R6: the 31B-class model reached the floor (since round 2); every plan is rehearsed and verified
+  normalize-name:      {tier: fast, reasoning: true}        # role R2: bound for the measurement only; no pipeline step calls it, the name table decides
+  # The question boxes and the stage's narration. None has cleared a floor: Ask the CBOM is measured below
+  # its floor and shown with every citation's verdict; the other two are unmeasured (eval/role-cards.yaml).
+  # Leave a line out and that box or narration is off.
+  ask-cbom:            {tier: deliberate, reasoning: false}
+  ask-notes:           {tier: deliberate, reasoning: false}
+  narrate-plan-row:    {tier: fast, reasoning: false}
+  # resolve-conflict (role R4) is not bound here: a rule resolves every conflict, and a model only explains
+  # beside it where a deployment has measured one at the floor. explain-queue is not bound: 3 of 14.

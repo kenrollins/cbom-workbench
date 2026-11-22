@@ -1,0 +1,137 @@
+# cbom-workbench
+
+[![CI](https://github.com/kenrollins/cbom-workbench/actions/workflows/ci.yml/badge.svg)](https://github.com/kenrollins/cbom-workbench/actions/workflows/ci.yml)
+
+> A cryptography bill of materials, built from evidence, kept on a signed
+> ledger, and put to work — with the role of AI in that work measured, not
+> assumed.
+>
+> The import package and command are `pqch`.
+>
+> By **Ken Rollins**.
+
+> [!IMPORTANT]
+> **This is a personal exploration project, not an official Dell product,
+> reference architecture, or supported offering.** Views and technical findings
+> are the author's own.
+
+---
+
+## What this is
+
+Federal agencies are required to inventory their cryptography and move it to
+post-quantum algorithms on a published schedule. The inventory has a name — a
+cryptography bill of materials, or CBOM — and a standard format. What it does
+not yet have is a widely shared picture of what it is *for* once it exists.
+
+cbom-workbench is that picture, running: a workbench that builds a CBOM
+from three kinds of evidence — what endpoints negotiate on the wire, what sits on hosts and in
+images, and what the source code and configuration say — and then uses it:
+
+| Rung | The question the CBOM answers |
+|---|---|
+| Opaque | — |
+| Enumerated | Where is quantum-vulnerable cryptography? |
+| Structured | What depends on it, and how long must the data stay secret? |
+| Managed | What first, what is blocked, and what changed since yesterday? |
+| Agile | If policy changes, how fast can we respond — and did it land? |
+
+Three ideas hold it together:
+
+- **Agents propose, verifiers dispose.** A language model is used only where
+  interpretation is needed. Whether a change worked is decided by re-scanning,
+  with a pair of probes: a client offering only the new algorithm must
+  succeed, and a client offering only the old one must be refused. Enabled is
+  not enforced.
+- **The ledger remembers.** Every finding, decision, approval and verification
+  is an event in an append-only, hash-chained, signed log. The CBOM is built
+  from it.
+- **The models earn their place by measurement.** Six roles, a floor per role
+  written before the run, every call repeated: one role (the trace to a
+  configuration line) needs the larger model, three run on the smaller one,
+  and two go back to rules; `BRIEF.md` holds each measured row.
+  Each step up in models or hardware is a measured row, or marked not
+  measured. And it all runs on infrastructure the organization holds: an
+  inventory of where its cryptography is weakest is not something to send
+  elsewhere.
+
+It builds on [CBOMkit](https://github.com/cbomkit), the open-source scanner
+set, as its first stage. It is measured against an answer key that includes
+decoys and known misses, and against two baselines: CBOMkit alone, and all of
+the open-source scanners run alone with no harness. The second is the bar.
+
+## See it
+
+**[The demo](https://kenrollins.github.io/cbom-workbench/)** — eight beats recorded from one run of the
+workbench against the *mini-agency*, an eight-service test estate built with every cryptographic
+weakness planted and an answer key: a scan, the CBOM it folds into, the plan the CBOM makes possible,
+a change proved on the wire. Beside it, [inside the CBOM](https://kenrollins.github.io/cbom-workbench/cbom/)
+opens that run's document entry by entry, [the record](https://kenrollins.github.io/cbom-workbench/site/record/)
+is the run's ledger, CBOM and score with their hashes, and
+[page by page](https://kenrollins.github.io/cbom-workbench/site/pages/) shows the running workbench's
+other screens as captured. Nothing on the public copy pretends to run; the live workbench scans,
+proposes and verifies on demand in the lab.
+
+## Status
+
+The workbench runs end to end on the mini-agency: discovery on the wire, in images and in code; the
+CBOM on a signed ledger; dependency chains; policy queues from OMB M-26-15; a migration plan computed
+from the CBOM; changes proposed, rehearsed on a copy, approved and proved on the wire. The model roles
+are measured against floors written before the runs. What comes next is in [`ROADMAP.md`](ROADMAP.md).
+The dates this runs against: the minimum elements of a federal CBOM are due from CISA and NIST by
+2027-03-19; key establishment on prioritized systems by the end of 2030, signatures by the end of 2031
+(`BRIEF.md`, "The clock").
+
+## Run it
+
+Python 3.12 and [uv](https://docs.astral.sh/uv/). The tests need no Docker, no GPU and no model:
+
+```sh
+git clone https://github.com/kenrollins/cbom-workbench && cd cbom-workbench
+uv sync --group dev
+uv run python -m pytest            # about 650 tests, under two minutes
+```
+
+The whole workbench — the mini-agency, the scanners, the signer, the runner and the pages — needs Linux
+with Docker and Docker Compose:
+
+```sh
+uv run pqch scanners pull                                  # every scanner image, by pinned digest
+docker build -t pqch-agency/pki:m1 agency/pki              # the test estate's internal CA
+uv run pqch policy render                                  # the services' TLS settings, from the policy
+docker compose -f agency/compose.yaml up -d --build        # the mini-agency
+uv run pqch scope generate agency/compose.yaml --out var/scope/scope.json
+PQCH_AGENCY_DIR=$PWD/agency docker compose -f compose.yaml -f compose.local.yaml up -d --build
+```
+
+`compose.local.yaml` is a small overlay of your own that publishes the page on
+`127.0.0.1:8080` (the base file gives the web app no network); it, and pointing the workbench at a
+network of your own, are in [the guide](https://kenrollins.github.io/cbom-workbench/site/your-own-network/).
+Then open the page, run a scan from the walkthrough, and the overview, the CBOM and the plan fill in.
+This sequence has not yet been rehearsed on a clean machine; an issue is welcome if a step fails.
+
+The notes and lessons in `docs/journal/` build into the site under `/site/`:
+
+```sh
+uv run --with mkdocs-material python tools/build_site.py   # copies the journal into site_src/
+uv run --with mkdocs-material mkdocs build --strict         # writes site/
+```
+
+## Read next
+
+- [`BRIEF.md`](BRIEF.md) — the design, the claim, and what was ruled out
+- [`ROADMAP.md`](ROADMAP.md) — what is built and what is next
+- [`docs/adr/`](docs/adr/) — the decisions the rest depends on
+- [`docs/journal/`](docs/journal/) — technical notes and lessons
+- [`spec/`](spec/) — the interfaces, precise enough to rebuild the core from
+- [`eval/`](eval/) — the answer keys and how a CBOM is scored against them
+- [Pointing it at your own network](https://kenrollins.github.io/cbom-workbench/site/your-own-network/) — what is involved, step by step, and what does not carry over
+
+## Feedback
+
+Questions, corrections and ideas are welcome as [issues](https://github.com/kenrollins/cbom-workbench/issues);
+[`CONTRIBUTING.md`](CONTRIBUTING.md) says how the project works and what a change needs.
+
+## License
+
+[Apache License 2.0](LICENSE).
